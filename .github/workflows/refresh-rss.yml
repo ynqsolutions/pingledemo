@@ -1,0 +1,44 @@
+name: Refresh RSS archive
+
+# Runs generate_rss_page.py once a day, which fetches ABA Journal, Stanford
+# Law School, and Above the Law's feeds, merges any newly-matching articles
+# into content/rss-archive.json, and rewrites rss.html from the result.
+# Netlify's own build (see netlify.toml) does this too on every deploy, but
+# a Netlify build can't commit its findings back to the repo — so without
+# this workflow, the archive would never actually accumulate day over day,
+# it would just reflect whatever's in each feed's current rolling window.
+# Committing here is also what makes the site redeploy at all on a day
+# nothing else changed, since Netlify auto-deploys on every push.
+#
+# Runs automatically once this workflow file exists on the default branch
+# — no dashboard setup needed. Change the cron schedule below to adjust
+# timing (this default is 1pm UTC daily); you can also trigger a run
+# manually from the Actions tab (workflow_dispatch).
+on:
+  schedule:
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Regenerate rss.html from live feeds
+        run: python3 generate_rss_page.py
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add rss.html content/rss-archive.json
+          git diff --cached --quiet && echo "No new articles today, nothing to commit." || git commit -m "Daily RSS archive refresh"
+          git push

@@ -1,64 +1,54 @@
 #!/usr/bin/env python3
 """
-Builds rss.html: a curated feed of recent employment-law news pulled from
-outside legal publications, filtered to employment-law keywords. Runs at
-Netlify build time (see netlify.toml), same pattern as generate_sitemap.py
-and generate_blog_posts.py — no npm dependencies, stdlib only, so it can't
-break the build if a feed is slow or unreachable.
+Builds rss.html: a curated, growing archive of employment-law and personal-
+injury news pulled from outside legal publications, filtered by keyword.
+Runs at Netlify build time (see netlify.toml) and once a day via a GitHub
+Actions workflow (.github/workflows/refresh-rss.yml) that commits the
+result — Netlify builds can't write back to git themselves, so the daily
+"add new items, keep old ones" accumulation has to happen there, not here.
+Stdlib only, same pattern as generate_sitemap.py / generate_blog_posts.py —
+no npm/pip dependency that could break a build if unavailable.
 
-Sources: only feeds that are actually publicly fetchable without a login
-are wired in. Two were checked live and work (ABA Journal, JURIST). Two
-requested sources aren't usable as-is:
-  - Law.com's /feed/ redirects into an ALM subscriber login wall.
-  - JD Supra doesn't expose a working public RSS endpoint at any of the
-    documented or guessed URLs (checked live; some 404, one silently
-    serves the normal HTML page instead of XML).
-Add a working URL to FEEDS below the moment you have one — everything
-else (fetching, filtering, rendering) already supports any number of feeds.
-
-Because these are general legal-news feeds (not employment-only), most
-items on any given day won't be employment-related — that's expected.
-The page always keeps a solid block of Pingle Law's own written content
-above the feed so it's never thin/empty, even on a day with zero matches.
+Sources: only feeds that are actually publicly fetchable without a login,
+per the site owner's request to use exactly these three:
+  - ABA Journal (https://www.abajournal.com/news/rss)
+  - Stanford Law School (https://law.stanford.edu/feed/)
+  - Above the Law (https://abovethelaw.com/feed/)
+All three are general legal-news/commentary feeds, not employment- or
+injury-specific, so most items on any given day won't match the keyword
+list below — that's expected. content/rss-archive.json is what makes this
+work as a "year to date, growing daily" page instead of a live snapshot:
+every run merges newly-matching items into it (deduped by link) rather
+than starting over from whatever's currently in each feed's rolling
+window, and old items are trimmed once they roll past the current
+calendar year.
 """
+import json
+import os
 import re
 import sys
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import timezone
+from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from html import escape, unescape
 
-SITE_DIR = "/Users/yoon/Library/CloudStorage/Dropbox/Personal/Projects/Claude/Pingle Law Website"
+SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_FILE = "rss.html"
-CSS_VERSION = "212"
+ARCHIVE_FILE = "content/rss-archive.json"
+CSS_VERSION = "213"
 JS_VERSION = "68"
-MAX_ITEMS = 24
 FETCH_TIMEOUT = 12
 USER_AGENT = "PingleLawSite/1.0 (+https://www.pinglelaw.com)"
 
 FEEDS = [
-    # General legal-news feeds: broad coverage, so most items on any given
-    # day won't be employment-related — that's expected, the keyword filter
-    # below does the real work here.
-    {"name": "ABA Journal", "url": "https://www.abajournal.com/news/rss", "enabled": True},
-    {"name": "JURIST", "url": "https://www.jurist.org/feed/", "enabled": True},
-    # Government enforcement feeds: every item here is inherently
-    # employment-law news, so these are what actually keeps the page from
-    # running dry on a day when the general feeds have nothing on-topic.
-    {"name": "U.S. Dept. of Labor", "url": "https://www.dol.gov/rss/releases.xml", "enabled": True},
-    {"name": "EEOC", "url": "https://www.eeoc.gov/rss/newsroom", "enabled": True},
-    # Law.com's /feed/ requires an ALM subscriber login — not publicly
-    # fetchable. Swap in a real URL here if you have one that works
-    # without authentication.
-    {"name": "Law.com", "url": "https://www.law.com/feed/", "enabled": False},
-    # No working public RSS endpoint found for JD Supra as of this writing
-    # (checked several documented/guessed URLs live; all failed). Swap in
-    # a real URL here the moment you have one.
-    {"name": "JD Supra", "url": "https://www.jdsupra.com/law-news/labor-employment/rss/", "enabled": False},
+    {"name": "ABA Journal", "url": "https://www.abajournal.com/news/rss"},
+    {"name": "Stanford Law School", "url": "https://law.stanford.edu/feed/"},
+    {"name": "Above the Law", "url": "https://abovethelaw.com/feed/"},
 ]
 
 KEYWORDS = [
+    # Employment law
     "employment", "employer", "employee", "workplace", "labor law",
     "wage", "overtime", "minimum wage", "unpaid wages",
     "discrimination", "harassment", "wrongful termination", "retaliation",
@@ -67,6 +57,12 @@ KEYWORDS = [
     "severance", "non-compete", "noncompete", "misclassification",
     "independent contractor", "gig worker", "paga",
     "sexual harassment", "pay equity", "equal pay", "layoff", "layoffs",
+    # Personal injury
+    "personal injury", "car accident", "auto accident", "truck accident",
+    "motorcycle accident", "pedestrian accident", "slip and fall",
+    "premises liability", "medical malpractice", "wrongful death",
+    "product liability", "negligence", "catastrophic injury",
+    "traumatic brain injury", "dog bite",
 ]
 
 PAGE_TEMPLATE = """<!DOCTYPE html>
@@ -74,8 +70,8 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Employment Law News | California | Pingle Law</title>
-<meta name="description" content="A regularly updated feed of employment law news and analysis from outside legal publications, curated for California workers by the Law Offices of Corey A. Pingle.">
+<title>Employment &amp; Injury Law News | California | Pingle Law</title>
+<meta name="description" content="A regularly updated feed of employment law and personal injury news from outside legal publications, curated for California workers by the Law Offices of Corey A. Pingle.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
@@ -150,19 +146,8 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <section class="about-hero about-hero-compact about-hero-gradient">
   <div class="wrap about-hero-inner">
     <span class="eyebrow" style="color:var(--gold-500);">RSS</span>
-    <h1>Employment Law News From Around the Web</h1>
-    <p>A running feed of employment-law coverage from outside legal publications, gathered here and updated automatically so California workers can keep up with the law that affects their job.</p>
-  </div>
-</section>
-
-<!-- ============ INTRO ============ -->
-<section class="practice-overview">
-  <div class="wrap section-divider">
-    <div class="faq-category-head" style="padding-top:32px; max-width:760px;">
-      <span class="eyebrow">Why We Built This</span>
-      <h2>Employment law changes constantly</h2>
-      <p>New court decisions, agency guidance, and legislation reshape what California employers can and can't do almost every week. This page pulls recent employment-law coverage from national legal publications and surfaces it in one place, so you don't have to track a dozen outlets yourself. If something below sounds like what happened to you, <a href="case-review.html">a free case review</a> can help you understand where you stand.</p>
-    </div>
+    <h1>Employment &amp; Injury Law News From Around the Web</h1>
+    <p>A running, day-by-day archive of employment-law and personal-injury coverage from outside legal publications, gathered here so California workers can keep up with the law that affects them.</p>
   </div>
 </section>
 
@@ -259,11 +244,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 </html>
 """
 
-EMPTY_STATE = """    <div class="section-head" style="text-align:center; max-width:640px; margin:0 auto;">
-      <span class="eyebrow">Latest Coverage</span>
-      <h2>Nothing employment-specific in the last update</h2>
-      <p>This page refreshes automatically and pulls from general legal-news feeds, so some updates won't turn up an employment-law story. Check back soon, or browse our own <a href="resources.html">articles and guides</a> in the meantime.</p>
-    </div>"""
+EMPTY_STATE = """    <p style="text-align:center; max-width:560px; margin:0 auto; color:var(--ink-soft);">Nothing new matched today. This archive grows daily — check back soon, or browse our own <a href="resources.html">articles and guides</a> in the meantime.</p>"""
 
 
 def strip_html(text):
@@ -271,8 +252,8 @@ def strip_html(text):
     return unescape(text).strip()
 
 
-def fetch_feed(feed):
-    req = urllib.request.Request(feed["url"], headers={"User-Agent": USER_AGENT})
+def fetch_feed(url):
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     with urllib.request.urlopen(req, timeout=FETCH_TIMEOUT) as resp:
         return resp.read()
 
@@ -324,7 +305,7 @@ def parse_items(xml_bytes, source_name):
             "title": unescape(title),
             "link": link,
             "source": source_name,
-            "date": parsed_date,
+            "date": parsed_date.isoformat() if parsed_date else None,
             "summary": (summary or "")[:220],
         })
     return items
@@ -335,38 +316,89 @@ def matches_keywords(item):
     return any(kw in haystack for kw in KEYWORDS)
 
 
-def collect_items():
+def fetch_new_matches():
     all_items = []
     for feed in FEEDS:
-        if not feed["enabled"]:
-            continue
         try:
-            raw = fetch_feed(feed)
+            raw = fetch_feed(feed["url"])
             items = parse_items(raw, feed["name"])
             all_items.extend(items)
             print(f"generate_rss_page.py: {feed['name']} -> {len(items)} item(s) fetched")
         except Exception as e:
             print(f"generate_rss_page.py: WARNING could not fetch {feed['name']} ({feed['url']}): {e}")
+    return [i for i in all_items if matches_keywords(i)]
 
-    matched = [i for i in all_items if matches_keywords(i)]
-    matched.sort(key=lambda i: i["date"] or 0, reverse=True)
-    return matched[:MAX_ITEMS]
+
+def load_archive():
+    if not os.path.exists(ARCHIVE_FILE):
+        return []
+    try:
+        with open(ARCHIVE_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def save_archive(items):
+    os.makedirs(os.path.dirname(ARCHIVE_FILE), exist_ok=True)
+    with open(ARCHIVE_FILE, "w", encoding="utf-8") as f:
+        json.dump(items, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+
+
+def update_archive():
+    """Merges newly-fetched matches into the persisted archive (deduped by
+    link), and drops anything from before the current calendar year so this
+    stays a "year to date" list rather than growing forever. The archive
+    file only actually gains new items long-term when something commits it
+    back to git — see .github/workflows/refresh-rss.yml — since a Netlify
+    build's filesystem changes don't persist to the next build."""
+    archive = load_archive()
+    existing_links = {i["link"] for i in archive}
+
+    new_items = fetch_new_matches()
+    added = 0
+    for item in new_items:
+        if item["link"] not in existing_links:
+            archive.append(item)
+            existing_links.add(item["link"])
+            added += 1
+
+    year_start = datetime(datetime.now(timezone.utc).year, 1, 1, tzinfo=timezone.utc)
+    def in_range(i):
+        if not i["date"]:
+            return True
+        try:
+            return datetime.fromisoformat(i["date"]) >= year_start
+        except ValueError:
+            return True
+    archive = [i for i in archive if in_range(i)]
+
+    archive.sort(key=lambda i: i["date"] or "", reverse=True)
+    save_archive(archive)
+    print(f"generate_rss_page.py: archive now has {len(archive)} item(s) ({added} new this run)")
+    return archive
 
 
 def render_feed(items):
     if not items:
-        return EMPTY_STATE
+        return EMPTY_STATE, ""
 
-    cards = []
+    rows = []
     for item in items:
-        date_str = item["date"].strftime("%B %-d, %Y") if item["date"] else ""
-        summary = escape(item["summary"])
+        date_str = ""
+        if item["date"]:
+            try:
+                date_str = datetime.fromisoformat(item["date"]).strftime("%b %-d, %Y")
+            except ValueError:
+                date_str = ""
         title = escape(item["title"])
-        cards.append(f"""      <a href="{escape(item['link'])}" class="rss-item-card" target="_blank" rel="nofollow noopener">
-        <span class="rss-item-source">{escape(item['source'])}{' &middot; ' + date_str if date_str else ''}</span>
+        source = escape(item["source"])
+        rows.append(f"""      <a href="{escape(item['link'])}" class="rss-item-card" target="_blank" rel="nofollow noopener">
+        <span class="rss-item-source">{source}{' &middot; ' + date_str if date_str else ''}</span>
         <h3>{title}</h3>
-        <p>{summary}</p>
-        <span class="rss-item-link">Read on {escape(item['source'])} <span aria-hidden="true">&rarr;</span></span>
+        <p>{escape(item['summary'])}</p>
+        <span class="rss-item-link">Read &rarr;</span>
       </a>""")
 
     jsonld_items = ",\n".join(
@@ -375,32 +407,24 @@ def render_feed(items):
         for i, item in enumerate(items)
     )
 
-    grid = f"""    <div class="section-head" style="text-align:center; max-width:640px; margin:0 auto 40px;">
-      <span class="eyebrow">Latest Coverage</span>
-      <h2>Recent employment law stories</h2>
-      <p>Pulled automatically from outside legal publications and filtered for employment-law topics. External links open in a new tab.</p>
-    </div>
-    <div class="rss-grid">
-{chr(10).join(cards)}
+    grid = f"""    <div class="rss-grid">
+{chr(10).join(rows)}
     </div>"""
     return grid, jsonld_items
 
 
 def main():
-    import os
     os.chdir(SITE_DIR)
 
-    items = collect_items()
-    feed_result = render_feed(items)
-    if isinstance(feed_result, tuple):
-        feed_html, jsonld_items = feed_result
+    items = update_archive()
+    feed_html, jsonld_items = render_feed(items)
+    jsonld = ""
+    if jsonld_items:
         jsonld = (
             '<script type="application/ld+json">\n'
             '{\n  "@context": "https://schema.org",\n  "@type": "ItemList",\n  "itemListElement": [\n'
             f"{jsonld_items}\n  ]\n}}\n</script>\n"
         )
-    else:
-        feed_html, jsonld = feed_result, ""
 
     page = PAGE_TEMPLATE.format(
         css_v=CSS_VERSION,

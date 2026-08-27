@@ -7,18 +7,18 @@
   #    content/settlements.json — static HTML, not client-side fetch, so it
   #    still works when a page is opened directly (fetch() can't read local
   #    files from a file:// page). See generate_cms_sections.py.
-  # 3. Rebuilds rss.html from outside legal-news RSS feeds, filtered to
-  #    employment-law keywords. See generate_rss_page.py for the feed list
-  #    and a scheduled function that reruns this build periodically so the
-  #    page actually stays fresh, not just on the next unrelated deploy.
+  # 3. Rebuilds rss.html from content/rss-archive.json, merging in anything
+  #    new from that run's feed fetch. The archive's actual daily growth is
+  #    driven by .github/workflows/refresh-rss.yml (a scheduled GitHub
+  #    Action that runs this same script and commits the result — a
+  #    Netlify build can't write back to git, so this build-time run alone
+  #    can't make the archive persist between deploys). See
+  #    generate_rss_page.py for the feed list and keyword filter.
   # 4. Regenerates sitemap.xml from whatever .html pages currently exist in
   #    the repo (including the just-generated posts/rss page), so it always
   #    reflects reality without hand-editing. See generate_sitemap.py for
   #    the rules (noindex pages excluded, etc).
   command = "python3 generate_blog_posts.py && python3 generate_cms_sections.py && python3 generate_rss_page.py && python3 generate_sitemap.py"
-
-[functions]
-  directory = "netlify/functions"
 
 # ---------------------------------------------------------------------------
 # Security headers (applied to every route). Netlify serves this site from
