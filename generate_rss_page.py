@@ -38,8 +38,16 @@ FETCH_TIMEOUT = 12
 USER_AGENT = "PingleLawSite/1.0 (+https://www.pinglelaw.com)"
 
 FEEDS = [
+    # General legal-news feeds: broad coverage, so most items on any given
+    # day won't be employment-related — that's expected, the keyword filter
+    # below does the real work here.
     {"name": "ABA Journal", "url": "https://www.abajournal.com/news/rss", "enabled": True},
     {"name": "JURIST", "url": "https://www.jurist.org/feed/", "enabled": True},
+    # Government enforcement feeds: every item here is inherently
+    # employment-law news, so these are what actually keeps the page from
+    # running dry on a day when the general feeds have nothing on-topic.
+    {"name": "U.S. Dept. of Labor", "url": "https://www.dol.gov/rss/releases.xml", "enabled": True},
+    {"name": "EEOC", "url": "https://www.eeoc.gov/rss/newsroom", "enabled": True},
     # Law.com's /feed/ requires an ALM subscriber login — not publicly
     # fetchable. Swap in a real URL here if you have one that works
     # without authentication.
@@ -289,13 +297,16 @@ def parse_items(xml_bytes, source_name):
         for child in item:
             ctag = child.tag.split("}")[-1]
             if ctag == "title" and title is None:
-                title = (child.text or "").strip()
+                # Some feeds (e.g. EEOC's) wrap the title text in a nested
+                # <a> tag, so child.text alone (direct text only) comes back
+                # empty — itertext() walks nested elements too.
+                title = "".join(child.itertext()).strip()
             elif ctag == "link" and link is None:
-                link = child.get("href") or (child.text or "").strip()
+                link = child.get("href") or "".join(child.itertext()).strip()
             elif ctag in ("pubDate", "published", "updated") and pub_date is None:
                 pub_date = (child.text or "").strip()
             elif ctag in ("description", "summary", "content") and summary is None:
-                summary = strip_html(child.text or "")
+                summary = strip_html("".join(child.itertext()))
 
         if not title or not link:
             continue
