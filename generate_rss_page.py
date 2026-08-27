@@ -35,11 +35,17 @@ from html import escape, unescape
 
 SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_FILE = "rss.html"
+PAGE_FILE_PATTERN = "rss-page-{n}.html"
 ARCHIVE_FILE = "content/rss-archive.json"
-CSS_VERSION = "213"
+CSS_VERSION = "214"
 JS_VERSION = "68"
 FETCH_TIMEOUT = 12
 USER_AGENT = "PingleLawSite/1.0 (+https://www.pinglelaw.com)"
+# Keeps each page fast and gives search engines more distinct, indexable
+# URLs as the archive grows, instead of one ever-larger page. Below this
+# count everything still fits on rss.html alone (no rss-page-2.html etc.
+# gets written).
+PAGE_SIZE = 30
 
 FEEDS = [
     {"name": "ABA Journal", "url": "https://www.abajournal.com/news/rss"},
@@ -70,8 +76,8 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Employment &amp; Injury Law News | California | Pingle Law</title>
-<meta name="description" content="A regularly updated feed of employment law and personal injury news from outside legal publications, curated for California workers by the Law Offices of Corey A. Pingle.">
+<title>Employment &amp; Injury Law News{title_suffix} | California | Pingle Law</title>
+<meta name="description" content="A regularly updated feed of employment law and personal injury news from outside legal publications, curated for California workers by the Law Offices of Corey A. Pingle.{desc_suffix}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
@@ -146,7 +152,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <section class="about-hero about-hero-compact about-hero-gradient">
   <div class="wrap about-hero-inner">
     <span class="eyebrow" style="color:var(--gold-500);">RSS</span>
-    <h1>Employment &amp; Injury Law News From Around the Web</h1>
+    <h1>Employment &amp; Injury Law News From Around the Web{title_suffix}</h1>
     <p>A running, day-by-day archive of employment-law and personal-injury coverage from outside legal publications, gathered here so California workers can keep up with the law that affects them.</p>
   </div>
 </section>
@@ -155,6 +161,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <section class="resources-section section-divider">
   <div class="wrap">
 {feed_html}
+{pagination_nav}
   </div>
 </section>
 
@@ -380,6 +387,23 @@ def update_archive():
     return archive
 
 
+def tldr(item):
+    """A short, plain-language gist of the article, built from the feed's
+    own summary/description (there's no full article text available from
+    an RSS feed to work from). Trimmed to roughly one sentence so it reads
+    as a quick take rather than a reprint of the source's own blurb."""
+    text = item["summary"]
+    if not text:
+        return ""
+    # Prefer cutting at the first sentence boundary if there is one within
+    # a reasonable length; otherwise just hard-truncate.
+    match = re.search(r"^.{40,160}?[.!?](?:\s|$)", text)
+    snippet = match.group(0).strip() if match else text[:160].rstrip()
+    if not match and len(text) > 160:
+        snippet = snippet.rsplit(" ", 1)[0] + "…"
+    return snippet
+
+
 def render_feed(items):
     if not items:
         return EMPTY_STATE, ""
@@ -394,10 +418,13 @@ def render_feed(items):
                 date_str = ""
         title = escape(item["title"])
         source = escape(item["source"])
+        gist = escape(tldr(item))
         rows.append(f"""      <a href="{escape(item['link'])}" class="rss-item-card" target="_blank" rel="nofollow noopener">
-        <span class="rss-item-source">{source}{' &middot; ' + date_str if date_str else ''}</span>
-        <h3>{title}</h3>
-        <p>{escape(item['summary'])}</p>
+        <div class="rss-item-main">
+          <span class="rss-item-source">{source}{' &middot; ' + date_str if date_str else ''}</span>
+          <h3>{title}</h3>
+          {'<p class="rss-item-tldr">' + gist + '</p>' if gist else ''}
+        </div>
         <span class="rss-item-link">Read &rarr;</span>
       </a>""")
 
@@ -413,28 +440,80 @@ def render_feed(items):
     return grid, jsonld_items
 
 
+def paginate(items):
+    if len(items) <= PAGE_SIZE:
+        return [items]
+    return [items[i:i + PAGE_SIZE] for i in range(0, len(items), PAGE_SIZE)]
+
+
+def page_filename(page_num):
+    return OUTPUT_FILE if page_num == 1 else PAGE_FILE_PATTERN.format(n=page_num)
+
+
+def render_pagination_nav(page_num, total_pages):
+    if total_pages <= 1:
+        return ""
+    links = []
+    if page_num > 1:
+        links.append(f'<a href="{page_filename(page_num - 1)}" class="rss-pagination-link">&larr; Newer</a>')
+    if page_num < total_pages:
+        links.append(f'<a href="{page_filename(page_num + 1)}" class="btn btn-gold">Older &rarr;</a>')
+    return (
+        '    <nav class="rss-pagination" aria-label="Archive pages">\n'
+        f'      <span class="rss-pagination-status">Page {page_num} of {total_pages}</span>\n'
+        f'      <div class="rss-pagination-links">{"".join(links)}</div>\n'
+        '    </nav>'
+    )
+
+
+def clean_stale_pages(total_pages):
+    """Removes leftover rss-page-N.html files from a previous run where the
+    archive had more pages than it does now (e.g. after year-rollover
+    trimming), so old page URLs don't linger as broken/orphaned pages."""
+    n = total_pages + 1
+    while True:
+        path = page_filename(n)
+        if not os.path.exists(path):
+            break
+        os.remove(path)
+        print(f"generate_rss_page.py: removed stale {path}")
+        n += 1
+
+
 def main():
     os.chdir(SITE_DIR)
 
     items = update_archive()
-    feed_html, jsonld_items = render_feed(items)
-    jsonld = ""
-    if jsonld_items:
-        jsonld = (
-            '<script type="application/ld+json">\n'
-            '{\n  "@context": "https://schema.org",\n  "@type": "ItemList",\n  "itemListElement": [\n'
-            f"{jsonld_items}\n  ]\n}}\n</script>\n"
-        )
+    pages = paginate(items)
+    total_pages = len(pages)
 
-    page = PAGE_TEMPLATE.format(
-        css_v=CSS_VERSION,
-        js_v=JS_VERSION,
-        feed_html=feed_html,
-        jsonld=jsonld,
-    )
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write(page)
-    print(f"generate_rss_page.py: wrote {OUTPUT_FILE} with {len(items)} curated item(s)")
+    for page_num, page_items in enumerate(pages, start=1):
+        feed_html, jsonld_items = render_feed(page_items)
+        jsonld = ""
+        if jsonld_items:
+            jsonld = (
+                '<script type="application/ld+json">\n'
+                '{\n  "@context": "https://schema.org",\n  "@type": "ItemList",\n  "itemListElement": [\n'
+                f"{jsonld_items}\n  ]\n}}\n</script>\n"
+            )
+        title_suffix = f" | Page {page_num}" if total_pages > 1 and page_num > 1 else ""
+        desc_suffix = f" (Page {page_num} of {total_pages})" if total_pages > 1 and page_num > 1 else ""
+
+        page = PAGE_TEMPLATE.format(
+            css_v=CSS_VERSION,
+            js_v=JS_VERSION,
+            feed_html=feed_html,
+            jsonld=jsonld,
+            title_suffix=title_suffix,
+            desc_suffix=desc_suffix,
+            pagination_nav=render_pagination_nav(page_num, total_pages),
+        )
+        filename = page_filename(page_num)
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(page)
+        print(f"generate_rss_page.py: wrote {filename} with {len(page_items)} curated item(s)")
+
+    clean_stale_pages(total_pages)
 
 
 if __name__ == "__main__":

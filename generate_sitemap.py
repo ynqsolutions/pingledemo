@@ -46,7 +46,7 @@ def classify(filename: str) -> tuple[str, str]:
     """Return (priority, changefreq) for a given filename."""
     if filename == "index.html":
         return "1.0", "weekly"
-    if filename == "rss.html":
+    if filename == "rss.html" or filename.startswith("rss-page-"):
         # Rebuilt from live feeds on a schedule (see generate_rss_page.py),
         # so its content actually does change daily.
         return "0.8", "daily"
