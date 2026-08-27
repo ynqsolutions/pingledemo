@@ -3450,6 +3450,15 @@ footer a:hover{ color:var(--white); }
   z-index:1;
   transition:transform .5s ease, width .3s ease, height .3s ease;
 }
+.settlement-photo::before{
+  content:"";
+  position:absolute;
+  inset:8% -6% 4% -6%;
+  background:radial-gradient(ellipse at center 55%, rgba(255,215,130,0.4) 0%, rgba(255,215,130,0.16) 42%, transparent 70%);
+  filter:blur(18px);
+  z-index:-1;
+  pointer-events:none;
+}
 .settlement-tile.settlement-tight-fit .settlement-photo{
   width:67.5%;
   height:90%;
