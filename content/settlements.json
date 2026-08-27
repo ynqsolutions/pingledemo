@@ -1,0 +1,74 @@
+{
+  "items": [
+    {
+      "amount": "$2.4M",
+      "classification": "Wrongful Termination",
+      "photo": "assets/cutouts/pingle-2.png",
+      "location": "Fountain Valley, CA",
+      "description": "An employee was terminated shortly after raising a protected complaint. The case settled after the employer's stated reason failed to match the documented timeline."
+    },
+    {
+      "amount": "$1.6M",
+      "classification": "Retaliation Jury Verdict",
+      "photo": "assets/cutouts/pinglebriggs-1.png?v=2",
+      "location": "Sacramento, CA",
+      "description": "A jury found that an employee's demotion and eventual termination followed directly after reporting safety violations to a supervisor."
+    },
+    {
+      "amount": "$1.1M",
+      "classification": "Unpaid Overtime Class Recovery",
+      "photo": "assets/cutouts/pingle-2.png",
+      "location": "San Bernardino, CA",
+      "description": "A group of warehouse employees recovered unpaid overtime after being required to work off the clock during shift changes."
+    },
+    {
+      "amount": "$850K",
+      "classification": "Disability Discrimination Verdict",
+      "photo": "assets/cutouts/pinglebriggs-1.png?v=2",
+      "location": "San Diego, CA",
+      "description": "A healthcare worker was denied a reasonable accommodation and later terminated. The verdict addressed the employer's failure to engage in the interactive process."
+    },
+    {
+      "amount": "$625K",
+      "classification": "Sexual Harassment Settlement",
+      "photo": "assets/cutouts/briggs-1.png",
+      "location": "Beverly Hills, CA",
+      "description": "An employee reported a hostile work environment created by a supervisor. The employer had not investigated the earlier complaint."
+    },
+    {
+      "amount": "$540K",
+      "classification": "Independent Contractor Misclassification",
+      "photo": "assets/cutouts/pinglebriggs-1.png?v=2",
+      "location": "San Francisco, CA",
+      "description": "A group of construction workers treated as independent contractors recovered unpaid overtime, expense reimbursement, and penalties after being reclassified as employees."
+    },
+    {
+      "amount": "$780K",
+      "classification": "Workplace Discrimination Settlement",
+      "photo": "assets/cutouts/pingle-hat.png",
+      "location": "Fountain Valley, CA",
+      "description": "An employee was passed over for promotion multiple times despite strong reviews, with the pattern tracking closely to a protected characteristic."
+    },
+    {
+      "amount": "$410K",
+      "classification": "Denied Family Leave Reinstatement",
+      "photo": "assets/cutouts/pinglebriggs-1.png?v=2",
+      "location": "Sacramento, CA",
+      "description": "An employee returning from CFRA baby-bonding leave was not reinstated to a comparable position, contrary to what the law requires."
+    },
+    {
+      "amount": "$365K",
+      "classification": "Severance Agreement Dispute",
+      "photo": "assets/cutouts/pingle-2.png",
+      "location": "Beverly Hills, CA",
+      "description": "A departing executive's severance offer was renegotiated after review revealed the release language was broader than legally required."
+    },
+    {
+      "amount": "$920K",
+      "classification": "PAGA Wage and Hour Group Claim",
+      "photo": "assets/cutouts/briggs-1.png",
+      "location": "San Diego, CA",
+      "description": "A representative action recovered civil penalties for a group of employees after a company-wide meal break policy failed to comply with California law."
+    }
+  ]
+}

@@ -1,9 +1,12 @@
 [build]
   publish = "."
-  # Regenerates sitemap.xml from whatever .html pages currently exist in the
-  # repo, so it always stays in sync without hand-editing. See
-  # generate_sitemap.py for the rules (noindex pages excluded, etc).
-  command = "python3 generate_sitemap.py"
+  # 1. Turns any Markdown posts added via /admin (content/blog/*.md) into
+  #    real blog-<slug>.html pages, same pattern as generate_sitemap.py.
+  # 2. Regenerates sitemap.xml from whatever .html pages currently exist in
+  #    the repo (including the just-generated posts), so it always reflects
+  #    reality without hand-editing. See generate_sitemap.py for the rules
+  #    (noindex pages excluded, etc).
+  command = "python3 generate_blog_posts.py && python3 generate_sitemap.py"
 
 # ---------------------------------------------------------------------------
 # Security headers (applied to every route). Netlify serves this site from
@@ -18,7 +21,17 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.behold.so; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://share.facepop.io; connect-src 'self' https://*.behold.so; base-uri 'self'; form-action 'self'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.behold.so https://identity.netlify.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://share.facepop.io; connect-src 'self' https://*.behold.so https://identity.netlify.com; base-uri 'self'; form-action 'self'; object-src 'none'"
+
+# /admin (the Decap CMS editor) needs a much looser CSP than the rest of the
+# site — it loads its editor bundle from a CDN, talks to Netlify's Identity
+# and Git Gateway APIs, and to GitHub's API to commit content changes. It's
+# gated behind Netlify Identity login regardless, so this relaxed policy
+# only ever reaches authenticated editors, not general site visitors.
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://identity.netlify.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.netlify.com https://api.github.com https://identity.netlify.com; frame-src https://api.netlify.com; base-uri 'self'; form-action 'self'; object-src 'none'"
 
 # CSS/JS are not hashed/fingerprinted (no build step), so a visitor's browser
 # cache can't tell an old deploy's file apart from a new one at the same URL.

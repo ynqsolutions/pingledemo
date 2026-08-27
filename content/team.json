@@ -1,0 +1,32 @@
+{
+  "members": [
+    {
+      "name": "Corey A. Pingle",
+      "title": "Founding Partner",
+      "email": "info@pinglelaw.com",
+      "photo": "assets/Corey_Polaroid2.jpg",
+      "bio": "Corey founded the firm to give employees the same level of representation employers use against them. He has recovered millions for California workers in wrongful termination, discrimination, and wage disputes."
+    },
+    {
+      "name": "Matthew Briggs",
+      "title": "Partner",
+      "email": "info@pinglelaw.com",
+      "photo": "assets/Matthew_Polaroid.jpg",
+      "bio": "Matthew focuses on litigation strategy and case development, building the evidence and legal groundwork behind every client's claim from day one through resolution."
+    },
+    {
+      "name": "Anna Poghosyan",
+      "title": "Attorney",
+      "email": "info@pinglelaw.com",
+      "photo": "assets/Anna_Placeholder_Polaroid.jpg",
+      "bio": "Anna works directly with clients from intake through resolution, making sure every question is answered and every detail of the case is handled with care."
+    },
+    {
+      "name": "Leah",
+      "title": "Administrative Assistant",
+      "email": "",
+      "photo": "assets/Leah_Placeholder_Polaroid.jpg",
+      "bio": ""
+    }
+  ]
+}

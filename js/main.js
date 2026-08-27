@@ -34,35 +34,105 @@ if (burgerBtn && mobileNav) {
 // Team polaroids: clicking the photo opens the bio on the back, like turning
 // a polaroid over. It only flips back via the "x" on the back or by clicking
 // "Attorney Bio" again — not by clicking the photo a second time.
-document.querySelectorAll('.polaroid-flip[data-flippable]').forEach(card => {
-  const open = () => card.classList.add('flipped');
-  const close = () => card.classList.remove('flipped');
-  const toggle = () => card.classList.toggle('flipped');
+// Wrapped in a function (rather than running immediately at parse time)
+// since the team-grid.html-inline. team cards are now rendered from
+// content/team.json after an async fetch, so this has to run after that
+// render completes instead of at script load.
+function initTeamFlip(root){
+  (root || document).querySelectorAll('.polaroid-flip[data-flippable]').forEach(card => {
+    const open = () => card.classList.add('flipped');
+    const close = () => card.classList.remove('flipped');
+    const toggle = () => card.classList.toggle('flipped');
 
-  card.addEventListener('click', open);
-  card.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter' || e.key === ' '){
-      e.preventDefault();
-      open();
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        open();
+      }
+    });
+
+    const trigger = card.closest('.team-card')?.querySelector('[data-flip-trigger]');
+    if(trigger){
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggle();
+      });
+    }
+
+    const closeBtn = card.querySelector('[data-flip-close]');
+    if(closeBtn){
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        close();
+      });
     }
   });
+}
 
-  const trigger = card.closest('.team-card')?.querySelector('[data-flip-trigger]');
-  if(trigger){
-    trigger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggle();
-    });
+// Team section on the About page: render team-card markup from
+// content/team.json, then wire up the polaroid flip behavior above.
+(function(){
+  const grid = document.querySelector('.team-grid');
+  if(!grid) return;
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
 
-  const closeBtn = card.querySelector('[data-flip-close]');
-  if(closeBtn){
-    closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      close();
-    });
+  function renderTeamCard(member){
+    const name = escapeHtml(member.name || '');
+    const title = escapeHtml(member.title || '');
+    const photo = escapeHtml(member.photo || '');
+    const email = member.email || '';
+    const bio = member.bio || '';
+
+    if(!bio){
+      // No bio to flip to (e.g. staff without an attorney bio): a plain photo card.
+      return `
+      <div class="team-card">
+        <div class="polaroid-flip">
+          <div class="polaroid-flip-inner">
+            <div class="polaroid-face polaroid-front">
+              <img src="${photo}" alt="${name}, ${title}" loading="lazy" decoding="async">
+            </div>
+          </div>
+        </div>
+        <span class="team-card-title">${title}</span>
+        <span class="team-card-name">${name}</span>
+      </div>`;
+    }
+
+    return `
+      <div class="team-card">
+        <div class="polaroid-flip" data-flippable tabindex="0" role="button" aria-label="Flip to read ${name}'s attorney bio">
+          <div class="polaroid-flip-inner">
+            <div class="polaroid-face polaroid-front">
+              <img src="${photo}" alt="${name}, ${title}" loading="lazy" decoding="async">
+            </div>
+            <div class="polaroid-face polaroid-back">
+              <button type="button" class="polaroid-close" data-flip-close aria-label="Close bio">&times;</button>
+              <p>${escapeHtml(bio)}</p>
+            </div>
+          </div>
+        </div>
+        <span class="team-card-title">${title}</span>
+        <span class="team-card-name">${name}</span>
+        ${email ? `<a href="mailto:${escapeHtml(email)}" class="team-card-email" aria-label="Email ${name}">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+        </a>` : ''}
+        <button type="button" class="team-card-readmore" data-flip-trigger>Attorney Bio</button>
+      </div>`;
   }
-});
+
+  fetch('content/team.json')
+    .then(r => r.json())
+    .then(data => {
+      grid.innerHTML = (data.members || []).map(renderTeamCard).join('');
+      initTeamFlip(grid);
+    })
+    .catch(err => console.error('Could not load team.json', err));
+})();
 
 // Results page review grid: show the first 6 cards, hide the rest behind
 // a "View More Reviews" button. Also gives each card a "Read more" toggle
@@ -179,9 +249,10 @@ document.querySelectorAll('.polaroid-flip[data-flippable]').forEach(card => {
 })();
 
 // Settlement tiles view-more: show the first 6 tiles, reveal 3 more per
-// click, and collapse back down once everything is shown.
-(function(){
-  const grid = document.getElementById('settlementGrid');
+// click, and collapse back down once everything is shown. Called after the
+// tiles are rendered from content/settlements.json (see below), since it
+// needs to run against real tiles, not an empty grid.
+function initSettlementViewMore(grid){
   const moreWrap = document.getElementById('settlementMoreWrap');
   const moreBtn = document.getElementById('settlementMoreBtn');
   if(!grid || !moreBtn) return;
@@ -211,15 +282,16 @@ document.querySelectorAll('.polaroid-flip[data-flippable]').forEach(card => {
     }
     render();
   });
-})();
+}
 
 // Settlement tiles on the Results page: click to flip, like the team
 // polaroids, revealing case details on the back. Height is pinned to an
 // explicit pixel value (rather than trusting aspect-ratio alone) so the
 // box cannot grow when flipped, which some browsers get wrong when a
-// 3D-transformed, absolutely-positioned back face is involved.
-(function(){
-  const tiles = document.querySelectorAll('.settlement-tile');
+// 3D-transformed, absolutely-positioned back face is involved. Also called
+// after the tiles are rendered from JSON.
+function initSettlementFlip(grid){
+  const tiles = grid.querySelectorAll('.settlement-tile');
   if(!tiles.length) return;
 
   function pinHeights(){
@@ -261,7 +333,6 @@ document.querySelectorAll('.polaroid-flip[data-flippable]').forEach(card => {
   // Only react to the "settlement-hidden" class toggle itself, since this
   // same observer would otherwise also catch (and loop on) the
   // settlement-tight-fit / flipped classes it and the click handler set.
-  const grid = document.getElementById('settlementGrid');
   if(grid && window.MutationObserver){
     const observer = new MutationObserver((mutations) => {
       const revealChanged = mutations.some(m => {
@@ -294,6 +365,56 @@ document.querySelectorAll('.polaroid-flip[data-flippable]').forEach(card => {
       if(e.key === 'Escape') close();
     });
   });
+}
+
+// Settlements section on the Results page: render settlement-tile markup
+// from content/settlements.json, then wire up the view-more and flip
+// behavior above against the real tiles.
+(function(){
+  const grid = document.getElementById('settlementGrid');
+  if(!grid) return;
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  }
+
+  function renderSettlementTile(item){
+    const amount = escapeHtml(item.amount || '');
+    const classification = escapeHtml(item.classification || '');
+    const photo = escapeHtml(item.photo || '');
+    const location = escapeHtml(item.location || '');
+    const description = escapeHtml(item.description || '');
+    return `
+      <div class="settlement-tile" tabindex="0" role="button" aria-label="Flip to read more about this ${classification} case">
+        <div class="settlement-tile-inner">
+          <div class="settlement-face settlement-front">
+            <div class="settlement-photo" style="background-image:url('${photo}');" aria-hidden="true"></div>
+            <div class="settlement-front-content">
+              <span class="settlement-eyebrow">Settlement</span>
+              <span class="settlement-amount">${amount}</span>
+              <span class="settlement-type">${classification}</span>
+              <span class="settlement-tap-btn">Tap for Details <span aria-hidden="true">&rarr;</span></span>
+            </div>
+          </div>
+          <div class="settlement-face settlement-back">
+            <button type="button" class="settlement-tile-close" aria-label="Close">&times;</button>
+            <h4>${classification}</h4>
+            <span class="settlement-back-location">${location}</span>
+            <p>${description}</p>
+            <p class="settlement-back-fine">Placeholder example. Past results do not guarantee or predict a similar outcome in any future case.</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  fetch('content/settlements.json')
+    .then(r => r.json())
+    .then(data => {
+      grid.innerHTML = (data.items || []).map(renderSettlementTile).join('');
+      initSettlementViewMore(grid);
+      initSettlementFlip(grid);
+    })
+    .catch(err => console.error('Could not load settlements.json', err));
 })();
 
 // Auto-format any phone-type input as XXX-XXX-XXXX while typing.

@@ -1,0 +1,75 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Netlify Identity handles login; Git Gateway lets logged-in editors commit
+# straight to this repo without needing their own GitHub account.
+site_url: https://www.pinglelaw.com
+display_url: https://www.pinglelaw.com
+logo_url: /assets/Pingle_Logo_Outline.png
+
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+collections:
+  # ---------------------------------------------------------------------
+  # Settlements — a single JSON file (content/settlements.json) holding a
+  # list of tiles. Rendered on results-and-testimonials.html by js/main.js.
+  # ---------------------------------------------------------------------
+  - name: "settlements"
+    label: "Settlements"
+    files:
+      - name: "settlements"
+        label: "Settlement Tiles"
+        file: "content/settlements.json"
+        description: "Shown on the Results page. Reorder, add, or remove tiles below."
+        fields:
+          - label: "Tiles"
+            name: "items"
+            widget: "list"
+            summary: "{{fields.classification}} — {{fields.amount}}"
+            fields:
+              - { label: "Amount", name: "amount", widget: "string", hint: "e.g. $2.4M" }
+              - { label: "Classification", name: "classification", widget: "string", hint: "e.g. Wrongful Termination" }
+              - { label: "Attorney Photo", name: "photo", widget: "image", hint: "The cutout photo shown behind the amount." }
+              - { label: "Location", name: "location", widget: "string", hint: "e.g. Fountain Valley, CA" }
+              - { label: "Description", name: "description", widget: "text", hint: "Shown when the tile is flipped." }
+
+  # ---------------------------------------------------------------------
+  # Legal Team — a single JSON file (content/team.json) holding a list of
+  # people. Rendered on about.html by js/main.js.
+  # ---------------------------------------------------------------------
+  - name: "team"
+    label: "Legal Team"
+    files:
+      - name: "team"
+        label: "Team Members"
+        file: "content/team.json"
+        description: "Shown on the About page. Leave Email and Bio blank for staff without an attorney bio card (e.g. administrative staff)."
+        fields:
+          - label: "Team Members"
+            name: "members"
+            widget: "list"
+            summary: "{{fields.name}} — {{fields.title}}"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Title", name: "title", widget: "string", hint: "e.g. Founding Partner, Attorney, Administrative Assistant" }
+              - { label: "Attorney Photo", name: "photo", widget: "image" }
+              - { label: "Email", name: "email", widget: "string", required: false, hint: "Leave blank to hide the email icon." }
+              - { label: "Bio", name: "bio", widget: "text", required: false, hint: "Leave blank to hide the flip-to-read-bio card (e.g. for staff without a public bio)." }
+
+  # ---------------------------------------------------------------------
+  # Blog Posts — one Markdown file per post in content/blog/. A Netlify
+  # build script (generate_blog_posts.py) turns each one into a real
+  # blog-<slug>.html page on the next deploy.
+  # ---------------------------------------------------------------------
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "content/blog"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    fields:
+      - { label: "Page Title", name: "title", widget: "string" }
+      - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", default: "" }
+      - { label: "Body", name: "body", widget: "markdown", hint: "Publishes as its own page (blog-<slug>.html) once this is merged and the site rebuilds." }
