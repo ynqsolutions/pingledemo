@@ -2,11 +2,18 @@
   publish = "."
   # 1. Turns any Markdown posts added via /admin (content/blog/*.md) into
   #    real blog-<slug>.html pages, same pattern as generate_sitemap.py.
-  # 2. Regenerates sitemap.xml from whatever .html pages currently exist in
-  #    the repo (including the just-generated posts), so it always reflects
-  #    reality without hand-editing. See generate_sitemap.py for the rules
-  #    (noindex pages excluded, etc).
-  command = "python3 generate_blog_posts.py && python3 generate_sitemap.py"
+  # 2. Rebuilds rss.html from outside legal-news RSS feeds, filtered to
+  #    employment-law keywords. See generate_rss_page.py for the feed list
+  #    and a scheduled function that reruns this build periodically so the
+  #    page actually stays fresh, not just on the next unrelated deploy.
+  # 3. Regenerates sitemap.xml from whatever .html pages currently exist in
+  #    the repo (including the just-generated posts/rss page), so it always
+  #    reflects reality without hand-editing. See generate_sitemap.py for
+  #    the rules (noindex pages excluded, etc).
+  command = "python3 generate_blog_posts.py && python3 generate_rss_page.py && python3 generate_sitemap.py"
+
+[functions]
+  directory = "netlify/functions"
 
 # ---------------------------------------------------------------------------
 # Security headers (applied to every route). Netlify serves this site from

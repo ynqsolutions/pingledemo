@@ -29,7 +29,7 @@ NOINDEX_RE = re.compile(
 MAIN_NAV = {
     "index.html", "about.html", "practice-areas.html", "faq.html",
     "results-and-testimonials.html", "resources.html", "contact.html", "case-review.html",
-    "glossary.html",
+    "glossary.html", "rss.html",
 }
 
 CITY_SLUGS = (
@@ -46,6 +46,10 @@ def classify(filename: str) -> tuple[str, str]:
     """Return (priority, changefreq) for a given filename."""
     if filename == "index.html":
         return "1.0", "weekly"
+    if filename == "rss.html":
+        # Rebuilt from live feeds on a schedule (see generate_rss_page.py),
+        # so its content actually does change daily.
+        return "0.8", "daily"
     if filename in MAIN_NAV:
         return "0.8", "weekly"
     if filename.startswith("blog-"):
