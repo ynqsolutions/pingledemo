@@ -4928,22 +4928,14 @@ footer a:hover{ color:var(--white); }
 .rss-pagination{
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content:center;
+  gap:24px;
   max-width:900px;
   margin:24px auto 0;
   font-family:var(--font-cond);
 }
-.rss-pagination-status{
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:0.04em;
-  text-transform:uppercase;
-  color:var(--ink-soft);
-}
-.rss-pagination-links{ display:flex; align-items:center; gap:20px; }
-.rss-pagination .btn{ padding:8px 18px; font-size:12px; }
 .rss-pagination-link{
-  font-family:var(--font-cond);
+  flex:none;
   font-size:12px;
   font-weight:700;
   letter-spacing:0.02em;
@@ -4952,6 +4944,23 @@ footer a:hover{ color:var(--white); }
   text-decoration:none;
 }
 .rss-pagination-link:hover{ color:var(--gold-500); }
+.rss-pagination-nums{ display:flex; align-items:center; gap:6px; }
+.rss-pagination-num{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:30px;
+  height:30px;
+  border-radius:50%;
+  font-size:13px;
+  font-weight:600;
+  color:var(--ink-soft);
+  text-decoration:none;
+  transition:background .15s ease, color .15s ease;
+}
+.rss-pagination-num:hover{ background:var(--paper-dim); color:var(--navy-950); }
+.rss-pagination-num.active{ background:var(--gold-500); color:var(--white); }
 @media (max-width: 480px){
-  .rss-pagination{ flex-direction:column; gap:12px; align-items:flex-start; }
+  .rss-pagination{ gap:12px; }
+  .rss-pagination-nums{ flex-wrap:wrap; justify-content:center; }
 }

@@ -37,7 +37,7 @@ SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_FILE = "rss.html"
 PAGE_FILE_PATTERN = "rss-page-{n}.html"
 ARCHIVE_FILE = "content/rss-archive.json"
-CSS_VERSION = "214"
+CSS_VERSION = "215"
 JS_VERSION = "68"
 FETCH_TIMEOUT = 12
 USER_AGENT = "PingleLawSite/1.0 (+https://www.pinglelaw.com)"
@@ -164,7 +164,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <section class="about-hero about-hero-compact about-hero-gradient">
   <div class="wrap about-hero-inner">
     <span class="eyebrow" style="color:var(--gold-500);">RSS</span>
-    <h1>Employment &amp; Injury Law News From Around the Web{title_suffix}</h1>
+    <h1>Employment &amp; Injury Law News From Around the Web</h1>
     <p>A running, day-by-day archive of employment-law and personal-injury coverage from outside legal publications, gathered here so California workers can keep up with the law that affects them.</p>
   </div>
 </section>
@@ -500,15 +500,21 @@ def page_filename(page_num):
 def render_pagination_nav(page_num, total_pages):
     if total_pages <= 1:
         return ""
-    links = []
+    prev_link = ""
     if page_num > 1:
-        links.append(f'<a href="{page_filename(page_num - 1)}" class="rss-pagination-link">&larr; Newer</a>')
+        prev_link = f'<a href="{page_filename(page_num - 1)}" class="rss-pagination-link">&larr; Newer</a>'
+    next_link = ""
     if page_num < total_pages:
-        links.append(f'<a href="{page_filename(page_num + 1)}" class="btn btn-gold">Older &rarr;</a>')
+        next_link = f'<a href="{page_filename(page_num + 1)}" class="rss-pagination-link">Older &rarr;</a>'
+    numbers = " ".join(
+        f'<a href="{page_filename(n)}" class="rss-pagination-num{" active" if n == page_num else ""}">{n}</a>'
+        for n in range(1, total_pages + 1)
+    )
     return (
         '    <nav class="rss-pagination" aria-label="Archive pages">\n'
-        f'      <span class="rss-pagination-status">Page {page_num} of {total_pages}</span>\n'
-        f'      <div class="rss-pagination-links">{"".join(links)}</div>\n'
+        f'      {prev_link}\n'
+        f'      <div class="rss-pagination-nums">{numbers}</div>\n'
+        f'      {next_link}\n'
         '    </nav>'
     )
 
