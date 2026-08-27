@@ -52,6 +52,8 @@ def classify(filename: str) -> tuple[str, str]:
         return "0.8", "daily"
     if filename in MAIN_NAV:
         return "0.8", "weekly"
+    if filename.endswith("-calculator.html"):
+        return "0.7", "monthly"
     if filename.startswith("blog-"):
         return "0.6", "monthly"
     if any(filename == f"{slug}.html" for slug in CITY_SLUGS):

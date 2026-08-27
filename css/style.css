@@ -4973,3 +4973,116 @@ footer a:hover{ color:var(--white); }
   .rss-pagination{ gap:12px; }
   .rss-pagination-nums{ flex-wrap:wrap; justify-content:center; }
 }
+
+/* ===== Severance pay calculator ===== */
+.calc-section{
+  background:var(--paper);
+  padding:8px 0 56px;
+}
+.calc-card{
+  max-width:1040px;
+  margin:0 auto;
+  background:var(--white);
+  border:1px solid var(--paper-line);
+  box-shadow:0 30px 60px -30px rgba(10,15,39,0.25);
+  border-radius:14px;
+  padding:40px;
+}
+.calc-card-head h2{
+  margin-top:6px;
+  font-family:var(--font-display);
+  font-size:clamp(24px, 2.8vw, 32px);
+  color:var(--navy-950);
+}
+.calc-card-head p{
+  margin-top:10px;
+  max-width:640px;
+  color:var(--ink-soft);
+  font-size:15px;
+  line-height:1.6;
+}
+.calc-grid{
+  display:grid;
+  grid-template-columns:1.1fr 1fr;
+  gap:36px;
+  align-items:stretch;
+  margin-top:28px;
+}
+.calc-inputs{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.calc-optional{
+  text-transform:none;
+  font-weight:500;
+  letter-spacing:0;
+  color:var(--ink-soft);
+  opacity:0.75;
+}
+.calc-fact-link{
+  display:inline-block;
+  margin-top:4px;
+  padding:10px 14px;
+  background:var(--paper);
+  border:1px dashed var(--gold-500);
+  border-radius:9px;
+  font-family:var(--font-cond);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.01em;
+  color:var(--navy-950);
+  text-align:left;
+}
+.calc-fact-link:hover{ background:var(--paper-dim); color:var(--gold-500); }
+.calc-result{
+  display:flex;
+  flex-direction:column;
+  background:var(--navy-950);
+  color:var(--white);
+  border-radius:12px;
+  padding:28px;
+}
+.calc-result-label{
+  font-family:var(--font-cond);
+  font-size:12.5px;
+  font-weight:600;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--gold-400);
+}
+.calc-result-amount{
+  margin-top:8px;
+  font-family:var(--font-display);
+  font-size:clamp(34px, 4.2vw, 48px);
+  font-weight:600;
+  line-height:1.05;
+}
+.calc-result-breakdown{
+  margin-top:20px;
+  padding-top:16px;
+  border-top:1px solid rgba(255,255,255,0.15);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.calc-result-line{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  font-size:14px;
+  color:rgba(255,255,255,0.75);
+}
+.calc-result-line span:last-child{ color:var(--white); font-weight:600; }
+.calc-result-cta{ margin-top:22px; width:100%; justify-content:center; }
+.calc-result-fine{
+  margin-top:12px;
+  font-size:12.5px;
+  line-height:1.5;
+  color:rgba(255,255,255,0.6);
+}
+.calc-result-fine a{ color:var(--gold-400); }
+@media (max-width: 860px){
+  .calc-card{ padding:28px 22px; }
+  .calc-grid{ grid-template-columns:1fr; }
+}
