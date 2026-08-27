@@ -1961,11 +1961,11 @@ footer a:hover{ color:var(--white); }
    which still centers the link's box since it's display:inline-flex — an
    inline-level box takes its position from the parent's text-align. Forcing
    it block-level here opts it out of that, so it hugs the true left edge. */
-.practice-article-hero .blog-back-link{ display:flex; width:fit-content; }
+.practice-article-hero .blog-back-link{ display:flex; width:fit-content; margin-bottom:24px; }
 /* Matches .blog-hero's tighter padding (the base .about-hero padding left
    too big a gap above the back link) and its H1 max-width (680px from
    .about-hero-inner was wrapping the heading more than necessary). */
-.practice-article-hero{ padding:36px 0 32px; }
+.practice-article-hero{ padding:48px 0 32px; }
 .practice-article-hero .about-hero-inner{ max-width:820px; }
 .practice-article-hero h1{ font-size:clamp(28px, 3.8vw, 44px); }
 .about-hero p{
