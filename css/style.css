@@ -4910,17 +4910,6 @@ footer a:hover{ color:var(--white); }
   line-height:1.3;
   color:var(--navy-950);
 }
-.rss-item-tldr{
-  margin:4px 0 0;
-  font-family:var(--font-body);
-  font-size:13px;
-  line-height:1.45;
-  color:var(--ink-soft);
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
 .rss-item-link{
   flex:none;
   font-family:var(--font-cond);

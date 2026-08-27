@@ -29,7 +29,7 @@ import re
 import sys
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from html import escape, unescape
 
@@ -52,6 +52,18 @@ FEEDS = [
     {"name": "Stanford Law School", "url": "https://law.stanford.edu/feed/"},
     {"name": "Above the Law", "url": "https://abovethelaw.com/feed/"},
 ]
+
+# ABA Journal's feed doesn't support pagination (its ?page= param returns
+# unrelated old content), but Stanford and Above the Law are both WordPress
+# sites, which support "?paged=N" on the feed URL to reach older pages of
+# items — used only by the one-time --backfill pass below, not the normal
+# per-build fetch, since walking dozens of pages on every build would be
+# slow and risks getting rate-limited.
+PAGINATED_FEEDS = {
+    "Stanford Law School": "https://law.stanford.edu/feed/?paged={n}",
+    "Above the Law": "https://abovethelaw.com/feed/?paged={n}",
+}
+BACKFILL_MAX_PAGES = 160  # ATL posts ~30/wk; needs ~130 pages to reach a full year back
 
 KEYWORDS = [
     # Employment law
@@ -353,17 +365,8 @@ def save_archive(items):
         f.write("\n")
 
 
-def update_archive():
-    """Merges newly-fetched matches into the persisted archive (deduped by
-    link), and drops anything from before the current calendar year so this
-    stays a "year to date" list rather than growing forever. The archive
-    file only actually gains new items long-term when something commits it
-    back to git — see .github/workflows/refresh-rss.yml — since a Netlify
-    build's filesystem changes don't persist to the next build."""
-    archive = load_archive()
+def merge_and_trim(archive, new_items):
     existing_links = {i["link"] for i in archive}
-
-    new_items = fetch_new_matches()
     added = 0
     for item in new_items:
         if item["link"] not in existing_links:
@@ -371,37 +374,83 @@ def update_archive():
             existing_links.add(item["link"])
             added += 1
 
-    year_start = datetime(datetime.now(timezone.utc).year, 1, 1, tzinfo=timezone.utc)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=365)
     def in_range(i):
         if not i["date"]:
             return True
         try:
-            return datetime.fromisoformat(i["date"]) >= year_start
+            return datetime.fromisoformat(i["date"]) >= cutoff
         except ValueError:
             return True
     archive = [i for i in archive if in_range(i)]
 
     archive.sort(key=lambda i: i["date"] or "", reverse=True)
+    return archive, added
+
+
+def update_archive():
+    """Merges newly-fetched matches into the persisted archive (deduped by
+    link), and drops anything older than a trailing 365 days so this stays
+    a rolling "past year" list rather than growing forever. The archive
+    file only actually gains new items long-term when something commits it
+    back to git — see .github/workflows/refresh-rss.yml — since a Netlify
+    build's filesystem changes don't persist to the next build."""
+    archive = load_archive()
+    new_items = fetch_new_matches()
+    archive, added = merge_and_trim(archive, new_items)
     save_archive(archive)
     print(f"generate_rss_page.py: archive now has {len(archive)} item(s) ({added} new this run)")
     return archive
 
 
-def tldr(item):
-    """A short, plain-language gist of the article, built from the feed's
-    own summary/description (there's no full article text available from
-    an RSS feed to work from). Trimmed to roughly one sentence so it reads
-    as a quick take rather than a reprint of the source's own blurb."""
-    text = item["summary"]
-    if not text:
-        return ""
-    # Prefer cutting at the first sentence boundary if there is one within
-    # a reasonable length; otherwise just hard-truncate.
-    match = re.search(r"^.{40,160}?[.!?](?:\s|$)", text)
-    snippet = match.group(0).strip() if match else text[:160].rstrip()
-    if not match and len(text) > 160:
-        snippet = snippet.rsplit(" ", 1)[0] + "…"
-    return snippet
+def fetch_year_backfill():
+    """One-time (manually run) deep fetch: walks back through Stanford's and
+    Above the Law's paginated feeds (ABA Journal has no working pagination)
+    to pull up to a year of past matching articles in one pass, rather than
+    waiting for the daily fetch to accumulate them one day at a time. Not
+    part of the normal build — run via `python3 generate_rss_page.py
+    --backfill` and commit the result."""
+    cutoff = datetime.now(timezone.utc) - timedelta(days=365)
+    all_items = []
+
+    for feed in FEEDS:
+        try:
+            raw = fetch_feed(feed["url"])
+            items = parse_items(raw, feed["name"])
+            all_items.extend(items)
+            print(f"generate_rss_page.py: [backfill] {feed['name']} page 1 -> {len(items)} item(s)")
+        except Exception as e:
+            print(f"generate_rss_page.py: [backfill] WARNING could not fetch {feed['name']}: {e}")
+
+    for name, url_pattern in PAGINATED_FEEDS.items():
+        for page in range(2, BACKFILL_MAX_PAGES + 1):
+            url = url_pattern.format(n=page)
+            try:
+                raw = fetch_feed(url)
+                items = parse_items(raw, name)
+            except Exception as e:
+                print(f"generate_rss_page.py: [backfill] {name} page {page} -> stopped ({e})")
+                break
+            if not items:
+                print(f"generate_rss_page.py: [backfill] {name} page {page} -> 0 items, stopping")
+                break
+            all_items.extend(items)
+            dated = [i for i in items if i["date"]]
+            oldest = min((datetime.fromisoformat(i["date"]) for i in dated), default=None)
+            print(f"generate_rss_page.py: [backfill] {name} page {page} -> {len(items)} item(s), oldest {oldest}")
+            if oldest and oldest < cutoff:
+                break
+
+    return [i for i in all_items if matches_keywords(i)]
+
+
+def run_backfill():
+    archive = load_archive()
+    new_items = fetch_year_backfill()
+    archive, added = merge_and_trim(archive, new_items)
+    save_archive(archive)
+    print(f"generate_rss_page.py: [backfill] archive now has {len(archive)} item(s) ({added} new)")
+    return archive
 
 
 def render_feed(items):
@@ -418,12 +467,10 @@ def render_feed(items):
                 date_str = ""
         title = escape(item["title"])
         source = escape(item["source"])
-        gist = escape(tldr(item))
         rows.append(f"""      <a href="{escape(item['link'])}" class="rss-item-card" target="_blank" rel="nofollow noopener">
         <div class="rss-item-main">
           <span class="rss-item-source">{source}{' &middot; ' + date_str if date_str else ''}</span>
           <h3>{title}</h3>
-          {'<p class="rss-item-tldr">' + gist + '</p>' if gist else ''}
         </div>
         <span class="rss-item-link">Read &rarr;</span>
       </a>""")
@@ -483,7 +530,7 @@ def clean_stale_pages(total_pages):
 def main():
     os.chdir(SITE_DIR)
 
-    items = update_archive()
+    items = run_backfill() if "--backfill" in sys.argv else update_archive()
     pages = paginate(items)
     total_pages = len(pages)
 

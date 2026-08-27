@@ -553,6 +553,24 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.pinglelaw.com/rss-page-2.html</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.pinglelaw.com/rss-page-3.html</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.pinglelaw.com/rss-page-4.html</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.pinglelaw.com/rss.html</loc>
     <lastmod>2026-08-27</lastmod>
     <changefreq>daily</changefreq>
