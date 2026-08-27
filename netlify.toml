@@ -1,0 +1,62 @@
+[build]
+  publish = "."
+  # Regenerates sitemap.xml from whatever .html pages currently exist in the
+  # repo, so it always stays in sync without hand-editing. See
+  # generate_sitemap.py for the rules (noindex pages excluded, etc).
+  command = "python3 generate_sitemap.py"
+
+# ---------------------------------------------------------------------------
+# Security headers (applied to every route). Netlify serves this site from
+# its global CDN, so these are the only origin-level controls we need — no
+# server config to manage as traffic scales.
+# ---------------------------------------------------------------------------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.behold.so; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://share.facepop.io; connect-src 'self' https://*.behold.so; base-uri 'self'; form-action 'self'; object-src 'none'"
+
+# CSS/JS are not hashed/fingerprinted (no build step), so a visitor's browser
+# cache can't tell an old deploy's file apart from a new one at the same URL.
+# `immutable` + a 1-year max-age would make a visitor's browser keep serving
+# a stale main.js/style.css for a year after every fix, regardless of new
+# deploys — so this stays short until the site moves to hashed filenames.
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=600, must-revalidate"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=600, must-revalidate"
+
+# Images are referenced by content-specific filenames already (they only
+# change when replaced under a new name), so long caching is safe here.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# ---------------------------------------------------------------------------
+# Pretty URLs / redirects. Add entries here as more pages are built
+# (e.g. "/practice-areas/wrongful-termination" -> "/practice-areas.html").
+# ---------------------------------------------------------------------------
+[[redirects]]
+  from = "/home"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404

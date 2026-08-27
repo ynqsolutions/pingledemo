@@ -1,0 +1,328 @@
+/* ================= ACCESSIBILITY WIDGET ================= */
+/* The minimized edge tab is the widget's only persistent control: always
+   visible, draggable vertically, hidden only while the drawer is open. */
+#a11yTab{
+  position:fixed;
+  left:0;
+  top:50%;
+  z-index:9997;
+  transform:translateY(-50%);
+  touch-action:none;
+  width:29px;
+  height:58px;
+  padding:0;
+  border:none;
+  border-radius:0 10px 10px 0;
+  background:#fff;
+  box-shadow:0 6px 16px -6px rgba(10,15,39,0.4);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  cursor:grab;
+}
+#a11yTab:active{ cursor:grabbing; }
+#a11yTab.a11y-tab-tucked{ display:none; }
+#a11yTab img{
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  object-fit:cover;
+  transform:scale(1.35);
+  pointer-events:none;
+}
+#a11yTab:hover{ width:35px; }
+#a11yTab:focus-visible{
+  outline:3px solid #FBBF24;
+  outline-offset:3px;
+}
+
+/* ---- Backdrop behind the sliding drawer ---- */
+#a11yBackdrop{
+  position:fixed;
+  inset:0;
+  z-index:9998;
+  background:rgba(10,15,39,0.45);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .35s ease;
+}
+#a11yBackdrop.open{ opacity:1; pointer-events:auto; }
+#a11yBackdrop[hidden]{ display:none; }
+
+/* ---- The drawer itself: slides in from the left edge of the browser,
+   full height, with real room for content instead of a cramped popover. ---- */
+.a11y-panel{
+  position:fixed;
+  left:0;
+  top:0;
+  height:100vh;
+  height:100dvh;
+  width:340px;
+  max-width:88vw;
+  overflow-y:auto;
+  background:var(--white, #fff);
+  color:var(--ink, #131521);
+  box-shadow:0 0 60px -12px rgba(10,15,39,0.5);
+  padding:28px 24px 32px;
+  font-family:var(--font-body, sans-serif);
+  z-index:9999;
+  transform:translateX(-100%);
+  transition:transform .35s cubic-bezier(.3,.8,.3,1);
+}
+.a11y-panel.open{ transform:translateX(0); }
+.a11y-panel[hidden]{ display:none; }
+
+.a11y-panel h2{
+  font-family:var(--font-display, serif);
+  font-size:22px;
+  color:var(--navy-950, #0A0F27);
+  margin:0 0 6px;
+  padding-right:32px;
+}
+.a11y-panel .a11y-sub{
+  font-size:13px;
+  color:var(--ink-soft, #3B3E4D);
+  margin:0 0 22px;
+  line-height:1.5;
+}
+
+.a11y-group{ margin-bottom:20px; }
+.a11y-group-label{
+  display:block;
+  font-family:var(--font-cond, sans-serif);
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  font-size:12px;
+  color:var(--ink-soft, #3B3E4D);
+  margin-bottom:10px;
+}
+
+.a11y-group-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  padding:0;
+  border:none;
+  background:none;
+  font-family:var(--font-cond, sans-serif);
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  font-size:12px;
+  font-weight:700;
+  color:var(--ink-soft, #3B3E4D);
+  cursor:pointer;
+}
+.a11y-group-toggle-chevron{
+  display:inline-block;
+  transition:transform .2s ease;
+}
+.a11y-group-toggle.is-open .a11y-group-toggle-chevron{ transform:rotate(180deg); }
+
+.a11y-profiles{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.a11y-profiles[hidden]{ display:none; }
+.a11y-profile-btn{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding:16px 8px;
+  border:1.5px solid var(--paper-line, #D8CFB6);
+  border-radius:10px;
+  background:var(--white, #fff);
+  color:var(--ink, #131521);
+  font-size:12.5px;
+  font-weight:600;
+  line-height:1.25;
+  text-align:center;
+  cursor:pointer;
+}
+.a11y-profile-icon{ display:flex; }
+.a11y-profile-btn:hover{ border-color:#1D4ED8; }
+.a11y-profile-btn:focus-visible{ outline:3px solid #1D4ED8; outline-offset:2px; }
+.a11y-profile-btn.active{
+  background:#1D4ED8;
+  border-color:#1D4ED8;
+  color:#fff;
+}
+
+.a11y-lang-toggle{
+  display:inline-flex;
+  align-items:center;
+  background:var(--paper-dim, #EAE4D4);
+  border:1px solid var(--paper-line, #D8CFB6);
+  border-radius:999px;
+  padding:3px;
+  font-family:var(--font-cond, sans-serif);
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+.a11y-lang-toggle span{
+  padding:7px 16px;
+  border-radius:999px;
+  color:var(--ink-soft, #3B3E4D);
+  cursor:pointer;
+  transition:background .18s ease, color .18s ease;
+}
+.a11y-lang-toggle span.active{
+  background:#1D4ED8;
+  color:#fff;
+}
+
+.a11y-row{ display:flex; gap:8px; }
+.a11y-btn{
+  flex:1;
+  display:flex; align-items:center; justify-content:center;
+  gap:6px;
+  padding:10px 6px;
+  border:1.5px solid var(--paper-line, #D8CFB6);
+  border-radius:8px;
+  background:var(--white, #fff);
+  color:var(--ink, #131521);
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+}
+.a11y-btn:hover{ border-color:#1D4ED8; }
+.a11y-btn:focus-visible{ outline:3px solid #1D4ED8; outline-offset:2px; }
+.a11y-btn[aria-pressed="true"]{
+  background:#1D4ED8;
+  border-color:#1D4ED8;
+  color:#fff;
+}
+
+.a11y-icon-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.a11y-icon-toggle{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:16px 8px;
+  border:1.5px solid var(--paper-line, #D8CFB6);
+  border-radius:10px;
+  background:var(--white, #fff);
+  color:var(--ink, #131521);
+  font-size:12.5px;
+  font-weight:600;
+  line-height:1.25;
+  text-align:center;
+  cursor:pointer;
+  min-height:88px;
+}
+.a11y-icon-toggle-icon{ display:flex; }
+.a11y-icon-toggle:hover{ border-color:#1D4ED8; }
+.a11y-icon-toggle:focus-visible{ outline:3px solid #1D4ED8; outline-offset:2px; }
+.a11y-icon-toggle[aria-pressed="true"]{
+  background:#1D4ED8;
+  border-color:#1D4ED8;
+  color:#fff;
+}
+
+.a11y-reset{
+  width:100%;
+  padding:12px;
+  border:1.5px solid var(--paper-line, #D8CFB6);
+  border-radius:8px;
+  background:var(--paper-dim, #EAE4D4);
+  color:var(--navy-950, #0A0F27);
+  font-size:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  cursor:pointer;
+  margin-top:6px;
+}
+.a11y-reset:hover{ background:var(--paper-line, #D8CFB6); }
+.a11y-reset:focus-visible{ outline:3px solid #1D4ED8; outline-offset:2px; }
+
+.a11y-close{
+  position:absolute;
+  top:16px; right:16px;
+  width:30px; height:30px;
+  border-radius:50%;
+  border:none;
+  background:var(--paper-dim, #EAE4D4);
+  color:var(--navy-950, #0A0F27);
+  font-size:16px;
+  line-height:1;
+  cursor:pointer;
+}
+.a11y-close:hover{ background:var(--paper-line, #D8CFB6); }
+.a11y-close:focus-visible{ outline:3px solid #1D4ED8; outline-offset:2px; }
+
+@media (max-width: 680px){
+  #a11yTab{ left:0; }
+  .a11y-panel{ width:100%; max-width:100vw; padding:24px 20px 28px; }
+}
+
+/* ---- Global effects toggled by the widget ---- */
+html.a11y-underline-links a{ text-decoration:underline !important; }
+
+html.a11y-highlight-links a{
+  background:#FFF3B0 !important;
+  color:#111 !important;
+  outline:2px solid #F5C518 !important;
+}
+
+html.a11y-highlight-headings h1,
+html.a11y-highlight-headings h2,
+html.a11y-highlight-headings h3,
+html.a11y-highlight-headings h4{
+  background:#FFF3B0 !important;
+  color:#111 !important;
+  box-shadow:0 0 0 4px #FFF3B0 !important;
+}
+
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after{
+  animation-play-state:paused !important;
+  transition:none !important;
+  scroll-behavior:auto !important;
+}
+
+html.a11y-high-contrast{ filter:invert(1) hue-rotate(180deg); background:#000; }
+html.a11y-high-contrast img,
+html.a11y-high-contrast video,
+html.a11y-high-contrast iframe,
+html.a11y-high-contrast #a11yTab,
+html.a11y-high-contrast .a11y-panel{
+  filter:invert(1) hue-rotate(180deg);
+}
+
+html.a11y-grayscale{ filter:grayscale(1); }
+html.a11y-grayscale.a11y-high-contrast{ filter:grayscale(1) invert(1) hue-rotate(180deg); }
+
+html.a11y-dyslexia-font body,
+html.a11y-dyslexia-font input,
+html.a11y-dyslexia-font textarea,
+html.a11y-dyslexia-font select,
+html.a11y-dyslexia-font button{
+  font-family:Verdana, Tahoma, "Trebuchet MS", sans-serif !important;
+}
+
+html.a11y-line-spacing body{ letter-spacing:0.03em !important; }
+html.a11y-line-spacing p,
+html.a11y-line-spacing li,
+html.a11y-line-spacing .cr-q-hint,
+html.a11y-line-spacing .quote{
+  line-height:2 !important;
+}
+
+html.a11y-big-cursor,
+html.a11y-big-cursor *{
+  cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24'><path d='M3 2l7.07 17.5 2.51-6.92L19.5 10.5z' fill='black' stroke='white' stroke-width='1.2'/></svg>") 4 4, auto !important;
+}
