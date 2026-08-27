@@ -32,7 +32,7 @@ SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 BLOG_CONTENT_DIR = os.path.join(SITE_DIR, "content", "blog")
 
 CSS_VERSION = "212"
-JS_VERSION = "67"
+JS_VERSION = "68"
 
 PAGE_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">

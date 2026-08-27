@@ -32,7 +32,7 @@ from html import escape, unescape
 SITE_DIR = "/Users/yoon/Library/CloudStorage/Dropbox/Personal/Projects/Claude/Pingle Law Website"
 OUTPUT_FILE = "rss.html"
 CSS_VERSION = "212"
-JS_VERSION = "67"
+JS_VERSION = "68"
 MAX_ITEMS = 24
 FETCH_TIMEOUT = 12
 USER_AGENT = "PingleLawSite/1.0 (+https://www.pinglelaw.com)"
