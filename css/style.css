@@ -4196,6 +4196,7 @@ footer a:hover{ color:var(--white); }
 }
 .blog-hero-centered .blog-meta{ text-align:center; }
 .blog-hero-centered .blog-byline{ justify-content:center; }
+.blog-hero-centered .blog-hero-pill{ margin-left:auto; margin-right:auto; }
 .blog-byline{
   margin-top:24px;
   display:flex;
