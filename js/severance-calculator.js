@@ -9,6 +9,7 @@
   const customWeeksInput = document.getElementById('calcCustomWeeks');
   const ptoInput = document.getElementById('calcPto');
   const positionInput = document.getElementById('calcPosition');
+  const reasonInput = document.getElementById('calcReason');
   const submitBtn = document.getElementById('calcSubmitBtn');
 
   const resultInner = document.getElementById('calcResultInner');
@@ -23,6 +24,10 @@
 
   const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
   const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+  // How much a real offer could reasonably swing above/below the base
+  // formula math, since actual severance depends on company policy,
+  // seniority, and negotiation, not just a fixed weeks-of-pay formula.
+  const RANGE_VARIANCE = 0.15;
 
   let formulaValue = formulaOptions.querySelector('.calc-formula-opt.is-active')?.dataset.value || '1';
 
@@ -61,9 +66,12 @@
     const weeklyPay = salary / 52;
     const severanceWeeks = multiplier * years;
     const baseSeverance = weeklyPay * severanceWeeks;
-    const total = baseSeverance + pto;
+    // PTO is owed as wages regardless of severance, so it's held fixed;
+    // only the negotiable severance portion swings across the range.
+    const low = baseSeverance * (1 - RANGE_VARIANCE) + pto;
+    const high = baseSeverance * (1 + RANGE_VARIANCE) + pto;
 
-    amountEl.textContent = currency.format(total);
+    amountEl.textContent = `${currency.format(low)} – ${currency.format(high)}`;
     weeklyPayEl.textContent = currency.format(weeklyPay);
     severanceWeeksEl.textContent = number.format(severanceWeeks);
     baseSeveranceEl.textContent = currency.format(baseSeverance);
@@ -97,15 +105,24 @@
     if(e.persisted) resetToIdle();
   });
 
+  function validateRequired(){
+    const requiredFields = [positionInput, reasonInput].filter(Boolean);
+    let firstInvalid = null;
+    requiredFields.forEach(field => {
+      if(!field.value){
+        field.classList.add('calc-input-error');
+        field.addEventListener('change', () => {
+          field.classList.remove('calc-input-error');
+        }, { once: true });
+        if(!firstInvalid) firstInvalid = field;
+      }
+    });
+    if(firstInvalid) firstInvalid.focus();
+    return !firstInvalid;
+  }
+
   submitBtn.addEventListener('click', () => {
-    if(positionInput && !positionInput.value){
-      positionInput.classList.add('calc-input-error');
-      positionInput.focus();
-      positionInput.addEventListener('change', () => {
-        positionInput.classList.remove('calc-input-error');
-      }, { once: true });
-      return;
-    }
+    if(!validateRequired()) return;
 
     loading.hidden = false;
     submitBtn.disabled = true;
