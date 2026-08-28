@@ -2615,7 +2615,8 @@ footer a:hover{ color:var(--white); }
   text-transform:uppercase;
   color:var(--navy-900) !important;
 }
-.key-points ul{ margin-top:14px !important; }
+.key-points ul{ margin-top:14px !important; list-style:disc !important; padding-left:22px !important; display:flex; flex-direction:column; gap:10px; }
+.key-points li{ padding-left:4px; }
 .attorney-note{
   margin:20px 0;
   padding:14px 18px;
@@ -5099,7 +5100,6 @@ footer a:hover{ color:var(--white); }
   border:1px solid var(--paper-line);
   border-radius:12px;
   padding:28px;
-  box-shadow:0 30px 60px -20px rgba(10,15,39,0.4);
 }
 .calc-inputs-head{
   display:flex;
@@ -5132,6 +5132,7 @@ footer a:hover{ color:var(--white); }
   grid-template-columns:1fr 1fr;
   gap:16px;
 }
+.calc-row-2-keep{ grid-template-columns:1.4fr 1fr; }
 .calc-optional{
   text-transform:none;
   font-weight:500;
@@ -5207,7 +5208,7 @@ footer a:hover{ color:var(--white); }
   border:1px solid var(--paper-line);
   border-radius:12px;
   padding:28px;
-  box-shadow:0 30px 60px -20px rgba(10,15,39,0.4);
+  box-shadow:0 14px 28px -10px rgba(10,15,39,0.35);
   scroll-margin-top:88px;
 }
 .calc-result-label{
