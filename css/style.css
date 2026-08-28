@@ -5049,9 +5049,10 @@ footer a:hover{ color:var(--white); }
   border:none;
   box-shadow:none;
   border-radius:14px;
-  padding:0 40px 40px;
+  padding:24px 40px 40px;
 }
 .calc-card-head{
+  position:relative;
   display:flex;
   align-items:flex-end;
   justify-content:space-between;
@@ -5066,7 +5067,9 @@ footer a:hover{ color:var(--white); }
   color:var(--navy-950);
 }
 .calc-card-head-illustration{
-  flex:none;
+  position:absolute;
+  right:0;
+  bottom:0;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -5357,7 +5360,7 @@ footer a:hover{ color:var(--white); }
 }
 
 @media (max-width: 860px){
-  .calc-card{ padding:0 22px 28px; }
+  .calc-card{ padding:20px 22px 28px; }
   .calc-grid{ grid-template-columns:1fr; }
   .calc-row-2, .calc-formula-options{ grid-template-columns:1fr; }
   .calc-row-2-keep{ grid-template-columns:1.4fr 1fr; gap:8px; }
