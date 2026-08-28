@@ -43,13 +43,13 @@
   });
 
   function getLetterText(){
-    // The blank "&nbsp;" paragraphs between lines leave a stray non-breaking
-    // space behind in innerText (e.g. "\n\n \n\n" instead of "\n\n"), which
-    // would otherwise print/copy/download as a double-spaced letter.
-    return letter.innerText
-      .replace(/ /g, '')
-      .replace(/\n{2,}/g, '\n\n')
-      .trim();
+    // Built directly from each <p>, not letter.innerText: innerText leaves
+    // a stray non-breaking space behind for every blank "&nbsp;" spacer
+    // paragraph, which breaks any attempt to control exactly how many
+    // blank lines appear between two lines (needed since some gaps in
+    // this letter intentionally have more than others).
+    const lines = [...letter.children].map(p => p.textContent.replace(/ /g, '').trim());
+    return lines.join('\n').replace(/^\n+|\n+$/g, '');
   }
 
   function escapeHtml(str){
@@ -76,7 +76,7 @@
 
   function doDownload(){
     const lines = getLetterText().split('\n').map(line => escapeHtml(line) || '&nbsp;');
-    const html = `<html><head><meta charset="utf-8"></head><body style="font-family:'Times New Roman',Times,serif; font-size:12pt; line-height:1.5;">${lines.join('<br>')}</body></html>`;
+    const html = `<html><head><meta charset="utf-8"></head><body style="font-family:'Times New Roman',Times,serif; font-size:12pt; line-height:1.5; margin-top:1.75in;">${lines.join('<br>')}</body></html>`;
     const blob = new Blob(['﻿', html], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
