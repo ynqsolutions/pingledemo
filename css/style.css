@@ -5031,10 +5031,9 @@ footer a:hover{ color:var(--white); }
 }
 
 /* ===== Severance pay calculator ===== */
-.calc-hero{ padding-bottom:8px; }
 .calc-section{
   background:var(--paper);
-  padding:0;
+  padding:16px 0 0;
 }
 .page-article .calc-article-body{ padding-top:30px; }
 .page-article .calc-article-body .legal-body-inner > h2:first-child{
@@ -5049,7 +5048,7 @@ footer a:hover{ color:var(--white); }
   border:none;
   box-shadow:none;
   border-radius:14px;
-  padding:0 40px 40px;
+  padding:8px 40px 40px;
 }
 .calc-card-head{
   display:flex;
@@ -5357,7 +5356,7 @@ footer a:hover{ color:var(--white); }
 }
 
 @media (max-width: 860px){
-  .calc-card{ padding:0 22px 28px; }
+  .calc-card{ padding:8px 22px 28px; }
   .calc-grid{ grid-template-columns:1fr; }
   .calc-row-2, .calc-formula-options{ grid-template-columns:1fr; }
   .calc-row-2-keep{ grid-template-columns:1.4fr 1fr; gap:8px; }
