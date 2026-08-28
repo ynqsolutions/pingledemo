@@ -1126,19 +1126,3 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   });
 })();
 
-// Tools & Templates grid on resources.html: shows the first 8 cards, click
-// "View All" to reveal the rest instead of paginating.
-(function(){
-  const grid = document.getElementById('toolGrid');
-  const viewAllBtn = document.getElementById('toolGridViewAll');
-  if(!grid || !viewAllBtn) return;
-  const cardCount = grid.querySelectorAll('.tool-card').length;
-  if(cardCount <= 8){
-    viewAllBtn.closest('.resources-tools-cta').hidden = true;
-    return;
-  }
-  viewAllBtn.addEventListener('click', () => {
-    grid.classList.add('show-all');
-    viewAllBtn.closest('.resources-tools-cta').hidden = true;
-  });
-})();
