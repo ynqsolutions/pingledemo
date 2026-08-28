@@ -6,14 +6,12 @@
   const salaryInput = document.getElementById('calcSalary');
   const yearsInput = document.getElementById('calcYears');
   const formulaOptions = document.getElementById('calcFormulaOptions');
-  const customWeeksRow = document.getElementById('calcCustomWeeksRow');
   const customWeeksInput = document.getElementById('calcCustomWeeks');
   const ptoInput = document.getElementById('calcPto');
   const positionInput = document.getElementById('calcPosition');
   const submitBtn = document.getElementById('calcSubmitBtn');
 
   const resultInner = document.getElementById('calcResultInner');
-  const overlay = document.getElementById('calcResultOverlay');
   const loading = document.getElementById('calcResultLoading');
   const amountEl = document.getElementById('calcResultAmount');
   const weeklyPayEl = document.getElementById('calcWeeklyPay');
@@ -77,7 +75,8 @@
       formulaOptions.querySelectorAll('.calc-formula-opt').forEach(b => b.classList.remove('is-active'));
       btn.classList.add('is-active');
       formulaValue = btn.dataset.value;
-      customWeeksRow.hidden = formulaValue !== 'custom';
+      customWeeksInput.disabled = formulaValue !== 'custom';
+      if(customWeeksInput.disabled) customWeeksInput.value = '';
     });
   });
 
@@ -94,7 +93,6 @@
       return;
     }
 
-    overlay.hidden = true;
     loading.hidden = false;
     submitBtn.disabled = true;
 

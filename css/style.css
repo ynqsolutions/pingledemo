@@ -2255,6 +2255,14 @@ footer a:hover{ color:var(--white); }
   outline:none;
   border-color:var(--gold-500);
 }
+.form-row input:disabled,
+.form-row select:disabled,
+.form-row textarea:disabled{
+  background:var(--paper);
+  color:var(--ink-soft);
+  opacity:0.6;
+  cursor:not-allowed;
+}
 .form-row textarea{ resize:vertical; min-height:96px; }
 .form-disclaimer{
   font-size:12.5px;
@@ -5229,27 +5237,6 @@ footer a:hover{ color:var(--white); }
   filter:blur(6px);
   pointer-events:none;
   user-select:none;
-}
-.calc-result-overlay{
-  position:absolute;
-  inset:0;
-  z-index:2;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  padding:24px;
-  text-align:center;
-  background:rgba(255,255,255,0.6);
-}
-.calc-result-overlay svg{ color:var(--gold-500); }
-.calc-result-overlay p{
-  margin:0;
-  max-width:220px;
-  font-size:13.5px;
-  line-height:1.5;
-  color:var(--navy-950);
 }
 .calc-result-loading{
   position:absolute;
