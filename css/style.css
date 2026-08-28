@@ -5708,3 +5708,47 @@ footer a:hover{ color:var(--white); }
   .tpl-paper, .tpl-letter, .letter-field{ font-family:'Times New Roman', Times, serif !important; }
   .tpl-letter p{ line-height:1.5 !important; }
 }
+
+/* ===== Slider + number input pair (meal/rest break calculator's shift
+   length field, reusable for any future calculator) ===== */
+.calc-slider-row{ display:flex; align-items:center; gap:14px; }
+.calc-slider{
+  -webkit-appearance:none;
+  appearance:none;
+  flex:1;
+  height:4px;
+  border-radius:2px;
+  background:var(--paper-line);
+  outline:none;
+}
+.calc-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:18px; height:18px;
+  border-radius:50%;
+  background:var(--gold-500);
+  border:2px solid var(--white);
+  box-shadow:0 1px 4px rgba(10,15,39,0.3);
+  cursor:pointer;
+}
+.calc-slider::-moz-range-thumb{
+  width:18px; height:18px;
+  border-radius:50%;
+  background:var(--gold-500);
+  border:2px solid var(--white);
+  box-shadow:0 1px 4px rgba(10,15,39,0.3);
+  cursor:pointer;
+}
+.calc-slider::-moz-range-track{ height:4px; border-radius:2px; background:var(--paper-line); }
+.calc-slider-value{ width:72px; flex:none; text-align:center; }
+
+.calc-result-schedule-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:12px;
+  font-size:13.5px;
+  color:var(--ink-soft);
+}
+.calc-result-schedule-row span:last-child{ color:var(--navy-950); font-weight:600; white-space:nowrap; }
+.calc-result-schedule-row + .calc-result-schedule-row{ margin-top:10px; }
