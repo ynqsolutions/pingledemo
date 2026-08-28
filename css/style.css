@@ -5075,7 +5075,7 @@ footer a:hover{ color:var(--white); }
   margin-top:10px;
   max-width:420px;
   color:var(--ink-soft);
-  font-size:15px;
+  font-size:13.5px;
   line-height:1.6;
 }
 .calc-grid{
@@ -5086,14 +5086,16 @@ footer a:hover{ color:var(--white); }
   margin-top:28px;
 }
 
-/* A darker, warm tone of the site's own paper background (not the
-   site's navy) so the form panel reads as a distinct surface without
-   introducing an unrelated brand color. */
+/* A transparent bordered panel with a soft light sheen in the corner,
+   instead of a solid fill, so it reads as a distinct surface without
+   covering the page's own background. */
 .calc-inputs{
+  position:relative;
   display:flex;
   flex-direction:column;
   gap:18px;
-  background:var(--navy-950);
+  background:linear-gradient(160deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.15) 45%, rgba(255,255,255,0) 75%);
+  border:1px solid var(--paper-line);
   border-radius:12px;
   padding:28px;
 }
@@ -5102,7 +5104,7 @@ footer a:hover{ color:var(--white); }
   align-items:center;
   gap:10px;
   margin-bottom:2px;
-  color:var(--gold-400);
+  color:var(--gold-500);
   font-family:var(--font-cond);
   font-size:13px;
   font-weight:700;
@@ -5118,12 +5120,12 @@ footer a:hover{ color:var(--white); }
   height:28px;
   border-radius:7px;
   background:var(--gold-500);
-  color:var(--navy-950);
+  color:var(--white);
 }
 .calc-inputs-head-rule{
   flex:1;
   height:1px;
-  background:rgba(255,255,255,0.16);
+  background:var(--paper-line);
 }
 .calc-inputs label{
   font-family:var(--font-body);
@@ -5131,34 +5133,8 @@ footer a:hover{ color:var(--white); }
   font-weight:500;
   letter-spacing:0;
   text-transform:none;
-  color:rgba(255,255,255,0.9);
+  color:var(--navy-950);
 }
-.calc-inputs .calc-optional{ color:rgba(255,255,255,0.45); }
-.calc-inputs .calc-tip.glossary-term{ border-color:rgba(255,255,255,0.3); color:rgba(255,255,255,0.6); }
-.calc-inputs .calc-tip.glossary-term:hover{ border-color:var(--gold-400); color:var(--gold-400); }
-.calc-inputs .form-row input,
-.calc-inputs .form-row select,
-.calc-inputs .form-row textarea{
-  background-color:rgba(255,255,255,0.06);
-  border-color:rgba(255,255,255,0.18);
-  color:var(--white);
-}
-.calc-inputs .form-row select{
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F3EFE6' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
-  background-repeat:no-repeat;
-  background-position:right 14px center;
-  background-size:16px;
-}
-.calc-inputs .form-row input::placeholder{ color:rgba(255,255,255,0.35); }
-.calc-inputs .form-row input:focus,
-.calc-inputs .form-row select:focus{ border-color:var(--gold-400); }
-.calc-inputs .form-row input:disabled,
-.calc-inputs .form-row select:disabled{
-  background-color:rgba(255,255,255,0.03);
-  color:rgba(255,255,255,0.35);
-  opacity:1;
-}
-.calc-inputs .calc-dollar-input::before{ color:rgba(255,255,255,0.45); }
 
 .calc-row-2{
   display:grid;
@@ -5196,13 +5172,13 @@ footer a:hover{ color:var(--white); }
   align-items:flex-start;
   gap:2px;
   padding:12px 14px;
-  background:rgba(255,255,255,0.06);
-  border:1.5px solid rgba(255,255,255,0.18);
+  background:var(--white);
+  border:1.5px solid var(--paper-line);
   border-radius:9px;
   font-family:var(--font-body);
   font-size:13.5px;
   font-weight:600;
-  color:var(--white);
+  color:var(--navy-950);
   text-align:left;
   cursor:pointer;
   transition:border-color .15s ease, background .15s ease;
@@ -5212,15 +5188,15 @@ footer a:hover{ color:var(--white); }
   font-size:11px;
   font-weight:500;
   letter-spacing:0.02em;
-  color:rgba(255,255,255,0.5);
+  color:var(--ink-soft);
   text-transform:none;
 }
-.calc-formula-opt:hover{ border-color:var(--gold-400); }
+.calc-formula-opt:hover{ border-color:var(--gold-500); }
 .calc-formula-opt.is-active{
-  border-color:var(--gold-400);
-  background:rgba(201,162,79,0.16);
+  border-color:var(--gold-500);
+  background:rgba(179,138,60,0.08);
 }
-.calc-formula-opt.is-active span{ color:var(--gold-400); }
+.calc-formula-opt.is-active span{ color:var(--gold-500); }
 .calc-submit-btn{
   margin-top:4px;
   width:100%;
@@ -5234,7 +5210,7 @@ footer a:hover{ color:var(--white); }
   display:flex;
   flex-direction:column;
   position:relative;
-  background:var(--white);
+  background:transparent;
   color:var(--navy-950);
   border:1px solid var(--paper-line);
   border-radius:12px;
