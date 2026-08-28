@@ -4318,6 +4318,36 @@ footer a:hover{ color:var(--white); }
   color:var(--gold-500);
   margin-bottom:4px;
 }
+
+.paystub-illustration{
+  margin:22px 0;
+  max-width:640px;
+}
+.paystub-illustration svg{
+  width:100%;
+  height:auto;
+  display:block;
+  border-radius:10px;
+  box-shadow:0 20px 40px -24px rgba(10,15,39,0.3);
+}
+.paystub-lineitem{
+  margin:14px 0;
+  padding-left:16px;
+  border-left:3px solid var(--gold-500);
+}
+.paystub-lineitem strong{
+  display:block;
+  font-family:var(--font-display);
+  font-size:16px;
+  color:var(--navy-950);
+  margin-bottom:4px;
+}
+.paystub-lineitem p{
+  margin:0;
+  color:var(--ink-soft);
+  font-size:14.5px;
+  line-height:1.65;
+}
 .blog-example p{ margin-top:0 !important; font-size:14.5px !important; color:var(--ink) !important; }
 
 .blog-cta-inline{
