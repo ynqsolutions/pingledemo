@@ -5035,9 +5035,9 @@ footer a:hover{ color:var(--white); }
 .calc-card{
   max-width:1040px;
   margin:0 auto;
-  background:var(--white);
-  border:1px solid var(--paper-line);
-  box-shadow:0 30px 60px -30px rgba(10,15,39,0.25);
+  background:transparent;
+  border:none;
+  box-shadow:none;
   border-radius:14px;
   padding:40px;
 }
