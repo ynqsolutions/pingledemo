@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commission &amp; Bonus Proration Calculator | Pingle Law</title>
+<meta name="description" content="Free calculator for prorating a partial-period commission or bonus by calendar days, business days, or a custom percentage you define.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=251">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="stylesheet" href="css/a11y-widget.css?v=9">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://pinglelaw.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Resources", "item": "https://pinglelaw.com/resources.html" },
+    { "@type": "ListItem", "position": 3, "name": "Commission & Bonus Proration Calculator", "item": "https://pinglelaw.com/commission-proration-calculator.html" }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "How is a prorated bonus calculated?", "acceptedAnswer": { "@type": "Answer", "text": "Divide the days you actually worked in the period by the total days in the full period, then multiply that fraction by the full bonus or commission amount. The specific method (calendar days, business days, or another formula) depends on your employer's plan." } },
+    { "@type": "Question", "name": "Is my employer required to prorate my bonus?", "acceptedAnswer": { "@type": "Answer", "text": "It depends entirely on the terms of your specific commission or bonus plan. Some plans prorate automatically, others require a full period of employment, and some are discretionary. Check your plan documents or offer letter." } },
+    { "@type": "Question", "name": "What if my employer's proration formula doesn't match this calculator?", "acceptedAnswer": { "@type": "Answer", "text": "Use the custom percentage option and enter the fraction from your own plan's formula. This tool does the arithmetic, it doesn't determine which formula applies to your situation." } }
+  ]
+}
+</script>
+</head>
+<body class="page-article">
+
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <div class="header-inner wrap">
+    <a href="index.html" class="logo"><img src="assets/Pingle_Logo_Outline.png?v=2" alt="Pingle Law"></a>
+
+    <nav class="nav-desktop">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="practice-areas.html">Practice Areas</a>
+      <a href="faq.html">FAQ</a>
+      <a href="results-and-testimonials.html">Results</a>
+      <a href="resources.html">Resources</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="lang-toggle header-lang-toggle-desktop" role="group" aria-label="Language display toggle, decorative only">
+        <span class="active">EN</span><span>ES</span>
+      </div>
+      <div class="header-phone">
+        <span class="label">Se Habla Español</span>
+        <a class="num" href="tel:+17145932306">(714) 593-2306</a>
+      </div>
+      <button class="burger" aria-label="Open menu" aria-expanded="false" id="burgerBtn">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobileNav">
+  <div class="lang-toggle mobile-nav-lang-bar" role="group" aria-label="Language display toggle, decorative only">
+    <span class="active">EN</span><span>ES</span>
+  </div>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="practice-areas.html">Practice Areas</a></li>
+    <li><a href="faq.html">FAQ</a></li>
+    <li><a href="results-and-testimonials.html">Results</a></li>
+    <li><a href="resources.html">Resources</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="mobile-nav-footer">
+    <span class="mobile-nav-lang-label">Se Habla Español</span>
+    <a href="tel:+17145932306" class="btn btn-outline-light mobile-nav-phone-btn">(714) 593-2306</a>
+    <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="btn btn-gold">Free Consultation</a>
+  </div>
+</div>
+
+<!-- ============ MOBILE STICKY CTA ============ -->
+<div class="mobile-sticky-cta" aria-hidden="false">
+  <div class="mobile-sticky-buttons">
+    <a href="tel:+17145932306" class="mobile-sticky-btn mobile-sticky-call">Call Now</a>
+    <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="mobile-sticky-btn mobile-sticky-consult">Free Consultation</a>
+  </div>
+  <span class="mobile-sticky-lang">Se Habla Espa&ntilde;ol</span>
+</div>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="about-hero practice-article-hero calc-hero">
+  <div class="wrap">
+    <a href="resources.html#tools-calculators" class="blog-back-link calc-hero-back-link">&larr; Back to Tools &amp; Templates</a>
+    <div class="about-hero-inner">
+      <span class="eyebrow" style="color:var(--gold-500);">Free Tool</span>
+      <h1>Commission &amp; Bonus Proration Calculator</h1>
+      <div class="about-hero-pill">
+        <a href="#calculator" class="pill-gold">Use the Calculator</a>
+        <a href="case-review.html" class="pill-ghost">Start Free Case Review</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CALCULATOR ============ -->
+<section class="calc-section section-divider-full" id="calculator">
+  <div class="wrap">
+    <div class="calc-card">
+      <div class="calc-card-head">
+        <div class="calc-card-head-text">
+          <span class="eyebrow" style="color:var(--gold-500);">Calculator</span>
+          <h2>Commission / Bonus Proration Calculator</h2>
+          <p>Figure out what a partial-period bonus or commission should come out to, using the formula you choose.</p>
+        </div>
+        <div class="calc-card-head-illustration" aria-hidden="true">
+          <img src="assets/icons/commission-proration-icon.png" alt="">
+        </div>
+      </div>
+
+      <div class="tool-disclaimer">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.01"></path></svg>
+        <p>This calculator only does the arithmetic on the formula and dates you provide, it does not determine which proration method applies to your specific plan. It is not legal advice, does not create an attorney-client relationship, and may not reflect the most current law. <a href="case-review.html">Consult an attorney</a> if you believe a bonus or commission was calculated incorrectly.</p>
+      </div>
+
+      <div class="calc-grid">
+        <div class="calc-inputs">
+          <div class="calc-inputs-head">
+            <span>Your Information</span>
+            <span class="calc-inputs-head-rule"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="calc-label-row">
+              <label for="calcFullAmount">Full Commission / Bonus Amount</label>
+            </div>
+            <div class="calc-dollar-input">
+              <input type="text" id="calcFullAmount" placeholder="5,000" inputmode="decimal">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="calc-label-row">
+              <label for="calcBasisOptions">Proration Basis</label>
+            </div>
+            <div class="calc-formula-options" id="calcBasisOptions">
+              <button type="button" class="calc-formula-opt is-active" data-value="calendar">Calendar Days<span>Every day counts</span></button>
+              <button type="button" class="calc-formula-opt" data-value="business">Business Days<span>Weekdays only</span></button>
+              <button type="button" class="calc-formula-opt" data-value="custom">Custom %<span>Set your own</span></button>
+            </div>
+          </div>
+
+          <div id="calcDateFieldsRow">
+            <div class="calc-row-2 calc-row-2-keep">
+              <div class="form-row">
+                <label for="calcPeriodStart">Full Period Start</label>
+                <input type="date" id="calcPeriodStart">
+              </div>
+              <div class="form-row">
+                <label for="calcPeriodEnd">Full Period End</label>
+                <input type="date" id="calcPeriodEnd">
+              </div>
+            </div>
+            <div class="calc-row-2 calc-row-2-keep">
+              <div class="form-row">
+                <label for="calcWorkedStart">Worked Start</label>
+                <input type="date" id="calcWorkedStart">
+              </div>
+              <div class="form-row">
+                <label for="calcWorkedEnd">Worked End</label>
+                <input type="date" id="calcWorkedEnd">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row" id="calcCustomFieldRow" hidden>
+            <div class="calc-label-row">
+              <label for="calcCustomPercent">Percentage of Full Period Worked</label>
+            </div>
+            <div class="calc-affix-input">
+              <input type="number" id="calcCustomPercent" min="0" max="100" step="0.1" placeholder="65">
+              <span class="calc-affix calc-affix-right">%</span>
+            </div>
+          </div>
+
+          <button type="button" class="btn calc-submit-btn" id="calcSubmitBtn">Calculate Prorated Amount &rarr;</button>
+        </div>
+
+        <div class="calc-result" id="calcResultCard">
+          <div class="calc-result-inner is-blurred" id="calcResultInner">
+            <span class="calc-result-label">Your Prorated Amount</span>
+            <span class="calc-result-amount" id="calcResultAmount">$0</span>
+            <p class="calc-result-estimate-note">This is arithmetic only, based on the formula and dates you entered.</p>
+            <div class="calc-result-breakdown">
+              <div class="calc-result-line"><span>Full amount</span><span id="calcResultFullAmount">$0</span></div>
+              <div class="calc-result-line"><span>Percentage worked</span><span id="calcResultFraction">0%</span></div>
+              <div class="calc-result-line"><span>Basis</span><span id="calcResultBasis">&mdash;</span></div>
+            </div>
+
+            <div class="calc-consult-row">
+              <h4>Think a Bonus Was Shorted?</h4>
+              <p>If your commission or bonus wasn't calculated the way your plan says it should be, get a free review.</p>
+              <a href="case-review.html">Start Free Case Review &rarr;</a>
+            </div>
+          </div>
+
+          <div class="calc-result-loading" id="calcResultLoading" hidden>
+            <img src="assets/Animations/character_calculator.png" alt="" width="110" height="98">
+            <p>Calculating your prorated amount&hellip;</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARTICLE BODY ============ -->
+<section class="legal-body calc-article-body">
+  <div class="wrap">
+  <div class="legal-body-inner">
+
+    <h2>How Proration Works</h2>
+    <p>Prorating a bonus or commission means scaling the full-period amount down to reflect only the portion of the period you actually worked. The formula for doing that isn't standardized, some plans count every calendar day, others count only business days, and some use a completely different method spelled out in the plan documents. This calculator does the math once you tell it which formula to use.</p>
+
+    <div class="key-points">
+      <h3>Key Points</h3>
+      <ul>
+        <li>Proration formulas vary by employer and plan, there's no single legal standard.</li>
+        <li>Calendar-day and business-day methods can produce meaningfully different results.</li>
+        <li>If your plan uses a different formula entirely, use the custom percentage option to match it.</li>
+        <li>Commissions and bonuses that are earned are generally considered wages in California once the conditions for earning them are met.</li>
+      </ul>
+    </div>
+
+    <div class="article-cta-banner-outer">
+      <img src="assets/Pingle_HS_pointing.png" alt="" class="article-cta-banner-img" aria-hidden="true">
+      <div class="article-cta-banner article-cta-banner-with-img">
+        <div class="article-cta-banner-text">
+          <span class="article-cta-banner-eyebrow">Numbers don't match?</span>
+          <h3>Have your bonus or commission reviewed, free.</h3>
+          <p>If what you were paid doesn't match your plan's own formula, a free case review can help you understand your options.</p>
+        </div>
+        <a href="case-review.html" class="btn btn-gold">Start Free Case Review</a>
+      </div>
+    </div>
+
+    <h2>What This Calculator Doesn't Do</h2>
+    <p>It doesn't know your employer's actual bonus or commission plan, and it doesn't determine whether a payment was earned in the first place, those questions depend entirely on your plan's specific terms. It only calculates the arithmetic once you supply the amount and the proration method.</p>
+
+    <div class="tldr" id="tldr">
+      <span class="tldr-label">TL;DR</span>
+      <p>Prorating a bonus or commission means multiplying the full amount by the fraction of the period you worked. Calendar days, business days, or a custom percentage all give different results, use whichever method matches your actual plan.</p>
+    </div>
+
+    <div class="faq-block">
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-block-item">
+        <h3>How is a prorated bonus calculated?</h3>
+        <p>Divide days worked by total days in the period, then multiply that fraction by the full bonus amount.</p>
+      </div>
+
+      <div class="faq-block-item">
+        <h3>Is my employer required to prorate my bonus?</h3>
+        <p>It depends entirely on your specific plan's terms, check your plan documents or offer letter.</p>
+      </div>
+
+      <div class="faq-block-item">
+        <h3>What if my employer's formula doesn't match this calculator?</h3>
+        <p>Use the custom percentage option and enter the fraction from your own plan's formula.</p>
+      </div>
+    </div>
+
+    <h3>Keep Reading</h3>
+    <div class="calc-links-grid">
+      <a href="severance-pay-calculator.html">
+        <span class="calc-links-tag">Calculator</span>
+        <strong>Severance Pay Calculator</strong>
+      </a>
+      <a href="take-home-pay-calculator.html">
+        <span class="calc-links-tag">Calculator</span>
+        <strong>Take-Home Pay Estimator</strong>
+      </a>
+      <a href="glossary.html">
+        <span class="calc-links-tag">Glossary</span>
+        <strong>Employment Law Glossary</strong>
+      </a>
+      <a href="case-review.html">
+        <span class="calc-links-tag">Next Step</span>
+        <strong>Start a Free Case Review</strong>
+      </a>
+    </div>
+
+    <p class="article-disclaimer">This calculator and article provide general educational information and are not individualized legal advice, and may not reflect the most current law. Reading this page does not create an attorney-client relationship with the Law Offices of Corey A. Pingle. For guidance specific to your situation, <a href="contact.html">contact our office</a> or <a href="case-review.html">start a free case review</a>.</p>
+
+  </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA / CONTACT ============ -->
+<section class="final-cta" id="contact">
+  <div class="wrap final-cta-inner">
+    <div class="final-cta-copy">
+      <h2>Are you ready to reach out?</h2>
+      <p>Contact us to discuss your situation. We are here to answer your questions, explain your options, and help you determine the best way to move forward.</p>
+      <ul class="final-cta-points">
+        <li>Free consultation</li>
+        <li>No win, no fee guarantee</li>
+        <li>Real answers</li>
+      </ul>
+      <div class="cta-buttons">
+        <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="btn btn-gold">Free Consultation</a>
+        <a href="contact.html" class="btn btn-outline-light">Contact Us</a>
+      </div>
+    </div>
+
+    <div class="final-cta-form">
+      <h3>Get your free case review</h3>
+      <p>Answer a short set of questions to see where your situation stands, no cost, no obligation.</p>
+      <a href="case-review.html" class="btn btn-gold">Start Free Case Review</a>
+      <p class="final-cta-form-fine">Takes about two minutes.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 15l6-6 6 6"/></svg>
+</button>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><img src="assets/Pingle_Logo_Outline.png?v=2" alt="Pingle Law"></div>
+        <p class="footer-firm-name">Law Offices of Corey A. Pingle</p>
+        <p style="max-width:320px; color:rgba(255,255,255,0.6);">Employment law firm representing employees across Orange County, Los Angeles County, Riverside County, San Bernardino County, San Francisco County, Sacramento County, and all across California.</p>
+        <form class="footer-newsletter" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field">
+          <input type="hidden" name="form-name" value="newsletter">
+          <p style="position:absolute; left:-9999px;" aria-hidden="true">
+            <label>Leave this field blank<input name="nl-bot-field" tabindex="-1" autocomplete="off"></label>
+          </p>
+          <label for="newsletterEmail" class="footer-newsletter-label">Subscribe to our newsletter</label>
+          <div class="footer-newsletter-row">
+            <input id="newsletterEmail" type="email" name="email" placeholder="Email address" required autocomplete="email">
+            <button type="submit" aria-label="Subscribe">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+          <p class="newsletter-status" style="font-size:12.5px; color:rgba(255,255,255,0.55); min-height:16px; margin-top:6px;"></p>
+        </form>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="tel:+17145932306">(714) 593-2306</a></li>
+          <li><a href="assets/pingle-law-contact.vcf" download="Law Offices of Corey Pingle.vcf" class="footer-save-contact">Save Contact</a></li>
+          <li><a href="mailto:info@pinglelaw.com">info@pinglelaw.com</a></li>
+        </ul>
+        <div class="footer-social" aria-label="Social media links">
+          <a href="https://www.instagram.com/pinglelaw/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="https://www.facebook.com/pinglelaw/" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 8.5h2.5V5H14c-2.2 0-4 1.8-4 4v2.5H8V15h2v6h3v-6h2.5l.5-3.5H13V9c0-.6.4-1 1-1Z"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/in/corey-pingle-b777979a/?isSelfProfile=false" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="7.5" y1="10.5" x2="7.5" y2="16.5"/><circle cx="7.5" cy="7.3" r="0.9" fill="currentColor" stroke="none"/><path d="M11 16.5v-4c0-1.4 1-2.3 2.2-2.3 1.2 0 2 .9 2 2.3v4"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h5>Explore</h5>
+        <ul>
+          <li><a href="case-review.html">Free Case Review</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="practice-areas.html">Practice Areas</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="rss.html">RSS</a></li>
+          <li><a href="glossary.html">Glossary</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Service Area</h5>
+        <ul>
+          <li><a href="fountain-valley.html">Fountain Valley, CA</a></li>
+          <li><a href="beverly-hills.html">Beverly Hills, CA</a></li>
+          <li><a href="san-bernardino.html">San Bernardino, CA</a></li>
+          <li><a href="san-diego.html">San Diego, CA</a></li>
+          <li><a href="san-francisco.html">San Francisco, CA</a></li>
+          <li><a href="sacramento.html">Sacramento, CA</a></li>
+          <li>and all of California</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Law Offices of Corey A. Pingle. All rights reserved. Attorney advertising. Prior results do not guarantee a similar outcome.</span>
+      <div class="legal-links">
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-use.html">Terms of Use</a>
+        <a href="disclaimer.html">Disclaimer</a>
+        <a href="sitemap.html">Sitemap</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js?v=69" defer></script>
+<script src="js/commission-proration-calculator.js?v=1" defer></script>
+<script src="js/a11y-widget.js?v=13" defer></script>
+</body>
+</html>
