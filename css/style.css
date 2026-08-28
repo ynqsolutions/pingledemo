@@ -1653,6 +1653,8 @@ section.faq-cat-nav .faq-cat-nav-inner button{
 .legal-body-inner p{ margin-top:14px; }
 .legal-body-inner a{ color:var(--gold-500); text-decoration:underline; }
 .legal-body-inner a:hover{ color:var(--gold-400); }
+.blog-main p a{ color:var(--gold-500); text-decoration:underline; }
+.blog-main p a:hover{ color:var(--gold-400); }
 
 .legal-cta{
   background:var(--navy-950);
