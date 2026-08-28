@@ -5031,6 +5031,7 @@ footer a:hover{ color:var(--white); }
 }
 
 /* ===== Severance pay calculator ===== */
+.calc-hero{ padding-bottom:16px; }
 .calc-section{
   background:var(--paper);
   padding:0;
