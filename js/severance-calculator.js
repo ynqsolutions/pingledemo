@@ -76,24 +76,6 @@
     severanceWeeksEl.textContent = number.format(severanceWeeks);
     baseSeveranceEl.textContent = currency.format(baseSeverance);
     ptoLineEl.textContent = currency.format(pto);
-
-    // Handed off to case-review.html (via sessionStorage, not a URL param,
-    // so salary never lands in the address bar or referrer data) so any of
-    // the "Start Free Case Review" CTAs on this page (hero, body banner,
-    // estimate tile) can carry it over automatically. Session-only by
-    // design: it clears itself once read, and never persists past the
-    // browser tab. Deliberately excludes the dollar estimate itself, just
-    // the inputs, since the attorney will recompute a real number anyway.
-    if(salary > 0 && years > 0){
-      const positionLabel = positionInput?.selectedOptions[0]?.text || '';
-      const reasonLabel = reasonInput?.selectedOptions[0]?.text || '';
-      const details = [
-        `Severance calculator inputs: ${currency.format(salary)} salary, ${number.format(years)} years of service`,
-        positionLabel && `${positionLabel} position`,
-        reasonLabel && `separation reason: ${reasonLabel}`,
-      ].filter(Boolean).join('; ') + '.';
-      sessionStorage.setItem('severanceCalcSummary', details);
-    }
   }
 
   formulaOptions.querySelectorAll('.calc-formula-opt').forEach(btn => {

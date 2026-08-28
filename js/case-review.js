@@ -153,19 +153,6 @@
     });
   });
 
-  // ---- Pick up a severance estimate handed off from the calculator, if
-  // the visitor just came from there in this same tab (sessionStorage,
-  // cleared immediately so it never resurfaces on a later visit) ----
-  const calcSummary = sessionStorage.getItem('severanceCalcSummary');
-  if(calcSummary){
-    sessionStorage.removeItem('severanceCalcSummary');
-    const detailsField = document.getElementById('crAnythingElse');
-    if(detailsField && !detailsField.value){
-      detailsField.value = calcSummary;
-      detailsField.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }
-
   // ---- Phone formatting: always render as XXX-XXX-XXXX while typing ----
   function formatPhone(value){
     const digits = (value || '').replace(/\D/g, '').slice(0, 10);

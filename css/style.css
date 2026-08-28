@@ -5273,6 +5273,10 @@ footer a:hover{ color:var(--white); }
   .tip-roster-row{ grid-template-columns:1fr 70px 28px; }
 }
 
+/* ===== Tools & Templates grid: show 8 by default, "View All" reveals
+   the rest ===== */
+.tool-grid:not(.show-all) .tool-card:nth-child(n+9){ display:none; }
+
 .calc-formula-options{
   display:grid;
   grid-template-columns:repeat(3, 1fr);

@@ -1,4 +1,5 @@
-// Resignation letter template: purely client-side, nothing typed here is
+// Shared logic for every letter-template page (resignation, retirement
+// notice, PTO request, etc.) — purely client-side, nothing typed here is
 // ever sent anywhere or persisted (no localStorage/sessionStorage) — a
 // refresh or navigating away clears it completely, by design.
 (function(){
@@ -81,7 +82,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'Resignation-Letter.doc';
+    a.download = letter.dataset.filename || 'Letter.doc';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
