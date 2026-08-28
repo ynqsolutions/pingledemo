@@ -2222,7 +2222,7 @@ footer a:hover{ color:var(--white); }
   flex-direction:column;
   gap:16px;
 }
-.form-row{ display:flex; flex-direction:column; gap:8px; }
+.form-row{ display:flex; flex-direction:column; gap:8px; min-width:0; }
 .form-row label{
   font-family:var(--font-cond);
   font-size:12.5px;
@@ -5082,7 +5082,7 @@ footer a:hover{ color:var(--white); }
   display:grid;
   grid-template-columns:1.15fr 1fr;
   gap:40px;
-  align-items:start;
+  align-items:stretch;
   margin-top:28px;
 }
 
@@ -5094,6 +5094,7 @@ footer a:hover{ color:var(--white); }
   display:flex;
   flex-direction:column;
   gap:18px;
+  min-width:0;
   background:linear-gradient(160deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.15) 45%, rgba(255,255,255,0) 75%);
   border:1px solid var(--paper-line);
   border-radius:12px;
@@ -5199,6 +5200,7 @@ footer a:hover{ color:var(--white); }
   display:flex;
   flex-direction:column;
   position:relative;
+  min-width:0;
   background:transparent;
   color:var(--navy-950);
   border:1px solid var(--paper-line);
@@ -5256,6 +5258,13 @@ footer a:hover{ color:var(--white); }
 }
 .calc-info-callout svg{ flex:none; color:var(--gold-500); margin-top:1px; }
 .calc-info-callout p{ margin:0; font-size:13px; line-height:1.55; color:var(--ink-soft); }
+.calc-info-callout ul{
+  margin:4px 0 0;
+  padding-left:18px;
+  font-size:13px;
+  line-height:1.6;
+  color:var(--ink-soft);
+}
 
 .calc-consult-row{
   margin-top:20px;
@@ -5303,9 +5312,9 @@ footer a:hover{ color:var(--white); }
 .calc-input-error{ border-color:#C0392B !important; }
 
 .calc-result{ position:relative; overflow:hidden; }
-.calc-result-inner{ display:flex; flex-direction:column; }
+.calc-result-inner{ display:flex; flex-direction:column; flex:1; }
 .calc-result-inner.is-blurred{
-  filter:blur(6px);
+  filter:blur(10px);
   pointer-events:none;
   user-select:none;
 }
@@ -5318,7 +5327,7 @@ footer a:hover{ color:var(--white); }
   align-items:center;
   justify-content:center;
   gap:12px;
-  background:transparent;
+  background:rgba(243,239,230,0.55);
 }
 .calc-result-loading[hidden]{ display:none; }
 .calc-result-loading img{ width:110px; height:auto; }

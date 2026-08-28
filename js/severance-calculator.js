@@ -134,6 +134,10 @@
   submitBtn.addEventListener('click', () => {
     if(!validateRequired()) return;
 
+    // Re-blur every time, not just the first run, so recalculating after
+    // already seeing a result plays the same blur -> loading -> reveal
+    // sequence instead of showing the loading animation over clear numbers.
+    resultInner.classList.add('is-blurred');
     loading.hidden = false;
     submitBtn.disabled = true;
 
