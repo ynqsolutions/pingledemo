@@ -15,15 +15,11 @@
   fields.forEach(field => {
     syncFilledState(field);
 
-    // Selecting all placeholder text on focus means the first keystroke
-    // replaces it outright, rather than the visitor having to select it.
+    // Clear the placeholder text outright as soon as the field is clicked,
+    // rather than making the visitor select and delete it first.
     field.addEventListener('focus', () => {
       if(field.textContent === field.dataset.placeholder){
-        const range = document.createRange();
-        range.selectNodeContents(field);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
+        field.textContent = '';
       }
     });
 
@@ -47,7 +43,13 @@
   });
 
   function getLetterText(){
-    return letter.innerText.replace(/\n{3,}/g, '\n\n').trim();
+    // The blank "&nbsp;" paragraphs between lines leave a stray non-breaking
+    // space behind in innerText (e.g. "\n\n \n\n" instead of "\n\n"), which
+    // would otherwise print/copy/download as a double-spaced letter.
+    return letter.innerText
+      .replace(/ /g, '')
+      .replace(/\n{2,}/g, '\n\n')
+      .trim();
   }
 
   function escapeHtml(str){
@@ -74,7 +76,7 @@
 
   function doDownload(){
     const lines = getLetterText().split('\n').map(line => escapeHtml(line) || '&nbsp;');
-    const html = `<html><head><meta charset="utf-8"></head><body style="font-family:'Courier New',Courier,monospace; font-size:12.5pt; line-height:1.8;">${lines.join('<br>')}</body></html>`;
+    const html = `<html><head><meta charset="utf-8"></head><body style="font-family:'Times New Roman',Times,serif; font-size:12pt; line-height:1.5;">${lines.join('<br>')}</body></html>`;
     const blob = new Blob(['﻿', html], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

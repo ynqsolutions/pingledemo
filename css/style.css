@@ -5540,7 +5540,7 @@ footer a:hover{ color:var(--white); }
   font-family:'Courier New', Courier, monospace;
   font-size:14.5px;
   color:#2b2b28;
-  background-image:repeating-linear-gradient(#FBFAF6 0, #FBFAF6 27px, var(--paper-line) 27px, var(--paper-line) 28px);
+  background-image:repeating-linear-gradient(#FBFAF6 0, #FBFAF6 27px, rgba(216,207,182,0.4) 27px, rgba(216,207,182,0.4) 28px);
   background-position:0 8px;
 }
 .tpl-letter p{ line-height:28px; margin:0; }
@@ -5622,4 +5622,6 @@ footer a:hover{ color:var(--white); }
   .tpl-print-area{ position:absolute; top:0; left:0; width:100%; }
   .tpl-paper-wrap{ box-shadow:none; border:none; }
   .tpl-paper{ background-image:none; }
+  .tpl-paper, .tpl-letter, .letter-field{ font-family:'Times New Roman', Times, serif !important; }
+  .tpl-letter p{ line-height:1.5 !important; }
 }
