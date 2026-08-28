@@ -4,10 +4,11 @@
 (function(){
   const salaryInput = document.getElementById('calcSalary');
   const yearsInput = document.getElementById('calcYears');
-  const formulaSelect = document.getElementById('calcFormula');
+  const formulaOptions = document.getElementById('calcFormulaOptions');
   const customWeeksRow = document.getElementById('calcCustomWeeksRow');
   const customWeeksInput = document.getElementById('calcCustomWeeks');
   const ptoInput = document.getElementById('calcPto');
+  const submitBtn = document.getElementById('calcSubmitBtn');
 
   const amountEl = document.getElementById('calcResultAmount');
   const weeklyPayEl = document.getElementById('calcWeeklyPay');
@@ -15,22 +16,44 @@
   const baseSeveranceEl = document.getElementById('calcBaseSeverance');
   const ptoLineEl = document.getElementById('calcPtoLine');
 
-  if(!salaryInput || !yearsInput || !formulaSelect) return;
+  if(!salaryInput || !yearsInput || !formulaOptions) return;
 
   const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
   const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
 
+  let formulaValue = formulaOptions.querySelector('.calc-formula-opt.is-active')?.dataset.value || '1';
+
+  // Adds live thousands-separator formatting to a dollar input while typing,
+  // without breaking mid-number editing (decimals, backspacing).
+  function formatDollarInput(el){
+    el.addEventListener('input', () => {
+      let raw = el.value.replace(/[^0-9.]/g, '');
+      const firstDot = raw.indexOf('.');
+      if(firstDot !== -1){
+        raw = raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, '');
+      }
+      const [intPart, decPart] = raw.split('.');
+      const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
+      el.value = decPart !== undefined ? `${formattedInt}.${decPart.slice(0, 2)}` : formattedInt;
+      recalc();
+    });
+  }
+
+  function numericValue(el){
+    return Math.max(0, parseFloat((el.value || '').replace(/,/g, '')) || 0);
+  }
+
   function weeksPerYear(){
-    if(formulaSelect.value === 'custom'){
+    if(formulaValue === 'custom'){
       return Math.max(0, parseFloat(customWeeksInput.value) || 0);
     }
-    return parseFloat(formulaSelect.value) || 0;
+    return parseFloat(formulaValue) || 0;
   }
 
   function recalc(){
-    const salary = Math.max(0, parseFloat(salaryInput.value) || 0);
+    const salary = numericValue(salaryInput);
     const years = Math.max(0, parseFloat(yearsInput.value) || 0);
-    const pto = Math.max(0, parseFloat(ptoInput.value) || 0);
+    const pto = numericValue(ptoInput);
     const multiplier = weeksPerYear();
 
     const weeklyPay = salary / 52;
@@ -45,14 +68,25 @@
     ptoLineEl.textContent = currency.format(pto);
   }
 
-  formulaSelect.addEventListener('change', () => {
-    customWeeksRow.hidden = formulaSelect.value !== 'custom';
-    recalc();
+  formulaOptions.querySelectorAll('.calc-formula-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      formulaOptions.querySelectorAll('.calc-formula-opt').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      formulaValue = btn.dataset.value;
+      customWeeksRow.hidden = formulaValue !== 'custom';
+      recalc();
+    });
   });
 
-  [salaryInput, yearsInput, customWeeksInput, ptoInput].forEach(el => {
-    el.addEventListener('input', recalc);
-  });
+  formatDollarInput(salaryInput);
+  formatDollarInput(ptoInput);
+  [yearsInput, customWeeksInput].forEach(el => el.addEventListener('input', recalc));
+
+  if(submitBtn){
+    submitBtn.addEventListener('click', () => {
+      document.getElementById('calcResultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
 
   recalc();
 })();
