@@ -1,6 +1,7 @@
-// Severance pay calculator: live-updates the estimate as the visitor types,
-// using the same simple weekly-pay x weeks-per-year x years-of-service model
-// explained in the article below it on severance-pay-calculator.html.
+// Severance pay calculator: only calculates when the visitor clicks "See My
+// Estimate" (not live on every keystroke), showing a brief loading animation
+// before revealing the result. Formula math is explained in the article
+// below it on severance-pay-calculator.html.
 (function(){
   const salaryInput = document.getElementById('calcSalary');
   const yearsInput = document.getElementById('calcYears');
@@ -10,13 +11,16 @@
   const ptoInput = document.getElementById('calcPto');
   const submitBtn = document.getElementById('calcSubmitBtn');
 
+  const resultInner = document.getElementById('calcResultInner');
+  const overlay = document.getElementById('calcResultOverlay');
+  const loading = document.getElementById('calcResultLoading');
   const amountEl = document.getElementById('calcResultAmount');
   const weeklyPayEl = document.getElementById('calcWeeklyPay');
   const severanceWeeksEl = document.getElementById('calcSeveranceWeeks');
   const baseSeveranceEl = document.getElementById('calcBaseSeverance');
   const ptoLineEl = document.getElementById('calcPtoLine');
 
-  if(!salaryInput || !yearsInput || !formulaOptions) return;
+  if(!salaryInput || !yearsInput || !formulaOptions || !submitBtn) return;
 
   const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
   const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
@@ -35,7 +39,6 @@
       const [intPart, decPart] = raw.split('.');
       const formattedInt = intPart ? Number(intPart).toLocaleString('en-US') : '';
       el.value = decPart !== undefined ? `${formattedInt}.${decPart.slice(0, 2)}` : formattedInt;
-      recalc();
     });
   }
 
@@ -50,7 +53,7 @@
     return parseFloat(formulaValue) || 0;
   }
 
-  function recalc(){
+  function calculate(){
     const salary = numericValue(salaryInput);
     const years = Math.max(0, parseFloat(yearsInput.value) || 0);
     const pto = numericValue(ptoInput);
@@ -74,19 +77,23 @@
       btn.classList.add('is-active');
       formulaValue = btn.dataset.value;
       customWeeksRow.hidden = formulaValue !== 'custom';
-      recalc();
     });
   });
 
   formatDollarInput(salaryInput);
   formatDollarInput(ptoInput);
-  [yearsInput, customWeeksInput].forEach(el => el.addEventListener('input', recalc));
 
-  if(submitBtn){
-    submitBtn.addEventListener('click', () => {
+  submitBtn.addEventListener('click', () => {
+    overlay.hidden = true;
+    loading.hidden = false;
+    submitBtn.disabled = true;
+
+    setTimeout(() => {
+      calculate();
+      loading.hidden = true;
+      resultInner.classList.remove('is-blurred');
+      submitBtn.disabled = false;
       document.getElementById('calcResultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-  }
-
-  recalc();
+    }, 1400);
+  });
 })();

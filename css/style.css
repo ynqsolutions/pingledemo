@@ -5016,7 +5016,7 @@ footer a:hover{ color:var(--white); }
 /* ===== Severance pay calculator ===== */
 .calc-section{
   background:var(--paper);
-  padding:8px 0 56px;
+  padding:48px 0 56px;
 }
 .calc-card{
   max-width:1040px;
@@ -5202,6 +5202,71 @@ footer a:hover{ color:var(--white); }
   text-decoration:none;
 }
 .calc-consult-row a:hover{ color:var(--gold-400); }
+
+.calc-label-row{ display:flex; align-items:center; gap:6px; }
+.calc-label-row label{ margin:0; }
+.calc-tip.glossary-term{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:none;
+  width:16px;
+  height:16px;
+  border:1px solid var(--paper-line);
+  border-radius:50%;
+  color:var(--ink-soft);
+  padding:0;
+}
+.calc-tip.glossary-term:hover{ border-color:var(--gold-500); color:var(--gold-500); }
+
+.calc-result{ position:relative; overflow:hidden; }
+.calc-result-inner.is-blurred{
+  filter:blur(6px);
+  pointer-events:none;
+  user-select:none;
+}
+.calc-result-overlay{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding:24px;
+  text-align:center;
+  background:rgba(255,255,255,0.6);
+}
+.calc-result-overlay svg{ color:var(--gold-500); }
+.calc-result-overlay p{
+  margin:0;
+  max-width:220px;
+  font-size:13.5px;
+  line-height:1.5;
+  color:var(--navy-950);
+}
+.calc-result-loading{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  background:var(--white);
+}
+.calc-result-loading img{ width:110px; height:auto; }
+.calc-result-loading p{
+  margin:0;
+  font-family:var(--font-cond);
+  font-size:12.5px;
+  font-weight:700;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  color:var(--gold-500);
+}
 
 @media (max-width: 860px){
   .calc-card{ padding:28px 22px; }
