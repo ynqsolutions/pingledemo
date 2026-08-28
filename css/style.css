@@ -5739,7 +5739,10 @@ footer a:hover{ color:var(--white); }
   .site-header, .mobile-nav, .mobile-sticky-cta, footer,
   main > section:not(#generator),
   #generator .calc-card-head,
-  #generator .tpl-side{
+  #generator .tpl-side,
+  #generator .tool-disclaimer,
+  #a11yTab, #a11yBackdrop, #a11yPanel,
+  .glossary-popup{
     display:none !important;
   }
   #generator{ border:none !important; padding:0 !important; margin:0 !important; }
@@ -5749,15 +5752,25 @@ footer a:hover{ color:var(--white); }
   .tpl-paper-wrap{ box-shadow:none !important; border:none !important; background:#fff !important; }
   .tpl-paper-wrap::before{ display:none !important; }
   .tpl-paper-hole{ display:none !important; }
+  /* Match the .doc download's own inline styles exactly (Times New
+     Roman, 12pt, 1.5 line-height, 1.75in reserved at the top for
+     letterhead) so print and download never look like two different
+     documents. */
   .tpl-paper{
     background-image:none !important;
     background-color:#fff !important;
-    padding:0 !important;
+    padding:1.75in 0 0 0 !important;
     min-height:0 !important;
+    font-size:12pt !important;
   }
   .tpl-paper, .tpl-letter, .letter-field{ font-family:'Times New Roman', Times, serif !important; color:#000 !important; }
-  .tpl-letter p{ line-height:1.5 !important; }
-  .letter-field{ border-bottom:none !important; }
+  .tpl-letter p{ line-height:1.5 !important; margin:0 !important; }
+  .letter-field{
+    border-bottom:none !important;
+    font-style:normal !important;
+    min-width:0 !important;
+    padding:0 !important;
+  }
 }
 
 /* ===== Slider + preset pills (meal/rest break calculator's shift length
