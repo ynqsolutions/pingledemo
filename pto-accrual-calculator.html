@@ -145,12 +145,14 @@
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcCurrentBalance">Current PTO Balance <span class="calc-optional">optional</span></label>
+                <button type="button" class="calc-tip glossary-term" data-term="Current PTO Balance" data-def="How many hours you already have banked today. Leave blank to just see how much you'll accrue between now and your target date.">?</button>
               </div>
               <input type="number" id="calcCurrentBalance" min="0" step="0.5" placeholder="40" inputmode="decimal">
             </div>
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcTargetDate">Project To</label>
+                <button type="button" class="calc-tip glossary-term" data-term="Project To" data-def="The future date you want to project your PTO balance out to, for example, the date of an upcoming trip you're planning to take time off for.">?</button>
               </div>
               <input type="date" id="calcTargetDate">
             </div>
@@ -160,12 +162,14 @@
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcAccrualRate">Accrual Rate (hours)</label>
+                <button type="button" class="calc-tip glossary-term" data-term="Accrual Rate" data-def="How many hours of PTO you earn per pay period, week, or month, whichever matches your employer's policy. Check your pay stub or handbook for your exact rate.">?</button>
               </div>
               <input type="number" id="calcAccrualRate" min="0" step="0.1" placeholder="3.08" inputmode="decimal">
             </div>
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcAccrualFrequency">Per</label>
+                <button type="button" class="calc-tip glossary-term" data-term="Per" data-def="How often you accrue that rate, per pay period, week, or month. Match this to how your employer's policy describes your accrual rate.">?</button>
               </div>
               <select id="calcAccrualFrequency">
                 <option value="week">Week</option>
@@ -180,6 +184,7 @@
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcPlannedUse">PTO Already Planned to Use <span class="calc-optional">optional</span></label>
+                <button type="button" class="calc-tip glossary-term" data-term="PTO Already Planned to Use" data-def="Any hours you already know you'll use before the target date, for example, a vacation you've already scheduled. Subtracted from your projected balance.">?</button>
               </div>
               <input type="number" id="calcPlannedUse" min="0" step="0.5" placeholder="0" inputmode="decimal">
             </div>

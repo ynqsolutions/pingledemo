@@ -144,6 +144,7 @@
           <div class="form-row">
             <div class="calc-label-row">
               <label for="calcFullAmount">Full Commission / Bonus Amount</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Full Commission / Bonus Amount" data-def="The full amount you'd receive for a complete period, before any proration for a partial period worked.">?</button>
             </div>
             <div class="calc-dollar-input">
               <input type="text" id="calcFullAmount" placeholder="5,000" inputmode="decimal">
@@ -153,6 +154,7 @@
           <div class="form-row">
             <div class="calc-label-row">
               <label for="calcBasisOptions">Proration Basis</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Proration Basis" data-def="How the partial period is measured: every calendar day, only weekdays (business days), or a custom percentage you enter directly from your own plan's formula.">?</button>
             </div>
             <div class="calc-formula-options" id="calcBasisOptions">
               <button type="button" class="calc-formula-opt is-active" data-value="calendar">Calendar Days<span>Every day counts</span></button>
@@ -164,21 +166,33 @@
           <div id="calcDateFieldsRow">
             <div class="calc-row-2 calc-row-2-keep">
               <div class="form-row">
-                <label for="calcPeriodStart">Full Period Start</label>
+                <div class="calc-label-row">
+                  <label for="calcPeriodStart">Full Period Start</label>
+                  <button type="button" class="calc-tip glossary-term" data-term="Full Period Start" data-def="The start date of the entire commission or bonus period, as defined by your plan (e.g. the first day of the quarter).">?</button>
+                </div>
                 <input type="date" id="calcPeriodStart">
               </div>
               <div class="form-row">
-                <label for="calcPeriodEnd">Full Period End</label>
+                <div class="calc-label-row">
+                  <label for="calcPeriodEnd">Full Period End</label>
+                  <button type="button" class="calc-tip glossary-term" data-term="Full Period End" data-def="The end date of the entire commission or bonus period, as defined by your plan (e.g. the last day of the quarter).">?</button>
+                </div>
                 <input type="date" id="calcPeriodEnd">
               </div>
             </div>
             <div class="calc-row-2 calc-row-2-keep">
               <div class="form-row">
-                <label for="calcWorkedStart">Worked Start</label>
+                <div class="calc-label-row">
+                  <label for="calcWorkedStart">Worked Start</label>
+                  <button type="button" class="calc-tip glossary-term" data-term="Worked Start" data-def="The first day you were actually employed and eligible within the full period, for example your hire date if it falls mid-period.">?</button>
+                </div>
                 <input type="date" id="calcWorkedStart">
               </div>
               <div class="form-row">
-                <label for="calcWorkedEnd">Worked End</label>
+                <div class="calc-label-row">
+                  <label for="calcWorkedEnd">Worked End</label>
+                  <button type="button" class="calc-tip glossary-term" data-term="Worked End" data-def="The last day you were actually employed and eligible within the full period, for example your last day if you left mid-period.">?</button>
+                </div>
                 <input type="date" id="calcWorkedEnd">
               </div>
             </div>
@@ -187,6 +201,7 @@
           <div class="form-row" id="calcCustomFieldRow" hidden>
             <div class="calc-label-row">
               <label for="calcCustomPercent">Percentage of Full Period Worked</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Percentage of Full Period Worked" data-def="Enter the fraction of the period worked directly, using whatever formula your specific plan calls for.">?</button>
             </div>
             <div class="calc-affix-input">
               <input type="number" id="calcCustomPercent" min="0" max="100" step="0.1" placeholder="65">

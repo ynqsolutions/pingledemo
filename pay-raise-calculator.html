@@ -144,6 +144,7 @@
           <div class="form-row">
             <div class="calc-label-row">
               <label for="calcSalary">Current Annual Salary</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Current Annual Salary" data-def="Your gross yearly pay before taxes, at your current rate. Used as the base the raise is applied to.">?</button>
             </div>
             <div class="calc-dollar-input">
               <input type="text" id="calcSalary" placeholder="65,000" inputmode="decimal">
@@ -153,6 +154,7 @@
           <div class="form-row">
             <div class="calc-label-row">
               <label for="calcRaiseType">Raise Type</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Raise Type" data-def="Choose how your raise was communicated: as a percentage of your current salary, or as a flat dollar amount. The math is equivalent, this just matches how you'd naturally enter it.">?</button>
             </div>
             <div class="calc-formula-options" id="calcRaiseType">
               <button type="button" class="calc-formula-opt is-active" data-value="percent">Percentage<span>e.g. 5%</span></button>
@@ -164,6 +166,7 @@
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcRaiseValue">Raise Amount</label>
+                <button type="button" class="calc-tip glossary-term" data-term="Raise Amount" data-def="The size of your raise, entered as a percentage or a flat dollar amount depending on what you selected above.">?</button>
               </div>
               <div class="calc-affix-input">
                 <span id="calcRaiseValuePrefix" class="calc-affix calc-affix-left" hidden>$</span>
@@ -174,6 +177,7 @@
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcFrequency">Pay Frequency</label>
+                <button type="button" class="calc-tip glossary-term" data-term="Pay Frequency" data-def="How often you're paid. Used to show what your new salary looks like per paycheck, not just per year.">?</button>
               </div>
               <select id="calcFrequency">
                 <option value="weekly">Weekly</option>

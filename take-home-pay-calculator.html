@@ -145,6 +145,7 @@
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcGross">Gross Pay</label>
+                <button type="button" class="calc-tip glossary-term" data-term="Gross Pay" data-def="Your pay before any taxes or deductions come out, for one pay period at the frequency you select below.">?</button>
               </div>
               <div class="calc-dollar-input">
                 <input type="text" id="calcGross" placeholder="2,500" inputmode="decimal">
@@ -153,6 +154,7 @@
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcFrequency">Pay Frequency</label>
+                <button type="button" class="calc-tip glossary-term" data-term="Pay Frequency" data-def="How often you're paid. Used to annualize your gross pay for the tax calculation, then convert everything back to a per-paycheck estimate.">?</button>
               </div>
               <select id="calcFrequency">
                 <option value="weekly">Weekly</option>
@@ -168,6 +170,7 @@
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcFilingStatus">Filing Status</label>
+                <button type="button" class="calc-tip glossary-term" data-term="Filing Status" data-def="Your federal and state tax filing status. It changes which tax brackets and standard deduction apply to your income.">?</button>
               </div>
               <select id="calcFilingStatus">
                 <option value="single" selected>Single</option>
@@ -188,6 +191,7 @@
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcRetirementPct">401(k) / Retirement <span class="calc-optional">optional</span></label>
+                <button type="button" class="calc-tip glossary-term" data-term="401(k) / Retirement" data-def="The percentage of your gross pay you contribute to a traditional 401(k) or similar plan. This lowers your taxable income but not your Social Security or Medicare wages.">?</button>
               </div>
               <div class="calc-affix-input">
                 <input type="number" id="calcRetirementPct" min="0" max="100" step="0.5" placeholder="0">
@@ -197,6 +201,7 @@
             <div class="form-row">
               <div class="calc-label-row">
                 <label for="calcHealthDeduction">Health Insurance <span class="calc-optional">optional</span></label>
+                <button type="button" class="calc-tip glossary-term" data-term="Health Insurance" data-def="Your pre-tax health insurance premium for this pay period. This reduces your taxable income and your Social Security/Medicare wages.">?</button>
               </div>
               <div class="calc-dollar-input">
                 <input type="text" id="calcHealthDeduction" placeholder="0" inputmode="decimal">
