@@ -639,6 +639,11 @@ if(backToTop){
   const form = document.getElementById('glossarySearch');
   if(!input || !results || !form) return;
 
+  // Moved from an inline onsubmit="return false" attribute so the CSP
+  // script-src can drop 'unsafe-inline'; this is a type-ahead search, so
+  // pressing Enter should never actually submit/reload the page.
+  form.addEventListener('submit', (e) => e.preventDefault());
+
   const entries = [...document.querySelectorAll('.glossary-entry')].map(el => ({
     id: el.id,
     name: el.querySelector('h3') ? el.querySelector('h3').textContent.trim() : ''
@@ -1092,5 +1097,31 @@ if(backToTop){
   modal.querySelectorAll('[data-modal-close]').forEach(el => el.addEventListener('click', closeModal));
   document.addEventListener('keydown', (e) => {
     if(e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+  });
+})();
+
+// Footer newsletter form: client-side-only confirmation message (the actual
+// submission still goes to Netlify Forms via the standard POST/data-netlify
+// mechanism; this just swaps in a friendly status line instead of a full
+// page reload). Moved here from an inline onsubmit="" attribute so the CSP
+// script-src can drop 'unsafe-inline'.
+document.querySelectorAll('.footer-newsletter').forEach(form => {
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const status = form.querySelector('.newsletter-status');
+    if(status) status.textContent = 'Thanks for subscribing.';
+    form.reset();
+  });
+});
+
+// Contact page form: same pattern as the newsletter form above.
+(function(){
+  const form = document.querySelector('form[name="contact"]');
+  if(!form) return;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const status = form.querySelector('.contact-form-status');
+    if(status) status.textContent = 'Thanks, your message has been sent.';
+    form.reset();
   });
 })();

@@ -38,7 +38,7 @@ OUTPUT_FILE = "rss.html"
 PAGE_FILE_PATTERN = "rss-page-{n}.html"
 ARCHIVE_FILE = "content/rss-archive.json"
 CSS_VERSION = "247"
-JS_VERSION = "68"
+JS_VERSION = "69"
 FETCH_TIMEOUT = 12
 USER_AGENT = "PingleLawSite/1.0 (+https://www.pinglelaw.com)"
 # Keeps each page fast and gives search engines more distinct, indexable
