@@ -29,13 +29,13 @@
    bottom edge (where its gradient overlay ends) instead of floating
    further down the page; the search box's own margin below supplies
    the breathing room instead. */
-.tools-directory-filter-section{ padding-top:0; padding-bottom:8px; }
+.tools-directory-filter-section{ padding-top:0; padding-bottom:4px; }
 .tools-directory-search{ max-width:520px; margin:22px auto 0; position:relative; }
 /* This page's own tool grid immediately follows the filter section, so
    the shared sitewide top rule (meant to separate it from a plain
    article grid above it) would read as a second, redundant divider
    right under the short one below the tabs. */
-.resources-tools-section{ border-top:none; }
+.resources-tools-section{ border-top:none; padding-top:16px; }
 .tools-directory-search input{
   width:100%; padding:14px 18px 14px 44px; border-radius:999px; border:1px solid var(--paper-line);
   font-family:var(--font-body); font-size:15px; color:var(--navy-950); background:var(--white);
@@ -65,9 +65,8 @@
 }
 .tools-directory-tabs button:hover{ border-color:var(--gold-500); color:var(--navy-950); }
 .tools-directory-tabs button.is-active{ background:var(--navy-950); border-color:var(--navy-950); color:var(--white); }
-.tools-tabs-divider{ max-width:340px; margin:24px auto 0; height:1px; background:var(--paper-line); }
 .tools-directory-section{ max-width:1080px; margin:0 auto; padding:56px 0 0; }
-.tools-directory-section:first-of-type{ padding-top:32px; }
+.tools-directory-section:first-of-type{ padding-top:0; }
 .tools-directory-section-head{ display:flex; align-items:center; gap:14px; margin-bottom:20px; }
 .tools-directory-section-head h2{ font-family:var(--font-display); font-size:20px; color:var(--navy-950); }
 .tools-directory-section-head .rule{ flex:1; height:1px; background:var(--gold-500); opacity:0.4; }
@@ -184,7 +183,6 @@
       <button type="button" data-cat="tips-commissions">Tips &amp; Commissions</button>
       <button type="button" data-cat="templates">Templates</button>
     </div>
-    <div class="tools-tabs-divider" aria-hidden="true"></div>
   </div>
 </section>
 
