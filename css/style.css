@@ -1829,6 +1829,16 @@ footer a:hover{ color:var(--white); }
   color:rgba(255,255,255,0.5);
 }
 .footer-bottom .legal-links{ display:flex; gap:20px; flex-wrap:wrap; }
+.footer-credit{
+  margin-top:16px;
+  padding-top:16px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  text-align:center;
+  font-size:11.5px;
+  color:rgba(255,255,255,0.35);
+}
+.footer-credit a{ color:rgba(255,255,255,0.45); }
+.footer-credit a:hover{ color:var(--gold-400); }
 
 /* ================= MOBILE STICKY CTA ================= */
 .mobile-sticky-cta{
