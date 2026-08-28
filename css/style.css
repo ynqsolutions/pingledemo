@@ -4129,6 +4129,14 @@ footer a:hover{ color:var(--white); }
   color:var(--ink-soft);
 }
 .blog-back-link:hover{ color:var(--gold-500); }
+/* Aligns with .calc-card-head-text below, which sits inset from the
+   shared .wrap by the card's own centering offset (max-width:1040px)
+   plus its left padding — the plain .wrap padding alone left this link
+   sitting further left than the calculator content beneath it. */
+.calc-hero-back-link{ margin-left:max(0px, calc((100% - 1040px) / 2 + 40px)); }
+@media (max-width:860px){
+  .calc-hero-back-link{ margin-left:22px; }
+}
 .blog-hero .resource-article-tag{
   display:block;
   margin-top:22px;
@@ -5040,7 +5048,7 @@ footer a:hover{ color:var(--white); }
   border:none;
   box-shadow:none;
   border-radius:14px;
-  padding:40px;
+  padding:8px 40px 40px;
 }
 .calc-card-head{
   display:flex;
@@ -5348,7 +5356,7 @@ footer a:hover{ color:var(--white); }
 }
 
 @media (max-width: 860px){
-  .calc-card{ padding:28px 22px; }
+  .calc-card{ padding:8px 22px 28px; }
   .calc-grid{ grid-template-columns:1fr; }
   .calc-row-2, .calc-formula-options{ grid-template-columns:1fr; }
   .calc-row-2-keep{ grid-template-columns:1.4fr 1fr; gap:8px; }
