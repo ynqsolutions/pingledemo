@@ -1,0 +1,3002 @@
+[
+  {
+    "index": 1,
+    "category": "mechanics_automotive",
+    "subject": "open-end-wrench",
+    "file": "mechanics_automotive/01-open-end-wrench.png"
+  },
+  {
+    "index": 2,
+    "category": "mechanics_automotive",
+    "subject": "socket-wrench",
+    "file": "mechanics_automotive/02-socket-wrench.png"
+  },
+  {
+    "index": 3,
+    "category": "mechanics_automotive",
+    "subject": "screwdriver",
+    "file": "mechanics_automotive/03-screwdriver.png"
+  },
+  {
+    "index": 4,
+    "category": "mechanics_automotive",
+    "subject": "pliers",
+    "file": "mechanics_automotive/04-pliers.png"
+  },
+  {
+    "index": 5,
+    "category": "mechanics_automotive",
+    "subject": "ball-peen-hammer",
+    "file": "mechanics_automotive/05-ball-peen-hammer.png"
+  },
+  {
+    "index": 6,
+    "category": "mechanics_automotive",
+    "subject": "mechanic-toolbox",
+    "file": "mechanics_automotive/06-mechanic-toolbox.png"
+  },
+  {
+    "index": 7,
+    "category": "mechanics_automotive",
+    "subject": "hydraulic-floor-jack",
+    "file": "mechanics_automotive/07-hydraulic-floor-jack.png"
+  },
+  {
+    "index": 8,
+    "category": "mechanics_automotive",
+    "subject": "jack-stand",
+    "file": "mechanics_automotive/08-jack-stand.png"
+  },
+  {
+    "index": 9,
+    "category": "mechanics_automotive",
+    "subject": "car-battery",
+    "file": "mechanics_automotive/09-car-battery.png"
+  },
+  {
+    "index": 10,
+    "category": "mechanics_automotive",
+    "subject": "spark-plug",
+    "file": "mechanics_automotive/10-spark-plug.png"
+  },
+  {
+    "index": 11,
+    "category": "mechanics_automotive",
+    "subject": "oil-can",
+    "file": "mechanics_automotive/11-oil-can.png"
+  },
+  {
+    "index": 12,
+    "category": "mechanics_automotive",
+    "subject": "motor-oil-bottle",
+    "file": "mechanics_automotive/12-motor-oil-bottle.png"
+  },
+  {
+    "index": 13,
+    "category": "mechanics_automotive",
+    "subject": "tire",
+    "file": "mechanics_automotive/13-tire.png"
+  },
+  {
+    "index": 14,
+    "category": "mechanics_automotive",
+    "subject": "wheel-rim",
+    "file": "mechanics_automotive/14-wheel-rim.png"
+  },
+  {
+    "index": 15,
+    "category": "mechanics_automotive",
+    "subject": "brake-disc",
+    "file": "mechanics_automotive/15-brake-disc.png"
+  },
+  {
+    "index": 16,
+    "category": "mechanics_automotive",
+    "subject": "brake-caliper",
+    "file": "mechanics_automotive/16-brake-caliper.png"
+  },
+  {
+    "index": 17,
+    "category": "mechanics_automotive",
+    "subject": "gear-cog",
+    "file": "mechanics_automotive/17-gear-cog.png"
+  },
+  {
+    "index": 18,
+    "category": "mechanics_automotive",
+    "subject": "engine-block",
+    "file": "mechanics_automotive/18-engine-block.png"
+  },
+  {
+    "index": 19,
+    "category": "mechanics_automotive",
+    "subject": "piston",
+    "file": "mechanics_automotive/19-piston.png"
+  },
+  {
+    "index": 20,
+    "category": "mechanics_automotive",
+    "subject": "timing-belt",
+    "file": "mechanics_automotive/20-timing-belt.png"
+  },
+  {
+    "index": 21,
+    "category": "mechanics_automotive",
+    "subject": "car-lift",
+    "file": "mechanics_automotive/21-car-lift.png"
+  },
+  {
+    "index": 22,
+    "category": "mechanics_automotive",
+    "subject": "mechanic-gloves",
+    "file": "mechanics_automotive/22-mechanic-gloves.png"
+  },
+  {
+    "index": 23,
+    "category": "mechanics_automotive",
+    "subject": "safety-goggles",
+    "file": "mechanics_automotive/23-safety-goggles.png"
+  },
+  {
+    "index": 24,
+    "category": "mechanics_automotive",
+    "subject": "welding-mask",
+    "file": "mechanics_automotive/24-welding-mask.png"
+  },
+  {
+    "index": 25,
+    "category": "mechanics_automotive",
+    "subject": "diagnostic-scanner",
+    "file": "mechanics_automotive/25-diagnostic-scanner.png"
+  },
+  {
+    "index": 26,
+    "category": "medical_healthcare",
+    "subject": "stethoscope",
+    "file": "medical_healthcare/01-stethoscope.png"
+  },
+  {
+    "index": 27,
+    "category": "medical_healthcare",
+    "subject": "syringe",
+    "file": "medical_healthcare/02-syringe.png"
+  },
+  {
+    "index": 28,
+    "category": "medical_healthcare",
+    "subject": "first-aid-kit",
+    "file": "medical_healthcare/03-first-aid-kit.png"
+  },
+  {
+    "index": 29,
+    "category": "medical_healthcare",
+    "subject": "medicine-bottle",
+    "file": "medical_healthcare/04-medicine-bottle.png"
+  },
+  {
+    "index": 30,
+    "category": "medical_healthcare",
+    "subject": "thermometer",
+    "file": "medical_healthcare/05-thermometer.png"
+  },
+  {
+    "index": 31,
+    "category": "medical_healthcare",
+    "subject": "bandage-roll",
+    "file": "medical_healthcare/06-bandage-roll.png"
+  },
+  {
+    "index": 32,
+    "category": "medical_healthcare",
+    "subject": "adhesive-bandage",
+    "file": "medical_healthcare/07-adhesive-bandage.png"
+  },
+  {
+    "index": 33,
+    "category": "medical_healthcare",
+    "subject": "surgical-mask",
+    "file": "medical_healthcare/08-surgical-mask.png"
+  },
+  {
+    "index": 34,
+    "category": "medical_healthcare",
+    "subject": "medical-gloves",
+    "file": "medical_healthcare/09-medical-gloves.png"
+  },
+  {
+    "index": 35,
+    "category": "medical_healthcare",
+    "subject": "blood-bag",
+    "file": "medical_healthcare/10-blood-bag.png"
+  },
+  {
+    "index": 36,
+    "category": "medical_healthcare",
+    "subject": "iv-drip-stand",
+    "file": "medical_healthcare/11-iv-drip-stand.png"
+  },
+  {
+    "index": 37,
+    "category": "medical_healthcare",
+    "subject": "hospital-bed",
+    "file": "medical_healthcare/12-hospital-bed.png"
+  },
+  {
+    "index": 38,
+    "category": "medical_healthcare",
+    "subject": "wheelchair",
+    "file": "medical_healthcare/13-wheelchair.png"
+  },
+  {
+    "index": 39,
+    "category": "medical_healthcare",
+    "subject": "crutches",
+    "file": "medical_healthcare/14-crutches.png"
+  },
+  {
+    "index": 40,
+    "category": "medical_healthcare",
+    "subject": "reflex-hammer",
+    "file": "medical_healthcare/15-reflex-hammer.png"
+  },
+  {
+    "index": 41,
+    "category": "medical_healthcare",
+    "subject": "otoscope",
+    "file": "medical_healthcare/16-otoscope.png"
+  },
+  {
+    "index": 42,
+    "category": "medical_healthcare",
+    "subject": "microscope",
+    "file": "medical_healthcare/17-microscope.png"
+  },
+  {
+    "index": 43,
+    "category": "medical_healthcare",
+    "subject": "test-tube-rack",
+    "file": "medical_healthcare/18-test-tube-rack.png"
+  },
+  {
+    "index": 44,
+    "category": "medical_healthcare",
+    "subject": "heart-monitor",
+    "file": "medical_healthcare/19-heart-monitor.png"
+  },
+  {
+    "index": 45,
+    "category": "medical_healthcare",
+    "subject": "defibrillator",
+    "file": "medical_healthcare/20-defibrillator.png"
+  },
+  {
+    "index": 46,
+    "category": "medical_healthcare",
+    "subject": "dental-mirror",
+    "file": "medical_healthcare/21-dental-mirror.png"
+  },
+  {
+    "index": 47,
+    "category": "medical_healthcare",
+    "subject": "tooth",
+    "file": "medical_healthcare/22-tooth.png"
+  },
+  {
+    "index": 48,
+    "category": "medical_healthcare",
+    "subject": "ambulance",
+    "file": "medical_healthcare/23-ambulance.png"
+  },
+  {
+    "index": 49,
+    "category": "medical_healthcare",
+    "subject": "medical-clipboard",
+    "file": "medical_healthcare/24-medical-clipboard.png"
+  },
+  {
+    "index": 50,
+    "category": "medical_healthcare",
+    "subject": "pill-blister-pack",
+    "file": "medical_healthcare/25-pill-blister-pack.png"
+  },
+  {
+    "index": 51,
+    "category": "restaurant_food_service",
+    "subject": "chef-hat",
+    "file": "restaurant_food_service/01-chef-hat.png"
+  },
+  {
+    "index": 52,
+    "category": "restaurant_food_service",
+    "subject": "kitchen-knife",
+    "file": "restaurant_food_service/02-kitchen-knife.png"
+  },
+  {
+    "index": 53,
+    "category": "restaurant_food_service",
+    "subject": "cutting-board",
+    "file": "restaurant_food_service/03-cutting-board.png"
+  },
+  {
+    "index": 54,
+    "category": "restaurant_food_service",
+    "subject": "frying-pan",
+    "file": "restaurant_food_service/04-frying-pan.png"
+  },
+  {
+    "index": 55,
+    "category": "restaurant_food_service",
+    "subject": "stock-pot",
+    "file": "restaurant_food_service/05-stock-pot.png"
+  },
+  {
+    "index": 56,
+    "category": "restaurant_food_service",
+    "subject": "saucepan",
+    "file": "restaurant_food_service/06-saucepan.png"
+  },
+  {
+    "index": 57,
+    "category": "restaurant_food_service",
+    "subject": "whisk",
+    "file": "restaurant_food_service/07-whisk.png"
+  },
+  {
+    "index": 58,
+    "category": "restaurant_food_service",
+    "subject": "spatula",
+    "file": "restaurant_food_service/08-spatula.png"
+  },
+  {
+    "index": 59,
+    "category": "restaurant_food_service",
+    "subject": "kitchen-tongs",
+    "file": "restaurant_food_service/09-kitchen-tongs.png"
+  },
+  {
+    "index": 60,
+    "category": "restaurant_food_service",
+    "subject": "ladle",
+    "file": "restaurant_food_service/10-ladle.png"
+  },
+  {
+    "index": 61,
+    "category": "restaurant_food_service",
+    "subject": "rolling-pin",
+    "file": "restaurant_food_service/11-rolling-pin.png"
+  },
+  {
+    "index": 62,
+    "category": "restaurant_food_service",
+    "subject": "mixing-bowl",
+    "file": "restaurant_food_service/12-mixing-bowl.png"
+  },
+  {
+    "index": 63,
+    "category": "restaurant_food_service",
+    "subject": "measuring-cup",
+    "file": "restaurant_food_service/13-measuring-cup.png"
+  },
+  {
+    "index": 64,
+    "category": "restaurant_food_service",
+    "subject": "apron",
+    "file": "restaurant_food_service/14-apron.png"
+  },
+  {
+    "index": 65,
+    "category": "restaurant_food_service",
+    "subject": "oven-mitt",
+    "file": "restaurant_food_service/15-oven-mitt.png"
+  },
+  {
+    "index": 66,
+    "category": "restaurant_food_service",
+    "subject": "serving-tray",
+    "file": "restaurant_food_service/16-serving-tray.png"
+  },
+  {
+    "index": 67,
+    "category": "restaurant_food_service",
+    "subject": "serving-cloche",
+    "file": "restaurant_food_service/17-serving-cloche.png"
+  },
+  {
+    "index": 68,
+    "category": "restaurant_food_service",
+    "subject": "dinner-plate",
+    "file": "restaurant_food_service/18-dinner-plate.png"
+  },
+  {
+    "index": 69,
+    "category": "restaurant_food_service",
+    "subject": "fork-and-knife",
+    "file": "restaurant_food_service/19-fork-and-knife.png"
+  },
+  {
+    "index": 70,
+    "category": "restaurant_food_service",
+    "subject": "coffee-cup",
+    "file": "restaurant_food_service/20-coffee-cup.png"
+  },
+  {
+    "index": 71,
+    "category": "restaurant_food_service",
+    "subject": "takeout-box",
+    "file": "restaurant_food_service/21-takeout-box.png"
+  },
+  {
+    "index": 72,
+    "category": "restaurant_food_service",
+    "subject": "cash-register",
+    "file": "restaurant_food_service/22-cash-register.png"
+  },
+  {
+    "index": 73,
+    "category": "restaurant_food_service",
+    "subject": "order-pad",
+    "file": "restaurant_food_service/23-order-pad.png"
+  },
+  {
+    "index": 74,
+    "category": "restaurant_food_service",
+    "subject": "commercial-oven",
+    "file": "restaurant_food_service/24-commercial-oven.png"
+  },
+  {
+    "index": 75,
+    "category": "restaurant_food_service",
+    "subject": "food-delivery-bag",
+    "file": "restaurant_food_service/25-food-delivery-bag.png"
+  },
+  {
+    "index": 76,
+    "category": "hotel_hospitality",
+    "subject": "service-bell",
+    "file": "hotel_hospitality/01-service-bell.png"
+  },
+  {
+    "index": 77,
+    "category": "hotel_hospitality",
+    "subject": "room-key",
+    "file": "hotel_hospitality/02-room-key.png"
+  },
+  {
+    "index": 78,
+    "category": "hotel_hospitality",
+    "subject": "luggage-suitcase",
+    "file": "hotel_hospitality/03-luggage-suitcase.png"
+  },
+  {
+    "index": 79,
+    "category": "hotel_hospitality",
+    "subject": "luggage-cart",
+    "file": "hotel_hospitality/04-luggage-cart.png"
+  },
+  {
+    "index": 80,
+    "category": "hotel_hospitality",
+    "subject": "reception-counter",
+    "file": "hotel_hospitality/05-reception-counter.png"
+  },
+  {
+    "index": 81,
+    "category": "hotel_hospitality",
+    "subject": "made-bed",
+    "file": "hotel_hospitality/06-made-bed.png"
+  },
+  {
+    "index": 82,
+    "category": "hotel_hospitality",
+    "subject": "pillow",
+    "file": "hotel_hospitality/07-pillow.png"
+  },
+  {
+    "index": 83,
+    "category": "hotel_hospitality",
+    "subject": "folded-towels",
+    "file": "hotel_hospitality/08-folded-towels.png"
+  },
+  {
+    "index": 84,
+    "category": "hotel_hospitality",
+    "subject": "bathrobe",
+    "file": "hotel_hospitality/09-bathrobe.png"
+  },
+  {
+    "index": 85,
+    "category": "hotel_hospitality",
+    "subject": "clothes-hanger",
+    "file": "hotel_hospitality/10-clothes-hanger.png"
+  },
+  {
+    "index": 86,
+    "category": "hotel_hospitality",
+    "subject": "clothes-iron",
+    "file": "hotel_hospitality/11-clothes-iron.png"
+  },
+  {
+    "index": 87,
+    "category": "hotel_hospitality",
+    "subject": "hair-dryer",
+    "file": "hotel_hospitality/12-hair-dryer.png"
+  },
+  {
+    "index": 88,
+    "category": "hotel_hospitality",
+    "subject": "shampoo-bottle",
+    "file": "hotel_hospitality/13-shampoo-bottle.png"
+  },
+  {
+    "index": 89,
+    "category": "hotel_hospitality",
+    "subject": "soap-bar",
+    "file": "hotel_hospitality/14-soap-bar.png"
+  },
+  {
+    "index": 90,
+    "category": "hotel_hospitality",
+    "subject": "slippers",
+    "file": "hotel_hospitality/15-slippers.png"
+  },
+  {
+    "index": 91,
+    "category": "hotel_hospitality",
+    "subject": "door-hanger",
+    "file": "hotel_hospitality/16-door-hanger.png"
+  },
+  {
+    "index": 92,
+    "category": "hotel_hospitality",
+    "subject": "housekeeping-cart",
+    "file": "hotel_hospitality/17-housekeeping-cart.png"
+  },
+  {
+    "index": 93,
+    "category": "hotel_hospitality",
+    "subject": "vacuum-cleaner",
+    "file": "hotel_hospitality/18-vacuum-cleaner.png"
+  },
+  {
+    "index": 94,
+    "category": "hotel_hospitality",
+    "subject": "mop-bucket",
+    "file": "hotel_hospitality/19-mop-bucket.png"
+  },
+  {
+    "index": 95,
+    "category": "hotel_hospitality",
+    "subject": "minibar-refrigerator",
+    "file": "hotel_hospitality/20-minibar-refrigerator.png"
+  },
+  {
+    "index": 96,
+    "category": "hotel_hospitality",
+    "subject": "coffee-maker",
+    "file": "hotel_hospitality/21-coffee-maker.png"
+  },
+  {
+    "index": 97,
+    "category": "hotel_hospitality",
+    "subject": "room-service-tray",
+    "file": "hotel_hospitality/22-room-service-tray.png"
+  },
+  {
+    "index": 98,
+    "category": "hotel_hospitality",
+    "subject": "concierge-cap",
+    "file": "hotel_hospitality/23-concierge-cap.png"
+  },
+  {
+    "index": 99,
+    "category": "hotel_hospitality",
+    "subject": "security-camera",
+    "file": "hotel_hospitality/24-security-camera.png"
+  },
+  {
+    "index": 100,
+    "category": "hotel_hospitality",
+    "subject": "hotel-building",
+    "file": "hotel_hospitality/25-hotel-building.png"
+  },
+  {
+    "index": 101,
+    "category": "legal_contracts",
+    "subject": "contract-document",
+    "file": "legal_contracts/01-contract-document.png"
+  },
+  {
+    "index": 102,
+    "category": "legal_contracts",
+    "subject": "fountain-pen",
+    "file": "legal_contracts/02-fountain-pen.png"
+  },
+  {
+    "index": 103,
+    "category": "legal_contracts",
+    "subject": "signing-pen",
+    "file": "legal_contracts/03-signing-pen.png"
+  },
+  {
+    "index": 104,
+    "category": "legal_contracts",
+    "subject": "clipboard",
+    "file": "legal_contracts/04-clipboard.png"
+  },
+  {
+    "index": 105,
+    "category": "legal_contracts",
+    "subject": "document-folder",
+    "file": "legal_contracts/05-document-folder.png"
+  },
+  {
+    "index": 106,
+    "category": "legal_contracts",
+    "subject": "file-cabinet",
+    "file": "legal_contracts/06-file-cabinet.png"
+  },
+  {
+    "index": 107,
+    "category": "legal_contracts",
+    "subject": "legal-briefcase",
+    "file": "legal_contracts/07-legal-briefcase.png"
+  },
+  {
+    "index": 108,
+    "category": "legal_contracts",
+    "subject": "courthouse",
+    "file": "legal_contracts/08-courthouse.png"
+  },
+  {
+    "index": 109,
+    "category": "legal_contracts",
+    "subject": "judge-gavel",
+    "file": "legal_contracts/09-judge-gavel.png"
+  },
+  {
+    "index": 110,
+    "category": "legal_contracts",
+    "subject": "justice-scales",
+    "file": "legal_contracts/10-justice-scales.png"
+  },
+  {
+    "index": 111,
+    "category": "legal_contracts",
+    "subject": "law-book",
+    "file": "legal_contracts/11-law-book.png"
+  },
+  {
+    "index": 112,
+    "category": "legal_contracts",
+    "subject": "rubber-stamp",
+    "file": "legal_contracts/12-rubber-stamp.png"
+  },
+  {
+    "index": 113,
+    "category": "legal_contracts",
+    "subject": "wax-seal",
+    "file": "legal_contracts/13-wax-seal.png"
+  },
+  {
+    "index": 114,
+    "category": "legal_contracts",
+    "subject": "paperclip",
+    "file": "legal_contracts/14-paperclip.png"
+  },
+  {
+    "index": 115,
+    "category": "legal_contracts",
+    "subject": "binder-clip",
+    "file": "legal_contracts/15-binder-clip.png"
+  },
+  {
+    "index": 116,
+    "category": "legal_contracts",
+    "subject": "stapler",
+    "file": "legal_contracts/16-stapler.png"
+  },
+  {
+    "index": 117,
+    "category": "legal_contracts",
+    "subject": "calculator",
+    "file": "legal_contracts/17-calculator.png"
+  },
+  {
+    "index": 118,
+    "category": "legal_contracts",
+    "subject": "document-magnifier",
+    "file": "legal_contracts/18-document-magnifier.png"
+  },
+  {
+    "index": 119,
+    "category": "legal_contracts",
+    "subject": "handshake",
+    "file": "legal_contracts/19-handshake.png"
+  },
+  {
+    "index": 120,
+    "category": "legal_contracts",
+    "subject": "compliance-shield",
+    "file": "legal_contracts/20-compliance-shield.png"
+  },
+  {
+    "index": 121,
+    "category": "legal_contracts",
+    "subject": "key",
+    "file": "legal_contracts/21-key.png"
+  },
+  {
+    "index": 122,
+    "category": "legal_contracts",
+    "subject": "padlock",
+    "file": "legal_contracts/22-padlock.png"
+  },
+  {
+    "index": 123,
+    "category": "legal_contracts",
+    "subject": "open-envelope",
+    "file": "legal_contracts/23-open-envelope.png"
+  },
+  {
+    "index": 124,
+    "category": "legal_contracts",
+    "subject": "archive-box",
+    "file": "legal_contracts/24-archive-box.png"
+  },
+  {
+    "index": 125,
+    "category": "legal_contracts",
+    "subject": "desk-calendar",
+    "file": "legal_contracts/25-desk-calendar.png"
+  },
+  {
+    "index": 126,
+    "category": "finance_payroll",
+    "subject": "stacked-coins",
+    "file": "finance_payroll/01-stacked-coins.png"
+  },
+  {
+    "index": 127,
+    "category": "finance_payroll",
+    "subject": "loose-coins",
+    "file": "finance_payroll/02-loose-coins.png"
+  },
+  {
+    "index": 128,
+    "category": "finance_payroll",
+    "subject": "banknotes",
+    "file": "finance_payroll/03-banknotes.png"
+  },
+  {
+    "index": 129,
+    "category": "finance_payroll",
+    "subject": "coin-purse",
+    "file": "finance_payroll/04-coin-purse.png"
+  },
+  {
+    "index": 130,
+    "category": "finance_payroll",
+    "subject": "wallet",
+    "file": "finance_payroll/05-wallet.png"
+  },
+  {
+    "index": 131,
+    "category": "finance_payroll",
+    "subject": "cash-drawer",
+    "file": "finance_payroll/06-cash-drawer.png"
+  },
+  {
+    "index": 132,
+    "category": "finance_payroll",
+    "subject": "calculator",
+    "file": "finance_payroll/07-calculator.png"
+  },
+  {
+    "index": 133,
+    "category": "finance_payroll",
+    "subject": "invoice",
+    "file": "finance_payroll/08-invoice.png"
+  },
+  {
+    "index": 134,
+    "category": "finance_payroll",
+    "subject": "payslip",
+    "file": "finance_payroll/09-payslip.png"
+  },
+  {
+    "index": 135,
+    "category": "finance_payroll",
+    "subject": "payroll-envelope",
+    "file": "finance_payroll/10-payroll-envelope.png"
+  },
+  {
+    "index": 136,
+    "category": "finance_payroll",
+    "subject": "piggy-bank",
+    "file": "finance_payroll/11-piggy-bank.png"
+  },
+  {
+    "index": 137,
+    "category": "finance_payroll",
+    "subject": "bank-building",
+    "file": "finance_payroll/12-bank-building.png"
+  },
+  {
+    "index": 138,
+    "category": "finance_payroll",
+    "subject": "secure-safe",
+    "file": "finance_payroll/13-secure-safe.png"
+  },
+  {
+    "index": 139,
+    "category": "finance_payroll",
+    "subject": "credit-card",
+    "file": "finance_payroll/14-credit-card.png"
+  },
+  {
+    "index": 140,
+    "category": "finance_payroll",
+    "subject": "payment-terminal",
+    "file": "finance_payroll/15-payment-terminal.png"
+  },
+  {
+    "index": 141,
+    "category": "finance_payroll",
+    "subject": "checkbook",
+    "file": "finance_payroll/16-checkbook.png"
+  },
+  {
+    "index": 142,
+    "category": "finance_payroll",
+    "subject": "receipt-roll",
+    "file": "finance_payroll/17-receipt-roll.png"
+  },
+  {
+    "index": 143,
+    "category": "finance_payroll",
+    "subject": "abacus",
+    "file": "finance_payroll/18-abacus.png"
+  },
+  {
+    "index": 144,
+    "category": "finance_payroll",
+    "subject": "line-chart",
+    "file": "finance_payroll/19-line-chart.png"
+  },
+  {
+    "index": 145,
+    "category": "finance_payroll",
+    "subject": "bar-chart",
+    "file": "finance_payroll/20-bar-chart.png"
+  },
+  {
+    "index": 146,
+    "category": "finance_payroll",
+    "subject": "pie-chart",
+    "file": "finance_payroll/21-pie-chart.png"
+  },
+  {
+    "index": 147,
+    "category": "finance_payroll",
+    "subject": "accountant-ledger",
+    "file": "finance_payroll/22-accountant-ledger.png"
+  },
+  {
+    "index": 148,
+    "category": "finance_payroll",
+    "subject": "hourglass",
+    "file": "finance_payroll/23-hourglass.png"
+  },
+  {
+    "index": 149,
+    "category": "finance_payroll",
+    "subject": "money-bag",
+    "file": "finance_payroll/24-money-bag.png"
+  },
+  {
+    "index": 150,
+    "category": "finance_payroll",
+    "subject": "hand-holding-coin",
+    "file": "finance_payroll/25-hand-holding-coin.png"
+  },
+  {
+    "index": 151,
+    "category": "office_administration",
+    "subject": "office-desk",
+    "file": "office_administration/01-office-desk.png"
+  },
+  {
+    "index": 152,
+    "category": "office_administration",
+    "subject": "office-chair",
+    "file": "office_administration/02-office-chair.png"
+  },
+  {
+    "index": 153,
+    "category": "office_administration",
+    "subject": "laptop",
+    "file": "office_administration/03-laptop.png"
+  },
+  {
+    "index": 154,
+    "category": "office_administration",
+    "subject": "desktop-monitor",
+    "file": "office_administration/04-desktop-monitor.png"
+  },
+  {
+    "index": 155,
+    "category": "office_administration",
+    "subject": "keyboard",
+    "file": "office_administration/05-keyboard.png"
+  },
+  {
+    "index": 156,
+    "category": "office_administration",
+    "subject": "computer-mouse",
+    "file": "office_administration/06-computer-mouse.png"
+  },
+  {
+    "index": 157,
+    "category": "office_administration",
+    "subject": "desk-telephone",
+    "file": "office_administration/07-desk-telephone.png"
+  },
+  {
+    "index": 158,
+    "category": "office_administration",
+    "subject": "printer",
+    "file": "office_administration/08-printer.png"
+  },
+  {
+    "index": 159,
+    "category": "office_administration",
+    "subject": "scanner",
+    "file": "office_administration/09-scanner.png"
+  },
+  {
+    "index": 160,
+    "category": "office_administration",
+    "subject": "photocopier",
+    "file": "office_administration/10-photocopier.png"
+  },
+  {
+    "index": 161,
+    "category": "office_administration",
+    "subject": "notebook",
+    "file": "office_administration/11-notebook.png"
+  },
+  {
+    "index": 162,
+    "category": "office_administration",
+    "subject": "spiral-notepad",
+    "file": "office_administration/12-spiral-notepad.png"
+  },
+  {
+    "index": 163,
+    "category": "office_administration",
+    "subject": "clipboard",
+    "file": "office_administration/13-clipboard.png"
+  },
+  {
+    "index": 164,
+    "category": "office_administration",
+    "subject": "ring-binder",
+    "file": "office_administration/14-ring-binder.png"
+  },
+  {
+    "index": 165,
+    "category": "office_administration",
+    "subject": "document-folders",
+    "file": "office_administration/15-document-folders.png"
+  },
+  {
+    "index": 166,
+    "category": "office_administration",
+    "subject": "pencil-cup",
+    "file": "office_administration/16-pencil-cup.png"
+  },
+  {
+    "index": 167,
+    "category": "office_administration",
+    "subject": "desk-lamp",
+    "file": "office_administration/17-desk-lamp.png"
+  },
+  {
+    "index": 168,
+    "category": "office_administration",
+    "subject": "wall-clock",
+    "file": "office_administration/18-wall-clock.png"
+  },
+  {
+    "index": 169,
+    "category": "office_administration",
+    "subject": "whiteboard",
+    "file": "office_administration/19-whiteboard.png"
+  },
+  {
+    "index": 170,
+    "category": "office_administration",
+    "subject": "presentation-easel",
+    "file": "office_administration/20-presentation-easel.png"
+  },
+  {
+    "index": 171,
+    "category": "office_administration",
+    "subject": "coffee-mug",
+    "file": "office_administration/21-coffee-mug.png"
+  },
+  {
+    "index": 172,
+    "category": "office_administration",
+    "subject": "id-badge",
+    "file": "office_administration/22-id-badge.png"
+  },
+  {
+    "index": 173,
+    "category": "office_administration",
+    "subject": "lanyard",
+    "file": "office_administration/23-lanyard.png"
+  },
+  {
+    "index": 174,
+    "category": "office_administration",
+    "subject": "desk-organizer",
+    "file": "office_administration/24-desk-organizer.png"
+  },
+  {
+    "index": 175,
+    "category": "office_administration",
+    "subject": "rolling-file-cabinet",
+    "file": "office_administration/25-rolling-file-cabinet.png"
+  },
+  {
+    "index": 176,
+    "category": "construction_trades",
+    "subject": "hard-hat",
+    "file": "construction_trades/01-hard-hat.png"
+  },
+  {
+    "index": 177,
+    "category": "construction_trades",
+    "subject": "claw-hammer",
+    "file": "construction_trades/02-claw-hammer.png"
+  },
+  {
+    "index": 178,
+    "category": "construction_trades",
+    "subject": "handsaw",
+    "file": "construction_trades/03-handsaw.png"
+  },
+  {
+    "index": 179,
+    "category": "construction_trades",
+    "subject": "tape-measure",
+    "file": "construction_trades/04-tape-measure.png"
+  },
+  {
+    "index": 180,
+    "category": "construction_trades",
+    "subject": "spirit-level",
+    "file": "construction_trades/05-spirit-level.png"
+  },
+  {
+    "index": 181,
+    "category": "construction_trades",
+    "subject": "power-drill",
+    "file": "construction_trades/06-power-drill.png"
+  },
+  {
+    "index": 182,
+    "category": "construction_trades",
+    "subject": "circular-saw",
+    "file": "construction_trades/07-circular-saw.png"
+  },
+  {
+    "index": 183,
+    "category": "construction_trades",
+    "subject": "angle-grinder",
+    "file": "construction_trades/08-angle-grinder.png"
+  },
+  {
+    "index": 184,
+    "category": "construction_trades",
+    "subject": "utility-knife",
+    "file": "construction_trades/09-utility-knife.png"
+  },
+  {
+    "index": 185,
+    "category": "construction_trades",
+    "subject": "carpenter-square",
+    "file": "construction_trades/10-carpenter-square.png"
+  },
+  {
+    "index": 186,
+    "category": "construction_trades",
+    "subject": "paint-roller",
+    "file": "construction_trades/11-paint-roller.png"
+  },
+  {
+    "index": 187,
+    "category": "construction_trades",
+    "subject": "paint-brush",
+    "file": "construction_trades/12-paint-brush.png"
+  },
+  {
+    "index": 188,
+    "category": "construction_trades",
+    "subject": "pipe-wrench",
+    "file": "construction_trades/13-pipe-wrench.png"
+  },
+  {
+    "index": 189,
+    "category": "construction_trades",
+    "subject": "adjustable-wrench",
+    "file": "construction_trades/14-adjustable-wrench.png"
+  },
+  {
+    "index": 190,
+    "category": "construction_trades",
+    "subject": "electrician-pliers",
+    "file": "construction_trades/15-electrician-pliers.png"
+  },
+  {
+    "index": 191,
+    "category": "construction_trades",
+    "subject": "wire-spool",
+    "file": "construction_trades/16-wire-spool.png"
+  },
+  {
+    "index": 192,
+    "category": "construction_trades",
+    "subject": "brick-trowel",
+    "file": "construction_trades/17-brick-trowel.png"
+  },
+  {
+    "index": 193,
+    "category": "construction_trades",
+    "subject": "masonry-brick",
+    "file": "construction_trades/18-masonry-brick.png"
+  },
+  {
+    "index": 194,
+    "category": "construction_trades",
+    "subject": "cement-bag",
+    "file": "construction_trades/19-cement-bag.png"
+  },
+  {
+    "index": 195,
+    "category": "construction_trades",
+    "subject": "wheelbarrow",
+    "file": "construction_trades/20-wheelbarrow.png"
+  },
+  {
+    "index": 196,
+    "category": "construction_trades",
+    "subject": "extension-ladder",
+    "file": "construction_trades/21-extension-ladder.png"
+  },
+  {
+    "index": 197,
+    "category": "construction_trades",
+    "subject": "traffic-cone",
+    "file": "construction_trades/22-traffic-cone.png"
+  },
+  {
+    "index": 198,
+    "category": "construction_trades",
+    "subject": "safety-vest",
+    "file": "construction_trades/23-safety-vest.png"
+  },
+  {
+    "index": 199,
+    "category": "construction_trades",
+    "subject": "work-boots",
+    "file": "construction_trades/24-work-boots.png"
+  },
+  {
+    "index": 200,
+    "category": "construction_trades",
+    "subject": "construction-blueprint",
+    "file": "construction_trades/25-construction-blueprint.png"
+  },
+  {
+    "index": 201,
+    "category": "retail_sales",
+    "subject": "shopping-basket",
+    "file": "retail_sales/01-shopping-basket.png"
+  },
+  {
+    "index": 202,
+    "category": "retail_sales",
+    "subject": "shopping-cart",
+    "file": "retail_sales/02-shopping-cart.png"
+  },
+  {
+    "index": 203,
+    "category": "retail_sales",
+    "subject": "barcode-scanner",
+    "file": "retail_sales/03-barcode-scanner.png"
+  },
+  {
+    "index": 204,
+    "category": "retail_sales",
+    "subject": "payment-terminal",
+    "file": "retail_sales/04-payment-terminal.png"
+  },
+  {
+    "index": 205,
+    "category": "retail_sales",
+    "subject": "cash-register",
+    "file": "retail_sales/05-cash-register.png"
+  },
+  {
+    "index": 206,
+    "category": "retail_sales",
+    "subject": "receipt-printer",
+    "file": "retail_sales/06-receipt-printer.png"
+  },
+  {
+    "index": 207,
+    "category": "retail_sales",
+    "subject": "price-tag",
+    "file": "retail_sales/07-price-tag.png"
+  },
+  {
+    "index": 208,
+    "category": "retail_sales",
+    "subject": "clothing-rack",
+    "file": "retail_sales/08-clothing-rack.png"
+  },
+  {
+    "index": 209,
+    "category": "retail_sales",
+    "subject": "clothes-hanger",
+    "file": "retail_sales/09-clothes-hanger.png"
+  },
+  {
+    "index": 210,
+    "category": "retail_sales",
+    "subject": "folded-shirts",
+    "file": "retail_sales/10-folded-shirts.png"
+  },
+  {
+    "index": 211,
+    "category": "retail_sales",
+    "subject": "mannequin",
+    "file": "retail_sales/11-mannequin.png"
+  },
+  {
+    "index": 212,
+    "category": "retail_sales",
+    "subject": "storefront-awning",
+    "file": "retail_sales/12-storefront-awning.png"
+  },
+  {
+    "index": 213,
+    "category": "retail_sales",
+    "subject": "display-shelf",
+    "file": "retail_sales/13-display-shelf.png"
+  },
+  {
+    "index": 214,
+    "category": "retail_sales",
+    "subject": "glass-display-case",
+    "file": "retail_sales/14-glass-display-case.png"
+  },
+  {
+    "index": 215,
+    "category": "retail_sales",
+    "subject": "paper-shopping-bag",
+    "file": "retail_sales/15-paper-shopping-bag.png"
+  },
+  {
+    "index": 216,
+    "category": "retail_sales",
+    "subject": "reusable-tote",
+    "file": "retail_sales/16-reusable-tote.png"
+  },
+  {
+    "index": 217,
+    "category": "retail_sales",
+    "subject": "gift-box",
+    "file": "retail_sales/17-gift-box.png"
+  },
+  {
+    "index": 218,
+    "category": "retail_sales",
+    "subject": "product-box",
+    "file": "retail_sales/18-product-box.png"
+  },
+  {
+    "index": 219,
+    "category": "retail_sales",
+    "subject": "inventory-clipboard",
+    "file": "retail_sales/19-inventory-clipboard.png"
+  },
+  {
+    "index": 220,
+    "category": "retail_sales",
+    "subject": "stock-counter",
+    "file": "retail_sales/20-stock-counter.png"
+  },
+  {
+    "index": 221,
+    "category": "retail_sales",
+    "subject": "service-headset",
+    "file": "retail_sales/21-service-headset.png"
+  },
+  {
+    "index": 222,
+    "category": "retail_sales",
+    "subject": "return-package",
+    "file": "retail_sales/22-return-package.png"
+  },
+  {
+    "index": 223,
+    "category": "retail_sales",
+    "subject": "security-tag",
+    "file": "retail_sales/23-security-tag.png"
+  },
+  {
+    "index": 224,
+    "category": "retail_sales",
+    "subject": "mirror",
+    "file": "retail_sales/24-mirror.png"
+  },
+  {
+    "index": 225,
+    "category": "retail_sales",
+    "subject": "garment-rack",
+    "file": "retail_sales/25-garment-rack.png"
+  },
+  {
+    "index": 226,
+    "category": "warehouse_logistics",
+    "subject": "wooden-pallet",
+    "file": "warehouse_logistics/01-wooden-pallet.png"
+  },
+  {
+    "index": 227,
+    "category": "warehouse_logistics",
+    "subject": "pallet-jack",
+    "file": "warehouse_logistics/02-pallet-jack.png"
+  },
+  {
+    "index": 228,
+    "category": "warehouse_logistics",
+    "subject": "forklift",
+    "file": "warehouse_logistics/03-forklift.png"
+  },
+  {
+    "index": 229,
+    "category": "warehouse_logistics",
+    "subject": "hand-truck",
+    "file": "warehouse_logistics/04-hand-truck.png"
+  },
+  {
+    "index": 230,
+    "category": "warehouse_logistics",
+    "subject": "warehouse-shelving",
+    "file": "warehouse_logistics/05-warehouse-shelving.png"
+  },
+  {
+    "index": 231,
+    "category": "warehouse_logistics",
+    "subject": "stacked-cartons",
+    "file": "warehouse_logistics/06-stacked-cartons.png"
+  },
+  {
+    "index": 232,
+    "category": "warehouse_logistics",
+    "subject": "shipping-crate",
+    "file": "warehouse_logistics/07-shipping-crate.png"
+  },
+  {
+    "index": 233,
+    "category": "warehouse_logistics",
+    "subject": "tote-bin",
+    "file": "warehouse_logistics/08-tote-bin.png"
+  },
+  {
+    "index": 234,
+    "category": "warehouse_logistics",
+    "subject": "tape-dispenser",
+    "file": "warehouse_logistics/09-tape-dispenser.png"
+  },
+  {
+    "index": 235,
+    "category": "warehouse_logistics",
+    "subject": "stretch-wrap",
+    "file": "warehouse_logistics/10-stretch-wrap.png"
+  },
+  {
+    "index": 236,
+    "category": "warehouse_logistics",
+    "subject": "box-cutter",
+    "file": "warehouse_logistics/11-box-cutter.png"
+  },
+  {
+    "index": 237,
+    "category": "warehouse_logistics",
+    "subject": "weighing-scale",
+    "file": "warehouse_logistics/12-weighing-scale.png"
+  },
+  {
+    "index": 238,
+    "category": "warehouse_logistics",
+    "subject": "label-printer",
+    "file": "warehouse_logistics/13-label-printer.png"
+  },
+  {
+    "index": 239,
+    "category": "warehouse_logistics",
+    "subject": "barcode-scanner",
+    "file": "warehouse_logistics/14-barcode-scanner.png"
+  },
+  {
+    "index": 240,
+    "category": "warehouse_logistics",
+    "subject": "shipping-label",
+    "file": "warehouse_logistics/15-shipping-label.png"
+  },
+  {
+    "index": 241,
+    "category": "warehouse_logistics",
+    "subject": "packing-slip",
+    "file": "warehouse_logistics/16-packing-slip.png"
+  },
+  {
+    "index": 242,
+    "category": "warehouse_logistics",
+    "subject": "bubble-wrap",
+    "file": "warehouse_logistics/17-bubble-wrap.png"
+  },
+  {
+    "index": 243,
+    "category": "warehouse_logistics",
+    "subject": "safety-bollard",
+    "file": "warehouse_logistics/18-safety-bollard.png"
+  },
+  {
+    "index": 244,
+    "category": "warehouse_logistics",
+    "subject": "loading-dock-plate",
+    "file": "warehouse_logistics/19-loading-dock-plate.png"
+  },
+  {
+    "index": 245,
+    "category": "warehouse_logistics",
+    "subject": "warehouse-door",
+    "file": "warehouse_logistics/20-warehouse-door.png"
+  },
+  {
+    "index": 246,
+    "category": "warehouse_logistics",
+    "subject": "conveyor-belt",
+    "file": "warehouse_logistics/21-conveyor-belt.png"
+  },
+  {
+    "index": 247,
+    "category": "warehouse_logistics",
+    "subject": "cargo-trolley",
+    "file": "warehouse_logistics/22-cargo-trolley.png"
+  },
+  {
+    "index": 248,
+    "category": "warehouse_logistics",
+    "subject": "ratchet-strap",
+    "file": "warehouse_logistics/23-ratchet-strap.png"
+  },
+  {
+    "index": 249,
+    "category": "warehouse_logistics",
+    "subject": "steel-drum",
+    "file": "warehouse_logistics/24-steel-drum.png"
+  },
+  {
+    "index": 250,
+    "category": "warehouse_logistics",
+    "subject": "warehouse-clipboard",
+    "file": "warehouse_logistics/25-warehouse-clipboard.png"
+  },
+  {
+    "index": 251,
+    "category": "manufacturing_industrial",
+    "subject": "metal-lathe",
+    "file": "manufacturing_industrial/01-metal-lathe.png"
+  },
+  {
+    "index": 252,
+    "category": "manufacturing_industrial",
+    "subject": "milling-machine",
+    "file": "manufacturing_industrial/02-milling-machine.png"
+  },
+  {
+    "index": 253,
+    "category": "manufacturing_industrial",
+    "subject": "drill-press",
+    "file": "manufacturing_industrial/03-drill-press.png"
+  },
+  {
+    "index": 254,
+    "category": "manufacturing_industrial",
+    "subject": "robot-arm",
+    "file": "manufacturing_industrial/04-robot-arm.png"
+  },
+  {
+    "index": 255,
+    "category": "manufacturing_industrial",
+    "subject": "assembly-conveyor",
+    "file": "manufacturing_industrial/05-assembly-conveyor.png"
+  },
+  {
+    "index": 256,
+    "category": "manufacturing_industrial",
+    "subject": "bench-vise",
+    "file": "manufacturing_industrial/06-bench-vise.png"
+  },
+  {
+    "index": 257,
+    "category": "manufacturing_industrial",
+    "subject": "welding-torch",
+    "file": "manufacturing_industrial/07-welding-torch.png"
+  },
+  {
+    "index": 258,
+    "category": "manufacturing_industrial",
+    "subject": "welding-helmet",
+    "file": "manufacturing_industrial/08-welding-helmet.png"
+  },
+  {
+    "index": 259,
+    "category": "manufacturing_industrial",
+    "subject": "gear-pair",
+    "file": "manufacturing_industrial/09-gear-pair.png"
+  },
+  {
+    "index": 260,
+    "category": "manufacturing_industrial",
+    "subject": "ball-bearing",
+    "file": "manufacturing_industrial/10-ball-bearing.png"
+  },
+  {
+    "index": 261,
+    "category": "manufacturing_industrial",
+    "subject": "electric-motor",
+    "file": "manufacturing_industrial/11-electric-motor.png"
+  },
+  {
+    "index": 262,
+    "category": "manufacturing_industrial",
+    "subject": "hydraulic-cylinder",
+    "file": "manufacturing_industrial/12-hydraulic-cylinder.png"
+  },
+  {
+    "index": 263,
+    "category": "manufacturing_industrial",
+    "subject": "pressure-gauge",
+    "file": "manufacturing_industrial/13-pressure-gauge.png"
+  },
+  {
+    "index": 264,
+    "category": "manufacturing_industrial",
+    "subject": "control-panel",
+    "file": "manufacturing_industrial/14-control-panel.png"
+  },
+  {
+    "index": 265,
+    "category": "manufacturing_industrial",
+    "subject": "emergency-stop",
+    "file": "manufacturing_industrial/15-emergency-stop.png"
+  },
+  {
+    "index": 266,
+    "category": "manufacturing_industrial",
+    "subject": "factory-workbench",
+    "file": "manufacturing_industrial/16-factory-workbench.png"
+  },
+  {
+    "index": 267,
+    "category": "manufacturing_industrial",
+    "subject": "machinist-caliper",
+    "file": "manufacturing_industrial/17-machinist-caliper.png"
+  },
+  {
+    "index": 268,
+    "category": "manufacturing_industrial",
+    "subject": "micrometer",
+    "file": "manufacturing_industrial/18-micrometer.png"
+  },
+  {
+    "index": 269,
+    "category": "manufacturing_industrial",
+    "subject": "metal-sheet-roll",
+    "file": "manufacturing_industrial/19-metal-sheet-roll.png"
+  },
+  {
+    "index": 270,
+    "category": "manufacturing_industrial",
+    "subject": "steel-i-beam",
+    "file": "manufacturing_industrial/20-steel-i-beam.png"
+  },
+  {
+    "index": 271,
+    "category": "manufacturing_industrial",
+    "subject": "chain-hoist",
+    "file": "manufacturing_industrial/21-chain-hoist.png"
+  },
+  {
+    "index": 272,
+    "category": "manufacturing_industrial",
+    "subject": "industrial-fan",
+    "file": "manufacturing_industrial/22-industrial-fan.png"
+  },
+  {
+    "index": 273,
+    "category": "manufacturing_industrial",
+    "subject": "machine-guard",
+    "file": "manufacturing_industrial/23-machine-guard.png"
+  },
+  {
+    "index": 274,
+    "category": "manufacturing_industrial",
+    "subject": "factory-building",
+    "file": "manufacturing_industrial/24-factory-building.png"
+  },
+  {
+    "index": 275,
+    "category": "manufacturing_industrial",
+    "subject": "parts-bin",
+    "file": "manufacturing_industrial/25-parts-bin.png"
+  },
+  {
+    "index": 276,
+    "category": "cleaning_janitorial",
+    "subject": "push-broom",
+    "file": "cleaning_janitorial/01-push-broom.png"
+  },
+  {
+    "index": 277,
+    "category": "cleaning_janitorial",
+    "subject": "broom-and-dustpan",
+    "file": "cleaning_janitorial/02-broom-and-dustpan.png"
+  },
+  {
+    "index": 278,
+    "category": "cleaning_janitorial",
+    "subject": "string-mop",
+    "file": "cleaning_janitorial/03-string-mop.png"
+  },
+  {
+    "index": 279,
+    "category": "cleaning_janitorial",
+    "subject": "flat-mop",
+    "file": "cleaning_janitorial/04-flat-mop.png"
+  },
+  {
+    "index": 280,
+    "category": "cleaning_janitorial",
+    "subject": "mop-bucket",
+    "file": "cleaning_janitorial/05-mop-bucket.png"
+  },
+  {
+    "index": 281,
+    "category": "cleaning_janitorial",
+    "subject": "vacuum-cleaner",
+    "file": "cleaning_janitorial/06-vacuum-cleaner.png"
+  },
+  {
+    "index": 282,
+    "category": "cleaning_janitorial",
+    "subject": "shop-vacuum",
+    "file": "cleaning_janitorial/07-shop-vacuum.png"
+  },
+  {
+    "index": 283,
+    "category": "cleaning_janitorial",
+    "subject": "spray-bottle",
+    "file": "cleaning_janitorial/08-spray-bottle.png"
+  },
+  {
+    "index": 284,
+    "category": "cleaning_janitorial",
+    "subject": "cleaning-cloth",
+    "file": "cleaning_janitorial/09-cleaning-cloth.png"
+  },
+  {
+    "index": 285,
+    "category": "cleaning_janitorial",
+    "subject": "scrub-brush",
+    "file": "cleaning_janitorial/10-scrub-brush.png"
+  },
+  {
+    "index": 286,
+    "category": "cleaning_janitorial",
+    "subject": "toilet-brush",
+    "file": "cleaning_janitorial/11-toilet-brush.png"
+  },
+  {
+    "index": 287,
+    "category": "cleaning_janitorial",
+    "subject": "squeegee",
+    "file": "cleaning_janitorial/12-squeegee.png"
+  },
+  {
+    "index": 288,
+    "category": "cleaning_janitorial",
+    "subject": "feather-duster",
+    "file": "cleaning_janitorial/13-feather-duster.png"
+  },
+  {
+    "index": 289,
+    "category": "cleaning_janitorial",
+    "subject": "rubber-gloves",
+    "file": "cleaning_janitorial/14-rubber-gloves.png"
+  },
+  {
+    "index": 290,
+    "category": "cleaning_janitorial",
+    "subject": "cleaning-caddy",
+    "file": "cleaning_janitorial/15-cleaning-caddy.png"
+  },
+  {
+    "index": 291,
+    "category": "cleaning_janitorial",
+    "subject": "floor-caution-sign",
+    "file": "cleaning_janitorial/16-floor-caution-sign.png"
+  },
+  {
+    "index": 292,
+    "category": "cleaning_janitorial",
+    "subject": "trash-bin",
+    "file": "cleaning_janitorial/17-trash-bin.png"
+  },
+  {
+    "index": 293,
+    "category": "cleaning_janitorial",
+    "subject": "recycling-bin",
+    "file": "cleaning_janitorial/18-recycling-bin.png"
+  },
+  {
+    "index": 294,
+    "category": "cleaning_janitorial",
+    "subject": "garbage-bag",
+    "file": "cleaning_janitorial/19-garbage-bag.png"
+  },
+  {
+    "index": 295,
+    "category": "cleaning_janitorial",
+    "subject": "paper-towel-roll",
+    "file": "cleaning_janitorial/20-paper-towel-roll.png"
+  },
+  {
+    "index": 296,
+    "category": "cleaning_janitorial",
+    "subject": "soap-dispenser",
+    "file": "cleaning_janitorial/21-soap-dispenser.png"
+  },
+  {
+    "index": 297,
+    "category": "cleaning_janitorial",
+    "subject": "floor-buffer",
+    "file": "cleaning_janitorial/22-floor-buffer.png"
+  },
+  {
+    "index": 298,
+    "category": "cleaning_janitorial",
+    "subject": "carpet-extractor",
+    "file": "cleaning_janitorial/23-carpet-extractor.png"
+  },
+  {
+    "index": 299,
+    "category": "cleaning_janitorial",
+    "subject": "janitorial-cart",
+    "file": "cleaning_janitorial/24-janitorial-cart.png"
+  },
+  {
+    "index": 300,
+    "category": "cleaning_janitorial",
+    "subject": "cleaning-apron",
+    "file": "cleaning_janitorial/25-cleaning-apron.png"
+  },
+  {
+    "index": 301,
+    "category": "technology_it",
+    "subject": "server-rack",
+    "file": "technology_it/01-server-rack.png"
+  },
+  {
+    "index": 302,
+    "category": "technology_it",
+    "subject": "desktop-tower",
+    "file": "technology_it/02-desktop-tower.png"
+  },
+  {
+    "index": 303,
+    "category": "technology_it",
+    "subject": "laptop",
+    "file": "technology_it/03-laptop.png"
+  },
+  {
+    "index": 304,
+    "category": "technology_it",
+    "subject": "computer-monitor",
+    "file": "technology_it/04-computer-monitor.png"
+  },
+  {
+    "index": 305,
+    "category": "technology_it",
+    "subject": "keyboard",
+    "file": "technology_it/05-keyboard.png"
+  },
+  {
+    "index": 306,
+    "category": "technology_it",
+    "subject": "computer-mouse",
+    "file": "technology_it/06-computer-mouse.png"
+  },
+  {
+    "index": 307,
+    "category": "technology_it",
+    "subject": "circuit-board",
+    "file": "technology_it/07-circuit-board.png"
+  },
+  {
+    "index": 308,
+    "category": "technology_it",
+    "subject": "microchip",
+    "file": "technology_it/08-microchip.png"
+  },
+  {
+    "index": 309,
+    "category": "technology_it",
+    "subject": "hard-disk",
+    "file": "technology_it/09-hard-disk.png"
+  },
+  {
+    "index": 310,
+    "category": "technology_it",
+    "subject": "solid-state-drive",
+    "file": "technology_it/10-solid-state-drive.png"
+  },
+  {
+    "index": 311,
+    "category": "technology_it",
+    "subject": "network-router",
+    "file": "technology_it/11-network-router.png"
+  },
+  {
+    "index": 312,
+    "category": "technology_it",
+    "subject": "ethernet-cable",
+    "file": "technology_it/12-ethernet-cable.png"
+  },
+  {
+    "index": 313,
+    "category": "technology_it",
+    "subject": "fiber-optic-spool",
+    "file": "technology_it/13-fiber-optic-spool.png"
+  },
+  {
+    "index": 314,
+    "category": "technology_it",
+    "subject": "wireless-access-point",
+    "file": "technology_it/14-wireless-access-point.png"
+  },
+  {
+    "index": 315,
+    "category": "technology_it",
+    "subject": "battery-pack",
+    "file": "technology_it/15-battery-pack.png"
+  },
+  {
+    "index": 316,
+    "category": "technology_it",
+    "subject": "power-strip",
+    "file": "technology_it/16-power-strip.png"
+  },
+  {
+    "index": 317,
+    "category": "technology_it",
+    "subject": "usb-drive",
+    "file": "technology_it/17-usb-drive.png"
+  },
+  {
+    "index": 318,
+    "category": "technology_it",
+    "subject": "computer-headset",
+    "file": "technology_it/18-computer-headset.png"
+  },
+  {
+    "index": 319,
+    "category": "technology_it",
+    "subject": "webcam",
+    "file": "technology_it/19-webcam.png"
+  },
+  {
+    "index": 320,
+    "category": "technology_it",
+    "subject": "office-printer",
+    "file": "technology_it/20-office-printer.png"
+  },
+  {
+    "index": 321,
+    "category": "technology_it",
+    "subject": "circuit-repair",
+    "file": "technology_it/21-circuit-repair.png"
+  },
+  {
+    "index": 322,
+    "category": "technology_it",
+    "subject": "cable-tester",
+    "file": "technology_it/22-cable-tester.png"
+  },
+  {
+    "index": 323,
+    "category": "technology_it",
+    "subject": "tablet",
+    "file": "technology_it/23-tablet.png"
+  },
+  {
+    "index": 324,
+    "category": "technology_it",
+    "subject": "smartphone",
+    "file": "technology_it/24-smartphone.png"
+  },
+  {
+    "index": 325,
+    "category": "technology_it",
+    "subject": "cloud-server",
+    "file": "technology_it/25-cloud-server.png"
+  },
+  {
+    "index": 326,
+    "category": "agriculture_farming",
+    "subject": "farm-tractor",
+    "file": "agriculture_farming/01-farm-tractor.png"
+  },
+  {
+    "index": 327,
+    "category": "agriculture_farming",
+    "subject": "combine-harvester",
+    "file": "agriculture_farming/02-combine-harvester.png"
+  },
+  {
+    "index": 328,
+    "category": "agriculture_farming",
+    "subject": "plow",
+    "file": "agriculture_farming/03-plow.png"
+  },
+  {
+    "index": 329,
+    "category": "agriculture_farming",
+    "subject": "seed-drill",
+    "file": "agriculture_farming/04-seed-drill.png"
+  },
+  {
+    "index": 330,
+    "category": "agriculture_farming",
+    "subject": "hay-bale",
+    "file": "agriculture_farming/05-hay-bale.png"
+  },
+  {
+    "index": 331,
+    "category": "agriculture_farming",
+    "subject": "pitchfork",
+    "file": "agriculture_farming/06-pitchfork.png"
+  },
+  {
+    "index": 332,
+    "category": "agriculture_farming",
+    "subject": "garden-hoe",
+    "file": "agriculture_farming/07-garden-hoe.png"
+  },
+  {
+    "index": 333,
+    "category": "agriculture_farming",
+    "subject": "shovel",
+    "file": "agriculture_farming/08-shovel.png"
+  },
+  {
+    "index": 334,
+    "category": "agriculture_farming",
+    "subject": "pruning-shears",
+    "file": "agriculture_farming/09-pruning-shears.png"
+  },
+  {
+    "index": 335,
+    "category": "agriculture_farming",
+    "subject": "watering-can",
+    "file": "agriculture_farming/10-watering-can.png"
+  },
+  {
+    "index": 336,
+    "category": "agriculture_farming",
+    "subject": "irrigation-sprinkler",
+    "file": "agriculture_farming/11-irrigation-sprinkler.png"
+  },
+  {
+    "index": 337,
+    "category": "agriculture_farming",
+    "subject": "grain-sack",
+    "file": "agriculture_farming/12-grain-sack.png"
+  },
+  {
+    "index": 338,
+    "category": "agriculture_farming",
+    "subject": "produce-crate",
+    "file": "agriculture_farming/13-produce-crate.png"
+  },
+  {
+    "index": 339,
+    "category": "agriculture_farming",
+    "subject": "milk-can",
+    "file": "agriculture_farming/14-milk-can.png"
+  },
+  {
+    "index": 340,
+    "category": "agriculture_farming",
+    "subject": "egg-basket",
+    "file": "agriculture_farming/15-egg-basket.png"
+  },
+  {
+    "index": 341,
+    "category": "agriculture_farming",
+    "subject": "beekeeping-smoker",
+    "file": "agriculture_farming/16-beekeeping-smoker.png"
+  },
+  {
+    "index": 342,
+    "category": "agriculture_farming",
+    "subject": "beekeeper-veil",
+    "file": "agriculture_farming/17-beekeeper-veil.png"
+  },
+  {
+    "index": 343,
+    "category": "agriculture_farming",
+    "subject": "greenhouse",
+    "file": "agriculture_farming/18-greenhouse.png"
+  },
+  {
+    "index": 344,
+    "category": "agriculture_farming",
+    "subject": "barn",
+    "file": "agriculture_farming/19-barn.png"
+  },
+  {
+    "index": 345,
+    "category": "agriculture_farming",
+    "subject": "silo",
+    "file": "agriculture_farming/20-silo.png"
+  },
+  {
+    "index": 346,
+    "category": "agriculture_farming",
+    "subject": "windmill",
+    "file": "agriculture_farming/21-windmill.png"
+  },
+  {
+    "index": 347,
+    "category": "agriculture_farming",
+    "subject": "work-gloves",
+    "file": "agriculture_farming/22-work-gloves.png"
+  },
+  {
+    "index": 348,
+    "category": "agriculture_farming",
+    "subject": "farm-boots",
+    "file": "agriculture_farming/23-farm-boots.png"
+  },
+  {
+    "index": 349,
+    "category": "agriculture_farming",
+    "subject": "soil-test-tube",
+    "file": "agriculture_farming/24-soil-test-tube.png"
+  },
+  {
+    "index": 350,
+    "category": "agriculture_farming",
+    "subject": "produce-wheelbarrow",
+    "file": "agriculture_farming/25-produce-wheelbarrow.png"
+  },
+  {
+    "index": 351,
+    "category": "transportation_delivery",
+    "subject": "delivery-van",
+    "file": "transportation_delivery/01-delivery-van.png"
+  },
+  {
+    "index": 352,
+    "category": "transportation_delivery",
+    "subject": "semi-truck",
+    "file": "transportation_delivery/02-semi-truck.png"
+  },
+  {
+    "index": 353,
+    "category": "transportation_delivery",
+    "subject": "box-truck",
+    "file": "transportation_delivery/03-box-truck.png"
+  },
+  {
+    "index": 354,
+    "category": "transportation_delivery",
+    "subject": "cargo-bicycle",
+    "file": "transportation_delivery/04-cargo-bicycle.png"
+  },
+  {
+    "index": 355,
+    "category": "transportation_delivery",
+    "subject": "delivery-scooter",
+    "file": "transportation_delivery/05-delivery-scooter.png"
+  },
+  {
+    "index": 356,
+    "category": "transportation_delivery",
+    "subject": "taxi",
+    "file": "transportation_delivery/06-taxi.png"
+  },
+  {
+    "index": 357,
+    "category": "transportation_delivery",
+    "subject": "city-bus",
+    "file": "transportation_delivery/07-city-bus.png"
+  },
+  {
+    "index": 358,
+    "category": "transportation_delivery",
+    "subject": "train-locomotive",
+    "file": "transportation_delivery/08-train-locomotive.png"
+  },
+  {
+    "index": 359,
+    "category": "transportation_delivery",
+    "subject": "cargo-ship",
+    "file": "transportation_delivery/09-cargo-ship.png"
+  },
+  {
+    "index": 360,
+    "category": "transportation_delivery",
+    "subject": "airplane",
+    "file": "transportation_delivery/10-airplane.png"
+  },
+  {
+    "index": 361,
+    "category": "transportation_delivery",
+    "subject": "helicopter",
+    "file": "transportation_delivery/11-helicopter.png"
+  },
+  {
+    "index": 362,
+    "category": "transportation_delivery",
+    "subject": "fuel-pump",
+    "file": "transportation_delivery/12-fuel-pump.png"
+  },
+  {
+    "index": 363,
+    "category": "transportation_delivery",
+    "subject": "steering-wheel",
+    "file": "transportation_delivery/13-steering-wheel.png"
+  },
+  {
+    "index": 364,
+    "category": "transportation_delivery",
+    "subject": "vehicle-key",
+    "file": "transportation_delivery/14-vehicle-key.png"
+  },
+  {
+    "index": 365,
+    "category": "transportation_delivery",
+    "subject": "road-cone",
+    "file": "transportation_delivery/15-road-cone.png"
+  },
+  {
+    "index": 366,
+    "category": "transportation_delivery",
+    "subject": "road-barrier",
+    "file": "transportation_delivery/16-road-barrier.png"
+  },
+  {
+    "index": 367,
+    "category": "transportation_delivery",
+    "subject": "traffic-light",
+    "file": "transportation_delivery/17-traffic-light.png"
+  },
+  {
+    "index": 368,
+    "category": "transportation_delivery",
+    "subject": "road-sign",
+    "file": "transportation_delivery/18-road-sign.png"
+  },
+  {
+    "index": 369,
+    "category": "transportation_delivery",
+    "subject": "shipping-container",
+    "file": "transportation_delivery/19-shipping-container.png"
+  },
+  {
+    "index": 370,
+    "category": "transportation_delivery",
+    "subject": "cargo-crate",
+    "file": "transportation_delivery/20-cargo-crate.png"
+  },
+  {
+    "index": 371,
+    "category": "transportation_delivery",
+    "subject": "parcel-box",
+    "file": "transportation_delivery/21-parcel-box.png"
+  },
+  {
+    "index": 372,
+    "category": "transportation_delivery",
+    "subject": "courier-satchel",
+    "file": "transportation_delivery/22-courier-satchel.png"
+  },
+  {
+    "index": 373,
+    "category": "transportation_delivery",
+    "subject": "hand-truck",
+    "file": "transportation_delivery/23-hand-truck.png"
+  },
+  {
+    "index": 374,
+    "category": "transportation_delivery",
+    "subject": "tire-pressure-gauge",
+    "file": "transportation_delivery/24-tire-pressure-gauge.png"
+  },
+  {
+    "index": 375,
+    "category": "transportation_delivery",
+    "subject": "inspection-clipboard",
+    "file": "transportation_delivery/25-inspection-clipboard.png"
+  },
+  {
+    "index": 376,
+    "category": "education_training",
+    "subject": "teacher-desk",
+    "file": "education_training/01-teacher-desk.png"
+  },
+  {
+    "index": 377,
+    "category": "education_training",
+    "subject": "classroom-chair",
+    "file": "education_training/02-classroom-chair.png"
+  },
+  {
+    "index": 378,
+    "category": "education_training",
+    "subject": "school-desk",
+    "file": "education_training/03-school-desk.png"
+  },
+  {
+    "index": 379,
+    "category": "education_training",
+    "subject": "chalkboard",
+    "file": "education_training/04-chalkboard.png"
+  },
+  {
+    "index": 380,
+    "category": "education_training",
+    "subject": "whiteboard",
+    "file": "education_training/05-whiteboard.png"
+  },
+  {
+    "index": 381,
+    "category": "education_training",
+    "subject": "open-textbook",
+    "file": "education_training/06-open-textbook.png"
+  },
+  {
+    "index": 382,
+    "category": "education_training",
+    "subject": "closed-textbook",
+    "file": "education_training/07-closed-textbook.png"
+  },
+  {
+    "index": 383,
+    "category": "education_training",
+    "subject": "book-stack",
+    "file": "education_training/08-book-stack.png"
+  },
+  {
+    "index": 384,
+    "category": "education_training",
+    "subject": "pencil",
+    "file": "education_training/09-pencil.png"
+  },
+  {
+    "index": 385,
+    "category": "education_training",
+    "subject": "fountain-pen",
+    "file": "education_training/10-fountain-pen.png"
+  },
+  {
+    "index": 386,
+    "category": "education_training",
+    "subject": "ruler",
+    "file": "education_training/11-ruler.png"
+  },
+  {
+    "index": 387,
+    "category": "education_training",
+    "subject": "globe",
+    "file": "education_training/12-globe.png"
+  },
+  {
+    "index": 388,
+    "category": "education_training",
+    "subject": "microscope",
+    "file": "education_training/13-microscope.png"
+  },
+  {
+    "index": 389,
+    "category": "education_training",
+    "subject": "laboratory-flask",
+    "file": "education_training/14-laboratory-flask.png"
+  },
+  {
+    "index": 390,
+    "category": "education_training",
+    "subject": "graduation-cap",
+    "file": "education_training/15-graduation-cap.png"
+  },
+  {
+    "index": 391,
+    "category": "education_training",
+    "subject": "diploma-scroll",
+    "file": "education_training/16-diploma-scroll.png"
+  },
+  {
+    "index": 392,
+    "category": "education_training",
+    "subject": "school-backpack",
+    "file": "education_training/17-school-backpack.png"
+  },
+  {
+    "index": 393,
+    "category": "education_training",
+    "subject": "calculator",
+    "file": "education_training/18-calculator.png"
+  },
+  {
+    "index": 394,
+    "category": "education_training",
+    "subject": "paintbrush",
+    "file": "education_training/19-paintbrush.png"
+  },
+  {
+    "index": 395,
+    "category": "education_training",
+    "subject": "music-stand",
+    "file": "education_training/20-music-stand.png"
+  },
+  {
+    "index": 396,
+    "category": "education_training",
+    "subject": "projector",
+    "file": "education_training/21-projector.png"
+  },
+  {
+    "index": 397,
+    "category": "education_training",
+    "subject": "presentation-screen",
+    "file": "education_training/22-presentation-screen.png"
+  },
+  {
+    "index": 398,
+    "category": "education_training",
+    "subject": "filing-cabinet",
+    "file": "education_training/23-filing-cabinet.png"
+  },
+  {
+    "index": 399,
+    "category": "education_training",
+    "subject": "library-bookshelf",
+    "file": "education_training/24-library-bookshelf.png"
+  },
+  {
+    "index": 400,
+    "category": "education_training",
+    "subject": "teacher-clipboard",
+    "file": "education_training/25-teacher-clipboard.png"
+  },
+  {
+    "index": 401,
+    "category": "workplace_safety",
+    "subject": "hard-hat",
+    "file": "workplace_safety/01-hard-hat.png"
+  },
+  {
+    "index": 402,
+    "category": "workplace_safety",
+    "subject": "safety-goggles",
+    "file": "workplace_safety/02-safety-goggles.png"
+  },
+  {
+    "index": 403,
+    "category": "workplace_safety",
+    "subject": "ear-defenders",
+    "file": "workplace_safety/03-ear-defenders.png"
+  },
+  {
+    "index": 404,
+    "category": "workplace_safety",
+    "subject": "earplugs",
+    "file": "workplace_safety/04-earplugs.png"
+  },
+  {
+    "index": 405,
+    "category": "workplace_safety",
+    "subject": "respirator",
+    "file": "workplace_safety/05-respirator.png"
+  },
+  {
+    "index": 406,
+    "category": "workplace_safety",
+    "subject": "face-shield",
+    "file": "workplace_safety/06-face-shield.png"
+  },
+  {
+    "index": 407,
+    "category": "workplace_safety",
+    "subject": "safety-vest",
+    "file": "workplace_safety/07-safety-vest.png"
+  },
+  {
+    "index": 408,
+    "category": "workplace_safety",
+    "subject": "protective-gloves",
+    "file": "workplace_safety/08-protective-gloves.png"
+  },
+  {
+    "index": 409,
+    "category": "workplace_safety",
+    "subject": "safety-boots",
+    "file": "workplace_safety/09-safety-boots.png"
+  },
+  {
+    "index": 410,
+    "category": "workplace_safety",
+    "subject": "safety-harness",
+    "file": "workplace_safety/10-safety-harness.png"
+  },
+  {
+    "index": 411,
+    "category": "workplace_safety",
+    "subject": "carabiner",
+    "file": "workplace_safety/11-carabiner.png"
+  },
+  {
+    "index": 412,
+    "category": "workplace_safety",
+    "subject": "fire-extinguisher",
+    "file": "workplace_safety/12-fire-extinguisher.png"
+  },
+  {
+    "index": 413,
+    "category": "workplace_safety",
+    "subject": "fire-hose-reel",
+    "file": "workplace_safety/13-fire-hose-reel.png"
+  },
+  {
+    "index": 414,
+    "category": "workplace_safety",
+    "subject": "smoke-detector",
+    "file": "workplace_safety/14-smoke-detector.png"
+  },
+  {
+    "index": 415,
+    "category": "workplace_safety",
+    "subject": "first-aid-case",
+    "file": "workplace_safety/15-first-aid-case.png"
+  },
+  {
+    "index": 416,
+    "category": "workplace_safety",
+    "subject": "eyewash-station",
+    "file": "workplace_safety/16-eyewash-station.png"
+  },
+  {
+    "index": 417,
+    "category": "workplace_safety",
+    "subject": "warning-beacon",
+    "file": "workplace_safety/17-warning-beacon.png"
+  },
+  {
+    "index": 418,
+    "category": "workplace_safety",
+    "subject": "traffic-cone",
+    "file": "workplace_safety/18-traffic-cone.png"
+  },
+  {
+    "index": 419,
+    "category": "workplace_safety",
+    "subject": "folding-barrier",
+    "file": "workplace_safety/19-folding-barrier.png"
+  },
+  {
+    "index": 420,
+    "category": "workplace_safety",
+    "subject": "lockout-padlock",
+    "file": "workplace_safety/20-lockout-padlock.png"
+  },
+  {
+    "index": 421,
+    "category": "workplace_safety",
+    "subject": "insulated-mat",
+    "file": "workplace_safety/21-insulated-mat.png"
+  },
+  {
+    "index": 422,
+    "category": "workplace_safety",
+    "subject": "spill-kit",
+    "file": "workplace_safety/22-spill-kit.png"
+  },
+  {
+    "index": 423,
+    "category": "workplace_safety",
+    "subject": "safety-shower",
+    "file": "workplace_safety/23-safety-shower.png"
+  },
+  {
+    "index": 424,
+    "category": "workplace_safety",
+    "subject": "gas-detector",
+    "file": "workplace_safety/24-gas-detector.png"
+  },
+  {
+    "index": 425,
+    "category": "workplace_safety",
+    "subject": "inspection-checklist",
+    "file": "workplace_safety/25-inspection-checklist.png"
+  },
+  {
+    "index": 426,
+    "category": "personal_care_services",
+    "subject": "barber-scissors",
+    "file": "personal_care_services/01-barber-scissors.png"
+  },
+  {
+    "index": 427,
+    "category": "personal_care_services",
+    "subject": "barber-comb",
+    "file": "personal_care_services/02-barber-comb.png"
+  },
+  {
+    "index": 428,
+    "category": "personal_care_services",
+    "subject": "hair-clipper",
+    "file": "personal_care_services/03-hair-clipper.png"
+  },
+  {
+    "index": 429,
+    "category": "personal_care_services",
+    "subject": "straight-razor",
+    "file": "personal_care_services/04-straight-razor.png"
+  },
+  {
+    "index": 430,
+    "category": "personal_care_services",
+    "subject": "shaving-brush",
+    "file": "personal_care_services/05-shaving-brush.png"
+  },
+  {
+    "index": 431,
+    "category": "personal_care_services",
+    "subject": "hair-dryer",
+    "file": "personal_care_services/06-hair-dryer.png"
+  },
+  {
+    "index": 432,
+    "category": "personal_care_services",
+    "subject": "curling-iron",
+    "file": "personal_care_services/07-curling-iron.png"
+  },
+  {
+    "index": 433,
+    "category": "personal_care_services",
+    "subject": "hairbrush",
+    "file": "personal_care_services/08-hairbrush.png"
+  },
+  {
+    "index": 434,
+    "category": "personal_care_services",
+    "subject": "round-brush",
+    "file": "personal_care_services/09-round-brush.png"
+  },
+  {
+    "index": 435,
+    "category": "personal_care_services",
+    "subject": "handheld-mirror",
+    "file": "personal_care_services/10-handheld-mirror.png"
+  },
+  {
+    "index": 436,
+    "category": "personal_care_services",
+    "subject": "salon-chair",
+    "file": "personal_care_services/11-salon-chair.png"
+  },
+  {
+    "index": 437,
+    "category": "personal_care_services",
+    "subject": "shampoo-basin",
+    "file": "personal_care_services/12-shampoo-basin.png"
+  },
+  {
+    "index": 438,
+    "category": "personal_care_services",
+    "subject": "spray-bottle",
+    "file": "personal_care_services/13-spray-bottle.png"
+  },
+  {
+    "index": 439,
+    "category": "personal_care_services",
+    "subject": "cosmetic-brush",
+    "file": "personal_care_services/14-cosmetic-brush.png"
+  },
+  {
+    "index": 440,
+    "category": "personal_care_services",
+    "subject": "nail-file",
+    "file": "personal_care_services/15-nail-file.png"
+  },
+  {
+    "index": 441,
+    "category": "personal_care_services",
+    "subject": "nail-polish",
+    "file": "personal_care_services/16-nail-polish.png"
+  },
+  {
+    "index": 442,
+    "category": "personal_care_services",
+    "subject": "manicure-scissors",
+    "file": "personal_care_services/17-manicure-scissors.png"
+  },
+  {
+    "index": 443,
+    "category": "personal_care_services",
+    "subject": "foot-bath",
+    "file": "personal_care_services/18-foot-bath.png"
+  },
+  {
+    "index": 444,
+    "category": "personal_care_services",
+    "subject": "folded-towels",
+    "file": "personal_care_services/19-folded-towels.png"
+  },
+  {
+    "index": 445,
+    "category": "personal_care_services",
+    "subject": "massage-table",
+    "file": "personal_care_services/20-massage-table.png"
+  },
+  {
+    "index": 446,
+    "category": "personal_care_services",
+    "subject": "lotion-bottle",
+    "file": "personal_care_services/21-lotion-bottle.png"
+  },
+  {
+    "index": 447,
+    "category": "personal_care_services",
+    "subject": "salon-apron",
+    "file": "personal_care_services/22-salon-apron.png"
+  },
+  {
+    "index": 448,
+    "category": "personal_care_services",
+    "subject": "sterilizer-tray",
+    "file": "personal_care_services/23-sterilizer-tray.png"
+  },
+  {
+    "index": 449,
+    "category": "personal_care_services",
+    "subject": "salon-cart",
+    "file": "personal_care_services/24-salon-cart.png"
+  },
+  {
+    "index": 450,
+    "category": "personal_care_services",
+    "subject": "appointment-book",
+    "file": "personal_care_services/25-appointment-book.png"
+  },
+  {
+    "index": 451,
+    "category": "energy_utilities",
+    "subject": "transmission-tower",
+    "file": "energy_utilities/01-transmission-tower.png"
+  },
+  {
+    "index": 452,
+    "category": "energy_utilities",
+    "subject": "utility-pole",
+    "file": "energy_utilities/02-utility-pole.png"
+  },
+  {
+    "index": 453,
+    "category": "energy_utilities",
+    "subject": "transformer",
+    "file": "energy_utilities/03-transformer.png"
+  },
+  {
+    "index": 454,
+    "category": "energy_utilities",
+    "subject": "electrical-meter",
+    "file": "energy_utilities/04-electrical-meter.png"
+  },
+  {
+    "index": 455,
+    "category": "energy_utilities",
+    "subject": "breaker-panel",
+    "file": "energy_utilities/05-breaker-panel.png"
+  },
+  {
+    "index": 456,
+    "category": "energy_utilities",
+    "subject": "electrician-gloves",
+    "file": "energy_utilities/06-electrician-gloves.png"
+  },
+  {
+    "index": 457,
+    "category": "energy_utilities",
+    "subject": "voltage-tester",
+    "file": "energy_utilities/07-voltage-tester.png"
+  },
+  {
+    "index": 458,
+    "category": "energy_utilities",
+    "subject": "cable-reel",
+    "file": "energy_utilities/08-cable-reel.png"
+  },
+  {
+    "index": 459,
+    "category": "energy_utilities",
+    "subject": "lineman-belt",
+    "file": "energy_utilities/09-lineman-belt.png"
+  },
+  {
+    "index": 460,
+    "category": "energy_utilities",
+    "subject": "utility-truck",
+    "file": "energy_utilities/10-utility-truck.png"
+  },
+  {
+    "index": 461,
+    "category": "energy_utilities",
+    "subject": "solar-panel",
+    "file": "energy_utilities/11-solar-panel.png"
+  },
+  {
+    "index": 462,
+    "category": "energy_utilities",
+    "subject": "wind-turbine",
+    "file": "energy_utilities/12-wind-turbine.png"
+  },
+  {
+    "index": 463,
+    "category": "energy_utilities",
+    "subject": "hydroelectric-turbine",
+    "file": "energy_utilities/13-hydroelectric-turbine.png"
+  },
+  {
+    "index": 464,
+    "category": "energy_utilities",
+    "subject": "pipeline-valve",
+    "file": "energy_utilities/14-pipeline-valve.png"
+  },
+  {
+    "index": 465,
+    "category": "energy_utilities",
+    "subject": "pipe-flange",
+    "file": "energy_utilities/15-pipe-flange.png"
+  },
+  {
+    "index": 466,
+    "category": "energy_utilities",
+    "subject": "pressure-gauge",
+    "file": "energy_utilities/16-pressure-gauge.png"
+  },
+  {
+    "index": 467,
+    "category": "energy_utilities",
+    "subject": "oil-pumpjack",
+    "file": "energy_utilities/17-oil-pumpjack.png"
+  },
+  {
+    "index": 468,
+    "category": "energy_utilities",
+    "subject": "fuel-storage-tank",
+    "file": "energy_utilities/18-fuel-storage-tank.png"
+  },
+  {
+    "index": 469,
+    "category": "energy_utilities",
+    "subject": "water-meter",
+    "file": "energy_utilities/19-water-meter.png"
+  },
+  {
+    "index": 470,
+    "category": "energy_utilities",
+    "subject": "pipe-wrench",
+    "file": "energy_utilities/20-pipe-wrench.png"
+  },
+  {
+    "index": 471,
+    "category": "energy_utilities",
+    "subject": "fire-hydrant",
+    "file": "energy_utilities/21-fire-hydrant.png"
+  },
+  {
+    "index": 472,
+    "category": "energy_utilities",
+    "subject": "sewer-cover",
+    "file": "energy_utilities/22-sewer-cover.png"
+  },
+  {
+    "index": 473,
+    "category": "energy_utilities",
+    "subject": "portable-generator",
+    "file": "energy_utilities/23-portable-generator.png"
+  },
+  {
+    "index": 474,
+    "category": "energy_utilities",
+    "subject": "industrial-battery",
+    "file": "energy_utilities/24-industrial-battery.png"
+  },
+  {
+    "index": 475,
+    "category": "energy_utilities",
+    "subject": "utility-clipboard",
+    "file": "energy_utilities/25-utility-clipboard.png"
+  },
+  {
+    "index": 476,
+    "category": "communications_media",
+    "subject": "broadcast-microphone",
+    "file": "communications_media/01-broadcast-microphone.png"
+  },
+  {
+    "index": 477,
+    "category": "communications_media",
+    "subject": "studio-headphones",
+    "file": "communications_media/02-studio-headphones.png"
+  },
+  {
+    "index": 478,
+    "category": "communications_media",
+    "subject": "video-camera",
+    "file": "communications_media/03-video-camera.png"
+  },
+  {
+    "index": 479,
+    "category": "communications_media",
+    "subject": "still-camera",
+    "file": "communications_media/04-still-camera.png"
+  },
+  {
+    "index": 480,
+    "category": "communications_media",
+    "subject": "camera-tripod",
+    "file": "communications_media/05-camera-tripod.png"
+  },
+  {
+    "index": 481,
+    "category": "communications_media",
+    "subject": "boom-microphone",
+    "file": "communications_media/06-boom-microphone.png"
+  },
+  {
+    "index": 482,
+    "category": "communications_media",
+    "subject": "audio-mixer",
+    "file": "communications_media/07-audio-mixer.png"
+  },
+  {
+    "index": 483,
+    "category": "communications_media",
+    "subject": "loudspeaker",
+    "file": "communications_media/08-loudspeaker.png"
+  },
+  {
+    "index": 484,
+    "category": "communications_media",
+    "subject": "radio-transmitter",
+    "file": "communications_media/09-radio-transmitter.png"
+  },
+  {
+    "index": 485,
+    "category": "communications_media",
+    "subject": "walkie-talkie",
+    "file": "communications_media/10-walkie-talkie.png"
+  },
+  {
+    "index": 486,
+    "category": "communications_media",
+    "subject": "satellite-dish",
+    "file": "communications_media/11-satellite-dish.png"
+  },
+  {
+    "index": 487,
+    "category": "communications_media",
+    "subject": "telephone-handset",
+    "file": "communications_media/12-telephone-handset.png"
+  },
+  {
+    "index": 488,
+    "category": "communications_media",
+    "subject": "smartphone",
+    "file": "communications_media/13-smartphone.png"
+  },
+  {
+    "index": 489,
+    "category": "communications_media",
+    "subject": "desk-telephone",
+    "file": "communications_media/14-desk-telephone.png"
+  },
+  {
+    "index": 490,
+    "category": "communications_media",
+    "subject": "ethernet-cable",
+    "file": "communications_media/15-ethernet-cable.png"
+  },
+  {
+    "index": 491,
+    "category": "communications_media",
+    "subject": "fiber-optic-spool",
+    "file": "communications_media/16-fiber-optic-spool.png"
+  },
+  {
+    "index": 492,
+    "category": "communications_media",
+    "subject": "mail-envelope",
+    "file": "communications_media/17-mail-envelope.png"
+  },
+  {
+    "index": 493,
+    "category": "communications_media",
+    "subject": "parcel-mailer",
+    "file": "communications_media/18-parcel-mailer.png"
+  },
+  {
+    "index": 494,
+    "category": "communications_media",
+    "subject": "postal-satchel",
+    "file": "communications_media/19-postal-satchel.png"
+  },
+  {
+    "index": 495,
+    "category": "communications_media",
+    "subject": "newspaper",
+    "file": "communications_media/20-newspaper.png"
+  },
+  {
+    "index": 496,
+    "category": "communications_media",
+    "subject": "blank-brochure",
+    "file": "communications_media/21-blank-brochure.png"
+  },
+  {
+    "index": 497,
+    "category": "communications_media",
+    "subject": "printing-press",
+    "file": "communications_media/22-printing-press.png"
+  },
+  {
+    "index": 498,
+    "category": "communications_media",
+    "subject": "podcast-recorder",
+    "file": "communications_media/23-podcast-recorder.png"
+  },
+  {
+    "index": 499,
+    "category": "communications_media",
+    "subject": "newsroom-lamp",
+    "file": "communications_media/24-newsroom-lamp.png"
+  },
+  {
+    "index": 500,
+    "category": "communications_media",
+    "subject": "communications-headset",
+    "file": "communications_media/25-communications-headset.png"
+  }
+]

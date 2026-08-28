@@ -83,6 +83,20 @@
   formatDollarInput(salaryInput);
   formatDollarInput(ptoInput);
 
+  // Guards against the browser's back/forward cache restoring a mid-
+  // calculation snapshot (loading spinner frozen mid-flight, or an
+  // already-revealed result) when the page is reached via back/forward
+  // navigation instead of a fresh load.
+  function resetToIdle(){
+    loading.hidden = true;
+    resultInner.classList.add('is-blurred');
+    submitBtn.disabled = false;
+  }
+  resetToIdle();
+  window.addEventListener('pageshow', (e) => {
+    if(e.persisted) resetToIdle();
+  });
+
   submitBtn.addEventListener('click', () => {
     if(positionInput && !positionInput.value){
       positionInput.classList.add('calc-input-error');
