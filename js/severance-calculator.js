@@ -9,6 +9,7 @@
   const customWeeksRow = document.getElementById('calcCustomWeeksRow');
   const customWeeksInput = document.getElementById('calcCustomWeeks');
   const ptoInput = document.getElementById('calcPto');
+  const positionInput = document.getElementById('calcPosition');
   const submitBtn = document.getElementById('calcSubmitBtn');
 
   const resultInner = document.getElementById('calcResultInner');
@@ -84,6 +85,15 @@
   formatDollarInput(ptoInput);
 
   submitBtn.addEventListener('click', () => {
+    if(positionInput && !positionInput.value){
+      positionInput.classList.add('calc-input-error');
+      positionInput.focus();
+      positionInput.addEventListener('change', () => {
+        positionInput.classList.remove('calc-input-error');
+      }, { once: true });
+      return;
+    }
+
     overlay.hidden = true;
     loading.hidden = false;
     submitBtn.disabled = true;
