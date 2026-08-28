@@ -5057,21 +5057,6 @@ footer a:hover{ color:var(--white); }
   color:var(--ink-soft);
   opacity:0.75;
 }
-.calc-fact-link{
-  display:inline-block;
-  margin-top:4px;
-  padding:10px 14px;
-  background:var(--paper);
-  border:1px dashed var(--gold-500);
-  border-radius:9px;
-  font-family:var(--font-cond);
-  font-size:13px;
-  font-weight:600;
-  letter-spacing:0.01em;
-  color:var(--navy-950);
-  text-align:left;
-}
-.calc-fact-link:hover{ background:var(--paper-dim); color:var(--gold-500); }
 .calc-result{
   display:flex;
   flex-direction:column;
