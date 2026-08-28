@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=254">
+<link rel="stylesheet" href="css/style.css?v=255">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -143,21 +143,39 @@
 
           <div class="form-row">
             <div class="calc-label-row">
-              <label for="calcHours">Shift Length (hours)</label>
-              <button type="button" class="calc-tip glossary-term" data-term="Shift Length" data-def="The total number of hours you're scheduled to work in one shift, including any unpaid meal break time. Used to determine how many meal and rest breaks the shift should include.">?</button>
+              <label for="calcHoursSlider">Length of Shift</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Length of Shift" data-def="The total number of hours you're scheduled to work in one shift, including any unpaid meal break time. Used to determine how many meal and rest breaks the shift should include. Filled in automatically if you enter a start and end time below.">?</button>
             </div>
-            <div class="calc-slider-row">
-              <input type="range" id="calcHoursSlider" min="0" max="16" step="0.25" value="10" class="calc-slider">
-              <input type="number" id="calcHours" min="0" max="24" step="0.25" placeholder="10" inputmode="decimal" class="calc-slider-value">
+            <div class="calc-slider-block">
+              <div class="calc-slider-row">
+                <input type="range" id="calcHoursSlider" min="0" max="16" step="0.25" value="8" class="calc-slider">
+                <div class="calc-slider-readout"><span id="calcHoursReadout">8.0</span><span class="calc-slider-unit">hrs</span></div>
+              </div>
+              <div class="calc-slider-presets" id="calcHoursPresets">
+                <button type="button" class="calc-slider-preset" data-value="4">4 hrs</button>
+                <button type="button" class="calc-slider-preset" data-value="6">6 hrs</button>
+                <button type="button" class="calc-slider-preset is-active" data-value="8">8 hrs</button>
+                <button type="button" class="calc-slider-preset" data-value="10">10 hrs</button>
+                <button type="button" class="calc-slider-preset" data-value="12">12 hrs</button>
+              </div>
+              <input type="hidden" id="calcHours" value="8">
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="calc-label-row">
-              <label for="calcStartTime">Shift Start Time <span class="calc-optional">optional</span></label>
-              <button type="button" class="calc-tip glossary-term" data-term="Shift Start Time" data-def="Optional. Add this to see an approximate clock-time schedule for when each break should happen, rather than just how many you're owed.">?</button>
+          <div class="calc-row-2 calc-row-2-keep">
+            <div class="form-row">
+              <div class="calc-label-row">
+                <label for="calcStartTime">Shift Start Time <span class="calc-optional">optional</span></label>
+              </div>
+              <input type="time" id="calcStartTime">
             </div>
-            <input type="time" id="calcStartTime">
+            <div class="form-row">
+              <div class="calc-label-row">
+                <label for="calcEndTime">Shift End Time <span class="calc-optional">optional</span></label>
+                <button type="button" class="calc-tip glossary-term" data-term="Start &amp; End Time" data-def="Optional. Add both to automatically fill in the length of your shift above and see an actual clock-time schedule for when each break should happen, instead of just how many you're owed.">?</button>
+              </div>
+              <input type="time" id="calcEndTime">
+            </div>
           </div>
 
           <button type="button" class="btn calc-submit-btn" id="calcSubmitBtn">See My Breaks &rarr;</button>
@@ -399,7 +417,7 @@
 </footer>
 
 <script src="js/main.js?v=70" defer></script>
-<script src="js/meal-rest-break-calculator.js?v=3" defer></script>
+<script src="js/meal-rest-break-calculator.js?v=4" defer></script>
 <script src="js/a11y-widget.js?v=13" defer></script>
 </body>
 </html>

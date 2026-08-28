@@ -1,7 +1,10 @@
 (function(){
   const hoursInput = document.getElementById('calcHours');
   const hoursSlider = document.getElementById('calcHoursSlider');
+  const hoursReadout = document.getElementById('calcHoursReadout');
+  const presetsWrap = document.getElementById('calcHoursPresets');
   const startTimeInput = document.getElementById('calcStartTime');
+  const endTimeInput = document.getElementById('calcEndTime');
   const submitBtn = document.getElementById('calcSubmitBtn');
 
   const resultInner = document.getElementById('calcResultInner');
@@ -25,19 +28,47 @@
     return Math.max(0, parseFloat(el.value) || 0);
   }
 
-  // Keep the slider and the number field in sync with each other, whichever
-  // one the visitor touches. The slider caps at 16 hours (a reasonable
-  // upper bound for a single shift); the number field still accepts
-  // anything higher for the rare longer shift.
-  hoursSlider.addEventListener('input', () => {
-    hoursInput.value = hoursSlider.value;
-  });
-  hoursInput.addEventListener('input', () => {
-    const val = parseFloat(hoursInput.value);
-    if(!isNaN(val) && val >= 0 && val <= 16){
-      hoursSlider.value = val;
+  // ---- Length-of-shift slider + preset pills ----
+  function setHours(hours, { fromSlider = false } = {}){
+    const clamped = Math.max(0, Math.min(24, hours));
+    hoursInput.value = clamped;
+    hoursReadout.textContent = number.format(clamped);
+    if(!fromSlider){
+      hoursSlider.value = Math.min(16, clamped);
     }
+    presetsWrap.querySelectorAll('.calc-slider-preset').forEach(btn => {
+      btn.classList.toggle('is-active', parseFloat(btn.dataset.value) === clamped);
+    });
+  }
+
+  hoursSlider.addEventListener('input', () => {
+    setHours(parseFloat(hoursSlider.value), { fromSlider: true });
   });
+
+  presetsWrap.addEventListener('click', (e) => {
+    const btn = e.target.closest('.calc-slider-preset');
+    if(!btn) return;
+    setHours(parseFloat(btn.dataset.value));
+  });
+
+  // ---- Optional start/end time: auto-fill the shift length when both
+  // are set, so a visitor can enter clock times instead of doing the
+  // subtraction themselves. Handles an overnight shift (end before
+  // start) by assuming the end time falls the next day. ----
+  function syncHoursFromTimes(){
+    const startVal = startTimeInput.value;
+    const endVal = endTimeInput.value;
+    if(!startVal || !endVal) return;
+    const [sh, sm] = startVal.split(':').map(Number);
+    const [eh, em] = endVal.split(':').map(Number);
+    let diffMinutes = (eh * 60 + em) - (sh * 60 + sm);
+    if(diffMinutes <= 0) diffMinutes += 24 * 60;
+    setHours(Math.round((diffMinutes / 60) * 4) / 4);
+  }
+  startTimeInput.addEventListener('change', syncHoursFromTimes);
+  endTimeInput.addEventListener('change', syncHoursFromTimes);
+
+  setHours(parseFloat(hoursSlider.value));
 
   // California rest break table: none under 3.5 hours, 1 for a shift of
   // 3.5 up to 6 hours, then one additional 10-minute break for each
@@ -140,9 +171,7 @@
   function validateRequired(){
     const isValid = numericValue(hoursInput) > 0;
     if(!isValid){
-      hoursInput.classList.add('calc-input-error');
-      hoursInput.addEventListener('input', () => hoursInput.classList.remove('calc-input-error'), { once: true });
-      hoursInput.focus();
+      hoursSlider.focus();
     }
     return isValid;
   }
