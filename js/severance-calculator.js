@@ -106,14 +106,22 @@
   });
 
   function validateRequired(){
-    const requiredFields = [positionInput, reasonInput].filter(Boolean);
+    // Salary and years are checked for an actual positive value (not just
+    // non-empty), since "0" or blank both produce a meaningless estimate.
+    const requiredFields = [
+      { field: salaryInput, isValid: () => numericValue(salaryInput) > 0 },
+      { field: yearsInput, isValid: () => (parseFloat(yearsInput.value) || 0) > 0 },
+      { field: positionInput, isValid: () => !!positionInput?.value },
+      { field: reasonInput, isValid: () => !!reasonInput?.value },
+    ].filter(f => f.field);
+
     let firstInvalid = null;
-    requiredFields.forEach(field => {
-      if(!field.value){
+    requiredFields.forEach(({ field, isValid }) => {
+      if(!isValid()){
         field.classList.add('calc-input-error');
-        field.addEventListener('change', () => {
-          field.classList.remove('calc-input-error');
-        }, { once: true });
+        const clear = () => field.classList.remove('calc-input-error');
+        field.addEventListener('input', clear, { once: true });
+        field.addEventListener('change', clear, { once: true });
         if(!firstInvalid) firstInvalid = field;
       }
     });

@@ -5042,7 +5042,10 @@ footer a:hover{ color:var(--white); }
   padding:40px;
 }
 .calc-card-head{
-  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
 }
 .calc-card-head-text{ max-width:600px; }
 .calc-card-head h2{
@@ -5053,21 +5056,20 @@ footer a:hover{ color:var(--white); }
   color:var(--navy-950);
 }
 .calc-card-head-illustration{
-  position:absolute;
-  top:-16px;
-  right:20px;
-  width:150px;
-  height:150px;
+  flex:none;
   display:flex;
   align-items:center;
   justify-content:center;
   pointer-events:none;
 }
 .calc-card-head-illustration img{
-  width:110px;
-  height:110px;
+  width:100px;
+  height:100px;
   object-fit:contain;
-  transform:rotate(-8deg);
+  /* Blends the icon's light/white fill into the page background so it
+     reads as line art rather than a white sticker, without needing to
+     re-export the source asset. */
+  mix-blend-mode:multiply;
 }
 .calc-card-head p{
   margin-top:10px;
@@ -5238,20 +5240,7 @@ footer a:hover{ color:var(--white); }
   border-radius:12px;
   padding:28px;
 }
-.calc-result-badge{
-  position:absolute;
-  top:24px;
-  right:24px;
-  width:56px;
-  height:56px;
-  padding:10px;
-  border-radius:50%;
-  border:2px solid var(--gold-500);
-  background:var(--paper);
-  object-fit:contain;
-}
 .calc-result-label{
-  padding-right:70px;
   font-family:var(--font-cond);
   font-size:12.5px;
   font-weight:600;
@@ -5261,7 +5250,6 @@ footer a:hover{ color:var(--white); }
 }
 .calc-result-amount{
   margin-top:8px;
-  padding-right:70px;
   font-family:var(--font-display);
   font-size:clamp(24px, 3vw, 32px);
   font-weight:600;
@@ -5270,7 +5258,6 @@ footer a:hover{ color:var(--white); }
 }
 .calc-result-estimate-note{
   margin:6px 0 0;
-  padding-right:70px;
   font-size:12.5px;
   color:var(--ink-soft);
 }
@@ -5363,6 +5350,7 @@ footer a:hover{ color:var(--white); }
 .calc-input-error{ border-color:#C0392B !important; }
 
 .calc-result{ position:relative; overflow:hidden; }
+.calc-result-inner{ display:flex; flex-direction:column; }
 .calc-result-inner.is-blurred{
   filter:blur(6px);
   pointer-events:none;
