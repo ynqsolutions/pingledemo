@@ -5124,12 +5124,19 @@ footer a:hover{ color:var(--white); }
 }
 .calc-inputs label{
   font-family:var(--font-body);
-  font-size:15px;
+  font-size:13.5px;
   font-weight:500;
   letter-spacing:0;
   text-transform:none;
   color:var(--navy-950);
 }
+.calc-inputs input,
+.calc-inputs select,
+.calc-inputs textarea{
+  font-size:13.5px;
+  padding:11px 14px;
+}
+.calc-inputs .calc-dollar-input input{ padding-left:24px; }
 
 .calc-row-2{
   display:grid;
