@@ -5071,6 +5071,10 @@ footer a:hover{ color:var(--white); }
      reads as line art rather than a white sticker, without needing to
      re-export the source asset. */
   mix-blend-mode:multiply;
+  /* The source PNG has ~23% empty padding below the calculator graphic
+     itself, so the box edge sits above the visible shape; shift down to
+     align the calculator's visible bottom with the container bottom. */
+  transform:translateY(22.7%);
 }
 .calc-card-head p{
   margin-top:10px;
