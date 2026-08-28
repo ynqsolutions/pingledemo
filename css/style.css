@@ -5178,9 +5178,34 @@ footer a:hover{ color:var(--white); }
 .calc-row-2{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:16px;
+  grid-template-rows:auto auto;
+  grid-auto-flow:column;
+  gap:8px 16px;
 }
+/* Each field's label row and input are two DOM children of one
+   .form-row, but that .form-row is a grid item of .calc-row-2 above,
+   not the label/input themselves — so when one column's label wraps to
+   a second line and the other doesn't, the two inputs land at
+   different heights instead of forming a clean second row. Un-nesting
+   .form-row with display:contents promotes the label-row and input to
+   be direct grid items, so row 1 (labels) sizes to the tallest label
+   across both columns and row 2 (inputs) starts at that same shared
+   baseline for both fields. */
+.calc-row-2 .form-row{ display:contents; }
 .calc-row-2-keep{ grid-template-columns:1.4fr 1fr; }
+/* Width utilities for fields whose typical entry is much shorter than
+   a full column (a couple digits of hours, a percentage, a small
+   count) so the input doesn't look oversized for what's typed into
+   it. Left-aligned within its grid cell since max-width intentionally
+   keeps it from stretching to fill the column. */
+.calc-field-narrow > input,
+.calc-field-narrow > select,
+.calc-field-narrow > .calc-dollar-input,
+.calc-field-narrow > .calc-affix-input{ max-width:120px; }
+.calc-field-medium > input,
+.calc-field-medium > select,
+.calc-field-medium > .calc-dollar-input,
+.calc-field-medium > .calc-affix-input{ max-width:190px; }
 .calc-optional{
   text-transform:none;
   font-weight:500;

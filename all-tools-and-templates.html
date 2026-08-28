@@ -9,12 +9,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=block" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=258">
+<link rel="stylesheet" href="css/style.css?v=259">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
 <link rel="stylesheet" href="css/a11y-widget.css?v=9">
 <style>
+/* Aligns with the 1080px-wide tile grid/tabs content below, instead of
+   the narrower 680px centered column .about-hero-inner uses for the
+   eyebrow/h1/pills. */
+.tools-hero-back-link{
+  display:flex; width:fit-content; margin-bottom:16px;
+  margin-left:max(0px, calc((100% - 1080px) / 2));
+}
+.tools-hero-divider{ max-width:900px; margin:0 auto; height:1px; background:var(--paper-line); }
+.tools-directory-filter-section{ padding-top:28px; padding-bottom:8px; }
 .tools-directory-search{ max-width:520px; margin:28px auto 0; position:relative; }
 .tools-directory-search input{
   width:100%; padding:14px 18px 14px 44px; border-radius:999px; border:1px solid var(--paper-line);
@@ -31,7 +40,7 @@
 .tools-directory-tabs button:hover{ border-color:var(--gold-500); color:var(--navy-950); }
 .tools-directory-tabs button.is-active{ background:var(--navy-950); border-color:var(--navy-950); color:var(--white); }
 .tools-directory-section{ max-width:1080px; margin:0 auto; padding:56px 0 0; }
-.tools-directory-section:first-of-type{ padding-top:48px; }
+.tools-directory-section:first-of-type{ padding-top:32px; }
 .tools-directory-section-head{ display:flex; align-items:center; gap:10px; margin-bottom:20px; }
 .tools-directory-section-head .icon{
   flex:none; width:34px; height:34px; border-radius:50%; background:rgba(179,138,60,0.14);
@@ -41,16 +50,21 @@
 .tools-directory-section-head h2{ font-family:var(--font-display); font-size:20px; color:var(--navy-950); }
 .tools-directory-section-head .rule{ flex:1; height:1px; background:var(--gold-500); opacity:0.4; }
 .tools-directory-empty{ text-align:center; padding:60px 20px; color:var(--ink-soft); display:none; }
-.tools-directory-cta{
-  max-width:1080px; margin:64px auto 0; background:var(--navy-950); border-radius:14px; padding:32px;
-  display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; text-align:left;
+/* Compact "suggest a tool" strip: a single quiet line instead of a big
+   standalone banner card, so it doesn't compete for attention with the
+   real final CTA section below it. */
+.tools-directory-suggest{
+  max-width:1080px; margin:40px auto 0; padding:14px 20px;
+  display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+  text-align:center; border-top:1px solid var(--paper-line); border-bottom:1px solid var(--paper-line);
 }
-.tools-directory-cta p{ color:rgba(255,255,255,0.85); font-size:15.5px; margin:0; }
-.tools-directory-cta h3{ font-family:var(--font-display); color:var(--white); font-size:19px; margin-bottom:4px; }
-.tools-directory-disclaimer{ max-width:1080px; margin:28px auto 0; text-align:center; font-size:12.5px; color:var(--ink-soft); }
-@media (max-width: 640px){
-  .tools-directory-cta{ text-align:center; justify-content:center; }
+.tools-directory-suggest span{ font-size:14px; color:var(--ink-soft); }
+.tools-directory-suggest a{
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--font-cond); font-size:13px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase;
+  color:var(--navy-950); transition:color .18s ease, gap .18s ease;
 }
+.tools-directory-suggest a:hover{ color:var(--gold-500); gap:8px; }
 </style>
 </head>
 <body>
@@ -118,24 +132,27 @@
 
 <!-- ============ HERO ============ -->
 <section class="about-hero about-hero-compact about-hero-gradient">
-  <div class="wrap about-hero-inner">
-    <a href="resources.html" class="blog-back-link about-hero-back">&larr; Back to Resources</a>
-    <span class="eyebrow" style="color:var(--gold-500);">Workplace Tools</span>
-    <h1>Calculators &amp; Templates</h1>
-    <div class="about-hero-pill">
-      <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="pill-gold">Free Consultation</a>
-      <a href="contact.html" class="pill-ghost">Contact Us</a>
-    </div>
-    <div class="tools-directory-search">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="toolsSearchInput" placeholder="What do you need help with?" aria-label="Search calculators and templates">
+  <div class="wrap">
+    <a href="resources.html" class="blog-back-link tools-hero-back-link">&larr; Back to Resources</a>
+    <div class="about-hero-inner">
+      <span class="eyebrow" style="color:var(--gold-500);">Workplace Tools</span>
+      <h1>Calculators &amp; Templates</h1>
+      <div class="about-hero-pill">
+        <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="pill-gold">Free Consultation</a>
+        <a href="contact.html" class="pill-ghost">Contact Us</a>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ CATEGORY TABS ============ -->
-<section class="resources-section section-divider-full" style="padding-bottom:0;">
+<!-- ============ SEARCH + CATEGORY TABS ============ -->
+<section class="resources-section tools-directory-filter-section">
   <div class="wrap">
+    <div class="tools-hero-divider" aria-hidden="true"></div>
+    <div class="tools-directory-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="toolsSearchInput" placeholder="What do you need help with?" aria-label="Search calculators and templates">
+    </div>
     <div class="tools-directory-tabs" id="toolsCategoryTabs">
       <button type="button" class="is-active" data-cat="all">All</button>
       <button type="button" data-cat="pay-wages">Pay &amp; Wages</button>
@@ -410,16 +427,42 @@
 
     <p class="tools-directory-empty" id="toolsDirectoryEmpty">No tools match your search. Try a different term or category.</p>
 
-    <div class="tools-directory-cta">
-      <div>
-        <h3>Don't see the tool you need?</h3>
-        <p>Tell us what would help and we'll consider building it.</p>
-      </div>
-      <a href="contact.html" class="btn btn-gold">Suggest a Tool</a>
+    <div class="tools-directory-suggest">
+      <span>Don't see the tool you need?</span>
+      <a href="contact.html">Suggest a tool <span aria-hidden="true">&rarr;</span></a>
     </div>
 
-    <p class="tools-directory-disclaimer">For informational purposes only and may not apply to every situation.</p>
+    <div class="tool-disclaimer" style="max-width:1080px; margin-left:auto; margin-right:auto;">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.01"></path></svg>
+      <p>For informational purposes only and may not apply to every situation.</p>
+    </div>
 
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="final-cta" id="contact">
+  <div class="wrap final-cta-inner">
+    <div class="final-cta-copy">
+      <h2>Are you ready to reach out?</h2>
+      <p>Contact us to discuss your situation. We are here to answer your questions, explain your options, and help you determine the best way to move forward.</p>
+      <ul class="final-cta-points">
+        <li>Free consultation</li>
+        <li>No win, no fee guarantee</li>
+        <li>Real answers</li>
+      </ul>
+      <div class="cta-buttons">
+        <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="btn btn-gold">Free Consultation</a>
+        <a href="contact.html" class="btn btn-outline-light">Contact Us</a>
+      </div>
+    </div>
+
+    <div class="final-cta-form">
+      <h3>Get your free case review</h3>
+      <p>Answer a short set of questions to see where your situation stands, no cost, no obligation.</p>
+      <a href="case-review.html" class="btn btn-gold">Start Free Case Review</a>
+      <p class="final-cta-form-fine">Takes about two minutes.</p>
+    </div>
   </div>
 </section>
 
@@ -470,13 +513,13 @@
       <div>
         <h5>Explore</h5>
         <ul>
-          <li><a href="case-review.html">Free Case Review</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="practice-areas.html">Practice Areas</a></li>
           <li><a href="faq.html">FAQ</a></li>
           <li><a href="rss.html">RSS</a></li>
-          <li><a href="glossary.html">Glossary</a></li>
+          <li><a href="about.html">About</a></li>
           <li><a href="contact.html">Contact</a></li>
+          <li><a href="glossary.html">Glossary</a></li>
+          <li><a href="practice-areas.html">Practice Areas</a></li>
+          <li><a href="case-review.html">Free Case Review</a></li>
         </ul>
       </div>
       <div>
@@ -504,15 +547,32 @@
   </div>
 </footer>
 
-<script src="js/main.js?v=72" defer></script>
+<script src="js/main.js?v=73" defer></script>
 <script src="js/a11y-widget.js?v=13" defer></script>
 <script>
+// Search + category filtering, with the chosen filter/search term and
+// scroll position remembered in sessionStorage (same pattern as the
+// blog grid on resources.html) so a visitor who opens a tool and then
+// uses this page's own "Back to All Tools & Templates" link lands
+// exactly back where they left off, not back at a reset "All" view.
 (function(){
   const searchInput = document.getElementById('toolsSearchInput');
   const tabsWrap = document.getElementById('toolsCategoryTabs');
   const sections = Array.from(document.querySelectorAll('.tools-directory-section'));
   const emptyMsg = document.getElementById('toolsDirectoryEmpty');
+
+  const FILTER_KEY = 'toolsDirectoryFilter';
+  const SEARCH_KEY = 'toolsDirectorySearch';
+  const SCROLL_KEY = 'toolsDirectoryScroll';
+  const VISITED_KEY = 'toolsDirectoryVisited';
+
   let activeCategory = 'all';
+  try { activeCategory = sessionStorage.getItem(FILTER_KEY) || 'all'; } catch(e){}
+
+  try {
+    const savedSearch = sessionStorage.getItem(SEARCH_KEY);
+    if(savedSearch) searchInput.value = savedSearch;
+  } catch(e){}
 
   function applyFilters(){
     const query = searchInput.value.trim().toLowerCase();
@@ -534,16 +594,48 @@
     emptyMsg.style.display = anyVisible ? 'none' : 'block';
   }
 
+  const savedTab = tabsWrap.querySelector(`button[data-cat="${activeCategory}"]`);
+  if(savedTab){
+    tabsWrap.querySelectorAll('button').forEach(b => b.classList.remove('is-active'));
+    savedTab.classList.add('is-active');
+  }
+  applyFilters();
+
+  try {
+    const savedScroll = sessionStorage.getItem(SCROLL_KEY);
+    if(savedScroll !== null){
+      sessionStorage.removeItem(SCROLL_KEY);
+      requestAnimationFrame(() => window.scrollTo(0, parseInt(savedScroll, 10) || 0));
+    }
+  } catch(e){}
+
   tabsWrap.addEventListener('click', (e) => {
     const btn = e.target.closest('button');
     if(!btn) return;
     tabsWrap.querySelectorAll('button').forEach(b => b.classList.remove('is-active'));
     btn.classList.add('is-active');
     activeCategory = btn.dataset.cat;
+    try { sessionStorage.setItem(FILTER_KEY, activeCategory); } catch(e){}
     applyFilters();
   });
 
-  searchInput.addEventListener('input', applyFilters);
+  searchInput.addEventListener('input', () => {
+    try { sessionStorage.setItem(SEARCH_KEY, searchInput.value); } catch(e){}
+    applyFilters();
+  });
+
+  // Record scroll position and a "came from the directory" flag right
+  // before a tile navigates away, so the calculator/template page's
+  // back link can point here (worded accordingly) and this page can
+  // restore the visitor's exact spot when they use it.
+  document.querySelectorAll('.tool-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem(SCROLL_KEY, String(window.scrollY));
+        sessionStorage.setItem(VISITED_KEY, '1');
+      } catch(e){}
+    });
+  });
 })();
 </script>
 </body>

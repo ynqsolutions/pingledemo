@@ -1130,10 +1130,24 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
 // visitor arrived from the full all-tools-and-templates.html directory
 // rather than the resources.html teaser grid, point the link (and its
 // label) back at that directory instead so "back" actually goes back.
+// The directory page sets a sessionStorage flag right before a tile
+// navigates away (more reliable than document.referrer, which some
+// browsers/extensions strip even for same-origin navigation); referrer
+// is kept only as a fallback for that edge case.
 (function(){
   const backLink = document.querySelector('.calc-hero-back-link');
   if(!backLink) return;
-  if(document.referrer && document.referrer.indexOf('all-tools-and-templates.html') !== -1){
+  let cameFromDirectory = false;
+  try {
+    if(sessionStorage.getItem('toolsDirectoryVisited') === '1'){
+      cameFromDirectory = true;
+      sessionStorage.removeItem('toolsDirectoryVisited');
+    }
+  } catch(e){}
+  if(!cameFromDirectory && document.referrer && document.referrer.indexOf('all-tools-and-templates.html') !== -1){
+    cameFromDirectory = true;
+  }
+  if(cameFromDirectory){
     backLink.href = 'all-tools-and-templates.html';
     backLink.textContent = '← Back to All Tools & Templates';
   }
