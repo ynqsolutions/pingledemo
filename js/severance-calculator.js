@@ -129,18 +129,29 @@
     return !firstInvalid;
   }
 
+  const resultCard = document.getElementById('calcResultCard');
+
   submitBtn.addEventListener('click', () => {
     if(!validateRequired()) return;
 
     loading.hidden = false;
     submitBtn.disabled = true;
 
+    // On mobile the result sits below the form, so bring it into view
+    // right away (the loading animation plays where the user can see
+    // it), rather than waiting until the numbers are ready.
+    if(window.innerWidth < 861){
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     setTimeout(() => {
       calculate();
       loading.hidden = true;
       resultInner.classList.remove('is-blurred');
       submitBtn.disabled = false;
-      document.getElementById('calcResultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if(window.innerWidth >= 861){
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }, 1400);
   });
 })();

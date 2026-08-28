@@ -5063,8 +5063,8 @@ footer a:hover{ color:var(--white); }
   pointer-events:none;
 }
 .calc-card-head-illustration img{
-  width:100px;
-  height:100px;
+  width:150px;
+  height:150px;
   object-fit:contain;
   /* Blends the icon's light/white fill into the page background so it
      reads as line art rather than a white sticker, without needing to
@@ -5110,17 +5110,6 @@ footer a:hover{ color:var(--white); }
   font-weight:700;
   letter-spacing:0.05em;
   text-transform:uppercase;
-}
-.calc-inputs-head-icon{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex:none;
-  width:28px;
-  height:28px;
-  border-radius:7px;
-  background:var(--gold-500);
-  color:var(--white);
 }
 .calc-inputs-head-rule{
   flex:1;
@@ -5215,6 +5204,8 @@ footer a:hover{ color:var(--white); }
   border:1px solid var(--paper-line);
   border-radius:12px;
   padding:28px;
+  box-shadow:0 24px 48px -28px rgba(10,15,39,0.3);
+  scroll-margin-top:88px;
 }
 .calc-result-label{
   font-family:var(--font-cond);
@@ -5227,7 +5218,7 @@ footer a:hover{ color:var(--white); }
 .calc-result-amount{
   margin-top:8px;
   font-family:var(--font-display);
-  font-size:clamp(24px, 3vw, 32px);
+  font-size:clamp(27px, 3.4vw, 36px);
   font-weight:600;
   line-height:1.15;
   color:var(--navy-950);
@@ -5267,42 +5258,28 @@ footer a:hover{ color:var(--white); }
 .calc-info-callout p{ margin:0; font-size:13px; line-height:1.55; color:var(--ink-soft); }
 
 .calc-consult-row{
-  display:flex;
-  gap:14px;
-  align-items:flex-start;
   margin-top:20px;
-  padding-top:20px;
-  border-top:1px solid var(--paper-line);
+  padding:18px 20px;
+  background:var(--navy-950);
+  border-radius:10px;
 }
-.calc-consult-icon{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex:none;
-  width:46px;
-  height:46px;
-  border-radius:50%;
-  border:2px solid var(--gold-500);
-  background:var(--paper);
-}
-.calc-consult-icon img{ width:24px; height:24px; object-fit:contain; }
 .calc-consult-row h4{
   font-family:var(--font-display);
-  font-size:15.5px;
-  color:var(--navy-950);
+  font-size:16px;
+  color:var(--white);
   margin:0;
 }
-.calc-consult-row p{ margin:4px 0 8px; font-size:13px; color:var(--ink-soft); line-height:1.5; }
+.calc-consult-row p{ margin:4px 0 10px; font-size:13px; color:rgba(255,255,255,0.7); line-height:1.5; }
 .calc-consult-row a{
   font-family:var(--font-cond);
   font-size:12.5px;
   font-weight:700;
   letter-spacing:0.02em;
   text-transform:uppercase;
-  color:var(--gold-500);
+  color:var(--gold-400);
   text-decoration:none;
 }
-.calc-consult-row a:hover{ color:var(--gold-400); }
+.calc-consult-row a:hover{ color:var(--gold-300, var(--gold-400)); }
 
 .calc-label-row{ display:flex; align-items:center; gap:6px; }
 .calc-label-row label{ margin:0; }
@@ -5341,7 +5318,7 @@ footer a:hover{ color:var(--white); }
   align-items:center;
   justify-content:center;
   gap:12px;
-  background:var(--white);
+  background:transparent;
 }
 .calc-result-loading[hidden]{ display:none; }
 .calc-result-loading img{ width:110px; height:auto; }
@@ -5359,8 +5336,9 @@ footer a:hover{ color:var(--white); }
   .calc-card{ padding:28px 22px; }
   .calc-grid{ grid-template-columns:1fr; }
   .calc-row-2, .calc-formula-options{ grid-template-columns:1fr; }
-  .calc-card-head-illustration{ width:64px; height:64px; }
-  .calc-card-head-illustration img{ width:42px; height:42px; }
+  .calc-row-2-keep{ grid-template-columns:1fr 1fr; gap:10px; }
+  .calc-card-head-illustration{ width:96px; height:96px; }
+  .calc-card-head-illustration img{ width:63px; height:63px; }
 }
 @media (max-width: 560px){
   .calc-card-head-illustration{ display:none; }
