@@ -76,6 +76,16 @@
     severanceWeeksEl.textContent = number.format(severanceWeeks);
     baseSeveranceEl.textContent = currency.format(baseSeverance);
     ptoLineEl.textContent = currency.format(pto);
+
+    // Handed off to case-review.html (via sessionStorage, not a URL param,
+    // so salary never lands in the address bar or referrer data) so the
+    // "Start Free Case Review" CTA below can carry it over automatically.
+    // Session-only by design: it clears itself once read, and never
+    // persists past the browser tab.
+    if(salary > 0 && years > 0){
+      sessionStorage.setItem('severanceCalcSummary',
+        `Estimated severance: ${amountEl.textContent} (based on ${currency.format(salary)} salary, ${number.format(years)} years of service).`);
+    }
   }
 
   formulaOptions.querySelectorAll('.calc-formula-opt').forEach(btn => {
