@@ -1126,3 +1126,16 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   });
 })();
 
+// Calculator/template hero "Back to Tools & Templates" link: if the
+// visitor arrived from the full all-tools-and-templates.html directory
+// rather than the resources.html teaser grid, point the link (and its
+// label) back at that directory instead so "back" actually goes back.
+(function(){
+  const backLink = document.querySelector('.calc-hero-back-link');
+  if(!backLink) return;
+  if(document.referrer && document.referrer.indexOf('all-tools-and-templates.html') !== -1){
+    backLink.href = 'all-tools-and-templates.html';
+    backLink.textContent = '← Back to All Tools & Templates';
+  }
+})();
+

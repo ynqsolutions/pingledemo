@@ -31,8 +31,8 @@ import sys
 SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 BLOG_CONTENT_DIR = os.path.join(SITE_DIR, "content", "blog")
 
-CSS_VERSION = "257"
-JS_VERSION = "71"
+CSS_VERSION = "258"
+JS_VERSION = "72"
 
 PAGE_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">

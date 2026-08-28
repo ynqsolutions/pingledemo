@@ -3929,8 +3929,8 @@ footer a:hover{ color:var(--white); }
 .tool-tile:hover{ background:var(--paper-dim); }
 .tool-tile-icon{
   flex:0 0 auto;
-  width:56px;
-  height:56px;
+  width:68px;
+  height:68px;
   background-size:contain;
   background-position:center;
   background-repeat:no-repeat;
@@ -4004,7 +4004,7 @@ footer a:hover{ color:var(--white); }
 @media (max-width: 560px){
   .tool-tile-grid{ grid-template-columns:1fr; }
   .tool-tile{ padding:12px 16px; }
-  .tool-tile-icon{ width:44px; height:44px; }
+  .tool-tile-icon{ width:54px; height:54px; }
 }
 @media (max-width: 680px){
   .resource-article-grid{ grid-template-columns:1fr; }
@@ -5705,13 +5705,34 @@ footer a:hover{ color:var(--white); }
 }
 
 @media print{
-  body *{ visibility:hidden; }
-  .tpl-print-area, .tpl-print-area *{ visibility:visible; }
-  .tpl-print-area{ position:absolute; top:0; left:0; width:100%; }
-  .tpl-paper-wrap{ box-shadow:none; border:none; }
-  .tpl-paper{ background-image:none; padding-top:1.75in !important; }
-  .tpl-paper, .tpl-letter, .letter-field{ font-family:'Times New Roman', Times, serif !important; }
+  /* Collapse everything on a letter-template page down to just the
+     letter itself. The old visibility:hidden approach left every
+     hidden element's layout height in place, which pushed the actual
+     letter onto page 1 while leaving several trailing blank pages
+     behind it — display:none removes that height outright so the
+     printed/exported letter is a single page. */
+  .site-header, .mobile-nav, .mobile-sticky-cta, footer,
+  main > section:not(#generator),
+  #generator .calc-card-head,
+  #generator .tpl-side{
+    display:none !important;
+  }
+  #generator{ border:none !important; padding:0 !important; margin:0 !important; }
+  #generator .wrap, #generator .calc-card, #generator .tpl-generator-grid{
+    display:block !important; max-width:none !important; margin:0 !important; padding:0 !important;
+  }
+  .tpl-paper-wrap{ box-shadow:none !important; border:none !important; background:#fff !important; }
+  .tpl-paper-wrap::before{ display:none !important; }
+  .tpl-paper-hole{ display:none !important; }
+  .tpl-paper{
+    background-image:none !important;
+    background-color:#fff !important;
+    padding:0 !important;
+    min-height:0 !important;
+  }
+  .tpl-paper, .tpl-letter, .letter-field{ font-family:'Times New Roman', Times, serif !important; color:#000 !important; }
   .tpl-letter p{ line-height:1.5 !important; }
+  .letter-field{ border-bottom:none !important; }
 }
 
 /* ===== Slider + preset pills (meal/rest break calculator's shift length
