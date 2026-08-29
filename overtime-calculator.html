@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Commission &amp; Bonus Proration Calculator | Pingle Law</title>
-<meta name="description" content="Free calculator for prorating a partial-period commission or bonus by calendar days, business days, or a custom percentage you define.">
+<title>Overtime Pay Calculator | California Employment Lawyer | Pingle Law</title>
+<meta name="description" content="Free California overtime pay calculator: enter your hourly rate and hours worked each day this week to estimate your regular, 1.5x, and 2x overtime pay.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
@@ -20,7 +20,7 @@
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://pinglelaw.com/" },
     { "@type": "ListItem", "position": 2, "name": "Resources", "item": "https://pinglelaw.com/resources.html" },
-    { "@type": "ListItem", "position": 3, "name": "Commission & Bonus Proration Calculator", "item": "https://pinglelaw.com/commission-proration-calculator.html" }
+    { "@type": "ListItem", "position": 3, "name": "Overtime Pay Calculator", "item": "https://pinglelaw.com/overtime-calculator.html" }
   ]
 }
 </script>
@@ -29,9 +29,9 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "How is a prorated bonus calculated?", "acceptedAnswer": { "@type": "Answer", "text": "Divide the days you actually worked in the period by the total days in the full period, then multiply that fraction by the full bonus or commission amount. The specific method (calendar days, business days, or another formula) depends on your employer's plan." } },
-    { "@type": "Question", "name": "Is my employer required to prorate my bonus?", "acceptedAnswer": { "@type": "Answer", "text": "It depends entirely on the terms of your specific commission or bonus plan. Some plans prorate automatically, others require a full period of employment, and some are discretionary. Check your plan documents or offer letter." } },
-    { "@type": "Question", "name": "What if my employer's proration formula doesn't match this calculator?", "acceptedAnswer": { "@type": "Answer", "text": "Use the custom percentage option and enter the fraction from your own plan's formula. This tool does the arithmetic, it doesn't determine which formula applies to your situation." } }
+    { "@type": "Question", "name": "When do I earn overtime in California?", "acceptedAnswer": { "@type": "Answer", "text": "Generally 1.5x your regular rate for hours over 8 in a day or over 40 in a week, and 2x for hours over 12 in a day. Working all seven days of the workweek also generally earns 1.5x for the first 8 hours on that seventh day and 2x after that." } },
+    { "@type": "Question", "name": "Does salary mean I can't get overtime?", "acceptedAnswer": { "@type": "Answer", "text": "No. Being paid a salary doesn't automatically make you exempt from overtime. Exemption depends on your actual job duties and salary level, not your pay structure." } },
+    { "@type": "Question", "name": "What if my employer only pays 'straight time' for extra hours?", "acceptedAnswer": { "@type": "Answer", "text": "If you're a non-exempt employee, California law generally requires overtime premiums regardless of what your employer calls the extra hours or any internal policy that says otherwise." } }
   ]
 }
 </script>
@@ -105,7 +105,7 @@
     <a href="resources.html#tools-calculators" class="blog-back-link calc-hero-back-link">&larr; Back to Tools &amp; Templates</a>
     <div class="about-hero-inner">
       <span class="eyebrow" style="color:var(--gold-500);">Free Tool</span>
-      <h1>Commission &amp; Bonus Proration Calculator</h1>
+      <h1>Overtime Pay Calculator: See What You're Owed</h1>
       <div class="about-hero-pill">
         <a href="#calculator" class="pill-gold">Use the Calculator</a>
         <a href="case-review.html" class="pill-ghost">Start Free Case Review</a>
@@ -121,118 +121,132 @@
       <div class="calc-card-head">
         <div class="calc-card-head-text">
           <span class="eyebrow" style="color:var(--gold-500);">Calculator</span>
-          <h2>Commission / Bonus Proration Calculator</h2>
-          <p>Figure out what a partial-period bonus or commission should come out to, using the formula you choose.</p>
+          <h2>Overtime Pay Calculator</h2>
+          <p>Enter your hourly rate and the hours you worked each day this week to estimate your overtime pay.</p>
         </div>
         <div class="calc-card-head-illustration" aria-hidden="true">
-          <img src="assets/icons/commission-proration-icon.png" alt="">
+          <img src="assets/tool-icons/tool-icon-overtime.png" alt="">
         </div>
       </div>
 
       <div class="tool-disclaimer">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.01"></path></svg>
-        <p>This calculator only does the arithmetic on the formula and dates you provide, it does not determine which proration method applies to your specific plan. It is not legal advice, does not create an attorney-client relationship, and may not reflect the most current law. <a href="case-review.html">Consult an attorney</a> if you believe a bonus or commission was calculated incorrectly.</p>
+        <p>This calculator applies California's standard daily, weekly, and seventh-consecutive-day overtime rules to the hours you enter. It assumes you're a non-exempt employee and doesn't account for alternative workweek schedules, union agreements, or industry-specific exceptions. It is not legal advice, does not create an attorney-client relationship, and may not reflect the most current law. <a href="case-review.html">Consult an attorney</a> if you believe you weren't paid correctly.</p>
       </div>
 
       <div class="calc-grid">
         <div class="calc-inputs">
           <div class="calc-inputs-head">
-            <span>Your Information</span>
+            <span>This Week</span>
             <span class="calc-inputs-head-rule"></span>
           </div>
 
-          <div class="form-row">
-            <div class="calc-label-row">
-              <label for="calcFullAmount">Full Commission / Bonus Amount</label>
-              <button type="button" class="calc-tip glossary-term" data-term="Full Commission / Bonus Amount" data-def="The full amount you'd receive for a complete period, before any proration for a partial period worked.">?</button>
+          <div class="calc-rate-toggle-row">
+            <div class="form-row calc-field-medium">
+              <div class="calc-label-row">
+                <label for="calcHourlyRate">Hourly Rate</label>
+                <button type="button" class="calc-tip glossary-term" data-term="Hourly Rate" data-def="Your regular, straight-time hourly rate before any overtime premium is applied. If you're paid a salary, divide your weekly salary by 40 to estimate an hourly rate.">?</button>
+              </div>
+              <div class="calc-dollar-input">
+                <input type="text" id="calcHourlyRate" placeholder="22.00" inputmode="decimal">
+              </div>
             </div>
-            <div class="calc-dollar-input">
-              <input type="text" id="calcFullAmount" placeholder="5,000" inputmode="decimal">
+            <label class="calc-toggle-row" for="calcAllSeven">
+              <span class="calc-toggle">
+                <input type="checkbox" id="calcAllSeven">
+                <span class="calc-toggle-track"><span class="calc-toggle-thumb"></span></span>
+              </span>
+              <span class="calc-toggle-label">Worked all 7 days this week</span>
+              <button type="button" class="calc-tip glossary-term" data-term="Worked All 7 Days" data-def="California generally pays a premium for every hour worked on the seventh consecutive day of a single workweek: 1.5x for the first 8 hours that day, and 2x after that, on top of (not in addition to) the usual daily and weekly rules. Turn this on only if this week's schedule had no full day off.">?</button>
+            </label>
+          </div>
+
+          <div class="calc-day-sliders">
+            <div class="calc-day-row">
+              <span class="calc-day-label">Sun</span>
+              <input type="range" class="calc-slider calc-day-slider" id="calcDaySun" min="0" max="16" step="0.5" value="0">
+              <span class="calc-day-readout"><span id="calcDaySunReadout">0.0</span><span class="unit">h</span></span>
+            </div>
+            <div class="calc-day-row">
+              <span class="calc-day-label">Mon</span>
+              <input type="range" class="calc-slider calc-day-slider" id="calcDayMon" min="0" max="16" step="0.5" value="8">
+              <span class="calc-day-readout"><span id="calcDayMonReadout">8.0</span><span class="unit">h</span></span>
+            </div>
+            <div class="calc-day-row">
+              <span class="calc-day-label">Tue</span>
+              <input type="range" class="calc-slider calc-day-slider" id="calcDayTue" min="0" max="16" step="0.5" value="8">
+              <span class="calc-day-readout"><span id="calcDayTueReadout">8.0</span><span class="unit">h</span></span>
+            </div>
+            <div class="calc-day-row">
+              <span class="calc-day-label">Wed</span>
+              <input type="range" class="calc-slider calc-day-slider" id="calcDayWed" min="0" max="16" step="0.5" value="8">
+              <span class="calc-day-readout"><span id="calcDayWedReadout">8.0</span><span class="unit">h</span></span>
+            </div>
+            <div class="calc-day-row">
+              <span class="calc-day-label">Thu</span>
+              <input type="range" class="calc-slider calc-day-slider" id="calcDayThu" min="0" max="16" step="0.5" value="8">
+              <span class="calc-day-readout"><span id="calcDayThuReadout">8.0</span><span class="unit">h</span></span>
+            </div>
+            <div class="calc-day-row">
+              <span class="calc-day-label">Fri</span>
+              <input type="range" class="calc-slider calc-day-slider" id="calcDayFri" min="0" max="16" step="0.5" value="8">
+              <span class="calc-day-readout"><span id="calcDayFriReadout">8.0</span><span class="unit">h</span></span>
+            </div>
+            <div class="calc-day-row">
+              <span class="calc-day-label">Sat</span>
+              <input type="range" class="calc-slider calc-day-slider" id="calcDaySat" min="0" max="16" step="0.5" value="0">
+              <span class="calc-day-readout"><span id="calcDaySatReadout">0.0</span><span class="unit">h</span></span>
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="calc-label-row">
-              <label for="calcBasisOptions">Proration Basis</label>
-              <button type="button" class="calc-tip glossary-term" data-term="Proration Basis" data-def="How the partial period is measured: every calendar day, only weekdays (business days), or a custom percentage you enter directly from your own plan's formula.">?</button>
-            </div>
-            <div class="calc-formula-options" id="calcBasisOptions">
-              <button type="button" class="calc-formula-opt is-active" data-value="calendar">Calendar Days<span>Every day counts</span></button>
-              <button type="button" class="calc-formula-opt" data-value="business">Business Days<span>Weekdays only</span></button>
-              <button type="button" class="calc-formula-opt" data-value="custom">Custom %<span>Set your own</span></button>
-            </div>
+          <div class="calc-week-total-row">
+            <span>Total hours this week</span>
+            <span id="calcWeekTotal">40.0 hrs</span>
           </div>
 
-          <div id="calcDateFieldsRow">
-            <div class="calc-row-2 calc-row-2-keep">
-              <div class="form-row calc-field-medium">
-                <div class="calc-label-row">
-                  <label for="calcPeriodStart">Full Period Start</label>
-                  <button type="button" class="calc-tip glossary-term" data-term="Full Period Start" data-def="The start date of the entire commission or bonus period, as defined by your plan (e.g. the first day of the quarter).">?</button>
-                </div>
-                <input type="date" id="calcPeriodStart">
-              </div>
-              <div class="form-row calc-field-medium">
-                <div class="calc-label-row">
-                  <label for="calcPeriodEnd">Full Period End</label>
-                  <button type="button" class="calc-tip glossary-term" data-term="Full Period End" data-def="The end date of the entire commission or bonus period, as defined by your plan (e.g. the last day of the quarter).">?</button>
-                </div>
-                <input type="date" id="calcPeriodEnd">
-              </div>
-            </div>
-            <div class="calc-row-2 calc-row-2-keep">
-              <div class="form-row calc-field-medium">
-                <div class="calc-label-row">
-                  <label for="calcWorkedStart">Worked Start</label>
-                  <button type="button" class="calc-tip glossary-term" data-term="Worked Start" data-def="The first day you were actually employed and eligible within the full period, for example your hire date if it falls mid-period.">?</button>
-                </div>
-                <input type="date" id="calcWorkedStart">
-              </div>
-              <div class="form-row calc-field-medium">
-                <div class="calc-label-row">
-                  <label for="calcWorkedEnd">Worked End</label>
-                  <button type="button" class="calc-tip glossary-term" data-term="Worked End" data-def="The last day you were actually employed and eligible within the full period, for example your last day if you left mid-period.">?</button>
-                </div>
-                <input type="date" id="calcWorkedEnd">
-              </div>
-            </div>
-          </div>
-
-          <div class="form-row calc-field-narrow" id="calcCustomFieldRow" hidden>
-            <div class="calc-label-row">
-              <label for="calcCustomPercent">Percentage of Full Period Worked</label>
-              <button type="button" class="calc-tip glossary-term" data-term="Percentage of Full Period Worked" data-def="Enter the fraction of the period worked directly, using whatever formula your specific plan calls for.">?</button>
-            </div>
-            <div class="calc-affix-input">
-              <input type="number" id="calcCustomPercent" min="0" max="100" step="0.1" placeholder="65">
-              <span class="calc-affix calc-affix-right">%</span>
-            </div>
-          </div>
-
-          <button type="button" class="btn calc-submit-btn" id="calcSubmitBtn">Calculate Prorated Amount &rarr;</button>
+          <button type="button" class="btn calc-submit-btn" id="calcSubmitBtn">Calculate My Overtime &rarr;</button>
         </div>
 
         <div class="calc-result" id="calcResultCard">
           <div class="calc-result-inner is-blurred" id="calcResultInner">
-            <span class="calc-result-label">Your Prorated Amount</span>
-            <span class="calc-result-amount" id="calcResultAmount">$0</span>
-            <p class="calc-result-estimate-note">This is arithmetic only, based on the formula and dates you entered.</p>
+            <span class="calc-result-label">Your Estimated Weekly Pay</span>
+            <span class="calc-result-amount" id="calcResultAmount">$0.00</span>
+            <p class="calc-result-estimate-note">This is an estimate based on the hours and rate you entered.</p>
+
+            <div class="calc-ot-stats">
+              <div class="calc-ot-stat">
+                <span class="num" id="calcRegHours">0.0</span>
+                <span class="label">Regular Hrs</span>
+                <span class="desc">Paid at 1x</span>
+              </div>
+              <div class="calc-ot-stat">
+                <span class="num" id="calcOt15Hours">0.0</span>
+                <span class="label">1.5x Hrs</span>
+                <span class="desc">Daily over 8, weekly over 40</span>
+              </div>
+              <div class="calc-ot-stat">
+                <span class="num" id="calcOt2Hours">0.0</span>
+                <span class="label">2x Hrs</span>
+                <span class="desc">Daily over 12, or 7th-day over 8</span>
+              </div>
+            </div>
+
             <div class="calc-result-breakdown">
-              <div class="calc-result-line"><span>Full amount</span><span id="calcResultFullAmount">$0</span></div>
-              <div class="calc-result-line"><span>Percentage worked</span><span id="calcResultFraction">0%</span></div>
-              <div class="calc-result-line"><span>Basis</span><span id="calcResultBasis">&mdash;</span></div>
+              <div class="calc-result-line"><span>Regular pay</span><span id="calcRegPay">$0.00</span></div>
+              <div class="calc-result-line"><span>1.5x overtime pay</span><span id="calcOt15Pay">$0.00</span></div>
+              <div class="calc-result-line"><span>2x overtime pay</span><span id="calcOt2Pay">$0.00</span></div>
             </div>
 
             <div class="calc-consult-row">
-              <h4>Think a Bonus Was Shorted?</h4>
-              <p>If your commission or bonus wasn't calculated the way your plan says it should be, get a free review.</p>
+              <h4>Not Getting Paid This Way?</h4>
+              <p>If your paycheck doesn't reflect overtime like this, you may be owed back pay.</p>
               <a href="case-review.html">Start Free Case Review &rarr;</a>
             </div>
           </div>
 
           <div class="calc-result-loading" id="calcResultLoading" hidden>
             <img src="assets/Animations/character_calculator.png" alt="" width="110" height="98">
-            <p>Calculating your prorated amount&hellip;</p>
+            <p>Calculating your overtime&hellip;</p>
           </div>
         </div>
       </div>
@@ -245,16 +259,16 @@
   <div class="wrap">
   <div class="legal-body-inner">
 
-    <h2>How Proration Works</h2>
-    <p>Prorating a bonus or commission means scaling the full-period amount down to reflect only the portion of the period you actually worked. The formula for doing that isn't standardized, some plans count every calendar day, others count only business days, and some use a completely different method spelled out in the plan documents. This calculator does the math once you tell it which formula to use.</p>
+    <h2>California's Overtime Rules</h2>
+    <p>Most non-exempt employees in California earn overtime based on both daily and weekly hours, whichever gives a bigger premium for a given hour. On top of that, working all seven days of a single workweek triggers its own premium for hours on that seventh day, regardless of how many hours were worked the other six days.</p>
 
     <div class="key-points">
       <h3>Key Points</h3>
       <ul>
-        <li>Proration formulas vary by employer and plan, there's no single legal standard.</li>
-        <li>Calendar-day and business-day methods can produce meaningfully different results.</li>
-        <li>If your plan uses a different formula entirely, use the custom percentage option to match it.</li>
-        <li>Commissions and bonuses that are earned are generally considered wages in California once the conditions for earning them are met.</li>
+        <li>1.5x pay is generally owed for hours over 8 in a single day, or over 40 in a single week.</li>
+        <li>2x pay is generally owed for hours over 12 in a single day.</li>
+        <li>Working all seven days of the workweek generally earns 1.5x for the first 8 hours on the seventh day, and 2x after that.</li>
+        <li>Being paid a <button type="button" class="glossary-term" data-term="Salary vs. Exempt" data-def="A salary is just a pay structure, not a legal status. Whether you're exempt from overtime depends on your actual job duties and minimum salary level under California law, not simply on being paid a fixed amount each pay period.">salary doesn't automatically mean you're exempt</button> from overtime.</li>
       </ul>
     </div>
 
@@ -262,54 +276,54 @@
       <img src="assets/Pingle_HS_pointing.png" alt="" class="article-cta-banner-img" aria-hidden="true">
       <div class="article-cta-banner article-cta-banner-with-img">
         <div class="article-cta-banner-text">
-          <span class="article-cta-banner-eyebrow">Numbers don't match?</span>
-          <h3>Have your bonus or commission reviewed, free.</h3>
-          <p>If what you were paid doesn't match your plan's own formula, a free case review can help you understand your options.</p>
+          <span class="article-cta-banner-eyebrow">Missing overtime adds up fast</span>
+          <h3>Have your pay reviewed, free.</h3>
+          <p>If your paycheck doesn't reflect the hours you actually worked, a free case review can help you understand what you may be owed.</p>
         </div>
         <a href="case-review.html" class="btn btn-gold">Start Free Case Review</a>
       </div>
     </div>
 
-    <h2>What This Calculator Doesn't Do</h2>
-    <p>It doesn't know your employer's actual bonus or commission plan, and it doesn't determine whether a payment was earned in the first place, those questions depend entirely on your plan's specific terms. It only calculates the arithmetic once you supply the amount and the proration method.</p>
+    <h2>How This Calculator Works</h2>
+    <p>It applies the daily 8/12-hour thresholds to each day you enter, then checks whether your weekly total still tips you into additional overtime under the 40-hour weekly rule. If you mark that you worked all seven days, it also applies the seventh-consecutive-day premium to that day specifically. It doesn't know about an approved alternative workweek schedule, a union contract with its own overtime terms, or whether your specific role is properly classified as exempt.</p>
 
     <div class="tldr" id="tldr">
       <span class="tldr-label">TL;DR</span>
-      <p>Prorating a bonus or commission means multiplying the full amount by the fraction of the period you worked. Calendar days, business days, or a custom percentage all give different results, use whichever method matches your actual plan.</p>
+      <p>California generally requires 1.5x pay for hours over 8 in a day or over 40 in a week, and 2x pay for hours over 12 in a day. Working all seven days of the workweek adds its own premium for the seventh day. A salary alone doesn't make you exempt from any of this.</p>
     </div>
 
     <div class="faq-block">
       <h2>Frequently Asked Questions</h2>
 
       <div class="faq-block-item">
-        <h3>How is a prorated bonus calculated?</h3>
-        <p>Divide days worked by total days in the period, then multiply that fraction by the full bonus amount.</p>
+        <h3>When do I earn overtime in California?</h3>
+        <p>Generally 1.5x for hours over 8 in a day or over 40 in a week, and 2x for hours over 12 in a day, plus a seventh-day premium if you worked all seven days of the workweek.</p>
       </div>
 
       <div class="faq-block-item">
-        <h3>Is my employer required to prorate my bonus?</h3>
-        <p>It depends entirely on your specific plan's terms, check your plan documents or offer letter.</p>
+        <h3>Does being salaried mean I can't get overtime?</h3>
+        <p>No. Exemption depends on your actual job duties and salary level, not simply on being paid a salary instead of hourly.</p>
       </div>
 
       <div class="faq-block-item">
-        <h3>What if my employer's formula doesn't match this calculator?</h3>
-        <p>Use the custom percentage option and enter the fraction from your own plan's formula.</p>
+        <h3>What if my employer only pays "straight time" for extra hours?</h3>
+        <p>If you're non-exempt, California law generally requires overtime premiums regardless of what your employer calls the extra hours.</p>
       </div>
     </div>
 
     <h3>Keep Reading</h3>
     <div class="calc-links-grid">
-      <a href="severance-pay-calculator.html">
-        <span class="calc-links-tag">Calculator</span>
-        <strong>Severance Pay Calculator</strong>
+      <a href="blog-missing-overtime-paycheck.html">
+        <span class="calc-links-tag">Wage &amp; Hour</span>
+        <strong>What to Do About a Missing Overtime Paycheck</strong>
       </a>
       <a href="take-home-pay-calculator.html">
         <span class="calc-links-tag">Calculator</span>
         <strong>Take-Home Pay Estimator</strong>
       </a>
-      <a href="glossary.html">
-        <span class="calc-links-tag">Glossary</span>
-        <strong>Employment Law Glossary</strong>
+      <a href="meal-rest-break-calculator.html">
+        <span class="calc-links-tag">Calculator</span>
+        <strong>Meal &amp; Rest Break Calculator</strong>
       </a>
       <a href="case-review.html">
         <span class="calc-links-tag">Next Step</span>
@@ -438,7 +452,7 @@
 </footer>
 
 <script src="js/main.js?v=73" defer></script>
-<script src="js/commission-proration-calculator.js?v=1" defer></script>
+<script src="js/overtime-calculator.js?v=1" defer></script>
 <script src="js/a11y-widget.js?v=13" defer></script>
 </body>
 </html>

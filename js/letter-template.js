@@ -77,7 +77,7 @@
 
   function doDownload(){
     const lines = getLetterText().split('\n').map(line => escapeHtml(line) || '&nbsp;');
-    const html = `<html><head><meta charset="utf-8"></head><body style="font-family:'Times New Roman',Times,serif; font-size:12pt; line-height:1.5; margin-top:1.75in;">${lines.join('<br>')}</body></html>`;
+    const html = `<html><head><meta charset="utf-8"></head><body style="font-family:'Times New Roman',Times,serif; font-size:12pt; line-height:1.5; margin:1.75in 1in 1in 1in;">${lines.join('<br>')}</body></html>`;
     const blob = new Blob(['﻿', html], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
