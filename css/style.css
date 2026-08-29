@@ -4255,10 +4255,11 @@ footer a:hover{ color:var(--white); }
   align-items:start;
 }
 .blog-main{
-  background:var(--white);
+  background:linear-gradient(180deg, var(--white) 0%, var(--paper) 100%);
   border:1px solid var(--paper-line);
   border-radius:14px;
   padding:36px 40px 40px;
+  box-shadow:0 24px 44px -30px rgba(10,15,39,0.35);
 }
 .blog-main .article-inline-image{ margin:0 0 28px; }
 .blog-main .article-inline-image img{ max-height:360px; width:100%; object-fit:cover; }
@@ -4455,7 +4456,8 @@ footer a:hover{ color:var(--white); }
   box-shadow:0 24px 44px -30px rgba(10,15,39,0.35);
 }
 .blog-sidebar-card h3{ font-family:var(--font-display); font-size:18px; color:var(--navy-950); }
-.blog-related-list{ margin-top:14px; display:flex; flex-direction:column; gap:12px; }
+.blog-related-list{ margin-top:12px; display:flex; flex-direction:column; gap:6px; }
+.blog-related-item + .blog-related-item{ padding-top:6px; border-top:1px solid var(--paper-line); }
 .blog-related-item{
   display:flex;
   gap:10px;
@@ -4481,14 +4483,7 @@ footer a:hover{ color:var(--white); }
 }
 .blog-related-item:hover .blog-related-text strong{ color:var(--gold-500); }
 .blog-related-meta{ display:block; margin-top:3px; font-size:11px; color:var(--ink-soft); }
-.blog-related-thumb{
-  flex:none;
-  width:48px;
-  height:48px;
-  border-radius:7px;
-  background-size:cover;
-  background-position:center;
-}
+.blog-related-thumb{ display:none; }
 
 /* ---- Blog sidebar "free tools" ad: a bold gradient card meant to
    catch the eye next to the plainer white sidebar cards around it.
