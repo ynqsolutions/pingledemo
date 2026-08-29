@@ -1522,7 +1522,7 @@ section.faq-cat-nav .faq-cat-nav-inner button{
 
 .faq-category{
   scroll-margin-top:90px;
-  padding:44px 0;
+  padding:24px 0;
   position:relative;
 }
 .faq-category:not(:first-of-type)::before{
@@ -1537,7 +1537,7 @@ section.faq-cat-nav .faq-cat-nav-inner button{
 .faq-category:nth-child(even){ background:var(--paper); }
 .faq-category-head{
   max-width:720px;
-  margin:0 auto 30px;
+  margin:0 auto 18px;
   text-align:center;
 }
 .faq-category-head h2{
@@ -3685,7 +3685,7 @@ p.article-disclaimer{
   flex-direction:column;
 }
 .glossary-entry{
-  padding:18px 0;
+  padding:12px 0;
   border-bottom:1px solid var(--paper-line);
   scroll-margin-top:100px;
 }
@@ -4085,7 +4085,7 @@ p.article-disclaimer{
 }
 
 /* ================= GLOSSARY SEARCH ================= */
-.glossary-search-section{ background:var(--paper); padding:0 0 24px; }
+.glossary-search-section{ background:var(--paper); padding:0 0 14px; }
 .glossary-search{
   position:relative;
   max-width:520px;
