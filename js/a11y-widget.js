@@ -7,6 +7,79 @@
 (function(){
   const STORE_KEY = 'a11yWidgetState';
 
+  // ---- Language: the widget mirrors whatever language the current page
+  // is in (set by <html lang="...">), and its own EN/ES toggle navigates
+  // to that same page's other-language URL, matching the header's toggle.
+  const LANG = document.documentElement.lang === 'es' ? 'es' : 'en';
+  function otherLangHref(){
+    const file = (window.location.pathname.split('/').pop() || 'index.html') + window.location.search + window.location.hash;
+    if(/-es\.html/i.test(file)) return file.replace(/-es(\.html)/i, '$1');
+    return file.replace(/(\.html)/i, '-es$1');
+  }
+  const STR = {
+    en: {
+      accessibilityOptions: 'Accessibility options',
+      accessibility: 'Accessibility',
+      closePanel: 'Close accessibility panel',
+      intro: "These controls only change how this site displays for you. They don't translate or edit page content.",
+      profiles: 'Profiles',
+      seizureSafe: 'Seizure Safe',
+      visionImpaired: 'Vision Impaired',
+      adhdFriendly: 'ADHD Friendly',
+      motorImpaired: 'Motor Impaired',
+      language: 'Language',
+      langToggleLabel: 'Language toggle',
+      textSize: 'Text Size',
+      decreaseTextSize: 'Decrease text size',
+      reset: 'Reset',
+      increaseTextSize: 'Increase text size',
+      display: 'Display',
+      highContrast: 'High Contrast',
+      grayscale: 'Grayscale',
+      underlineLinks: 'Underline Links',
+      highlightLinks: 'Highlight Links',
+      highlightHeadings: 'Highlight Headings',
+      reduceMotion: 'Reduce Motion',
+      reading: 'Reading',
+      dyslexiaFont: 'Dyslexia-Friendly Font',
+      lineSpacing: 'Line & Letter Spacing',
+      pointer: 'Pointer',
+      largeCursor: 'Large Cursor',
+      resetAll: 'Reset All'
+    },
+    es: {
+      accessibilityOptions: 'Opciones de accesibilidad',
+      accessibility: 'Accesibilidad',
+      closePanel: 'Cerrar panel de accesibilidad',
+      intro: 'Estos controles solo cambian cómo se muestra este sitio para usted. No traducen ni editan el contenido de la página.',
+      profiles: 'Perfiles',
+      seizureSafe: 'Seguro para Convulsiones',
+      visionImpaired: 'Discapacidad Visual',
+      adhdFriendly: 'Amigable con TDAH',
+      motorImpaired: 'Discapacidad Motriz',
+      language: 'Idioma',
+      langToggleLabel: 'Selector de idioma',
+      textSize: 'Tamaño del Texto',
+      decreaseTextSize: 'Disminuir tamaño del texto',
+      reset: 'Restablecer',
+      increaseTextSize: 'Aumentar tamaño del texto',
+      display: 'Pantalla',
+      highContrast: 'Alto Contraste',
+      grayscale: 'Escala de Grises',
+      underlineLinks: 'Subrayar Enlaces',
+      highlightLinks: 'Resaltar Enlaces',
+      highlightHeadings: 'Resaltar Títulos',
+      reduceMotion: 'Reducir Movimiento',
+      reading: 'Lectura',
+      dyslexiaFont: 'Fuente para Dislexia',
+      lineSpacing: 'Espaciado de Línea y Letra',
+      pointer: 'Cursor',
+      largeCursor: 'Cursor Grande',
+      resetAll: 'Restablecer Todo'
+    }
+  };
+  const t = (key) => STR[LANG][key];
+
   function loadState(){
     try {
       return JSON.parse(sessionStorage.getItem(STORE_KEY)) || {};
@@ -63,7 +136,7 @@
   tabBtn.setAttribute('aria-haspopup', 'dialog');
   tabBtn.setAttribute('aria-expanded', 'false');
   tabBtn.setAttribute('aria-controls', 'a11yPanel');
-  tabBtn.setAttribute('aria-label', 'Accessibility options');
+  tabBtn.setAttribute('aria-label', t('accessibilityOptions'));
   tabBtn.innerHTML = '<img src="assets/icons8-accessibility-48.png" alt="" aria-hidden="true">';
   document.body.appendChild(tabBtn);
 
@@ -78,99 +151,100 @@
   panelEl.setAttribute('aria-labelledby', 'a11yPanelTitle');
   panelEl.hidden = true;
   panelEl.innerHTML = `
-      <button type="button" class="a11y-close" id="a11yClose" aria-label="Close accessibility panel">&times;</button>
-      <h2 id="a11yPanelTitle">Accessibility</h2>
-      <p class="a11y-sub">These controls only change how this site displays for you. They don't translate or edit page content.</p>
+      <button type="button" class="a11y-close" id="a11yClose" aria-label="${t('closePanel')}">&times;</button>
+      <h2 id="a11yPanelTitle">${t('accessibility')}</h2>
+      <p class="a11y-sub">${t('intro')}</p>
 
       <div class="a11y-group">
         <button type="button" class="a11y-group-toggle" id="a11yProfilesToggle" aria-expanded="false" aria-controls="a11yProfiles">
-          Profiles <span class="a11y-group-toggle-chevron" aria-hidden="true">&#9662;</span>
+          ${t('profiles')} <span class="a11y-group-toggle-chevron" aria-hidden="true">&#9662;</span>
         </button>
         <div class="a11y-profiles" id="a11yProfiles" hidden>
           <button type="button" class="a11y-profile-btn" id="a11yProfileSeizure">
-            <span class="a11y-profile-icon" aria-hidden="true">${PROFILE_ICONS.seizure}</span>Seizure Safe
+            <span class="a11y-profile-icon" aria-hidden="true">${PROFILE_ICONS.seizure}</span>${t('seizureSafe')}
           </button>
           <button type="button" class="a11y-profile-btn" id="a11yProfileVision">
-            <span class="a11y-profile-icon" aria-hidden="true">${PROFILE_ICONS.vision}</span>Vision Impaired
+            <span class="a11y-profile-icon" aria-hidden="true">${PROFILE_ICONS.vision}</span>${t('visionImpaired')}
           </button>
           <button type="button" class="a11y-profile-btn" id="a11yProfileAdhd">
-            <span class="a11y-profile-icon" aria-hidden="true">${PROFILE_ICONS.adhd}</span>ADHD Friendly
+            <span class="a11y-profile-icon" aria-hidden="true">${PROFILE_ICONS.adhd}</span>${t('adhdFriendly')}
           </button>
           <button type="button" class="a11y-profile-btn" id="a11yProfileMotor">
-            <span class="a11y-profile-icon" aria-hidden="true">${PROFILE_ICONS.motor}</span>Motor Impaired
+            <span class="a11y-profile-icon" aria-hidden="true">${PROFILE_ICONS.motor}</span>${t('motorImpaired')}
           </button>
         </div>
       </div>
 
       <div class="a11y-group">
-        <span class="a11y-group-label">Language</span>
-        <div class="a11y-lang-toggle" id="a11yLangToggle" role="group" aria-label="Language display toggle, decorative only">
-          <span class="active" data-lang="en">EN</span><span data-lang="es">ES</span>
+        <span class="a11y-group-label">${t('language')}</span>
+        <div class="a11y-lang-toggle" id="a11yLangToggle" role="group" aria-label="${t('langToggleLabel')}">
+          ${LANG === 'es'
+            ? `<a href="${otherLangHref()}" data-lang="en">EN</a><span class="active" data-lang="es">ES</span>`
+            : `<span class="active" data-lang="en">EN</span><a href="${otherLangHref()}" data-lang="es">ES</a>`}
         </div>
       </div>
 
       <div class="a11y-group">
-        <span class="a11y-group-label">Text Size</span>
+        <span class="a11y-group-label">${t('textSize')}</span>
         <div class="a11y-row">
-          <button type="button" class="a11y-btn" id="a11yTextDown" aria-label="Decrease text size">A&minus;</button>
-          <button type="button" class="a11y-btn" id="a11yTextReset" aria-label="Reset text size">Reset</button>
-          <button type="button" class="a11y-btn" id="a11yTextUp" aria-label="Increase text size">A+</button>
+          <button type="button" class="a11y-btn" id="a11yTextDown" aria-label="${t('decreaseTextSize')}">A&minus;</button>
+          <button type="button" class="a11y-btn" id="a11yTextReset" aria-label="${t('reset')}">${t('reset')}</button>
+          <button type="button" class="a11y-btn" id="a11yTextUp" aria-label="${t('increaseTextSize')}">A+</button>
         </div>
       </div>
 
       <div class="a11y-group">
-        <span class="a11y-group-label">Display</span>
+        <span class="a11y-group-label">${t('display')}</span>
         <div class="a11y-icon-grid">
           <button type="button" class="a11y-icon-toggle" id="a11yContrast" aria-pressed="false">
-            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.contrast}</span>High Contrast
+            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.contrast}</span>${t('highContrast')}
           </button>
           <button type="button" class="a11y-icon-toggle" id="a11yGrayscale" aria-pressed="false">
-            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.grayscale}</span>Grayscale
+            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.grayscale}</span>${t('grayscale')}
           </button>
           <button type="button" class="a11y-icon-toggle" id="a11yUnderline" aria-pressed="false">
-            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.underline}</span>Underline Links
+            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.underline}</span>${t('underlineLinks')}
           </button>
           <button type="button" class="a11y-icon-toggle" id="a11yHighlightLinks" aria-pressed="false">
-            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.highlightLinks}</span>Highlight Links
+            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.highlightLinks}</span>${t('highlightLinks')}
           </button>
           <button type="button" class="a11y-icon-toggle" id="a11yHighlightHeadings" aria-pressed="false">
-            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.highlightHeadings}</span>Highlight Headings
+            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.highlightHeadings}</span>${t('highlightHeadings')}
           </button>
           <button type="button" class="a11y-icon-toggle" id="a11yMotion" aria-pressed="false">
-            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.motion}</span>Reduce Motion
+            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.motion}</span>${t('reduceMotion')}
           </button>
         </div>
       </div>
 
       <div class="a11y-group">
-        <span class="a11y-group-label">Reading</span>
+        <span class="a11y-group-label">${t('reading')}</span>
         <div class="a11y-icon-grid">
           <button type="button" class="a11y-icon-toggle" id="a11yDyslexia" aria-pressed="false">
-            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.dyslexia}</span>Dyslexia-Friendly Font
+            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.dyslexia}</span>${t('dyslexiaFont')}
           </button>
           <button type="button" class="a11y-icon-toggle" id="a11ySpacing" aria-pressed="false">
-            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.spacing}</span>Line &amp; Letter Spacing
+            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.spacing}</span>${t('lineSpacing')}
           </button>
         </div>
       </div>
 
       <div class="a11y-group">
-        <span class="a11y-group-label">Pointer</span>
+        <span class="a11y-group-label">${t('pointer')}</span>
         <div class="a11y-icon-grid">
           <button type="button" class="a11y-icon-toggle" id="a11yCursor" aria-pressed="false">
-            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.cursor}</span>Large Cursor
+            <span class="a11y-icon-toggle-icon" aria-hidden="true">${CONTROL_ICONS.cursor}</span>${t('largeCursor')}
           </button>
         </div>
       </div>
 
-      <button type="button" class="a11y-reset" id="a11yResetAll">Reset All</button>
+      <button type="button" class="a11y-reset" id="a11yResetAll">${t('resetAll')}</button>
   `;
   document.body.appendChild(backdrop);
   document.body.appendChild(panelEl);
 
   const panel = document.getElementById('a11yPanel');
   const closeBtn = document.getElementById('a11yClose');
-  const langToggle = document.getElementById('a11yLangToggle');
   const profilesToggle = document.getElementById('a11yProfilesToggle');
   const profilesBody = document.getElementById('a11yProfiles');
 
@@ -327,13 +401,9 @@
     profilesBody.hidden = isOpen;
   });
 
-  // ---- Decorative language toggle inside the panel (matches the header's,
-  // does not translate anything) ----
-  langToggle.querySelectorAll('span').forEach(span => {
-    span.addEventListener('click', () => {
-      langToggle.querySelectorAll('span').forEach(s => s.classList.toggle('active', s === span));
-    });
-  });
+  // ---- Language toggle inside the panel: the active side is a plain
+  // span (you're already there), the other side is a real link to this
+  // page's other-language URL, wired up directly in the template above. ----
 
   // ---- Controls ----
   document.getElementById('a11yTextUp').addEventListener('click', () => {

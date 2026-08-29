@@ -5,7 +5,10 @@
   position:fixed;
   left:0;
   top:50%;
-  z-index:9997;
+  /* Sits above the sticky header (z-index 100) but below the full-screen
+     mobile nav overlay (z-index 200), so opening the mobile menu covers
+     the tab automatically instead of it floating on top of the menu. */
+  z-index:150;
   transform:translateY(-50%);
   touch-action:none;
   width:29px;
@@ -165,14 +168,15 @@
   letter-spacing:0.04em;
   text-transform:uppercase;
 }
-.a11y-lang-toggle span{
+.a11y-lang-toggle span, .a11y-lang-toggle a{
   padding:7px 16px;
   border-radius:999px;
   color:var(--ink-soft, #3B3E4D);
   cursor:pointer;
+  text-decoration:none;
   transition:background .18s ease, color .18s ease;
 }
-.a11y-lang-toggle span.active{
+.a11y-lang-toggle span.active, .a11y-lang-toggle a.active{
   background:#1D4ED8;
   color:#fff;
 }

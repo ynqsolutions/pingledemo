@@ -78,6 +78,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .btn-outline-light:hover{ border-color:var(--gold-400); color:var(--gold-400); }
 .btn-navy{ background:var(--navy-900); color:var(--white); }
 .btn-navy:hover{ background:var(--navy-800); }
+.btn-outline-navy{ background:transparent; color:var(--navy-900); border-color:var(--navy-900); }
+.btn-outline-navy:hover{ background:var(--navy-900); color:var(--white); }
 
 /* ================= HEADER ================= */
 .site-header{
@@ -212,6 +214,20 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 .mobile-nav a:hover{ color:var(--gold-400); }
 .mobile-nav a.current{ color:var(--gold-400); }
+/* .mobile-nav a above (generic nav links) would otherwise override the
+   small pill sizing of the EN/ES toggle link, since both rules match an
+   <a> with equal specificity and this one comes later in the cascade. */
+.mobile-nav .lang-toggle a{
+  font-family:var(--font-cond);
+  font-size:13px;
+  font-weight:400;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  padding:6px 12px;
+  color:rgba(255,255,255,0.55);
+}
+.mobile-nav .lang-toggle a:hover{ color:rgba(255,255,255,0.55); }
+.mobile-nav .lang-toggle a.active{ color:var(--navy-950); }
 .mobile-nav-footer{ margin-top:32px; padding-top:24px; border-top:1px solid var(--navy-700); display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px; }
 .mobile-nav-lang-label{
   font-family:var(--font-cond);
@@ -908,6 +924,7 @@ section{ padding:96px 0; }
   border-top:1px solid var(--paper-line);
   position:relative;
   overflow:hidden;
+  padding:56px 0;
 }
 .steps-connector{
   position:relative;
@@ -2051,7 +2068,8 @@ footer a:hover{ color:var(--white); }
 .meet-corey .about-photo{ padding:0; width:auto; }
 .meet-corey .about-photo::before{ content:none; }
 
-.team-section{ background:var(--paper); border-top:1px solid var(--paper-line); }
+.meet-corey{ padding:56px 0; }
+.team-section{ background:var(--paper); border-top:1px solid var(--paper-line); padding:56px 0; }
 .team-grid{
   margin-top:44px;
   display:flex;
