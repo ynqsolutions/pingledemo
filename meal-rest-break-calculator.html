@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=263">
+<link rel="stylesheet" href="css/style.css?v=264">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -146,10 +146,11 @@
               <label for="calcHoursSlider">Length of Shift</label>
               <button type="button" class="calc-tip glossary-term" data-term="Length of Shift" data-def="The total number of hours you're scheduled to work in one shift, including any unpaid meal break time. Used to determine how many meal and rest breaks the shift should include. Filled in automatically if you enter a start and end time below.">?</button>
             </div>
-            <div class="calc-slider-block">
-              <div class="calc-slider-row">
-                <input type="range" id="calcHoursSlider" min="0" max="16" step="0.25" value="8" class="calc-slider">
-                <div class="calc-slider-readout"><span id="calcHoursReadout">8.0</span><span class="calc-slider-unit">hrs</span></div>
+            <div class="calc-day-sliders calc-day-sliders-single">
+              <div class="calc-day-row">
+                <span class="calc-day-label">Shift</span>
+                <input type="range" id="calcHoursSlider" min="0" max="16" step="0.25" value="8" class="calc-slider calc-day-slider">
+                <span class="calc-day-readout"><span id="calcHoursReadout">8.0</span><span class="unit">h</span></span>
               </div>
               <div class="calc-slider-presets" id="calcHoursPresets">
                 <button type="button" class="calc-slider-preset" data-value="4">4 hrs</button>

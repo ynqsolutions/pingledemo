@@ -5788,15 +5788,8 @@ footer a:hover{ color:var(--white); }
   }
 }
 
-/* ===== Slider + preset pills (meal/rest break calculator's shift length
-   field, reusable for any future calculator) ===== */
-.calc-slider-block{
-  padding:24px;
-  background:var(--white);
-  border:1px solid var(--paper-line);
-  border-radius:12px;
-}
-.calc-slider-row{ display:flex; align-items:center; gap:20px; }
+/* ===== Slider (shared ringed-thumb look used by every calculator with
+   a range input) + preset pills ===== */
 .calc-slider{
   -webkit-appearance:none;
   appearance:none;
@@ -5825,20 +5818,6 @@ footer a:hover{ color:var(--white); }
   cursor:pointer;
 }
 .calc-slider::-moz-range-track{ height:3px; border-radius:2px; background:var(--paper-line); }
-.calc-slider-readout{
-  flex:none;
-  display:flex;
-  align-items:baseline;
-  gap:5px;
-}
-.calc-slider-readout #calcHoursReadout{
-  font-family:var(--font-display);
-  font-size:34px;
-  font-weight:600;
-  color:var(--navy-950);
-  line-height:1;
-}
-.calc-slider-unit{ font-size:14px; color:var(--ink-soft); }
 .calc-slider-presets{
   display:flex;
   flex-wrap:wrap;
@@ -5860,10 +5839,6 @@ footer a:hover{ color:var(--white); }
 }
 .calc-slider-preset:hover{ border-color:var(--gold-500); }
 .calc-slider-preset.is-active{ background:var(--navy-950); border-color:var(--navy-950); color:var(--white); }
-@media (max-width:480px){
-  .calc-slider-block{ padding:18px; }
-  .calc-slider-readout #calcHoursReadout{ font-size:26px; }
-}
 
 .calc-result-schedule-row{
   display:flex;
@@ -5924,6 +5899,10 @@ footer a:hover{ color:var(--white); }
   padding-top:22px;
   border-top:1px solid var(--paper-line);
 }
+/* A single-row variant (which normally opens with its own top divider
+   under a "This Week" heading) — here it sits directly beneath the
+   field's own label, so that divider is dropped. */
+.calc-day-sliders-single{ margin-top:0; padding-top:0; border-top:none; }
 .calc-day-row{
   display:grid;
   grid-template-columns:44px 1fr 52px;
