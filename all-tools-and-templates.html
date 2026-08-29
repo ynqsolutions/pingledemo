@@ -41,16 +41,22 @@
    article grid above it) would read as a second, redundant divider
    right under the short one below the tabs. */
 .resources-tools-section{ border-top:none; padding-top:16px; }
-.tools-search-suggest-item{
+/* .glossary-search button already styles the form's own gold submit
+   button; since these suggestion rows are <button> elements nested
+   inside that same .glossary-search form, that rule was winning over
+   a same-weight .tools-search-suggest-item selector (turning every
+   row into a 40px gold square). Scoping through the results box
+   (.glossary-search-results) gives this enough specificity to win. */
+.glossary-search-results.tools-search-suggest .tools-search-suggest-item{
   display:flex; align-items:center; gap:10px; width:100%; padding:11px 16px;
-  background:none; border:none; font-family:var(--font-body); font-size:14.5px; color:var(--navy-950);
+  background:none; border:none; border-radius:0; font-family:var(--font-body); font-size:14.5px; color:var(--navy-950);
   text-align:left; cursor:pointer; transition:background .15s ease;
 }
-.tools-search-suggest-item:hover,
-.tools-search-suggest-item.is-active{ background:var(--paper); color:var(--gold-500); }
-.tools-search-suggest-item + .tools-search-suggest-item{ border-top:1px solid var(--paper-line); }
-.tools-search-suggest-item span{ color:var(--ink-soft); font-size:12px; text-transform:uppercase; letter-spacing:0.04em; font-family:var(--font-cond); margin-left:auto; flex:none; }
-.tools-search-suggest-item mark{ background:none; color:var(--gold-500); font-weight:700; }
+.glossary-search-results.tools-search-suggest .tools-search-suggest-item:hover,
+.glossary-search-results.tools-search-suggest .tools-search-suggest-item.is-active{ background:var(--paper); color:var(--gold-500); }
+.glossary-search-results.tools-search-suggest .tools-search-suggest-item + .tools-search-suggest-item{ border-top:1px solid var(--paper-line); }
+.glossary-search-results.tools-search-suggest .tools-search-suggest-item span{ color:var(--ink-soft); font-size:12px; text-transform:uppercase; letter-spacing:0.04em; font-family:var(--font-cond); margin-left:auto; flex:none; }
+.glossary-search-results.tools-search-suggest .tools-search-suggest-item mark{ background:none; color:var(--gold-500); font-weight:700; }
 .tools-directory-tabs{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:24px auto 0; max-width:900px; }
 .tools-directory-tabs button{
   font-family:var(--font-cond); font-size:13px; font-weight:600; letter-spacing:0.02em;
