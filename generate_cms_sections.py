@@ -106,7 +106,7 @@ def render_settlement_tile(item):
             <h4>{classification}</h4>
             <span class="settlement-back-location">{location}</span>
             <p>{description}</p>
-            <p class="settlement-back-fine">Placeholder example. Past results do not guarantee or predict a similar outcome in any future case.</p>
+            <p class="settlement-back-fine">Past results do not guarantee or predict a similar outcome in any future case.</p>
           </div>
         </div>
       </div>'''
