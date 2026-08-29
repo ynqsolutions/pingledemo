@@ -4489,6 +4489,100 @@ footer a:hover{ color:var(--white); }
   background-position:center;
 }
 
+/* ---- Blog sidebar ad slot: a plain "free tools" promo and an 8-bit
+   "Learn & Play" arcade promo, cross-fading in and out of the same
+   spot so the sidebar isn't showing two ads for one card's worth of
+   space. ---- */
+.sidebar-ad-slot{ position:relative; }
+.sidebar-ad{
+  display:none;
+  text-decoration:none;
+}
+.sidebar-ad.is-active{
+  display:block;
+  animation:sidebarAdFadeIn .5s ease;
+}
+@keyframes sidebarAdFadeIn{
+  from{ opacity:0; transform:translateY(6px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.sidebar-ad-tools{ text-align:left; }
+.sidebar-ad-eyebrow{
+  font-family:var(--font-cond);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--gold-500);
+}
+.sidebar-ad-tools h3{ margin-top:6px; }
+.sidebar-ad-tools p{ margin-top:8px; font-size:13.5px; line-height:1.55; color:var(--ink-soft); }
+.sidebar-ad-cta{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:14px;
+  font-family:var(--font-cond);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  color:var(--navy-950);
+  transition:gap .18s ease, color .18s ease;
+}
+.sidebar-ad-tools:hover .sidebar-ad-cta{ gap:10px; color:var(--gold-500); }
+
+.sidebar-ad-game{
+  background:#2b1608;
+  border:3px solid #d9a441;
+  box-shadow:5px 5px 0 rgba(0,0,0,0.4);
+  overflow:hidden;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.sidebar-ad-game:hover{
+  transform:translate(-2px, -2px);
+  box-shadow:7px 7px 0 rgba(0,0,0,0.4);
+}
+.sidebar-ad-game-screen{
+  position:relative;
+  height:120px;
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.2) 0 2px, transparent 2px 4px),
+    linear-gradient(160deg, #6b4322 0%, #2b1a0d 100%);
+  border-bottom:3px solid #d9a441;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  overflow:hidden;
+}
+.sidebar-ad-game-body{ padding:16px 16px 18px; text-align:center; }
+.sidebar-ad-game-tag{
+  font-family:"Press Start 2P", var(--font-cond);
+  font-size:8.5px;
+  letter-spacing:0.05em;
+  color:#e8c078;
+}
+.sidebar-ad-game-body h3{
+  margin-top:10px;
+  font-family:"Press Start 2P", var(--font-display);
+  font-size:13px;
+  line-height:1.6;
+  color:#fff3e2;
+}
+.sidebar-ad-game-btn{
+  display:inline-block;
+  margin-top:14px;
+  padding:9px 14px;
+  background:#d9a441;
+  color:#2b1608;
+  font-family:"Press Start 2P", var(--font-cond);
+  font-size:9px;
+  letter-spacing:0.03em;
+  animation:sidebarAdBlink 1.1s steps(1) infinite;
+}
+@keyframes sidebarAdBlink{ 50%{ opacity:0.4; } }
+.sidebar-ad-game:hover .sidebar-ad-game-btn{ background:#f2c14e; }
+
 @media (max-width: 1080px){
   .blog-layout{ grid-template-columns:1fr; }
   .blog-main{ padding:28px 24px 32px; }
