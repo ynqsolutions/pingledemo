@@ -48,15 +48,13 @@
    row into a 40px gold square). Scoping through the results box
    (.glossary-search-results) gives this enough specificity to win. */
 .glossary-search-results.tools-search-suggest .tools-search-suggest-item{
-  display:flex; align-items:center; gap:10px; width:100%; padding:11px 16px;
+  display:block; width:100%; padding:11px 16px;
   background:none; border:none; border-radius:0; font-family:var(--font-body); font-size:14.5px; color:var(--navy-950);
   text-align:left; cursor:pointer; transition:background .15s ease;
 }
 .glossary-search-results.tools-search-suggest .tools-search-suggest-item:hover,
 .glossary-search-results.tools-search-suggest .tools-search-suggest-item.is-active{ background:var(--paper); color:var(--gold-500); }
 .glossary-search-results.tools-search-suggest .tools-search-suggest-item + .tools-search-suggest-item{ border-top:1px solid var(--paper-line); }
-.glossary-search-results.tools-search-suggest .tools-search-suggest-item span{ color:var(--ink-soft); font-size:12px; text-transform:uppercase; letter-spacing:0.04em; font-family:var(--font-cond); margin-left:auto; flex:none; }
-.glossary-search-results.tools-search-suggest .tools-search-suggest-item mark{ background:none; color:var(--gold-500); font-weight:700; }
 .tools-directory-tabs{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:24px auto 0; max-width:900px; }
 .tools-directory-tabs button{
   font-family:var(--font-cond); font-size:13px; font-weight:600; letter-spacing:0.02em;
@@ -444,7 +442,7 @@
       </div>
     </div>
 
-    <p class="tools-directory-empty" id="toolsDirectoryEmpty">No tools match your search. Try a different term or category.</p>
+    <p class="tools-directory-empty" id="toolsDirectoryEmpty">No tools in this category yet.</p>
 
     <div class="tools-directory-suggest">
       <span>Don't see the tool you need?</span>
@@ -584,28 +582,22 @@
   const emptyMsg = document.getElementById('toolsDirectoryEmpty');
 
   const FILTER_KEY = 'toolsDirectoryFilter';
-  const SEARCH_KEY = 'toolsDirectorySearch';
   const SCROLL_KEY = 'toolsDirectoryScroll';
   const VISITED_KEY = 'toolsDirectoryVisited';
 
   let activeCategory = 'all';
   try { activeCategory = sessionStorage.getItem(FILTER_KEY) || 'all'; } catch(e){}
 
-  try {
-    const savedSearch = sessionStorage.getItem(SEARCH_KEY);
-    if(savedSearch) searchInput.value = savedSearch;
-  } catch(e){}
-
+  // The search box only offers a dropdown of matching tools and jumps
+  // straight to one (see below) — it does not filter these tiles.
+  // Only the category tabs filter what's visible on the page itself.
   function applyFilters(){
-    const query = searchInput.value.trim().toLowerCase();
     let anyVisible = false;
 
     sections.forEach(section => {
       let sectionHasVisible = false;
       section.querySelectorAll('.tool-tile').forEach(tile => {
-        const matchesCategory = activeCategory === 'all' || tile.dataset.category === activeCategory;
-        const matchesQuery = !query || tile.textContent.toLowerCase().includes(query);
-        const visible = matchesCategory && matchesQuery;
+        const visible = activeCategory === 'all' || tile.dataset.category === activeCategory;
         tile.style.display = visible ? '' : 'none';
         if(visible) sectionHasVisible = true;
       });
@@ -641,11 +633,7 @@
     applyFilters();
   });
 
-  searchInput.addEventListener('input', () => {
-    try { sessionStorage.setItem(SEARCH_KEY, searchInput.value); } catch(e){}
-    applyFilters();
-    renderSuggestions();
-  });
+  searchInput.addEventListener('input', renderSuggestions);
 
   // ---- Search suggestions: a small dropdown of matching tool names as
   // the visitor types, built from the tiles already on the page (no
@@ -653,7 +641,6 @@
   const suggestBox = document.getElementById('toolsSearchSuggest');
   const searchIndex = Array.from(document.querySelectorAll('.tool-tile')).map(tile => ({
     title: tile.querySelector('h3').textContent.trim(),
-    tag: tile.querySelector('.tool-tile-tag').textContent.trim(),
     href: tile.getAttribute('href'),
   })).filter((item, i, arr) => arr.findIndex(o => o.href === item.href) === i);
 
@@ -661,12 +648,6 @@
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
-  }
-
-  function highlight(title, query){
-    const idx = title.toLowerCase().indexOf(query);
-    if(idx === -1) return escapeHtml(title);
-    return escapeHtml(title.slice(0, idx)) + '<mark>' + escapeHtml(title.slice(idx, idx + query.length)) + '</mark>' + escapeHtml(title.slice(idx + query.length));
   }
 
   let activeSuggestIndex = -1;
@@ -694,7 +675,7 @@
       return;
     }
     suggestBox.innerHTML = matches.map(item =>
-      `<button type="button" class="tools-search-suggest-item" data-href="${escapeHtml(item.href)}">${highlight(item.title, query)}<span>${escapeHtml(item.tag)}</span></button>`
+      `<button type="button" class="tools-search-suggest-item" data-href="${escapeHtml(item.href)}">${escapeHtml(item.title)}</button>`
     ).join('');
     suggestBox.hidden = false;
   }
