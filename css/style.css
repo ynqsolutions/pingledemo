@@ -2212,7 +2212,7 @@ footer a:hover{ color:var(--white); }
 }
 .contact-form-card{
   max-width:760px;
-  background:var(--white);
+  background:linear-gradient(160deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.15) 45%, rgba(255,255,255,0) 75%);
   border:1px solid var(--paper-line);
   box-shadow:0 30px 60px -30px rgba(10,15,39,0.25);
   border-radius:6px;
@@ -2316,7 +2316,7 @@ footer a:hover{ color:var(--white); }
 .contact-info-card{
   position:relative;
   padding:26px 26px 24px;
-  background:var(--white);
+  background:linear-gradient(160deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.15) 45%, rgba(255,255,255,0) 75%);
   border:1px solid var(--paper-line);
   border-radius:6px;
 }
