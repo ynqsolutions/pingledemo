@@ -5808,27 +5808,6 @@ footer a:hover{ color:var(--white); }
   cursor:pointer;
 }
 .calc-slider::-moz-range-track{ height:3px; border-radius:2px; background:var(--paper-line); }
-.calc-slider-presets{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top:20px;
-  padding-top:20px;
-  border-top:1px solid var(--paper-line);
-}
-.calc-slider-preset{
-  padding:10px 20px;
-  border-radius:999px;
-  border:1px solid var(--paper-line);
-  background:var(--paper);
-  font-family:var(--font-body);
-  font-size:14px;
-  color:var(--navy-950);
-  cursor:pointer;
-  transition:background .15s ease, color .15s ease, border-color .15s ease;
-}
-.calc-slider-preset:hover{ border-color:var(--gold-500); }
-.calc-slider-preset.is-active{ background:var(--navy-950); border-color:var(--navy-950); color:var(--white); }
 
 .calc-result-schedule-row{
   display:flex;

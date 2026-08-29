@@ -2,7 +2,6 @@
   const hoursInput = document.getElementById('calcHours');
   const hoursSlider = document.getElementById('calcHoursSlider');
   const hoursReadout = document.getElementById('calcHoursReadout');
-  const presetsWrap = document.getElementById('calcHoursPresets');
   const startTimeInput = document.getElementById('calcStartTime');
   const endTimeInput = document.getElementById('calcEndTime');
   const submitBtn = document.getElementById('calcSubmitBtn');
@@ -22,13 +21,14 @@
 
   if(!hoursInput || !submitBtn) return;
 
-  const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
+  const number = new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
   function numericValue(el){
     return Math.max(0, parseFloat(el.value) || 0);
   }
 
-  // ---- Length-of-shift slider + preset pills ----
+  // ---- Length-of-shift slider (matches the overtime calculator's day
+  // sliders: half-hour steps, one-decimal readout) ----
   function setHours(hours, { fromSlider = false } = {}){
     const clamped = Math.max(0, Math.min(24, hours));
     hoursInput.value = clamped;
@@ -36,19 +36,10 @@
     if(!fromSlider){
       hoursSlider.value = Math.min(16, clamped);
     }
-    presetsWrap.querySelectorAll('.calc-slider-preset').forEach(btn => {
-      btn.classList.toggle('is-active', parseFloat(btn.dataset.value) === clamped);
-    });
   }
 
   hoursSlider.addEventListener('input', () => {
     setHours(parseFloat(hoursSlider.value), { fromSlider: true });
-  });
-
-  presetsWrap.addEventListener('click', (e) => {
-    const btn = e.target.closest('.calc-slider-preset');
-    if(!btn) return;
-    setHours(parseFloat(btn.dataset.value));
   });
 
   // ---- Optional start/end time: auto-fill the shift length when both
@@ -63,7 +54,7 @@
     const [eh, em] = endVal.split(':').map(Number);
     let diffMinutes = (eh * 60 + em) - (sh * 60 + sm);
     if(diffMinutes <= 0) diffMinutes += 24 * 60;
-    setHours(Math.round((diffMinutes / 60) * 4) / 4);
+    setHours(Math.round((diffMinutes / 60) * 2) / 2);
   }
   startTimeInput.addEventListener('change', syncHoursFromTimes);
   endTimeInput.addEventListener('change', syncHoursFromTimes);
