@@ -2646,16 +2646,6 @@ footer a:hover{ color:var(--white); }
 }
 .key-points ul{ margin-top:14px !important; list-style:disc !important; padding-left:22px !important; display:flex; flex-direction:column; gap:10px; }
 .key-points li{ padding-left:4px; }
-.attorney-note{
-  margin:20px 0;
-  padding:14px 18px;
-  background:var(--paper-dim);
-  border-left:3px solid var(--navy-700);
-  border-radius:4px;
-  font-size:14px;
-  font-style:italic;
-  color:var(--ink-soft);
-}
 .source-list{ margin-top:14px; display:flex; flex-direction:column; gap:8px; }
 .source-list li{ font-size:14.5px; }
 .article-disclaimer{
