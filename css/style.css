@@ -4376,6 +4376,13 @@ p.article-disclaimer{
   display:flex;
   align-items:center;
   justify-content:center;
+  overflow:hidden;
+}
+.blog-example-icon img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:top center;
 }
 .blog-example strong{
   display:block;
