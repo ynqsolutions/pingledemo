@@ -5982,17 +5982,25 @@ p.article-disclaimer{
    row in the result panel ===== */
 .calc-rate-toggle-row{
   display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
+  align-items:flex-start;
   flex-wrap:wrap;
-  gap:20px;
+  gap:28px;
+}
+/* Label sits above the switch, mirroring the Hourly Rate field's own
+   label-above-control layout, instead of squeezing both onto one row
+   next to the input — at in-between widths that row's own wrapping
+   let the switch land underneath/overlapping the input's corner. */
+.calc-toggle-block{ display:flex; flex-direction:column; gap:8px; }
+.calc-toggle-block-label{
+  display:flex; align-items:center; gap:6px;
+  font-family:var(--font-cond); font-size:12.5px; letter-spacing:0.05em; text-transform:uppercase;
+  color:var(--ink-soft);
 }
 .calc-toggle-row{
   display:flex;
   align-items:center;
-  gap:12px;
+  height:41.5px;
   cursor:pointer;
-  padding-bottom:2px;
 }
 .calc-toggle{ position:relative; flex:none; width:42px; height:24px; }
 .calc-toggle input{

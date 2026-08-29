@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=274">
+<link rel="stylesheet" href="css/style.css?v=275">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -151,14 +151,18 @@
                 <input type="text" id="calcHourlyRate" placeholder="22.00" inputmode="decimal">
               </div>
             </div>
-            <label class="calc-toggle-row" for="calcAllSeven">
-              <span class="calc-toggle">
-                <input type="checkbox" id="calcAllSeven">
-                <span class="calc-toggle-track"><span class="calc-toggle-thumb"></span></span>
+            <div class="calc-toggle-block">
+              <span class="calc-toggle-block-label">
+                Worked 7 days
+                <button type="button" class="calc-tip glossary-term" data-term="Worked All 7 Days" data-def="California generally pays a premium for every hour worked on the seventh consecutive day of a single workweek: 1.5x for the first 8 hours that day, and 2x after that, on top of (not in addition to) the usual daily and weekly rules. Turn this on only if this week's schedule had no full day off.">?</button>
               </span>
-              <span class="calc-toggle-label">Worked 7 days</span>
-              <button type="button" class="calc-tip glossary-term" data-term="Worked All 7 Days" data-def="California generally pays a premium for every hour worked on the seventh consecutive day of a single workweek: 1.5x for the first 8 hours that day, and 2x after that, on top of (not in addition to) the usual daily and weekly rules. Turn this on only if this week's schedule had no full day off.">?</button>
-            </label>
+              <label class="calc-toggle-row" for="calcAllSeven">
+                <span class="calc-toggle">
+                  <input type="checkbox" id="calcAllSeven">
+                  <span class="calc-toggle-track"><span class="calc-toggle-thumb"></span></span>
+                </span>
+              </label>
+            </div>
           </div>
 
           <div class="calc-day-sliders">
