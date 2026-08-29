@@ -3581,6 +3581,16 @@ p.article-disclaimer{
   color:var(--white);
   line-height:1.28;
 }
+.settlement-occupation{
+  display:block;
+  margin-top:4px;
+  font-family:var(--font-cond);
+  font-size:clamp(11px, 3cqw, 13px);
+  font-weight:500;
+  letter-spacing:0.02em;
+  color:rgba(255,255,255,0.7);
+  line-height:1.25;
+}
 .settlement-tap-btn{
   position:absolute;
   left:20px;

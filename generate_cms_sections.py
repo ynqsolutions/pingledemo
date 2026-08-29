@@ -85,9 +85,11 @@ def render_team_card(member):
 def render_settlement_tile(item):
     amount = escape(item.get("amount", ""))
     classification = escape(item.get("classification", ""))
+    occupation = escape(item.get("occupation", ""))
     photo = escape(item.get("photo", ""))
     location = escape(item.get("location", ""))
     description = escape(item.get("description", ""))
+    occupation_html = f'\n              <span class="settlement-occupation">{occupation}</span>' if occupation else ""
     return f'''      <div class="settlement-tile" tabindex="0" role="button" aria-label="Flip to read more about this {classification} case">
         <div class="settlement-tile-inner">
           <div class="settlement-face settlement-front">
@@ -95,7 +97,7 @@ def render_settlement_tile(item):
             <div class="settlement-front-content">
               <span class="settlement-eyebrow">Settlement</span>
               <span class="settlement-amount">{amount}</span>
-              <span class="settlement-type">{classification}</span>
+              <span class="settlement-type">{classification}</span>{occupation_html}
               <span class="settlement-tap-btn">Tap for Details <span aria-hidden="true">&rarr;</span></span>
             </div>
           </div>
