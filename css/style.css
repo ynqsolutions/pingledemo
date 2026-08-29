@@ -2344,7 +2344,8 @@ footer a:hover{ color:var(--white); }
 }
 .contact-info-card a.info-link:hover{ color:var(--gold-400); }
 .contact-save-link{
-  display:inline-flex;
+  display:flex;
+  width:fit-content;
   align-items:center;
   gap:6px;
   margin-top:12px;
@@ -2394,7 +2395,7 @@ footer a:hover{ color:var(--white); }
 }
 .service-area-list li{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   gap:10px;
   padding:10px 0;
   border-bottom:1px solid var(--paper-line);
@@ -2402,6 +2403,16 @@ footer a:hover{ color:var(--white); }
   font-size:18px;
   letter-spacing:0.02em;
   color:var(--navy-900);
+}
+.service-area-list li::before{ margin-top:7px; }
+.service-area-address{
+  display:block;
+  margin-top:2px;
+  font-family:var(--font-body, inherit);
+  font-size:12px;
+  letter-spacing:0;
+  text-transform:none;
+  color:var(--ink-soft);
 }
 .service-area-list li::before{
   content:"";
