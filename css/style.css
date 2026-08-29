@@ -118,19 +118,20 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   letter-spacing:0.06em;
   text-transform:uppercase;
 }
-.lang-toggle span{
+.lang-toggle span, .lang-toggle a{
   padding:6px 12px;
   border-radius:999px;
   color:rgba(255,255,255,0.55);
   cursor:pointer;
+  text-decoration:none;
   transition:background .22s cubic-bezier(.3,.8,.3,1), color .22s ease, font-weight .22s ease;
 }
-.lang-toggle span.active{
+.lang-toggle span.active, .lang-toggle a.active{
   background:var(--gold-500);
   color:var(--navy-950);
   font-weight:700;
 }
-.lang-toggle span.liquify{
+.lang-toggle span.liquify, .lang-toggle a.liquify{
   animation:langPop .32s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes langPop{

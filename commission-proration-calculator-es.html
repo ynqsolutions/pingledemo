@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Prorrateo de Comisión y Bono | Pingle Law</title>
+<meta name="description" content="Calculadora gratuita para prorratear una comisión o bono de un período parcial por días calendario, días hábiles o un porcentaje personalizado que usted defina.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=278">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="stylesheet" href="css/a11y-widget.css?v=9">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://pinglelaw.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Resources", "item": "https://pinglelaw.com/resources.html" },
+    { "@type": "ListItem", "position": 3, "name": "Commission & Bonus Proration Calculator", "item": "https://pinglelaw.com/commission-proration-calculator.html" }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "How is a prorated bonus calculated?", "acceptedAnswer": { "@type": "Answer", "text": "Divide the days you actually worked in the period by the total days in the full period, then multiply that fraction by the full bonus or commission amount. The specific method (calendar days, business days, or another formula) depends on your employer's plan." } },
+    { "@type": "Question", "name": "Is my employer required to prorate my bonus?", "acceptedAnswer": { "@type": "Answer", "text": "It depends entirely on the terms of your specific commission or bonus plan. Some plans prorate automatically, others require a full period of employment, and some are discretionary. Check your plan documents or offer letter." } },
+    { "@type": "Question", "name": "What if my employer's proration formula doesn't match this calculator?", "acceptedAnswer": { "@type": "Answer", "text": "Use the custom percentage option and enter the fraction from your own plan's formula. This tool does the arithmetic, it doesn't determine which formula applies to your situation." } }
+  ]
+}
+</script>
+</head>
+<body class="page-article">
+
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <div class="header-inner wrap">
+    <a href="index-es.html" class="logo"><img src="assets/Pingle_Logo_Outline.png?v=2" alt="Pingle Law"></a>
+
+    <nav class="nav-desktop">
+      <a href="index-es.html">Inicio</a>
+      <a href="about-es.html">Nosotros</a>
+      <a href="practice-areas-es.html">Áreas de Práctica</a>
+      <a href="faq-es.html">Preguntas Frecuentes</a>
+      <a href="results-and-testimonials-es.html">Resultados</a>
+      <a href="resources-es.html">Recursos</a>
+      <a href="contact-es.html">Contacto</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="lang-toggle header-lang-toggle-desktop" role="group" aria-label="Selector de idioma">
+        <a href="commission-proration-calculator.html">EN</a><span class="active">ES</span>
+      </div>
+      <div class="header-phone">
+        <span class="label">Se Habla Español</span>
+        <a class="num" href="tel:+17145932306">(714) 593-2306</a>
+      </div>
+      <button class="burger" aria-label="Open menu" aria-expanded="false" id="burgerBtn">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobileNav">
+  <div class="lang-toggle mobile-nav-lang-bar" role="group" aria-label="Selector de idioma">
+    <a href="commission-proration-calculator.html">EN</a><span class="active">ES</span>
+  </div>
+  <ul>
+    <li><a href="index-es.html">Inicio</a></li>
+    <li><a href="about-es.html">Nosotros</a></li>
+    <li><a href="practice-areas-es.html">Áreas de Práctica</a></li>
+    <li><a href="faq-es.html">Preguntas Frecuentes</a></li>
+    <li><a href="results-and-testimonials-es.html">Resultados</a></li>
+    <li><a href="resources-es.html">Recursos</a></li>
+    <li><a href="contact-es.html">Contacto</a></li>
+  </ul>
+  <div class="mobile-nav-footer">
+    <span class="mobile-nav-lang-label">Se Habla Español</span>
+    <a href="tel:+17145932306" class="btn btn-outline-light mobile-nav-phone-btn">(714) 593-2306</a>
+    <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="btn btn-gold">Consulta Gratuita</a>
+  </div>
+</div>
+
+<!-- ============ MOBILE STICKY CTA ============ -->
+<div class="mobile-sticky-cta" aria-hidden="false">
+  <div class="mobile-sticky-buttons">
+    <a href="tel:+17145932306" class="mobile-sticky-btn mobile-sticky-call">Llamar Ahora</a>
+    <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="mobile-sticky-btn mobile-sticky-consult">Consulta Gratuita</a>
+  </div>
+  <span class="mobile-sticky-lang">Se Habla Espa&ntilde;ol</span>
+</div>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="about-hero practice-article-hero calc-hero">
+  <div class="wrap">
+    <a href="resources-es.html#tools-calculators" class="blog-back-link calc-hero-back-link">&larr; Volver a Calculadoras y Plantillas</a>
+    <div class="about-hero-inner">
+      <span class="eyebrow" style="color:var(--gold-500);">Herramienta Gratuita</span>
+      <h1>Calculadora de Prorrateo de Comisión y Bono</h1>
+      <div class="about-hero-pill">
+        <a href="#calculator" class="pill-gold">Use la Calculadora</a>
+        <a href="case-review-es.html" class="pill-ghost">Evaluación Gratuita de su Caso</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CALCULATOR ============ -->
+<section class="calc-section section-divider-full" id="calculator">
+  <div class="wrap">
+    <div class="calc-card">
+      <div class="calc-card-head">
+        <div class="calc-card-head-text">
+          <span class="eyebrow" style="color:var(--gold-500);">Calculadora</span>
+          <h2>Calculadora de Prorrateo de Comisión / Bono</h2>
+          <p>Calcule cuánto debería ser un bono o comisión de un período parcial, usando la fórmula que usted elija.</p>
+        </div>
+        <div class="calc-card-head-illustration" aria-hidden="true">
+          <img src="assets/icons/commission-proration-icon.png" alt="">
+        </div>
+      </div>
+
+      <div class="tool-disclaimer">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.01"></path></svg>
+        <p>Esta calculadora solo realiza la operación aritmética sobre la fórmula y las fechas que usted proporcione; no determina qué método de prorrateo aplica a su plan específico. No constituye asesoría legal, no crea una relación abogado-cliente y es posible que no refleje la ley más actual. <a href="case-review-es.html">Consulte con un abogado</a> si cree que un bono o comisión se calculó de manera incorrecta.</p>
+      </div>
+
+      <div class="calc-grid">
+        <div class="calc-inputs">
+          <div class="calc-inputs-head">
+            <span>Su Información</span>
+            <span class="calc-inputs-head-rule"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="calc-label-row">
+              <label for="calcFullAmount">Monto Completo de Comisión / Bono</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Monto Completo de Comisión / Bono" data-def="El monto completo que recibiría por un período completo, antes de cualquier prorrateo por un período parcial trabajado.">?</button>
+            </div>
+            <div class="calc-dollar-input">
+              <input type="text" id="calcFullAmount" placeholder="5,000" inputmode="decimal">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="calc-label-row">
+              <label for="calcBasisOptions">Base de Prorrateo</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Base de Prorrateo" data-def="Cómo se mide el período parcial: cada día calendario, solo días de semana (días hábiles), o un porcentaje personalizado que usted ingrese directamente según la fórmula de su propio plan.">?</button>
+            </div>
+            <div class="calc-formula-options" id="calcBasisOptions">
+              <button type="button" class="calc-formula-opt is-active" data-value="calendar">Días Calendario<span>Cuenta cada día</span></button>
+              <button type="button" class="calc-formula-opt" data-value="business">Días Hábiles<span>Solo días de semana</span></button>
+              <button type="button" class="calc-formula-opt" data-value="custom">% Personalizado<span>Defina el suyo</span></button>
+            </div>
+          </div>
+
+          <div id="calcDateFieldsRow">
+            <div class="calc-row-2 calc-row-2-keep">
+              <div class="form-row calc-field-medium">
+                <div class="calc-label-row">
+                  <label for="calcPeriodStart">Inicio del Período Completo</label>
+                  <button type="button" class="calc-tip glossary-term" data-term="Inicio del Período Completo" data-def="La fecha de inicio de todo el período de comisión o bono, según lo defina su plan (por ejemplo, el primer día del trimestre).">?</button>
+                </div>
+                <input type="date" id="calcPeriodStart">
+              </div>
+              <div class="form-row calc-field-medium">
+                <div class="calc-label-row">
+                  <label for="calcPeriodEnd">Fin del Período Completo</label>
+                  <button type="button" class="calc-tip glossary-term" data-term="Fin del Período Completo" data-def="La fecha de fin de todo el período de comisión o bono, según lo defina su plan (por ejemplo, el último día del trimestre).">?</button>
+                </div>
+                <input type="date" id="calcPeriodEnd">
+              </div>
+            </div>
+            <div class="calc-row-2 calc-row-2-keep">
+              <div class="form-row calc-field-medium">
+                <div class="calc-label-row">
+                  <label for="calcWorkedStart">Inicio Trabajado</label>
+                  <button type="button" class="calc-tip glossary-term" data-term="Inicio Trabajado" data-def="El primer día en que usted estuvo realmente empleado y era elegible dentro del período completo, por ejemplo su fecha de contratación si cae a mitad del período.">?</button>
+                </div>
+                <input type="date" id="calcWorkedStart">
+              </div>
+              <div class="form-row calc-field-medium">
+                <div class="calc-label-row">
+                  <label for="calcWorkedEnd">Fin Trabajado</label>
+                  <button type="button" class="calc-tip glossary-term" data-term="Fin Trabajado" data-def="El último día en que usted estuvo realmente empleado y era elegible dentro del período completo, por ejemplo su último día si se fue a mitad del período.">?</button>
+                </div>
+                <input type="date" id="calcWorkedEnd">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row calc-field-narrow" id="calcCustomFieldRow" hidden>
+            <div class="calc-label-row">
+              <label for="calcCustomPercent">Porcentaje del Período Completo Trabajado</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Porcentaje del Período Completo Trabajado" data-def="Ingrese directamente la fracción del período trabajado, usando la fórmula que exija su plan específico.">?</button>
+            </div>
+            <div class="calc-affix-input">
+              <input type="number" id="calcCustomPercent" min="0" max="100" step="0.1" placeholder="65">
+              <span class="calc-affix calc-affix-right">%</span>
+            </div>
+          </div>
+
+          <button type="button" class="btn calc-submit-btn" id="calcSubmitBtn">Calcular Monto Prorrateado &rarr;</button>
+        </div>
+
+        <div class="calc-result" id="calcResultCard">
+          <div class="calc-result-inner is-blurred" id="calcResultInner">
+            <span class="calc-result-label">Su Monto Prorrateado</span>
+            <span class="calc-result-amount" id="calcResultAmount">$0</span>
+            <p class="calc-result-estimate-note">Esto es solo aritmética, basada en la fórmula y las fechas que ingresó.</p>
+            <div class="calc-result-breakdown">
+              <div class="calc-result-line"><span>Monto completo</span><span id="calcResultFullAmount">$0</span></div>
+              <div class="calc-result-line"><span>Porcentaje trabajado</span><span id="calcResultFraction">0%</span></div>
+              <div class="calc-result-line"><span>Base</span><span id="calcResultBasis">&mdash;</span></div>
+            </div>
+
+            <div class="calc-consult-row">
+              <h4>¿Cree que un Bono se Calculó de Menos?</h4>
+              <p>Si su comisión o bono no se calculó de la manera en que su plan indica, obtenga una evaluación gratuita.</p>
+              <a href="case-review-es.html">Evaluación Gratuita de su Caso &rarr;</a>
+            </div>
+          </div>
+
+          <div class="calc-result-loading" id="calcResultLoading" hidden>
+            <img src="assets/Animations/character_calculator.png" alt="" width="110" height="98">
+            <p>Calculando su monto prorrateado&hellip;</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARTICLE BODY ============ -->
+<section class="legal-body calc-article-body">
+  <div class="wrap">
+  <div class="legal-body-inner">
+
+    <h2>Cómo Funciona el Prorrateo</h2>
+    <p>Prorratear un bono o comisión significa ajustar el monto del período completo para reflejar únicamente la parte del período que usted realmente trabajó. La fórmula para hacerlo no está estandarizada: algunos planes cuentan cada día calendario, otros solo días hábiles, y algunos usan un método completamente distinto especificado en los documentos del plan. Esta calculadora hace el cálculo una vez que usted indique qué fórmula usar.</p>
+
+    <div class="key-points">
+      <h3>Puntos Clave</h3>
+      <ul>
+        <li>Las fórmulas de prorrateo varían según el empleador y el plan; no existe un estándar legal único.</li>
+        <li>Los métodos por días calendario y por días hábiles pueden producir resultados significativamente distintos.</li>
+        <li>Si su plan usa una fórmula completamente diferente, use la opción de porcentaje personalizado para igualarla.</li>
+        <li>Las comisiones y bonos ganados generalmente se consideran salarios en California una vez que se cumplen las condiciones para ganarlos.</li>
+      </ul>
+    </div>
+
+    <div class="article-cta-banner-outer">
+      <img src="assets/Pingle_HS_pointing.png" alt="" class="article-cta-banner-img" aria-hidden="true">
+      <div class="article-cta-banner article-cta-banner-with-img">
+        <div class="article-cta-banner-text">
+          <span class="article-cta-banner-eyebrow">¿Los números no coinciden?</span>
+          <h3>Haga que revisen su bono o comisión, gratis.</h3>
+          <p>Si lo que le pagaron no coincide con la fórmula de su propio plan, una evaluación gratuita de su caso puede ayudarle a entender sus opciones.</p>
+        </div>
+        <a href="case-review-es.html" class="btn btn-gold">Evaluación Gratuita de su Caso</a>
+      </div>
+    </div>
+
+    <h2>Lo Que Esta Calculadora No Hace</h2>
+    <p>No conoce el plan real de bono o comisión de su empleador, y no determina si un pago se ganó en primer lugar; esas preguntas dependen enteramente de los términos específicos de su plan. Solo calcula la aritmética una vez que usted proporciona el monto y el método de prorrateo.</p>
+
+    <div class="tldr" id="tldr">
+      <span class="tldr-label">Resumen</span>
+      <p>Prorratear un bono o comisión significa multiplicar el monto completo por la fracción del período que usted trabajó. Los días calendario, los días hábiles o un porcentaje personalizado dan resultados distintos: use el método que coincida con su plan real.</p>
+    </div>
+
+    <div class="faq-block">
+      <h2>Preguntas Frecuentes</h2>
+
+      <div class="faq-block-item">
+        <h3>¿Cómo se calcula un bono prorrateado?</h3>
+        <p>Divida los días trabajados entre el total de días del período, y luego multiplique esa fracción por el monto completo del bono.</p>
+      </div>
+
+      <div class="faq-block-item">
+        <h3>¿Está mi empleador obligado a prorratear mi bono?</h3>
+        <p>Depende enteramente de los términos de su plan específico; consulte los documentos de su plan o su carta de oferta.</p>
+      </div>
+
+      <div class="faq-block-item">
+        <h3>¿Qué pasa si la fórmula de mi empleador no coincide con esta calculadora?</h3>
+        <p>Use la opción de porcentaje personalizado e ingrese la fracción de la fórmula de su propio plan.</p>
+      </div>
+    </div>
+
+    <h3>Siga Leyendo</h3>
+    <div class="calc-links-grid">
+      <a href="severance-pay-calculator-es.html">
+        <span class="calc-links-tag">Calculadora</span>
+        <strong>Calculadora de Pago de Indemnización</strong>
+      </a>
+      <a href="take-home-pay-calculator-es.html">
+        <span class="calc-links-tag">Calculadora</span>
+        <strong>Estimador de Salario Neto</strong>
+      </a>
+      <a href="glossary-es.html">
+        <span class="calc-links-tag">Glosario</span>
+        <strong>Glosario de Derecho Laboral</strong>
+      </a>
+      <a href="case-review-es.html">
+        <span class="calc-links-tag">Siguiente Paso</span>
+        <strong>Iniciar una Evaluación Gratuita de su Caso</strong>
+      </a>
+    </div>
+
+    <p class="article-disclaimer">Esta calculadora y este artículo ofrecen información educativa general y no constituyen asesoría legal individualizada, y es posible que no reflejen la ley más actual. Leer esta página no crea una relación abogado-cliente con la Law Offices of Corey A. Pingle. Algunas inquietudes laborales pueden resolverse directamente con un empleador, mientras que otras pueden justificar asesoría legal. Si desea orientación específica para su situación, <a href="contact-es.html">contacte a nuestra oficina</a> o <a href="case-review-es.html">inicie una evaluación gratuita de su caso</a>.</p>
+
+  </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA / CONTACT ============ -->
+<section class="final-cta" id="contact">
+  <div class="wrap final-cta-inner">
+    <div class="final-cta-copy">
+      <h2>¿Está listo para comunicarse con nosotros?</h2>
+      <p>Contáctenos para hablar sobre su situación. Estamos aquí para responder sus preguntas, explicarle sus opciones y ayudarlo a determinar la mejor manera de avanzar.</p>
+      <ul class="final-cta-points">
+        <li>Consulta gratuita</li>
+        <li>Sin ganar, no hay honorarios</li>
+        <li>Respuestas reales</li>
+      </ul>
+      <div class="cta-buttons">
+        <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="btn btn-gold">Consulta Gratuita</a>
+        <a href="contact-es.html" class="btn btn-outline-light">Contáctenos</a>
+      </div>
+    </div>
+
+    <div class="final-cta-form">
+      <h3>Obtenga la evaluación gratuita de su caso</h3>
+      <p>Responda un breve cuestionario para ver cómo está su situación, sin costo ni obligación.</p>
+      <a href="case-review-es.html" class="btn btn-gold">Evaluación Gratuita de su Caso</a>
+      <p class="final-cta-form-fine">Toma aproximadamente dos minutos.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 15l6-6 6 6"/></svg>
+</button>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><img src="assets/Pingle_Logo_Outline.png?v=2" alt="Pingle Law"></div>
+        <p class="footer-firm-name">Law Offices of Corey A. Pingle</p>
+        <p style="max-width:320px; color:rgba(255,255,255,0.6);">Firma de derecho laboral que representa a empleados en el condado de Orange, el condado de Los Ángeles, el condado de Riverside, el condado de San Bernardino, el condado de San Francisco, el condado de Sacramento y en toda California.</p>
+        <form class="footer-newsletter" name="newsletter-es" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field">
+          <input type="hidden" name="form-name" value="newsletter-es">
+          <p style="position:absolute; left:-9999px;" aria-hidden="true">
+            <label>Deje este campo en blanco<input name="nl-bot-field" tabindex="-1" autocomplete="off"></label>
+          </p>
+          <label for="newsletterEmail" class="footer-newsletter-label">Suscríbase a nuestro boletín</label>
+          <div class="footer-newsletter-row">
+            <input id="newsletterEmail" type="email" name="email" placeholder="Correo electrónico" required autocomplete="email">
+            <button type="submit" aria-label="Suscribirse">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+          <p class="newsletter-status" style="font-size:12.5px; color:rgba(255,255,255,0.55); min-height:16px; margin-top:6px;"></p>
+        </form>
+      </div>
+      <div>
+        <h5>Contacto</h5>
+        <ul>
+          <li><a href="tel:+17145932306">(714) 593-2306</a></li>
+          <li><a href="assets/pingle-law-contact.vcf" download="Law Offices of Corey Pingle.vcf" class="footer-save-contact">Guardar Contacto</a></li>
+          <li><a href="mailto:info@pinglelaw.com">info@pinglelaw.com</a></li>
+        </ul>
+        <div class="footer-social" aria-label="Enlaces de redes sociales">
+          <a href="https://www.instagram.com/pinglelaw/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="https://www.facebook.com/pinglelaw/" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 8.5h2.5V5H14c-2.2 0-4 1.8-4 4v2.5H8V15h2v6h3v-6h2.5l.5-3.5H13V9c0-.6.4-1 1-1Z"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/in/corey-pingle-b777979a/?isSelfProfile=false" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="7.5" y1="10.5" x2="7.5" y2="16.5"/><circle cx="7.5" cy="7.3" r="0.9" fill="currentColor" stroke="none"/><path d="M11 16.5v-4c0-1.4 1-2.3 2.2-2.3 1.2 0 2 .9 2 2.3v4"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h5>Explorar</h5>
+        <ul>
+          <li><a href="faq-es.html">Preguntas Frecuentes</a></li>
+          <li><a href="rss-es.html">RSS</a></li>
+          <li><a href="about-es.html">Nosotros</a></li>
+          <li><a href="contact-es.html">Contacto</a></li>
+          <li><a href="glossary-es.html">Glosario</a></li>
+          <li><a href="practice-areas-es.html">Áreas de Práctica</a></li>
+          <li><a href="case-review-es.html">Evaluación Gratuita de su Caso</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Área de Servicio</h5>
+        <ul>
+          <li><a href="fountain-valley-es.html">Fountain Valley, CA</a></li>
+          <li><a href="beverly-hills-es.html">Beverly Hills, CA</a></li>
+          <li><a href="san-bernardino-es.html">San Bernardino, CA</a></li>
+          <li><a href="san-diego-es.html">San Diego, CA</a></li>
+          <li><a href="san-francisco-es.html">San Francisco, CA</a></li>
+          <li><a href="sacramento-es.html">Sacramento, CA</a></li>
+          <li>y en toda California</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Law Offices of Corey A. Pingle. Todos los derechos reservados. Publicidad de abogados. Los resultados previos no garantizan un resultado similar.</span>
+      <div class="legal-links">
+        <a href="privacy-policy-es.html">Política de Privacidad</a>
+        <a href="terms-of-use-es.html">Términos de Uso</a>
+        <a href="disclaimer-es.html">Aviso Legal</a>
+        <a href="sitemap-es.html">Mapa del Sitio</a>
+      </div>
+    </div>
+    <div class="footer-credit">
+      <a href="https://ynqsolutions.com" target="_blank" rel="noopener">Crafted by YNQ Solutions</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js?v=73" defer></script>
+<script src="js/commission-proration-calculator.js?v=1" defer></script>
+<script src="js/a11y-widget.js?v=13" defer></script>
+</body>
+</html>

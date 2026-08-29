@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Distribución de Propinas | Pingle Law</title>
+<meta name="description" content="Calculadora gratuita de distribución de propinas: ingrese el total de propinas y las horas o puntos de cada empleado para repartir el fondo proporcionalmente. Aritmética pura, según la división que usted defina.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=278">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="stylesheet" href="css/a11y-widget.css?v=9">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://pinglelaw.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Resources", "item": "https://pinglelaw.com/resources.html" },
+    { "@type": "ListItem", "position": 3, "name": "Tip Pooling Distribution Calculator", "item": "https://pinglelaw.com/tip-pooling-calculator.html" }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "¿Quién puede participar en un fondo de propinas en California?", "acceptedAnswer": { "@type": "Answer", "text": "La ley de California generalmente permite el reparto de propinas entre empleados que atienden directamente a los clientes, como meseros, ayudantes de mesa y bartenders. Los dueños, gerentes y supervisores generalmente no pueden recibir una parte de las propinas del fondo." } },
+    { "@type": "Question", "name": "¿Esta calculadora verifica si un fondo de propinas es legal?", "acceptedAnswer": { "@type": "Answer", "text": "No. Esta herramienta solo hace el cálculo una vez que usted decide cómo debe dividirse el fondo, por horas o por un sistema de puntos. No evalúa si la estructura específica de su fondo o quién está incluido cumple con la ley de California." } },
+    { "@type": "Question", "name": "¿Cuál es la diferencia entre dividir por horas y por puntos?", "acceptedAnswer": { "@type": "Answer", "text": "Dividir por horas da a cada persona una parte proporcional a las horas trabajadas. Un sistema de puntos le permite ponderar ciertos roles más o menos, por ejemplo dando más peso a un bartender que a un ayudante de mesa, según los valores de puntos que usted asigne." } }
+  ]
+}
+</script>
+</head>
+<body class="page-article">
+
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <div class="header-inner wrap">
+    <a href="index-es.html" class="logo"><img src="assets/Pingle_Logo_Outline.png?v=2" alt="Pingle Law"></a>
+
+    <nav class="nav-desktop">
+      <a href="index-es.html">Inicio</a>
+      <a href="about-es.html">Nosotros</a>
+      <a href="practice-areas-es.html">Áreas de Práctica</a>
+      <a href="faq-es.html">Preguntas Frecuentes</a>
+      <a href="results-and-testimonials-es.html">Resultados</a>
+      <a href="resources-es.html">Recursos</a>
+      <a href="contact-es.html">Contacto</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="lang-toggle header-lang-toggle-desktop" role="group" aria-label="Selector de idioma">
+        <a href="tip-pooling-calculator.html">EN</a><span class="active">ES</span>
+      </div>
+      <div class="header-phone">
+        <span class="label">Se Habla Español</span>
+        <a class="num" href="tel:+17145932306">(714) 593-2306</a>
+      </div>
+      <button class="burger" aria-label="Open menu" aria-expanded="false" id="burgerBtn">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobileNav">
+  <div class="lang-toggle mobile-nav-lang-bar" role="group" aria-label="Selector de idioma">
+    <a href="tip-pooling-calculator.html">EN</a><span class="active">ES</span>
+  </div>
+  <ul>
+    <li><a href="index-es.html">Inicio</a></li>
+    <li><a href="about-es.html">Nosotros</a></li>
+    <li><a href="practice-areas-es.html">Áreas de Práctica</a></li>
+    <li><a href="faq-es.html">Preguntas Frecuentes</a></li>
+    <li><a href="results-and-testimonials-es.html">Resultados</a></li>
+    <li><a href="resources-es.html">Recursos</a></li>
+    <li><a href="contact-es.html">Contacto</a></li>
+  </ul>
+  <div class="mobile-nav-footer">
+    <span class="mobile-nav-lang-label">Se Habla Español</span>
+    <a href="tel:+17145932306" class="btn btn-outline-light mobile-nav-phone-btn">(714) 593-2306</a>
+    <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="btn btn-gold">Consulta Gratuita</a>
+  </div>
+</div>
+
+<!-- ============ MOBILE STICKY CTA ============ -->
+<div class="mobile-sticky-cta" aria-hidden="false">
+  <div class="mobile-sticky-buttons">
+    <a href="tel:+17145932306" class="mobile-sticky-btn mobile-sticky-call">Llamar Ahora</a>
+    <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="mobile-sticky-btn mobile-sticky-consult">Consulta Gratuita</a>
+  </div>
+  <span class="mobile-sticky-lang">Se Habla Espa&ntilde;ol</span>
+</div>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="about-hero practice-article-hero calc-hero">
+  <div class="wrap">
+    <a href="resources-es.html#tools-calculators" class="blog-back-link calc-hero-back-link">&larr; Volver a Herramientas y Plantillas</a>
+    <div class="about-hero-inner">
+      <span class="eyebrow" style="color:var(--gold-500);">Herramienta Gratuita</span>
+      <h1>Calculadora de Distribución de Propinas</h1>
+      <div class="about-hero-pill">
+        <a href="#calculator" class="pill-gold">Usar la Calculadora</a>
+        <a href="case-review-es.html" class="pill-ghost">Evaluación Gratuita de su Caso</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CALCULATOR ============ -->
+<section class="calc-section section-divider-full" id="calculator">
+  <div class="wrap">
+    <div class="calc-card">
+      <div class="calc-card-head">
+        <div class="calc-card-head-text">
+          <span class="eyebrow" style="color:var(--gold-500);">Calculadora</span>
+          <h2>Calculadora de Distribución de Propinas</h2>
+          <p>Ingrese el total de propinas y las horas o puntos de cada persona para repartir el fondo proporcionalmente.</p>
+        </div>
+        <div class="calc-card-head-illustration" aria-hidden="true">
+          <img src="assets/icons/tip-pooling-icon.png" alt="">
+        </div>
+      </div>
+
+      <div class="tool-disclaimer">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.01"></path></svg>
+        <p>Esta calculadora solo divide el total que usted ingresa entre la lista de personas que arma; no evalúa si la estructura de su fondo de propinas o quién está incluido cumple con la ley de California. No constituye asesoría legal, no crea una relación abogado-cliente, y puede no reflejar la ley más reciente. <a href="case-review-es.html">Consulte a un abogado</a> si cree que un fondo de propinas está estructurado de forma ilegal.</p>
+      </div>
+
+      <div class="calc-grid">
+        <div class="calc-inputs">
+          <div class="calc-inputs-head">
+            <span>Fondo de Propinas</span>
+            <span class="calc-inputs-head-rule"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="calc-label-row">
+              <label for="calcTotalTips">Total de Propinas Recibidas</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Total de Propinas Recibidas" data-def="El monto total en dólares de las propinas del fondo que se repartirá entre la lista de personas de este período.">?</button>
+            </div>
+            <div class="calc-dollar-input">
+              <input type="text" id="calcTotalTips" placeholder="1,200" inputmode="decimal">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="calc-label-row">
+              <label for="calcSplitMethod">Método de División</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Método de División" data-def="Por horas divide el fondo proporcionalmente al tiempo trabajado. Por puntos le permite asignar su propia ponderación, por ejemplo dando más peso a un bartender que a un ayudante de mesa.">?</button>
+            </div>
+            <div class="calc-formula-options" id="calcSplitMethod">
+              <button type="button" class="calc-formula-opt is-active" data-value="hours">Por Horas<span>Proporcional</span></button>
+              <button type="button" class="calc-formula-opt" data-value="points">Por Puntos<span>Ponderación personalizada</span></button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="calc-label-row">
+              <label>Lista de Personal</label>
+              <button type="button" class="calc-tip glossary-term" data-term="Lista de Personal" data-def="Agregue una fila por cada persona que comparte el fondo de propinas, con su nombre o rol y sus horas o puntos, y use Agregar Persona para agregar más filas.">?</button>
+            </div>
+            <div class="tip-roster-head">
+              <span>Nombre / Rol</span>
+              <span id="calcValueColumnHead">Horas</span>
+              <span></span>
+            </div>
+            <div class="tip-roster-body" id="calcRosterBody"></div>
+            <button type="button" class="tip-roster-add" id="calcAddRow">+ Agregar Persona</button>
+          </div>
+
+          <button type="button" class="btn calc-submit-btn" id="calcSubmitBtn">Dividir las Propinas &rarr;</button>
+        </div>
+
+        <div class="calc-result" id="calcResultCard">
+          <div class="calc-result-inner is-blurred" id="calcResultInner">
+            <span class="calc-result-label">Total de Propinas Divididas</span>
+            <span class="calc-result-amount" id="calcResultAmount">$0</span>
+            <p class="calc-result-estimate-note" id="calcReconcile">Esto es solo aritmética, basada en la lista de personal que ingresó.</p>
+            <div class="calc-result-breakdown" id="calcResultBody"></div>
+
+            <div class="calc-consult-row">
+              <h4>¿Cree Que su Fondo de Propinas No Está Bien?</h4>
+              <p>Si cree que su fondo de propinas excluye o incluye a las personas equivocadas, obtenga una evaluación gratuita de su situación.</p>
+              <a href="case-review-es.html">Evaluación Gratuita de su Caso &rarr;</a>
+            </div>
+          </div>
+
+          <div class="calc-result-loading" id="calcResultLoading" hidden>
+            <img src="assets/Animations/character_calculator.png" alt="" width="110" height="98">
+            <p>Dividiendo el fondo de propinas&hellip;</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARTICLE BODY ============ -->
+<section class="legal-body calc-article-body">
+  <div class="wrap">
+  <div class="legal-body-inner">
+
+    <h2>Cómo Funciona la Aritmética del Reparto de Propinas</h2>
+    <p>Un fondo de propinas combina las propinas recibidas durante un turno o período y las divide entre el personal involucrado, generalmente en proporción a las horas trabajadas, o mediante un sistema de puntos que pondera distintos roles de manera diferente. El cálculo en sí es sencillo, el total se divide en proporción a las horas o puntos de cada persona, pero hacerlo a mano para toda una lista de personal se vuelve tedioso rápidamente. Esta calculadora se encarga de la aritmética una vez que usted le indica cómo debe dividirse el fondo.</p>
+
+    <div class="key-points">
+      <h3>Puntos Clave</h3>
+      <ul>
+        <li>California generalmente permite el reparto de propinas entre empleados que brindan servicio directo, como meseros, ayudantes de mesa y bartenders.</li>
+        <li>Los dueños, gerentes y supervisores generalmente no pueden recibir una parte de las propinas del fondo en California.</li>
+        <li>Dividir por horas da una parte proporcional al tiempo trabajado; un sistema de puntos le permite ponderar los roles de manera diferente.</li>
+        <li>Esta herramienta no determina si la estructura específica de su fondo o la lista de participantes es legal, solo hace el cálculo una vez que usted decide.</li>
+      </ul>
+    </div>
+
+    <div class="article-cta-banner-outer">
+      <img src="assets/Pingle_HS_pointing.png" alt="" class="article-cta-banner-img" aria-hidden="true">
+      <div class="article-cta-banner article-cta-banner-with-img">
+        <div class="article-cta-banner-text">
+          <span class="article-cta-banner-eyebrow">¿Algo no se siente bien?</span>
+          <h3>Que revisen su fondo de propinas, gratis.</h3>
+          <p>Si cree que su fondo de propinas incluye a personas que no deberían estar, o excluye a quienes sí deberían, una evaluación gratuita de su caso puede ayudar.</p>
+        </div>
+        <a href="case-review-es.html" class="btn btn-gold">Evaluación Gratuita de su Caso</a>
+      </div>
+    </div>
+
+    <h2>Lo Que Esta Calculadora No Hace</h2>
+    <p>No determina quién tiene derecho legal a participar en un fondo de propinas, si su sistema de ponderación por puntos es justo, ni si las propinas se están manejando correctamente en primer lugar. Solo divide el total que usted ingresa entre la lista de personal y el método que elija.</p>
+
+    <div class="tldr" id="tldr">
+      <span class="tldr-label">Resumen</span>
+      <p>Ingrese el total de propinas, agregue a cada persona con sus horas o puntos, y esto divide el fondo proporcionalmente. California generalmente permite el reparto entre empleados de servicio pero no gerentes ni dueños; esta herramienta no verifica eso por usted.</p>
+    </div>
+
+    <div class="faq-block">
+      <h2>Preguntas Frecuentes</h2>
+
+      <div class="faq-block-item">
+        <h3>¿Quién puede participar en un fondo de propinas en California?</h3>
+        <p>Generalmente los empleados que atienden directamente a los clientes, como meseros, ayudantes de mesa y bartenders, no los dueños, gerentes ni supervisores.</p>
+      </div>
+
+      <div class="faq-block-item">
+        <h3>¿Esta calculadora verifica si un fondo de propinas es legal?</h3>
+        <p>No, solo hace el cálculo una vez que usted decide el método de división, no evalúa la legalidad.</p>
+      </div>
+
+      <div class="faq-block-item">
+        <h3>¿Cuál es la diferencia entre horas y puntos?</h3>
+        <p>Horas da una parte proporcional según el tiempo trabajado; puntos le permite ponderar los roles de manera diferente según los valores que usted asigne.</p>
+      </div>
+    </div>
+
+    <h3>Siga Leyendo</h3>
+    <div class="calc-links-grid">
+      <a href="commission-proration-calculator-es.html">
+        <span class="calc-links-tag">Calculadora</span>
+        <strong>Calculadora de Prorrateo de Comisiones y Bonos</strong>
+      </a>
+      <a href="take-home-pay-calculator-es.html">
+        <span class="calc-links-tag">Calculadora</span>
+        <strong>Estimador de Salario Neto</strong>
+      </a>
+      <a href="glossary-es.html">
+        <span class="calc-links-tag">Glosario</span>
+        <strong>Glosario de Derecho Laboral</strong>
+      </a>
+      <a href="case-review-es.html">
+        <span class="calc-links-tag">Siguiente Paso</span>
+        <strong>Inicie una Evaluación Gratuita de su Caso</strong>
+      </a>
+    </div>
+
+    <p class="article-disclaimer">Esta calculadora y este artículo brindan información educativa general y no constituyen asesoría legal individualizada, y pueden no reflejar la ley más reciente. Leer esta página no crea una relación abogado-cliente con el Despacho Legal de Corey A. Pingle. Algunas inquietudes laborales pueden resolverse directamente con un empleador, mientras que otras pueden requerir asesoría legal. Si desea orientación específica para su situación, <a href="contact-es.html">contacte a nuestra oficina</a> o <a href="case-review-es.html">inicie una evaluación gratuita de su caso</a>.</p>
+
+  </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA / CONTACT ============ -->
+<section class="final-cta" id="contact">
+  <div class="wrap final-cta-inner">
+    <div class="final-cta-copy">
+      <h2>¿Está listo para comunicarse?</h2>
+      <p>Contáctenos para conversar sobre su situación. Estamos aquí para responder sus preguntas, explicarle sus opciones y ayudarle a determinar la mejor manera de avanzar.</p>
+      <ul class="final-cta-points">
+        <li>Consulta gratuita</li>
+        <li>Garantía de sin ganar, no hay honorarios</li>
+        <li>Respuestas reales</li>
+      </ul>
+      <div class="cta-buttons">
+        <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="btn btn-gold">Consulta Gratuita</a>
+        <a href="contact-es.html" class="btn btn-outline-light">Contáctenos</a>
+      </div>
+    </div>
+
+    <div class="final-cta-form">
+      <h3>Obtenga su evaluación gratuita de caso</h3>
+      <p>Responda un breve cuestionario para ver cómo se encuentra su situación, sin costo, sin obligación.</p>
+      <a href="case-review-es.html" class="btn btn-gold">Evaluación Gratuita de su Caso</a>
+      <p class="final-cta-form-fine">Toma aproximadamente dos minutos.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<button type="button" class="back-to-top" id="backToTop" aria-label="Volver arriba">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 15l6-6 6 6"/></svg>
+</button>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><img src="assets/Pingle_Logo_Outline.png?v=2" alt="Pingle Law"></div>
+        <p class="footer-firm-name">Despacho Legal de Corey A. Pingle</p>
+        <p style="max-width:320px; color:rgba(255,255,255,0.6);">Despacho de derecho laboral que representa a empleados en el Condado de Orange, el Condado de Los Ángeles, el Condado de Riverside, el Condado de San Bernardino, el Condado de San Francisco, el Condado de Sacramento y en toda California.</p>
+        <form class="footer-newsletter" name="newsletter-es" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field">
+          <input type="hidden" name="form-name" value="newsletter-es">
+          <p style="position:absolute; left:-9999px;" aria-hidden="true">
+            <label>Deje este campo en blanco<input name="nl-bot-field" tabindex="-1" autocomplete="off"></label>
+          </p>
+          <label for="newsletterEmail" class="footer-newsletter-label">Suscríbase a nuestro boletín</label>
+          <div class="footer-newsletter-row">
+            <input id="newsletterEmail" type="email" name="email" placeholder="Correo electrónico" required autocomplete="email">
+            <button type="submit" aria-label="Suscribirse">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+          <p class="newsletter-status" style="font-size:12.5px; color:rgba(255,255,255,0.55); min-height:16px; margin-top:6px;"></p>
+        </form>
+      </div>
+      <div>
+        <h5>Contacto</h5>
+        <ul>
+          <li><a href="tel:+17145932306">(714) 593-2306</a></li>
+          <li><a href="assets/pingle-law-contact.vcf" download="Law Offices of Corey Pingle.vcf" class="footer-save-contact">Guardar Contacto</a></li>
+          <li><a href="mailto:info@pinglelaw.com">info@pinglelaw.com</a></li>
+        </ul>
+        <div class="footer-social" aria-label="Enlaces de redes sociales">
+          <a href="https://www.instagram.com/pinglelaw/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="https://www.facebook.com/pinglelaw/" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 8.5h2.5V5H14c-2.2 0-4 1.8-4 4v2.5H8V15h2v6h3v-6h2.5l.5-3.5H13V9c0-.6.4-1 1-1Z"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/in/corey-pingle-b777979a/?isSelfProfile=false" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="7.5" y1="10.5" x2="7.5" y2="16.5"/><circle cx="7.5" cy="7.3" r="0.9" fill="currentColor" stroke="none"/><path d="M11 16.5v-4c0-1.4 1-2.3 2.2-2.3 1.2 0 2 .9 2 2.3v4"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h5>Explorar</h5>
+        <ul>
+          <li><a href="faq-es.html">Preguntas Frecuentes</a></li>
+          <li><a href="rss-es.html">RSS</a></li>
+          <li><a href="about-es.html">Nosotros</a></li>
+          <li><a href="contact-es.html">Contacto</a></li>
+          <li><a href="glossary-es.html">Glosario</a></li>
+          <li><a href="practice-areas-es.html">Áreas de Práctica</a></li>
+          <li><a href="case-review-es.html">Evaluación Gratuita de su Caso</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Área de Servicio</h5>
+        <ul>
+          <li><a href="fountain-valley-es.html">Fountain Valley, CA</a></li>
+          <li><a href="beverly-hills-es.html">Beverly Hills, CA</a></li>
+          <li><a href="san-bernardino-es.html">San Bernardino, CA</a></li>
+          <li><a href="san-diego-es.html">San Diego, CA</a></li>
+          <li><a href="san-francisco-es.html">San Francisco, CA</a></li>
+          <li><a href="sacramento-es.html">Sacramento, CA</a></li>
+          <li>y todo California</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Despacho Legal de Corey A. Pingle. Todos los derechos reservados. Publicidad de abogado. Los resultados anteriores no garantizan un resultado similar.</span>
+      <div class="legal-links">
+        <a href="privacy-policy-es.html">Política de Privacidad</a>
+        <a href="terms-of-use-es.html">Términos de Uso</a>
+        <a href="disclaimer-es.html">Aviso Legal</a>
+        <a href="sitemap-es.html">Mapa del Sitio</a>
+      </div>
+    </div>
+    <div class="footer-credit">
+      <a href="https://ynqsolutions.com" target="_blank" rel="noopener">Creado por YNQ Solutions</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js?v=73" defer></script>
+<script src="js/tip-pooling-calculator.js?v=2" defer></script>
+<script src="js/a11y-widget.js?v=13" defer></script>
+</body>
+</html>
