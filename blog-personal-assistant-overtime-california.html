@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=block" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=268">
+<link rel="stylesheet" href="css/style.css?v=269">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -195,33 +195,16 @@
         <a href="case-review.html" class="btn btn-gold" style="width:100%; justify-content:center;">Free Case Review</a>
       </div>
 
-      <div class="blog-sidebar-card blog-calendly-card">
-        <h3>Book a Free Consultation</h3>
-        <p class="blog-calendly-sub">Pick a time that works for you, no cost, no obligation.</p>
-        <!-- Calendly inline widget begin -->
-        <div class="calendly-inline-widget" data-url="https://calendly.com/pinglelaw/30min" style="min-width:280px;height:1000px;"></div>
-        <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
-        <!-- Calendly inline widget end -->
-      </div>
-
-      <div class="sidebar-ad-slot" id="blogAdSlot">
-        <a href="all-tools-and-templates.html" class="sidebar-ad sidebar-ad-tools blog-sidebar-card is-active">
-          <span class="sidebar-ad-eyebrow">Free Resource</span>
-          <h3>Free Calculators &amp; Templates</h3>
-          <p>Estimate your pay, plan your PTO, or write a letter, free tools built for California employees.</p>
-          <span class="sidebar-ad-cta">Browse Tools <span aria-hidden="true">&rarr;</span></span>
-        </a>
-        <a href="resources.html#learn-play" class="sidebar-ad sidebar-ad-game">
-          <div class="sidebar-ad-game-screen">
-            <div class="retro-walker" aria-hidden="true"></div>
-          </div>
-          <div class="sidebar-ad-game-body">
-            <span class="sidebar-ad-game-tag">// LEVEL UP //</span>
-            <h3>Learn &amp; Play</h3>
-            <span class="sidebar-ad-game-btn">Press Start</span>
-          </div>
-        </a>
-      </div>
+      <a href="all-tools-and-templates.html" class="sidebar-ad-tools">
+        <span class="sidebar-ad-tools-glow" aria-hidden="true"></span>
+        <span class="sidebar-ad-tools-badge">100% Free</span>
+        <span class="sidebar-ad-tools-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M8 11h1M8 14.5h1M8 18h1M12 11h1M12 14.5h1M12 18h1M16 11h1M16 14.5h1M16 18h1"/></svg>
+        </span>
+        <h3>Free Calculators &amp; Templates</h3>
+        <p>Estimate your pay, plan your PTO, or write a letter in minutes, no cost, no signup.</p>
+        <span class="sidebar-ad-tools-cta">Explore All Tools <span class="sidebar-ad-tools-arrow" aria-hidden="true">&rarr;</span></span>
+      </a>
 
       <div class="blog-sidebar-card">
         <h3>Related Articles</h3>
@@ -370,20 +353,5 @@
 
 <script src="js/main.js?v=73" defer></script>
 <script src="js/a11y-widget.js?v=13" defer></script>
-<script>
-// Sidebar ad slot: cross-fades between the "free tools" promo and the
-// 8-bit "Learn & Play" promo every few seconds instead of showing both
-// at once in the same card-sized spot.
-(function(){
-  const ads = document.querySelectorAll('#blogAdSlot .sidebar-ad');
-  if(ads.length < 2) return;
-  let index = 0;
-  setInterval(() => {
-    ads[index].classList.remove('is-active');
-    index = (index + 1) % ads.length;
-    ads[index].classList.add('is-active');
-  }, 6000);
-})();
-</script>
 </body>
 </html>

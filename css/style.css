@@ -4489,48 +4489,103 @@ footer a:hover{ color:var(--white); }
   background-position:center;
 }
 
-/* ---- Blog sidebar ad slot: a plain "free tools" promo and an 8-bit
-   "Learn & Play" arcade promo, cross-fading in and out of the same
-   spot so the sidebar isn't showing two ads for one card's worth of
-   space. ---- */
-.sidebar-ad-slot{ position:relative; }
-.sidebar-ad{
-  display:none;
-  text-decoration:none;
-}
-.sidebar-ad.is-active{
+/* ---- Blog sidebar "free tools" ad: a bold gradient card meant to
+   catch the eye next to the plainer white sidebar cards around it.
+   Different blog posts can swap this for .sidebar-ad-game (the 8-bit
+   "Learn & Play" arcade promo below) instead of running both on one
+   page, so which promo shows varies post to post rather than
+   rotating within a single page. ---- */
+.sidebar-ad-tools{
+  position:relative;
   display:block;
-  animation:sidebarAdFadeIn .5s ease;
+  overflow:hidden;
+  min-height:280px;
+  padding:28px 24px 26px;
+  background:linear-gradient(150deg, var(--navy-950) 0%, var(--navy-800) 55%, #7a5a22 100%);
+  border-radius:16px;
+  text-align:left;
+  text-decoration:none;
+  box-shadow:0 24px 44px -22px rgba(10,15,39,0.55);
+  transition:transform .2s ease, box-shadow .2s ease;
 }
-@keyframes sidebarAdFadeIn{
-  from{ opacity:0; transform:translateY(6px); }
-  to{ opacity:1; transform:translateY(0); }
+.sidebar-ad-tools:hover{
+  transform:translateY(-4px);
+  box-shadow:0 30px 52px -20px rgba(10,15,39,0.6);
 }
-.sidebar-ad-tools{ text-align:left; }
-.sidebar-ad-eyebrow{
+.sidebar-ad-tools-glow{
+  position:absolute;
+  top:-60px; right:-60px;
+  width:200px; height:200px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(242,193,78,0.55) 0%, rgba(242,193,78,0) 70%);
+  pointer-events:none;
+  transition:transform .4s ease, opacity .4s ease;
+}
+.sidebar-ad-tools:hover .sidebar-ad-tools-glow{ transform:scale(1.25); opacity:0.9; }
+.sidebar-ad-tools-badge{
+  position:relative;
+  display:inline-block;
+  padding:5px 12px;
+  border-radius:999px;
+  background:rgba(242,193,78,0.16);
+  border:1px solid rgba(242,193,78,0.5);
   font-family:var(--font-cond);
   font-size:11px;
   font-weight:700;
   letter-spacing:0.06em;
   text-transform:uppercase;
-  color:var(--gold-500);
+  color:var(--gold-400);
 }
-.sidebar-ad-tools h3{ margin-top:6px; }
-.sidebar-ad-tools p{ margin-top:8px; font-size:13.5px; line-height:1.55; color:var(--ink-soft); }
-.sidebar-ad-cta{
+.sidebar-ad-tools-icon{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:56px;
+  height:56px;
+  margin-top:18px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.1);
+  color:var(--gold-400);
+  transition:transform .25s ease, background .25s ease;
+}
+.sidebar-ad-tools-icon svg{ width:28px; height:28px; }
+.sidebar-ad-tools:hover .sidebar-ad-tools-icon{ transform:rotate(-6deg) scale(1.08); background:rgba(255,255,255,0.16); }
+.sidebar-ad-tools h3{
+  position:relative;
+  margin-top:16px;
+  font-family:var(--font-display);
+  font-size:21px;
+  line-height:1.25;
+  color:var(--white);
+}
+.sidebar-ad-tools p{
+  position:relative;
+  margin-top:10px;
+  font-size:14px;
+  line-height:1.55;
+  color:rgba(255,255,255,0.72);
+}
+.sidebar-ad-tools-cta{
+  position:relative;
   display:inline-flex;
   align-items:center;
-  gap:6px;
-  margin-top:14px;
+  gap:8px;
+  margin-top:20px;
+  padding:11px 18px;
+  border-radius:999px;
+  background:var(--gold-500);
   font-family:var(--font-cond);
-  font-size:12px;
+  font-size:12.5px;
   font-weight:700;
   letter-spacing:0.04em;
   text-transform:uppercase;
   color:var(--navy-950);
-  transition:gap .18s ease, color .18s ease;
+  transition:background .2s ease, gap .2s ease;
 }
-.sidebar-ad-tools:hover .sidebar-ad-cta{ gap:10px; color:var(--gold-500); }
+.sidebar-ad-tools:hover .sidebar-ad-tools-cta{ background:var(--gold-400); gap:12px; }
+.sidebar-ad-tools-arrow{ transition:transform .2s ease; }
+.sidebar-ad-tools:hover .sidebar-ad-tools-arrow{ transform:translateX(2px); }
 
 .sidebar-ad-game{
   background:#2b1608;
