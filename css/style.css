@@ -2267,6 +2267,18 @@ footer a:hover{ color:var(--white); }
   outline:none;
   border-color:var(--gold-500);
 }
+/* .calc-slider (range inputs) supplies its own flat-bar track styling;
+   without this reset, a slider nested in a .form-row (as on the
+   meal/rest break calculator) inherits the text-input's white
+   background, border, radius, and padding on top of it, making the
+   track look boxed instead of matching the borderless bar used on
+   every other calculator's sliders. */
+.form-row input[type="range"]{
+  padding:0;
+  border:none;
+  border-radius:2px;
+  background:var(--paper-line);
+}
 .form-row input:disabled,
 .form-row select:disabled,
 .form-row textarea:disabled{
