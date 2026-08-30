@@ -481,29 +481,13 @@
   </div>
 </footer>
 
-<script>
-  (() => {
-    if(window.__bhldScript)return;window.__bhldScript=true;
-    const d=document,s=d.createElement("script");s.type="module";
-    s.src="https://w.behold.so/widget.js";setTimeout(()=>{d.head.append(s);},0);
-  })();
-</script>
+<script src="js/behold-widget.js?v=1" defer></script>
 <script src="js/main.js?v=74" defer></script>
 
 <script src="js/a11y-widget.js?v=14" defer></script>
 <!-- Netlify Identity: lets an admin invite/reset-password link that lands
      on the homepage complete login, then send them into /admin/. -->
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-<script>
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on("init", (user) => {
-      if (!user) {
-        window.netlifyIdentity.on("login", () => {
-          document.location.href = "/admin/";
-        });
-      }
-    });
-  }
-</script>
+<script src="js/netlify-identity-init.js?v=1" defer></script>
 </body>
 </html>
