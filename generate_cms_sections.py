@@ -18,11 +18,12 @@ admin/config.yml) — this script is what turns an edit there into the
 actual page content on the next build.
 """
 import json
+import os
 import re
 import sys
 from html import escape
 
-SITE_DIR = "/Users/yoon/Library/CloudStorage/Dropbox/Personal/Projects/Claude/Pingle Law Website"
+SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 TEAM_JSON = "content/team.json"
 SETTLEMENTS_JSON = "content/settlements.json"
@@ -129,7 +130,6 @@ def inject(filepath, pattern, rendered_items):
 
 
 def main():
-    import os
     os.chdir(SITE_DIR)
 
     with open(TEAM_JSON, encoding="utf-8") as f:
