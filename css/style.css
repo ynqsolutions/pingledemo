@@ -1021,22 +1021,23 @@ section{ padding:96px 0; }
   padding:9px 0;
 }
 .badge-slider{
-  overflow-x:auto;
-  overflow-y:hidden;
-  scrollbar-width:none;
-  cursor:grab;
-  touch-action:pan-x;
+  overflow:hidden;
   -webkit-mask-image:linear-gradient(to right, transparent 0, black 80px, black calc(100% - 80px), transparent 100%);
   mask-image:linear-gradient(to right, transparent 0, black 80px, black calc(100% - 80px), transparent 100%);
 }
-.badge-slider:active{ cursor:grabbing; }
-.badge-slider::-webkit-scrollbar{ display:none; }
+/* Pure-CSS marquee (same pattern as .ticker-track) instead of a JS
+   rAF loop driving scrollLeft: the JS version was unreliable on real
+   mobile browsers (rAF can stall/throttle in ways that leave scrollLeft
+   never advancing), where a CSS animation just keeps running. The HTML
+   duplicates the badge set once (8 slides = 2x the real 4), so -50% is
+   exactly one full loop. */
 .badge-slider-track{
   display:flex;
   align-items:center;
   gap:72px;
   width:max-content;
   padding:0 32px;
+  animation:badge-marquee 28s linear infinite;
 }
 .badge-slide{ flex:none; }
 .badge-slide img{
@@ -1048,6 +1049,17 @@ section{ padding:96px 0; }
   user-select:none;
 }
 .badge-slide:hover img{ filter:grayscale(0) opacity(1); }
+
+@keyframes badge-marquee{
+  from{ transform:translateX(0); }
+  to{ transform:translateX(-50%); }
+}
+@media (hover:hover){
+  .badge-slider:hover .badge-slider-track{ animation-play-state:paused; }
+}
+@media (prefers-reduced-motion: reduce){
+  .badge-slider-track{ animation:none; }
+}
 
 @media (max-width: 680px){
   .badge-slider-section{ padding:15px 0; }
@@ -2099,12 +2111,14 @@ footer a:hover{ color:var(--white); }
   width:100%;
   height:100%;
   transition:transform .6s cubic-bezier(.4,.1,.2,1);
+  -webkit-transform-style:preserve-3d;
   transform-style:preserve-3d;
 }
 .polaroid-flip.flipped .polaroid-flip-inner{ transform:rotateY(180deg); }
 .polaroid-face{
   position:absolute;
   inset:0;
+  -webkit-backface-visibility:hidden;
   backface-visibility:hidden;
 }
 .polaroid-face.polaroid-front img{
@@ -3493,12 +3507,14 @@ p.article-disclaimer{
   width:100%;
   height:100%;
   transition:transform .6s cubic-bezier(.4,.1,.2,1);
+  -webkit-transform-style:preserve-3d;
   transform-style:preserve-3d;
 }
 .settlement-tile.flipped .settlement-tile-inner{ transform:rotateY(180deg); }
 .settlement-face{
   position:absolute;
   inset:0;
+  -webkit-backface-visibility:hidden;
   backface-visibility:hidden;
   border-radius:12px;
   overflow:hidden;
@@ -5026,8 +5042,6 @@ p.article-disclaimer{
 }
 @media (max-width: 680px){
   .learn-play-section{ padding-top:64px; }
-  .retro-rider{ display:none; }
-  .learn-play-rider-track{ display:none; }
   .learn-play-card-screen-single{ height:280px; }
 }
 
@@ -5609,8 +5623,21 @@ p.article-disclaimer{
 @media (max-width: 860px){
   .calc-card{ padding:20px 22px 28px; }
   .calc-grid{ grid-template-columns:1fr; }
-  .calc-row-2, .calc-formula-options{ grid-template-columns:1fr; }
-  .calc-row-2-keep{ grid-template-columns:1.4fr 1fr; gap:8px; }
+  /* grid-auto-flow:column (set on .calc-row-2 for its desktop 2x2
+     layout) doesn't get undone just by collapsing to one column here —
+     with only 1 explicit column but 2 explicit rows still in force,
+     auto-placement keeps trying to fill column-first and spills every
+     field past the first two into a phantom second column instead of
+     stacking straight down. Resetting the flow to row is what actually
+     makes it stack. */
+  .calc-row-2, .calc-formula-options{ grid-template-columns:1fr; grid-auto-flow:row; }
+  /* minmax(0, Nfr) instead of plain Nfr: an fr track's implicit minimum
+     is auto (its content's width), not 0, so a <select> with a long
+     option like "Semimonthly" was forcing this column wider than its
+     1fr share and pushing the row past the card's edge at narrow
+     widths. minmax(0, ...) lets the track shrink to the fr split and
+     the select's own text truncate/wrap instead of blowing out the grid. */
+  .calc-row-2-keep{ grid-template-columns:minmax(0, 1.4fr) minmax(0, 1fr); gap:8px; }
   .calc-card-head-illustration{ width:120px; height:120px; }
   .calc-card-head-illustration img{ width:82px; height:82px; }
 }

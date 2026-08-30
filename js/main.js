@@ -463,58 +463,9 @@ document.querySelectorAll('.lang-toggle').forEach(toggle => {
   startAutoplay();
 })();
 
-// Trust badges slider: scrolls itself slowly and continuously, pauses on
-// hover, and can be dragged with a mouse or a finger. The track has the
-// badge set duplicated once in the HTML so the loop point at the halfway
-// mark is seamless.
-document.querySelectorAll('.badge-slider').forEach(slider => {
-  const track = slider.querySelector('.badge-slider-track');
-  if(!track) return;
-
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let paused = prefersReducedMotion;
-  let isDown = false;
-  let dragged = false;
-  let startX = 0;
-  let startScroll = 0;
-  let rafId = null;
-
-  function tick(){
-    if(!paused){
-      slider.scrollLeft += 0.5;
-      const halfway = track.scrollWidth / 2;
-      if(slider.scrollLeft >= halfway) slider.scrollLeft -= halfway;
-    }
-    rafId = requestAnimationFrame(tick);
-  }
-  rafId = requestAnimationFrame(tick);
-
-  slider.addEventListener('mouseenter', () => { paused = true; });
-  slider.addEventListener('mouseleave', () => { if(!isDown) paused = prefersReducedMotion; });
-
-  slider.addEventListener('pointerdown', (e) => {
-    isDown = true;
-    dragged = false;
-    paused = true;
-    startX = e.clientX;
-    startScroll = slider.scrollLeft;
-    slider.setPointerCapture(e.pointerId);
-  });
-  slider.addEventListener('pointermove', (e) => {
-    if(!isDown) return;
-    const delta = e.clientX - startX;
-    if(Math.abs(delta) > 4) dragged = true;
-    slider.scrollLeft = startScroll - delta;
-  });
-  function endDrag(){
-    if(!isDown) return;
-    isDown = false;
-    paused = prefersReducedMotion;
-  }
-  slider.addEventListener('pointerup', endDrag);
-  slider.addEventListener('pointercancel', endDrag);
-  slider.addEventListener('click', (e) => { if(dragged) e.preventDefault(); }, true);
-});
+// Trust badges slider now animates via pure CSS (@keyframes badge-marquee
+// in style.css) instead of a JS rAF loop driving scrollLeft — the JS
+// version was unreliable on real mobile browsers.
 
 // FAQ accordion (used on faq.html)
 document.querySelectorAll('.faq-item').forEach(item => {
