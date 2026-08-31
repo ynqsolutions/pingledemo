@@ -6,11 +6,30 @@ const siteHeader = document.querySelector('.site-header');
 // The mobile nav panel drops down from below the header rather than
 // covering it, so its offset needs to track the header's real rendered
 // height (fonts/line-height can shift it slightly) instead of a guess.
+// A single measurement at script-parse time isn't reliable on iOS
+// Safari: the header can still be a touch shorter than its final size
+// (web fonts not yet swapped in) at that point, and Safari's own
+// collapsing/expanding address bar changes the visible viewport
+// without always firing a plain 'resize' - both left the mobile nav
+// (and the burger icon's transform, painted at that same moment)
+// looking subtly misaligned until something forced a fresh layout,
+// like closing and reopening the tab. Re-measuring after full load,
+// once web fonts are ready, on orientation change, and on
+// visualViewport's own resize event (the iOS-specific one that fires
+// when the address bar shows/hides) covers all of those triggers.
 function setHeaderHeightVar(){
   if(siteHeader) document.documentElement.style.setProperty('--header-h', siteHeader.offsetHeight + 'px');
 }
 setHeaderHeightVar();
 window.addEventListener('resize', setHeaderHeightVar);
+window.addEventListener('orientationchange', setHeaderHeightVar);
+window.addEventListener('load', setHeaderHeightVar);
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(setHeaderHeightVar);
+}
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', setHeaderHeightVar);
+}
 
 // overflow:hidden alone doesn't reliably lock background scroll on iOS
 // Safari — it can still rubber-band/scroll behind a position:fixed

@@ -176,10 +176,16 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .burger span{
   display:block; height:2px; background:var(--white); width:100%;
   transition:transform .25s ease, opacity .2s ease;
+  /* Forces its own GPU compositing layer from the start instead of on
+     first transform, which is what iOS Safari sometimes botches the
+     paint of (stray fragments left flanking the X) right after page
+     load, before the compositor has "warmed up" for this element. */
+  transform:translateZ(0);
+  backface-visibility:hidden;
 }
-.burger[aria-expanded="true"] span:nth-child(1){ transform:translateY(8px) rotate(45deg); }
+.burger[aria-expanded="true"] span:nth-child(1){ transform:translateY(8px) rotate(45deg) translateZ(0); }
 .burger[aria-expanded="true"] span:nth-child(2){ opacity:0; }
-.burger[aria-expanded="true"] span:nth-child(3){ transform:translateY(-8px) rotate(-45deg); }
+.burger[aria-expanded="true"] span:nth-child(3){ transform:translateY(-8px) rotate(-45deg) translateZ(0); }
 
 .mobile-nav{
   position:fixed;
@@ -2283,7 +2289,7 @@ footer a:hover{ color:var(--white); }
   border-radius:9px;
   background:var(--white);
   font-family:var(--font-body);
-  font-size:15px;
+  font-size:16px;
   color:var(--ink);
   appearance:none;
   transition:border-color .18s ease;
@@ -5299,7 +5305,7 @@ p.article-disclaimer{
 .calc-inputs input,
 .calc-inputs select,
 .calc-inputs textarea{
-  font-size:13.5px;
+  font-size:16px;
   padding:11px 14px;
 }
 .calc-inputs .calc-dollar-input input{ padding-left:24px; }

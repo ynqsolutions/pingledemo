@@ -18,7 +18,7 @@
   line-height:1.1;
 }
 .cr-hero-sub{
-  font-size:15px;
+  font-size:16px;
   color:var(--ink-soft);
 }
 
@@ -118,7 +118,7 @@
   border-radius:10px;
   background:var(--white);
   font-family:var(--font-body);
-  font-size:15px;
+  font-size:16px;
   font-weight:500;
   color:var(--ink);
   text-align:left;
@@ -158,7 +158,7 @@
 .cr-select select{
   width:100%;
   font-family:var(--font-body);
-  font-size:15px;
+  font-size:16px;
   padding:13px 14px;
   border:1.5px solid var(--paper-line);
   border-radius:9px;
@@ -185,7 +185,7 @@
 .cr-textarea textarea{
   width:100%;
   font-family:var(--font-body);
-  font-size:15px;
+  font-size:16px;
   padding:13px 14px;
   border:1.5px solid var(--paper-line);
   border-radius:9px;
@@ -207,7 +207,7 @@
 .cr-other-field input{
   width:100%;
   font-family:var(--font-body);
-  font-size:15px;
+  font-size:16px;
   padding:13px 14px;
   border:1.5px solid var(--paper-line);
   border-radius:9px;
@@ -233,7 +233,7 @@
 .cr-fields input,
 .cr-fields select{
   font-family:var(--font-body);
-  font-size:15px;
+  font-size:16px;
   padding:13px 14px;
   border:1.5px solid var(--paper-line);
   border-radius:9px;

@@ -63,15 +63,23 @@
     }
   }
 
-  // Switching steps swaps content height, which can otherwise yank the page
-  // up or down. Hold the visitor's scroll position steady across the swap
-  // instead of auto-scrolling anywhere.
+  // Switching steps swaps content height. Holding scroll position steady
+  // sounds safer than moving the page, but on mobile it backfires: a step
+  // reached from a much taller one (or from submitting on step 10) can
+  // leave the visitor scrolled past the new step's content entirely,
+  // looking blank until they scroll back up to find it. Instead, scroll
+  // the card's top to sit just under the sticky header on every step
+  // change, so the new question is always what's actually on screen.
+  function scrollCardIntoView(){
+    const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 61;
+    const top = card.getBoundingClientRect().top + window.scrollY - headerH - 16;
+    window.scrollTo({ top: Math.max(top, 0), behavior: 'instant' });
+  }
   function showStep(target){
-    const scrollY = window.scrollY;
     steps.forEach(s => s.classList.toggle('active', s.dataset.step === String(target)));
     current = target;
     updateProgress();
-    window.scrollTo(0, scrollY);
+    scrollCardIntoView();
   }
 
   // ---- Option tile handling (single + multi select) ----
