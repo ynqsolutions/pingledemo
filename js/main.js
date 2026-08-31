@@ -1070,17 +1070,33 @@ if(backToTop){
   });
 })();
 
-// Footer newsletter form: client-side-only confirmation message (the actual
-// submission still goes to Netlify Forms via the standard POST/data-netlify
-// mechanism; this just swaps in a friendly status line instead of a full
-// page reload). Moved here from an inline onsubmit="" attribute so the CSP
-// script-src can drop 'unsafe-inline'.
+// Footer newsletter form: submits to Netlify Forms via fetch() (so we can
+// swap in a friendly inline status line instead of a full page reload)
+// rather than letting the browser do a native POST/reload. Moved here from
+// an inline onsubmit="" attribute so the CSP script-src can drop
+// 'unsafe-inline'.
+function encodeFormData(data){
+  return Object.keys(data)
+    .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+    .join('&');
+}
 document.querySelectorAll('.footer-newsletter').forEach(form => {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const status = form.querySelector('.newsletter-status');
-    if(status) status.textContent = 'Thanks for subscribing.';
-    form.reset();
+    const data = Object.fromEntries(new FormData(form).entries());
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: encodeFormData(data)
+    })
+      .then(() => {
+        if(status) status.textContent = 'Thanks for subscribing.';
+        form.reset();
+      })
+      .catch(() => {
+        if(status) status.textContent = 'Something went wrong. Please try again.';
+      });
   });
 });
 
@@ -1091,8 +1107,25 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const status = form.querySelector('.contact-form-status');
-    if(status) status.textContent = 'Thanks, your message has been sent.';
-    form.reset();
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const data = Object.fromEntries(new FormData(form).entries());
+    if(submitBtn) submitBtn.setAttribute('disabled', 'true');
+    if(status) status.textContent = 'Sending...';
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: encodeFormData(data)
+    })
+      .then(() => {
+        if(status) status.textContent = 'Thanks, your message has been sent.';
+        form.reset();
+      })
+      .catch(() => {
+        if(status) status.textContent = 'Something went wrong. Please try again or call us directly.';
+      })
+      .finally(() => {
+        if(submitBtn) submitBtn.removeAttribute('disabled');
+      });
   });
 })();
 
