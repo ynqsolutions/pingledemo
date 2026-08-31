@@ -369,7 +369,6 @@
           <p>Someone from our office will reach out to ${escapeHtml(answers.phone)} or ${escapeHtml(answers.email)} shortly to schedule your free consultation.</p>
           <div class="cr-result-actions">
             <a href="index.html" class="btn btn-navy">Back to Home</a>
-            <a href="tel:+17145932306" class="btn btn-gold">Call (714) 593-2306</a>
           </div>
         `;
       })
