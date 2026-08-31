@@ -196,12 +196,18 @@
     });
   });
 
-  // ---- Step 10 contact fields: gold up the button once all three are filled ----
+  // ---- Step 10 contact fields: gold up the button once all four are filled ----
   const seeResultsBtn = document.getElementById('crSeeResults');
-  ['crName', 'crPhone', 'crEmail'].forEach(id => {
+  const CR_STEP10_FIELDS = ['crName', 'crPhone', 'crEmail', 'crBestTime'];
+  function step10Ready(){
+    return CR_STEP10_FIELDS.every(fid => document.getElementById(fid).value.trim());
+  }
+  CR_STEP10_FIELDS.forEach(id => {
     document.getElementById(id).addEventListener('input', () => {
-      const ready = ['crName', 'crPhone', 'crEmail'].every(fid => document.getElementById(fid).value.trim());
-      seeResultsBtn.classList.toggle('is-ready', ready);
+      seeResultsBtn.classList.toggle('is-ready', step10Ready());
+    });
+    document.getElementById(id).addEventListener('change', () => {
+      seeResultsBtn.classList.toggle('is-ready', step10Ready());
     });
   });
 
@@ -212,8 +218,10 @@
     const name = document.getElementById('crName').value.trim();
     const phone = document.getElementById('crPhone').value.trim();
     const email = document.getElementById('crEmail').value.trim();
+    const bestTime = document.getElementById('crBestTime').value;
+    const phoneDigits = phone.replace(/\D/g, '');
 
-    if(!name || phone.length < 12 || !email){
+    if(!name || phoneDigits.length !== 10 || !email || !bestTime){
       err.classList.add('show');
       return;
     }
@@ -221,7 +229,7 @@
     answers.fullName = name;
     answers.phone = phone;
     answers.email = email;
-    answers.bestTimeToCall = document.getElementById('crBestTime').value;
+    answers.bestTimeToCall = bestTime;
 
     renderResult();
     showStep('result');
