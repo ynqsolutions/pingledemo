@@ -336,7 +336,7 @@
   // bottom under nine other fields.
   function priorityLabel(outcome){
     return outcome === 'strong'
-      ? 'HIGH PRIORITY - Strong Case'
+      ? '🔥 HIGH PRIORITY - Strong Case'
       : 'Standard Priority - Needs Attorney Review';
   }
 
