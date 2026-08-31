@@ -12,15 +12,34 @@ function setHeaderHeightVar(){
 setHeaderHeightVar();
 window.addEventListener('resize', setHeaderHeightVar);
 
+// overflow:hidden alone doesn't reliably lock background scroll on iOS
+// Safari — it can still rubber-band/scroll behind a position:fixed
+// overlay via touch, which is what made the mobile nav look
+// "positioned incorrectly" (the page underneath had silently scrolled
+// while the nav was open, so closing it left everything offset).
+// Freezing the body at its current scroll position with position:fixed
+// is the standard fix: the page truly can't move while the nav is
+// open, and closeNav restores the exact scroll position afterward.
 function openNav(){
   mobileNav.classList.add('open');
   burgerBtn.setAttribute('aria-expanded','true');
-  document.body.style.overflow = 'hidden';
+  const scrollY = window.scrollY;
+  document.body.dataset.scrollLockY = String(scrollY);
+  document.body.style.position = 'fixed';
+  document.body.style.top = -scrollY + 'px';
+  document.body.style.left = '0';
+  document.body.style.right = '0';
 }
 function closeNav(){
   mobileNav.classList.remove('open');
   burgerBtn.setAttribute('aria-expanded','false');
-  document.body.style.overflow = '';
+  const scrollY = parseInt(document.body.dataset.scrollLockY || '0', 10);
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  delete document.body.dataset.scrollLockY;
+  window.scrollTo(0, scrollY);
 }
 function toggleNav(){
   if(burgerBtn.getAttribute('aria-expanded') === 'true') closeNav();
