@@ -321,6 +321,17 @@
       .join('&');
   }
 
+  // Surfaces computeOutcome()'s already-existing qualification signal as a
+  // plain-language priority label, and put up front (see field order below
+  // and in the matching hidden schema form in the HTML) so it's the first
+  // thing visible in Netlify's notification email instead of buried at the
+  // bottom under nine other fields.
+  function priorityLabel(outcome){
+    return outcome === 'strong'
+      ? 'HIGH PRIORITY - Strong Case'
+      : 'Standard Priority - Needs Attorney Review';
+  }
+
   function submitCaseReview(e){
     const btn = e.currentTarget;
     const resultContent = document.getElementById('crResultContent');
@@ -329,6 +340,11 @@
 
     const payload = {
       'form-name': 'case-review',
+      priority: priorityLabel(answers.outcome),
+      fullName: answers.fullName,
+      phone: answers.phone,
+      email: answers.email,
+      bestTimeToCall: answers.bestTimeToCall,
       whatHappened: answers.whatHappened.join('; '),
       stillEmployed: answers.stillEmployed,
       incidentTiming: answers.incidentTiming,
@@ -338,10 +354,6 @@
       workingWithAttorney: answers.workingWithAttorney,
       documentation: answers.documentation.join('; '),
       anythingElse: answers.anythingElse,
-      fullName: answers.fullName,
-      phone: answers.phone,
-      email: answers.email,
-      bestTimeToCall: answers.bestTimeToCall,
       outcome: answers.outcome
     };
 
