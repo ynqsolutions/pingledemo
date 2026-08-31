@@ -81,6 +81,127 @@
   to = "/"
   status = 301
 
+# ---------------------------------------------------------------------------
+# WordPress migration (pinglelaw.com moved here from a WordPress site on
+# IONOS). 301s, not 302s, on purpose - these tell search engines the move
+# is permanent so they transfer the old URLs' ranking/backlink signal to
+# the new ones, instead of treating the old and new URLs as two separate
+# pages. Built from the WordPress site's own wp-sitemap-*.xml files.
+# ---------------------------------------------------------------------------
+[[redirects]]
+  from = "/about/"
+  to = "/about.html"
+  status = 301
+[[redirects]]
+  from = "/about/corey-pingle/"
+  to = "/about.html"
+  status = 301
+[[redirects]]
+  from = "/about/matthew-briggs/"
+  to = "/about.html"
+  status = 301
+[[redirects]]
+  from = "/about/anna-poghosyan/"
+  to = "/about.html"
+  status = 301
+[[redirects]]
+  from = "/services/"
+  to = "/practice-areas.html"
+  status = 301
+[[redirects]]
+  from = "/services/employment-law/"
+  to = "/practice-areas.html"
+  status = 301
+# Personal injury and workplace injury claims are no longer a practice
+# area on the new site (intentional repositioning to employment law
+# only), so these send to the current practice-area overview rather
+# than 404ing outright.
+[[redirects]]
+  from = "/services/personal-injury-claims/"
+  to = "/practice-areas.html"
+  status = 301
+[[redirects]]
+  from = "/services/workplace-injuries/"
+  to = "/practice-areas.html"
+  status = 301
+[[redirects]]
+  from = "/practice-areas/"
+  to = "/practice-areas.html"
+  status = 301
+[[redirects]]
+  from = "/testimonials/"
+  to = "/results-and-testimonials.html"
+  status = 301
+[[redirects]]
+  from = "/contact-us/"
+  to = "/contact.html"
+  status = 301
+[[redirects]]
+  from = "/resources/"
+  to = "/resources.html"
+  status = 301
+[[redirects]]
+  from = "/legal-glossary/"
+  to = "/glossary.html"
+  status = 301
+[[redirects]]
+  from = "/legal/"
+  to = "/disclaimer.html"
+  status = 301
+[[redirects]]
+  from = "/privacy-policy/"
+  to = "/privacy-policy.html"
+  status = 301
+[[redirects]]
+  from = "/terms-of-use/"
+  to = "/terms-of-use.html"
+  status = 301
+[[redirects]]
+  from = "/client-intake/"
+  to = "/case-review.html"
+  status = 301
+[[redirects]]
+  from = "/coming-soon/"
+  to = "/"
+  status = 301
+
+# Blog posts: redirected to the closest matching article on the new site
+# where one exists, otherwise to the resources hub (mediation/car-accident
+# topics aren't covered on the employment-law-only new site).
+[[redirects]]
+  from = "/am-i-being-sexually-harassed-in-the-workplace/"
+  to = "/blog-sexual-harassment-workplace-behavior.html"
+  status = 301
+[[redirects]]
+  from = "/what-is-wage-theft-updated-december-2025/"
+  to = "/blog-wage-theft-signs-california.html"
+  status = 301
+[[redirects]]
+  from = "/can-you-negotiate-your-severance/"
+  to = "/blog-severance-offer-too-low-negotiate.html"
+  status = 301
+[[redirects]]
+  from = "/what-are-my-rights-as-an-employee-in-california-updated-december-2025/"
+  to = "/practice-areas.html"
+  status = 301
+[[redirects]]
+  from = "/how-is-mediation-useful-in-family-law-cases/"
+  to = "/resources.html"
+  status = 301
+[[redirects]]
+  from = "/what-to-do-if-you-get-into-a-car-accident/"
+  to = "/resources.html"
+  status = 301
+
+# /casestudy/* entries are generic WordPress theme demo content (lease
+# agreements, patent claims, divorce settlements, etc.) unrelated to this
+# firm's actual practice - sent home as a safe catch-all rather than
+# mapped individually since they carry no real topical match here.
+[[redirects]]
+  from = "/casestudy/*"
+  to = "/"
+  status = 301
+
 [[redirects]]
   from = "/*"
   to = "/404.html"
