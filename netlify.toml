@@ -25,6 +25,15 @@
 # its global CDN, so these are the only origin-level controls we need — no
 # server config to manage as traffic scales.
 # ---------------------------------------------------------------------------
+# The sha256 hash in script-src (after fcdn.answerly.io) allowlists one
+# specific inline <script> that the FacePop/Answerly widget bootstrap
+# injects itself (its actual positioning/config logic — the loader
+# tag we embed only fetches that bundle, it doesn't run inline code
+# directly). If Answerly ever changes that generated script's content,
+# this hash will stop matching and the widget will silently fail
+# again the same way it did before this was added; the fix is to
+# reload the site with devtools open, copy the new hash from the CSP
+# violation console error, and swap it in here.
 [[headers]]
   for = "/*"
   [headers.values]
@@ -33,7 +42,7 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://*.behold.so https://assets.calendly.com https://identity.netlify.com https://fcdn.answerly.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.behold.so https://assets.calendly.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://share.facepop.io https://*.facepop.io https://*.answerly.io https://calendly.com https://*.calendly.com; frame-ancestors 'self'; connect-src 'self' https://*.behold.so https://calendly.com https://*.calendly.com https://identity.netlify.com https://*.answerly.io https://*.facepop.io; base-uri 'self'; form-action 'self'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://*.behold.so https://assets.calendly.com https://identity.netlify.com https://fcdn.answerly.io 'sha256-ulnJGbfinZmzoFFp4++LnhmbbDhvd6i2W5hQMYLSmS0='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.behold.so https://assets.calendly.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://share.facepop.io https://*.facepop.io https://*.answerly.io https://calendly.com https://*.calendly.com; frame-ancestors 'self'; connect-src 'self' https://*.behold.so https://calendly.com https://*.calendly.com https://identity.netlify.com https://*.answerly.io https://*.facepop.io; base-uri 'self'; form-action 'self'; object-src 'none'"
 
 # /admin (the Decap CMS editor) needs a much looser CSP than the rest of the
 # site — it loads its editor bundle from a CDN, talks to Netlify's Identity
