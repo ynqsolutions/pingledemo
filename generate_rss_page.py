@@ -37,8 +37,10 @@ SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_FILE = "rss.html"
 PAGE_FILE_PATTERN = "rss-page-{n}.html"
 ARCHIVE_FILE = "content/rss-archive.json"
-CSS_VERSION = "278"
-JS_VERSION = "73"
+CSS_VERSION = "281"
+JS_VERSION = "74"
+A11Y_CSS_VERSION = "10"
+A11Y_JS_VERSION = "14"
 FETCH_TIMEOUT = 12
 USER_AGENT = "PingleLawSite/1.0 (+https://www.pinglelaw.com)"
 # Keeps each page fast and gives search engines more distinct, indexable
@@ -97,7 +99,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
-<link rel="stylesheet" href="css/a11y-widget.css?v=9">
+<link rel="stylesheet" href="css/a11y-widget.css?v={a11y_css_v}">
 {jsonld}</head>
 <body>
 
@@ -258,7 +260,14 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 </footer>
 
 <script src="js/main.js?v={js_v}" defer></script>
-<script src="js/a11y-widget.js?v=13" defer></script>
+<script src="js/a11y-widget.js?v={a11y_js_v}" defer></script>
+<script src="js/facepop-widget-position.js?v=1" defer></script>
+<script
+    id="bd0ccebf-d2d3-4734-b7a4-332e39a9278d"
+    data-company-id="3674edbd-9075-4f75-b7aa-4808b9b3777a"
+    data-product-name="FacePop"
+    data-product-iframe="create"
+    src="https://fcdn.answerly.io/iframe.product.js"></script>
 </body>
 </html>
 """
@@ -555,6 +564,8 @@ def main():
         page = PAGE_TEMPLATE.format(
             css_v=CSS_VERSION,
             js_v=JS_VERSION,
+            a11y_css_v=A11Y_CSS_VERSION,
+            a11y_js_v=A11Y_JS_VERSION,
             feed_html=feed_html,
             jsonld=jsonld,
             title_suffix=title_suffix,
