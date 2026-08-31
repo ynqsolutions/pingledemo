@@ -1,48 +1,42 @@
-// The Answerly/FacePop widget script (fcdn.answerly.io/iframe.product.js)
-// injects its own floating iframe directly into <body> with inline
-// fixed positioning we don't control from the embed code itself. On
-// mobile, the mobile-sticky-cta bar (Call Now / Free Consultation) is
-// pinned to the bottom of the screen, so the widget's default
-// bottom-right placement would sit underneath/behind it. This nudges
-// the widget's iframe up by the sticky bar's actual rendered height
-// whenever it's visible, and re-checks on resize/orientation change
-// and whenever the widget itself re-renders.
+// The Answerly/FacePop consultation widget doesn't work under a strict
+// Content-Security-Policy (its bootstrap script chains several more
+// inline <script>s and pulls fonts/video from vendor domains we can't
+// practically allowlist one at a time), so instead of embedding its
+// script directly on every page, this creates a small fixed-position
+// iframe pointing at facepop-widget-frame.html, which carries its own
+// relaxed CSP scoped to just that one sandboxed document (see
+// netlify.toml). Real page content and its strict CSP are unaffected.
 (function(){
   const MOBILE_BREAKPOINT = 680;
-  let widgetFrame = null;
+  const WIDGET_WIDTH = 340;
+  const WIDGET_HEIGHT = 620;
+  const EDGE_GAP = 16;
 
-  function findWidgetFrame(){
-    if(widgetFrame && document.body.contains(widgetFrame)) return widgetFrame;
-    const frames = Array.from(document.querySelectorAll('body > iframe'));
-    widgetFrame = frames.find(f => {
-      if(f.id === 'netlify-identity-widget') return false;
-      if(f.closest('#heroVideoFrame')) return false;
-      const src = f.getAttribute('src') || '';
-      return src.includes('facepop.io') || src.includes('answerly.io') || src === '';
-    }) || null;
-    return widgetFrame;
-  }
+  const frame = document.createElement('iframe');
+  frame.src = 'facepop-widget-frame.html';
+  frame.title = 'Consultation widget';
+  frame.setAttribute('scrolling', 'no');
+  frame.style.position = 'fixed';
+  frame.style.right = EDGE_GAP + 'px';
+  frame.style.width = WIDGET_WIDTH + 'px';
+  frame.style.height = WIDGET_HEIGHT + 'px';
+  frame.style.maxWidth = 'calc(100vw - ' + (EDGE_GAP * 2) + 'px)';
+  frame.style.border = 'none';
+  frame.style.background = 'transparent';
+  frame.style.zIndex = '130';
+  frame.style.colorScheme = 'normal';
 
   function reposition(){
-    const frame = findWidgetFrame();
-    if(!frame) return;
-
     const stickyCta = document.querySelector('.mobile-sticky-cta');
     const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
     const stickyVisible = isMobile && stickyCta && getComputedStyle(stickyCta).display !== 'none';
-
-    if(stickyVisible){
-      const clearance = stickyCta.getBoundingClientRect().height + 12;
-      frame.style.setProperty('bottom', clearance + 'px', 'important');
-    } else {
-      frame.style.removeProperty('bottom');
-    }
+    const clearance = stickyVisible ? stickyCta.getBoundingClientRect().height + EDGE_GAP : EDGE_GAP;
+    frame.style.bottom = clearance + 'px';
   }
-
-  const observer = new MutationObserver(reposition);
-  observer.observe(document.body, { childList: true });
 
   window.addEventListener('resize', reposition);
   window.addEventListener('orientationchange', reposition);
   reposition();
+
+  document.body.appendChild(frame);
 })();
