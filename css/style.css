@@ -1060,16 +1060,19 @@ section{ padding:96px 0; }
 /* Pure-CSS marquee (same pattern as .ticker-track) instead of a JS
    rAF loop driving scrollLeft: the JS version was unreliable on real
    mobile browsers (rAF can stall/throttle in ways that leave scrollLeft
-   never advancing), where a CSS animation just keeps running. The HTML
-   duplicates the badge set once (8 slides = 2x the real 4), so -50% is
-   exactly one full loop. */
+   never advancing), where a CSS animation just keeps running. The 4
+   real badges are repeated 4x per half (16 slides), then that half is
+   duplicated once more (32 slides total) so -50% is exactly one full
+   loop. Repeating within each half (not just doubling the bare 4-badge
+   set) keeps the track wider than any real viewport, so there's never
+   a gap where the strip runs out of content before the loop wraps. */
 .badge-slider-track{
   display:flex;
   align-items:center;
   gap:72px;
   width:max-content;
   padding:0 32px;
-  animation:badge-marquee 28s linear infinite;
+  animation:badge-marquee 112s linear infinite;
 }
 .badge-slide{ flex:none; }
 .badge-slide img{
