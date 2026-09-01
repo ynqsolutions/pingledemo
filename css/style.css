@@ -2408,7 +2408,7 @@ footer a:hover{ color:var(--white); }
 .service-area-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:0 10px;
+  gap:0 60px;
   align-items:center;
 }
 .service-area-copy{ padding-left:100px; }
