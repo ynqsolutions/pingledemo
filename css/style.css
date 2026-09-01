@@ -459,12 +459,38 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   background:var(--navy-950);
   box-shadow:inset 0 0 0 1px rgba(201,162,79,0.25);
 }
-.video-frame iframe{
+.video-frame iframe, .video-frame video{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
   border:none;
+  object-fit:cover;
+}
+.hero-video-controls{
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  z-index:4;
+  display:flex;
+  gap:8px;
+}
+.hero-video-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  border:none;
+  background:rgba(10,15,30,0.55);
+  color:var(--white);
+  cursor:pointer;
+  backdrop-filter:blur(2px);
+  transition:background .2s ease;
+}
+.hero-video-btn:hover, .hero-video-btn:focus-visible{
+  background:rgba(10,15,30,0.8);
 }
 .video-card .snap-footer{
   padding:12px 6px 4px;

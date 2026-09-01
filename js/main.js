@@ -1175,3 +1175,42 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   }
 })();
 
+// Hero video controls: play/pause + mute/unmute toggles. State always
+// resets to the default (playing, muted) on each page load/visit.
+(function(){
+  const frame = document.getElementById('heroVideoFrame');
+  if(!frame) return;
+  const video = frame.querySelector('.hero-video');
+  const playBtn = frame.querySelector('.hero-video-play');
+  const muteBtn = frame.querySelector('.hero-video-mute');
+  if(!video || !playBtn || !muteBtn) return;
+
+  playBtn.addEventListener('click', function(){
+    if(video.paused){
+      video.play();
+    } else {
+      video.pause();
+    }
+  });
+  video.addEventListener('play', function(){
+    playBtn.querySelector('.icon-pause').style.display = '';
+    playBtn.querySelector('.icon-play').style.display = 'none';
+    playBtn.setAttribute('aria-label', 'Pause video');
+    playBtn.setAttribute('aria-pressed', 'false');
+  });
+  video.addEventListener('pause', function(){
+    playBtn.querySelector('.icon-pause').style.display = 'none';
+    playBtn.querySelector('.icon-play').style.display = '';
+    playBtn.setAttribute('aria-label', 'Play video');
+    playBtn.setAttribute('aria-pressed', 'true');
+  });
+
+  muteBtn.addEventListener('click', function(){
+    video.muted = !video.muted;
+    muteBtn.querySelector('.icon-muted').style.display = video.muted ? '' : 'none';
+    muteBtn.querySelector('.icon-unmuted').style.display = video.muted ? 'none' : '';
+    muteBtn.setAttribute('aria-label', video.muted ? 'Unmute video' : 'Mute video');
+    muteBtn.setAttribute('aria-pressed', String(video.muted));
+  });
+})();
+
