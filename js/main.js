@@ -302,10 +302,13 @@ function initSettlementFlip(grid){
   });
 
   // Re-check once newly revealed tiles (via the "View More Results" button)
-  // actually have real layout, since a hidden tile measures as zero-size.
-  // Only react to the "settlement-hidden" class toggle itself, since this
-  // same observer would otherwise also catch (and loop on) the
-  // settlement-tight-fit / flipped classes it and the click handler set.
+  // actually have real layout, since a hidden tile measures as zero-size —
+  // pinHeights() ran once at init while these tiles were still
+  // display:none, leaving their height pinned at 0px forever unless
+  // re-measured now that they're actually visible. Only react to the
+  // "settlement-hidden" class toggle itself, since this same observer
+  // would otherwise also catch (and loop on) the settlement-tight-fit /
+  // flipped classes it and the click handler set.
   if(grid && window.MutationObserver){
     const observer = new MutationObserver((mutations) => {
       const revealChanged = mutations.some(m => {
@@ -313,7 +316,15 @@ function initSettlementFlip(grid){
         const isNow = m.target.classList.contains('settlement-hidden');
         return was !== isNow;
       });
-      if(revealChanged) requestAnimationFrame(fitAmountAgainstPhoto);
+      if(revealChanged){
+        // Called directly rather than via requestAnimationFrame: by the
+        // time this callback runs the class/display change has already
+        // been applied, so offsetWidth is already accurate — and rAF
+        // callbacks can be throttled or skipped entirely in a
+        // backgrounded tab, which would leave the tile stuck at 0px.
+        pinHeights();
+        fitAmountAgainstPhoto();
+      }
     });
     observer.observe(grid, { attributes:true, attributeFilter:['class'], attributeOldValue:true, subtree:true });
   }
