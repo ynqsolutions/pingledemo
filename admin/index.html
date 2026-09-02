@@ -27,5 +27,31 @@
     });
   }
 </script>
+<script>
+  // "files" collections that hold exactly one file (Settlements, Legal
+  // Team) normally make editors click the collection in the sidebar,
+  // then click that single file again to open the editor. Skip the
+  // middle step: jump straight from the collection list to its one
+  // entry. Keyed by collection name -> that file's "name" (its slug).
+  (function () {
+    var SINGLE_FILE_COLLECTIONS = { settlements: "settlements", team: "team" };
+    function skipListIfSingleFile() {
+      var m = /^#\/collections\/([^\/]+)$/.exec(window.location.hash);
+      if (m && SINGLE_FILE_COLLECTIONS[m[1]]) {
+        window.location.hash = "#/collections/" + m[1] + "/entries/" + SINGLE_FILE_COLLECTIONS[m[1]];
+      }
+    }
+    window.addEventListener("hashchange", skipListIfSingleFile);
+    document.addEventListener("DOMContentLoaded", function () {
+      skipListIfSingleFile();
+      // Decap CMS is a client-rendered SPA that resolves its own route
+      // after mounting, which can re-assert the list-view hash right
+      // after our redirect; re-check on every DOM change until the
+      // editor form is actually showing.
+      var observer = new MutationObserver(skipListIfSingleFile);
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
+  })();
+</script>
 </body>
 </html>
