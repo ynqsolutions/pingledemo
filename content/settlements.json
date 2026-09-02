@@ -47,13 +47,6 @@
       "photo": "assets/cutouts/pingle-2.png",
       "location": "Sacramento, CA",
       "description": "A departing executive's severance offer was renegotiated after review revealed the release language was broader than legally required."
-    },
-    {
-      "photo": "/assets/attorney-photos/PingleBriggs_Transparent.png",
-      "amount": "35K",
-      "classification": "Severance Negotiation",
-      "location": "Sacramento, CA",
-      "description": "Test settlement"
     }
   ]
 }
