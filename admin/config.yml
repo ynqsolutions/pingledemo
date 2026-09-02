@@ -38,7 +38,17 @@ collections:
                 media_folder: "/assets/attorney-photos"
                 public_folder: "/assets/attorney-photos"
                 choose_url: false
-              - { label: "Location", name: "location", widget: "string", hint: "e.g. Fountain Valley, CA" }
+              - label: "Location"
+                name: "location"
+                widget: "select"
+                hint: "Which service-area city this case is attributed to."
+                options:
+                  - "Fountain Valley, CA"
+                  - "Beverly Hills, CA"
+                  - "San Bernardino, CA"
+                  - "San Diego, CA"
+                  - "San Francisco, CA"
+                  - "Sacramento, CA"
               - { label: "Description", name: "description", widget: "text", hint: "Shown when the tile is flipped." }
 
   # ---------------------------------------------------------------------
