@@ -4598,6 +4598,15 @@ p.article-disclaimer{
 }
 .sidebar-ad-tools img{ display:block; width:100%; height:auto; }
 
+/* CMS-generated blog posts (generate_blog_posts.py) have no sidebar
+   column, so the chosen ad renders inline in the article body instead;
+   this caps it to the banner's own narrow aspect ratio so it doesn't
+   stretch to the full article width. */
+.article-ad-inline{
+  max-width:320px;
+  margin:32px auto;
+}
+
 .sidebar-ad-game{
   background:#2b1608;
   border:3px solid #d9a441;

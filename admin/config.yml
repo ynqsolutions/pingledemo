@@ -72,4 +72,14 @@ collections:
     fields:
       - { label: "Page Title", name: "title", widget: "string" }
       - { label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", default: "" }
+      - { label: "Photo", name: "photo", widget: "image", required: false, hint: "Featured photo shown near the top of the article. Leave blank for no photo." }
+      - label: "Ad"
+        name: "ad"
+        widget: "select"
+        required: false
+        default: "none"
+        hint: "Promo shown near the end of the article."
+        options:
+          - { label: "None", value: "none" }
+          - { label: "Explore Tools & Templates", value: "tools" }
       - { label: "Body", name: "body", widget: "markdown", hint: "Publishes as its own page (blog-<slug>.html) once this is merged and the site rebuilds." }

@@ -31,8 +31,18 @@ import sys
 SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 BLOG_CONTENT_DIR = os.path.join(SITE_DIR, "content", "blog")
 
-CSS_VERSION = "278"
-JS_VERSION = "73"
+CSS_VERSION = "285"
+JS_VERSION = "78"
+
+# Ad promos an editor can pick from the CMS "Ad" dropdown (admin/config.yml).
+# Add new options here as more promos get built.
+ADS = {
+    "tools": {
+        "href": "all-tools-and-templates.html",
+        "src": "assets/vertical-banner1.gif",
+        "alt": "Free tools to know your rights: calculators, templates, 100% free, no signup, no catch. Explore all tools.",
+    },
+}
 
 PAGE_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -124,8 +134,8 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <!-- ============ ARTICLE BODY ============ -->
 <section class="legal-body section-divider">
   <div class="wrap legal-body-inner">
-{body_html}
-  </div>
+{photo_html}{body_html}
+{ad_html}  </div>
 </section>
 
 <!-- ============ FINAL CTA / CONTACT ============ -->
@@ -281,10 +291,33 @@ def build_posts():
         first_p = re.search(r"<p>(.*?)</p>", body_html)
         description = html.unescape(re.sub("<[^>]+>", "", first_p.group(1)))[:155] if first_p else title
 
+        photo = fields.get("photo", "").strip()
+        photo_html = ""
+        if photo:
+            photo_html = (
+                f'    <div class="article-inline-image" style="margin-top:0;">\n'
+                f'      <img src="{html.escape(photo, quote=True)}" alt="{html.escape(title, quote=True)}" loading="lazy">\n'
+                f"    </div>\n"
+            )
+
+        ad_key = fields.get("ad", "none").strip()
+        ad_html = ""
+        ad = ADS.get(ad_key)
+        if ad:
+            ad_html = (
+                f'    <div class="article-ad-inline">\n'
+                f'      <a href="{ad["href"]}" class="sidebar-ad-tools">\n'
+                f'        <img src="{ad["src"]}" alt="{html.escape(ad["alt"], quote=True)}" loading="lazy">\n'
+                f"      </a>\n"
+                f"    </div>\n"
+            )
+
         page = PAGE_TEMPLATE.format(
             title=html.escape(title, quote=True),
             description=html.escape(description, quote=True),
             body_html=body_html,
+            photo_html=photo_html,
+            ad_html=ad_html,
             css_v=CSS_VERSION,
             js_v=JS_VERSION,
         )
