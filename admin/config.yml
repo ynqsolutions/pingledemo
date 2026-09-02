@@ -35,7 +35,7 @@ collections:
                 name: "photo"
                 widget: "image"
                 hint: "The cutout photo shown behind the amount. Pick from the 4 approved photos below (each shows a thumbnail preview)."
-                media_folder: "assets/attorney-photos"
+                media_folder: "/assets/attorney-photos"
                 public_folder: "/assets/attorney-photos"
                 choose_url: false
               - { label: "Location", name: "location", widget: "string", hint: "e.g. Fountain Valley, CA" }

@@ -6,10 +6,46 @@
 <title>Pingle Law — Admin</title>
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* Decap CMS's own stylesheet sets a light gray background on the
-     pre-login screen; override it to match the site's dark navy. */
-  body{ background:#0A0F27 !important; }
+  /* Decap CMS's own stylesheet sets a light gray background everywhere
+     and its own font stack. Match the site's look: dark navy background
+     + Inter on the pre-login screen, white background once logged in.
+     The cms-pre-login/cms-post-login class is toggled by the script
+     below based on Netlify Identity state.
+
+     Decap's own component classes carry a build-specific random hash
+     (e.g. "css-zwje8v-LoginButton-button-..."), so these use [class*=]
+     substring selectors on the stable, human-readable part of each name
+     rather than the full class, so they keep working across CMS updates
+     that only change the hash. */
+  body.cms-pre-login{ background:#0A0F27 !important; }
+  body.cms-post-login{ background:#ffffff !important; }
+
+  body, input, textarea, select, button{ font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+  [class*="StyledAuthenticationPage"]{
+    gap:28px !important;
+  }
+  [class*="LoginButton-button"]{
+    background:#B38A3C !important;
+    color:#0A0F27 !important;
+    font-weight:600 !important;
+    border-radius:8px !important;
+    box-shadow:0 12px 28px -10px rgba(179,138,60,0.55) !important;
+    transition:background .2s ease, transform .2s ease !important;
+  }
+  [class*="LoginButton-button"]:hover{
+    background:#C9A24F !important;
+    transform:translateY(-1px);
+  }
+  [class*="GoBackButtonStyle"]{
+    opacity:0.6;
+    transition:opacity .2s ease;
+  }
+  [class*="GoBackButtonStyle"]:hover{ opacity:1; }
 </style>
 <!-- Decap CMS (formerly Netlify CMS) — the actual editor UI. Everything
      below this line is boilerplate; the real configuration lives in
@@ -24,38 +60,19 @@
   // the same way so the "set your password" flow still works.
   if (window.netlifyIdentity) {
     window.netlifyIdentity.on("init", (user) => {
+      document.body.classList.toggle("cms-pre-login", !user);
+      document.body.classList.toggle("cms-post-login", !!user);
       if (!user) {
         window.netlifyIdentity.on("login", () => {
           document.location.href = "/admin/";
         });
       }
     });
+    window.netlifyIdentity.on("logout", () => {
+      document.body.classList.remove("cms-post-login");
+      document.body.classList.add("cms-pre-login");
+    });
   }
-</script>
-<script>
-  // "files" collections that hold exactly one file (Settlements, Legal
-  // Team) normally make editors click the collection in the sidebar,
-  // then click that single file again to open the editor. Skip the
-  // middle step: jump straight from the collection list to its one
-  // entry. Keyed by collection name -> that file's "name" (its slug).
-  (function () {
-    var SINGLE_FILE_COLLECTIONS = { settlements: "settlements", team: "team" };
-    function skipListIfSingleFile(e) {
-      var m = /^#\/collections\/([^\/]+)$/.exec(window.location.hash);
-      if (!m || !SINGLE_FILE_COLLECTIONS[m[1]]) return;
-      var name = m[1];
-      // If we just came FROM that same collection's entry (e.g. the
-      // editor's own back arrow), let it land on the list instead of
-      // bouncing straight back into the entry — otherwise there's no
-      // way to ever leave that collection's editor once inside it.
-      // Only auto-skip when arriving fresh (initial load, or switching
-      // in from a different collection/sidebar link).
-      if (e && e.oldURL && e.oldURL.indexOf("#/collections/" + name + "/entries/") !== -1) return;
-      window.location.hash = "#/collections/" + name + "/entries/" + SINGLE_FILE_COLLECTIONS[name];
-    }
-    window.addEventListener("hashchange", skipListIfSingleFile);
-    skipListIfSingleFile();
-  })();
 </script>
 </body>
 </html>
