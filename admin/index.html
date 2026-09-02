@@ -35,17 +35,19 @@
   // entry. Keyed by collection name -> that file's "name" (its slug).
   (function () {
     var SINGLE_FILE_COLLECTIONS = { settlements: "settlements", team: "team" };
-    function skipListIfSingleFile() {
+    function skipListIfSingleFile(e) {
       var m = /^#\/collections\/([^\/]+)$/.exec(window.location.hash);
-      if (m && SINGLE_FILE_COLLECTIONS[m[1]]) {
-        window.location.hash = "#/collections/" + m[1] + "/entries/" + SINGLE_FILE_COLLECTIONS[m[1]];
-      }
+      if (!m || !SINGLE_FILE_COLLECTIONS[m[1]]) return;
+      var name = m[1];
+      // If we just came FROM that same collection's entry (e.g. the
+      // editor's own back arrow), let it land on the list instead of
+      // bouncing straight back into the entry — otherwise there's no
+      // way to ever leave that collection's editor once inside it.
+      // Only auto-skip when arriving fresh (initial load, or switching
+      // in from a different collection/sidebar link).
+      if (e && e.oldURL && e.oldURL.indexOf("#/collections/" + name + "/entries/") !== -1) return;
+      window.location.hash = "#/collections/" + name + "/entries/" + SINGLE_FILE_COLLECTIONS[name];
     }
-    // Only react to real, finished hash changes (real navigation) rather
-    // than every DOM mutation. A MutationObserver here previously fired
-    // on the CMS's own in-progress re-renders and could win a race
-    // against its multi-step navigation, forcing editors back into
-    // Settlements/Team and trapping them there.
     window.addEventListener("hashchange", skipListIfSingleFile);
     skipListIfSingleFile();
   })();
