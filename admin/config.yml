@@ -31,6 +31,7 @@ collections:
             fields:
               - { label: "Amount", name: "amount", widget: "string", hint: "e.g. $2.4M" }
               - { label: "Classification", name: "classification", widget: "string", hint: "e.g. Wrongful Termination" }
+              - { label: "Client Occupation", name: "occupation", widget: "string", required: false, hint: "e.g. Auto Mechanic. Leave blank to hide." }
               - label: "Attorney Photo"
                 name: "photo"
                 widget: "image"
