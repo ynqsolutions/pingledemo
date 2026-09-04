@@ -33,7 +33,15 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://*.behold.so https://assets.calendly.com https://identity.netlify.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.behold.so https://assets.calendly.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://calendly.com https://*.calendly.com; frame-ancestors 'self'; connect-src 'self' https://*.behold.so https://calendly.com https://*.calendly.com https://identity.netlify.com; base-uri 'self'; form-action 'self'; object-src 'none'"
+    # NOTE on 'unsafe-inline' in script-src: it is there for the Answerly
+    # chat widget (js/answerly-widget.js). Answerly's fn.js renders the
+    # widget inside an iframe built with srcdoc, and a srcdoc iframe
+    # inherits this policy. The markup it writes into that frame contains
+    # inline <script> blocks generated at runtime, so there is no stable
+    # hash to allowlist, and nonces are not inherited into srcdoc. frame-src
+    # 'self' is likewise required for that srcdoc frame to be created at
+    # all. Removing the widget means both can go back to being dropped.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.behold.so https://assets.calendly.com https://identity.netlify.com https://fcdn.answerly.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.behold.so https://assets.calendly.com; font-src 'self' data: https://fonts.gstatic.com https://fcdn.answerly.io; img-src 'self' data: https:; media-src 'self' https://fcdn.answerly.io; frame-src 'self' https://calendly.com https://*.calendly.com; frame-ancestors 'self'; connect-src 'self' https://*.behold.so https://calendly.com https://*.calendly.com https://identity.netlify.com https://fcdn.answerly.io https://api.answerly.io https://answerly.cloud wss://api.answerly.io; base-uri 'self'; form-action 'self'; object-src 'none'"
 
 # /admin (the Decap CMS editor) needs a much looser CSP than the rest of the
 # site — it loads its editor bundle from a CDN, talks to Netlify's Identity
