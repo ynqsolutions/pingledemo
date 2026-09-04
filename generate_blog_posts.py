@@ -220,6 +220,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
 <script src="js/main.js?v={js_v}" defer></script>
 <script src="js/a11y-widget.js?v=13" defer></script>
+<script src="js/answerly-widget.js?v=1" defer></script>
 </body>
 </html>
 """
