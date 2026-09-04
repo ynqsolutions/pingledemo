@@ -15,12 +15,15 @@
 // to run at all, and frame-src has to include 'self' for the srcdoc frame
 // to be created. See the CSP comment in netlify.toml.
 //
-// On the home page the chat launcher would otherwise sit on screen next to
-// the hero video, competing with it. So there, loading is held back until
-// the hero has been scrolled past. This defers the whole third-party
-// script rather than rendering it and hiding it with CSS: nothing about
-// the widget's own markup or class names has to be known or fought with,
-// and the home page doesn't pay for the request until it's wanted.
+// On the home page the widget (a floating video bubble, Answerly's
+// "FacePop" product) would otherwise sit on screen next to the hero video,
+// competing with it. So there, the widget stays out of the DOM entirely
+// until the hero is first scrolled past (the home page doesn't pay for the
+// request until it's wanted), and after that is shown or hidden in step
+// with the hero leaving and re-entering view, via a class on <html> that
+// css/style.css uses to hide the widget's iframe. See that stylesheet for
+// the selector, keyed off the vendor's `placement` attribute rather than
+// its generated id/class, since those change per page load.
 //
 // Note that 12 other pages use this same hero video component (the six
 // city landing pages, in both languages). They are deliberately NOT
@@ -60,34 +63,46 @@
   // triggers. Keeping the test in one place means every trigger agrees on
   // what "scrolled past" means, rather than relying on IntersectionObserver's
   // isIntersecting, which also flips when merely the last pixel leaves.
-  var observer = null;
   function heroIsPassed() {
     return hero.getBoundingClientRect().bottom <= 0;
   }
-  function maybeLoad() {
-    if (!heroIsPassed()) return;
-    window.removeEventListener('scroll', maybeLoad);
-    window.removeEventListener('resize', maybeLoad);
-    if (observer) observer.disconnect();
-    loadWidget();
+
+  // The widget is loaded once, the first time the hero is cleared, and from
+  // then on it is shown or hidden as the hero leaves and re-enters view. A
+  // third-party <script> can't be unloaded, so scrolling back up toggles a
+  // class on <html> that a rule in style.css uses to hide the widget's
+  // iframe. Doing the hiding in CSS rather than JS means it applies the
+  // moment the iframe appears, without this code having to find, watch for,
+  // or hold a reference to an element the vendor owns.
+  var HIDDEN_CLASS = 'answerly-hidden';
+  var lastPassed = null;
+
+  function update() {
+    var passed = heroIsPassed();
+    // Only touch the DOM on an actual transition. Otherwise every scroll
+    // event would rewrite the class and invalidate style needlessly.
+    if (passed === lastPassed) return;
+    lastPassed = passed;
+    document.documentElement.classList.toggle(HIDDEN_CLASS, !passed);
+    if (passed) loadWidget();
   }
 
   // Scroll is the trigger that actually matters, and it fires even when
   // IntersectionObserver callbacks are being withheld (browsers defer those
   // while the document is hidden). Resize covers the hero changing height
   // under a reader who is already part-way down the page.
-  window.addEventListener('scroll', maybeLoad, { passive: true });
-  window.addEventListener('resize', maybeLoad, { passive: true });
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
 
   // IntersectionObserver is the cheap path in normal use: it lets the
   // browser do the geometry work off the main thread instead of on every
-  // scroll event.
+  // scroll event. It stays connected, since visibility is now ongoing
+  // rather than a one-time load.
   if ('IntersectionObserver' in window) {
-    observer = new IntersectionObserver(maybeLoad, { threshold: 0 });
-    observer.observe(hero);
+    new IntersectionObserver(update, { threshold: 0 }).observe(hero);
   }
 
   // Covers landing already scrolled past the hero, e.g. a refresh part-way
   // down the page or an in-page anchor, where no scroll event ever fires.
-  maybeLoad();
+  update();
 })();

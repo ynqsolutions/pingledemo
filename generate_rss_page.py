@@ -37,7 +37,7 @@ SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_FILE = "rss.html"
 PAGE_FILE_PATTERN = "rss-page-{n}.html"
 ARCHIVE_FILE = "content/rss-archive.json"
-CSS_VERSION = "285"
+CSS_VERSION = "286"
 JS_VERSION = "79"
 A11Y_CSS_VERSION = "10"
 A11Y_JS_VERSION = "14"
@@ -261,7 +261,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
 <script src="js/main.js?v={js_v}" defer></script>
 <script src="js/a11y-widget.js?v={a11y_js_v}" defer></script>
-<script src="js/answerly-widget.js?v=2" defer></script>
+<script src="js/answerly-widget.js?v=3" defer></script>
 </body>
 </html>
 """

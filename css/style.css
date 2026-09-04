@@ -1940,6 +1940,28 @@ footer a:hover{ color:var(--white); }
   color:var(--gold-300);
 }
 
+/* ---- Answerly chat widget (js/answerly-widget.js) ----
+   The widget positions its own outer iframe with position:fixed and a
+   generated id/class, so it's targeted here by its one stable attribute,
+   `placement`, instead. Two independent concerns:
+
+   1. On the home page, js/answerly-widget.js toggles this class on <html>
+      while the hero is on screen, so the widget (a floating video bubble)
+      never overlaps the hero video. Hidden with display, not opacity/
+      visibility, so it also can't be tabbed to or block clicks while gone.
+   2. On mobile, the mobile sticky CTA bar (below) is a second fixed
+      bottom-of-screen bar the widget would otherwise land underneath or
+      overlap. The widget already reads its own bottom offset from a
+      --horizontalMargin custom property set inline per element by the
+      vendor's own script (confusingly named; it is the vertical gap from
+      the bottom edge) via padding-bottom, so pushing it up the same way,
+      with !important to still win against that inline declaration,
+      matches how the widget already expects to be offset rather than
+      fighting its layout with a transform. 115px clears the 99px the CTA
+      bar itself reserves (see body's padding-bottom below) with a small
+      gap to spare. */
+html.answerly-hidden iframe[placement]{ display:none !important; }
+
 /* ================= RESPONSIVE ================= */
 @media (max-width: 1240px){
   .nav-desktop{ display:none; }
@@ -1995,6 +2017,9 @@ footer a:hover{ color:var(--white); }
   .snap-options{ grid-template-columns:1fr; }
   .snap-opt-wide{ grid-column:auto; }
   .mobile-sticky-cta{ display:flex; }
+  /* See the Answerly comment above .mobile-sticky-lang for why this
+     targets [placement] and uses !important. */
+  iframe[placement]{ padding-bottom:115px !important; }
 }
 
 /* ================= ABOUT PAGE ================= */
