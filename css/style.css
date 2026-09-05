@@ -3551,20 +3551,23 @@ p.article-disclaimer{
   position:relative;
   width:100%;
   aspect-ratio:1 / 1;
-  overflow:hidden;
   -webkit-perspective:1400px;
   perspective:1400px;
   cursor:pointer;
   border-radius:12px;
   transition:transform .25s ease;
-  /* container-type:inline-size used to be set here for no reason nothing
-     on the site ever queries against it (no @container rule targets this
-     element) - and CSS Containment is documented to conflict with
-     preserve-3d/backface-visibility in Safari specifically. That is what
-     was actually behind the iOS flip bug: not a missing compositing
-     layer (translateZ(0) alone didn't fix it), but the front face's
-     supposedly-hidden backface bleeding through, mirrored, on top of the
-     back face once flipped. Removed rather than worked around. */
+  /* Deliberately NO overflow:hidden and NO container-type here, both of
+     which used to be set and both of which broke the flip in iOS Safari
+     (front face bleeding through mirrored on top of the back face, since
+     the "hidden" backface was being flattened into a clip/containment
+     layer instead of culled). A rounded overflow clip on the element
+     establishing `perspective` is a long-standing WebKit 3D-compositing
+     trigger; container-type added CSS Containment on top of it, and no
+     @container rule anywhere ever queried against it.
+     Nothing is lost visually: each .settlement-face already sets its own
+     matching border-radius and overflow:hidden, and the faces cover the
+     tile exactly (inset:0), so they clip the overhanging photo and glow
+     themselves. */
 }
 .settlement-tile:not(.flipped):hover{ transform:translateY(-6px); }
 .settlement-tile:not(.flipped):hover .settlement-photo{ transform:scale(1.04); }
