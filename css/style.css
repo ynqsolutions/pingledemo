@@ -3580,13 +3580,10 @@ p.article-disclaimer{
   transition:transform .6s cubic-bezier(.4,.1,.2,1);
   -webkit-transform-style:preserve-3d;
   transform-style:preserve-3d;
-  /* iOS Safari can fail to composite a preserve-3d flip correctly (the
-     card sticks mid-rotation, or shows a torn/incomplete flip) unless the
-     rotating element already has its own GPU layer before the rotation
-     starts - the same class of fix already needed for the mobile-nav
-     burger icon elsewhere in this file. translateZ(0) forces that layer;
-     it's carried into the flipped rotateY transform below too, since
-     replacing the whole `transform` value would otherwise drop it. */
+  /* Promotes the rotating element to its own GPU layer up front, the same
+     hint used on the mobile-nav burger icon elsewhere in this file. Carried
+     into the flipped rotateY below, since replacing `transform` wholesale
+     would otherwise drop it. */
   -webkit-transform:translateZ(0);
   transform:translateZ(0);
 }
@@ -3598,7 +3595,23 @@ p.article-disclaimer{
   backface-visibility:hidden;
   border-radius:12px;
   overflow:hidden;
+  /* Do not rely on backface-visibility alone to hide the away-facing side.
+     iOS Safari was rendering the far face anyway, mirrored, on top of the
+     near one; several documented WebKit triggers for that were ruled out
+     here (CSS containment, a rounded overflow clip on the perspective
+     parent) without fixing it, and the markup is otherwise textbook.
+     So the away-facing side is now hidden explicitly instead, which needs
+     nothing from the compositor and behaves the same in every engine.
+     visibility (rather than opacity) also keeps the hidden side out of
+     hit-testing, so the back's close button can't be tapped through the
+     front. The 0s-duration transition with a delay of half the .6s
+     rotation makes the swap happen at the edge-on midpoint, where neither
+     side is facing the viewer, so it isn't perceptible. */
+  transition:visibility 0s linear .3s;
 }
+.settlement-face.settlement-back{ visibility:hidden; }
+.settlement-tile.flipped .settlement-face.settlement-front{ visibility:hidden; }
+.settlement-tile.flipped .settlement-face.settlement-back{ visibility:visible; }
 .settlement-face.settlement-front{
   position:absolute;
   background-image:url('../assets/settlement_bg.png');
