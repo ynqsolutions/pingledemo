@@ -294,12 +294,40 @@ function initSettlementFlip(grid){
     });
   }
 
-  pinHeights();
-  fitAmountAgainstPhoto();
-  window.addEventListener('resize', () => {
+  function remeasure(){
     pinHeights();
     fitAmountAgainstPhoto();
-  });
+  }
+
+  remeasure();
+
+  // A window 'resize' listener alone left tiles at a stale height once a
+  // drag finished, so the page had to be reloaded to square them up again:
+  // pinHeights() reads offsetWidth and then writes height, and doing both
+  // inside a resize handler can read a box from before the final layout,
+  // leaving the last event of the drag one step behind with nothing after
+  // it to correct the result. ResizeObserver instead reports the element's
+  // real box after layout, so it can't lag, and it also catches the tiles
+  // changing width with no window resize at all (a scrollbar appearing,
+  // fonts swapping in, the View More button adding a row).
+  //
+  // It watches the grid rather than the tiles, and only reacts when the
+  // grid's WIDTH changes, because pinHeights() writes tile heights: that
+  // grows the grid's own height, which would otherwise notify this same
+  // observer and set up a feedback loop.
+  if(window.ResizeObserver){
+    let lastGridWidth = Math.round(grid.getBoundingClientRect().width);
+    new ResizeObserver(entries => {
+      const width = Math.round(entries[0].contentRect.width);
+      if(width === lastGridWidth) return;
+      lastGridWidth = width;
+      remeasure();
+    }).observe(grid);
+  }
+  // Kept as a fallback for browsers without ResizeObserver, and because it
+  // still covers full-page zoom, which doesn't always change the grid's
+  // measured width.
+  window.addEventListener('resize', remeasure);
 
   // Re-check once newly revealed tiles (via the "View More Results" button)
   // actually have real layout, since a hidden tile measures as zero-size —
@@ -322,8 +350,7 @@ function initSettlementFlip(grid){
         // been applied, so offsetWidth is already accurate — and rAF
         // callbacks can be throttled or skipped entirely in a
         // backgrounded tab, which would leave the tile stuck at 0px.
-        pinHeights();
-        fitAmountAgainstPhoto();
+        remeasure();
       }
     });
     observer.observe(grid, { attributes:true, attributeFilter:['class'], attributeOldValue:true, subtree:true });
