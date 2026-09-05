@@ -3552,6 +3552,7 @@ p.article-disclaimer{
   width:100%;
   aspect-ratio:1 / 1;
   overflow:hidden;
+  -webkit-perspective:1400px;
   perspective:1400px;
   cursor:pointer;
   border-radius:12px;
@@ -3569,8 +3570,17 @@ p.article-disclaimer{
   transition:transform .6s cubic-bezier(.4,.1,.2,1);
   -webkit-transform-style:preserve-3d;
   transform-style:preserve-3d;
+  /* iOS Safari can fail to composite a preserve-3d flip correctly (the
+     card sticks mid-rotation, or shows a torn/incomplete flip) unless the
+     rotating element already has its own GPU layer before the rotation
+     starts - the same class of fix already needed for the mobile-nav
+     burger icon elsewhere in this file. translateZ(0) forces that layer;
+     it's carried into the flipped rotateY transform below too, since
+     replacing the whole `transform` value would otherwise drop it. */
+  -webkit-transform:translateZ(0);
+  transform:translateZ(0);
 }
-.settlement-tile.flipped .settlement-tile-inner{ transform:rotateY(180deg); }
+.settlement-tile.flipped .settlement-tile-inner{ -webkit-transform:rotateY(180deg) translateZ(0); transform:rotateY(180deg) translateZ(0); }
 .settlement-face{
   position:absolute;
   inset:0;
