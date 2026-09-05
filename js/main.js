@@ -311,18 +311,30 @@ function initSettlementFlip(grid){
   // changing width with no window resize at all (a scrollbar appearing,
   // fonts swapping in, the View More button adding a row).
   //
-  // It watches the grid rather than the tiles, and only reacts when the
-  // grid's WIDTH changes, because pinHeights() writes tile heights: that
-  // grows the grid's own height, which would otherwise notify this same
-  // observer and set up a feedback loop.
+  // This watches each TILE's own width, not the grid's: .settlement-grid
+  // spans its wrapper's width regardless of column count, so crossing a
+  // grid-template-columns breakpoint (3 columns -> 2 -> 1) changes every
+  // tile's width sharply while barely moving the grid's own outer width -
+  // watching the grid was tried first and missed exactly that case, the
+  // most common way this bug actually shows up. Guarding on width (not
+  // height) still avoids a feedback loop, since pinHeights() only writes
+  // height and a tile's inline height, once set, is what decides its own
+  // height going forward - not something derived from its own box that
+  // would re-trigger this observer.
   if(window.ResizeObserver){
-    let lastGridWidth = Math.round(grid.getBoundingClientRect().width);
-    new ResizeObserver(entries => {
-      const width = Math.round(entries[0].contentRect.width);
-      if(width === lastGridWidth) return;
-      lastGridWidth = width;
-      remeasure();
-    }).observe(grid);
+    const lastWidths = new WeakMap();
+    const observer = new ResizeObserver(entries => {
+      let changed = false;
+      entries.forEach(entry => {
+        const width = Math.round(entry.contentRect.width);
+        if(lastWidths.get(entry.target) !== width){
+          lastWidths.set(entry.target, width);
+          changed = true;
+        }
+      });
+      if(changed) remeasure();
+    });
+    tiles.forEach(tile => observer.observe(tile));
   }
   // Kept as a fallback for browsers without ResizeObserver, and because it
   // still covers full-page zoom, which doesn't always change the grid's
