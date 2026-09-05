@@ -3550,12 +3550,38 @@ p.article-disclaimer{
 .settlement-tile{
   position:relative;
   width:100%;
-  aspect-ratio:1 / 1;
+  /* Deliberately no aspect-ratio here, even though the tile is meant to be
+     square: js/main.js's pinHeights() already sets an explicit inline
+     height equal to the tile's own width on load and on every resize, so
+     aspect-ratio was doing nothing useful and was actively harmful. As a
+     grid item on a `repeat(3, 1fr)` track (`.settlement-grid`),
+     aspect-ratio:1/1 measurably inflated the column's resolved width
+     beyond its fair share (confirmed directly: same grid, same viewport,
+     406px per column with the ratio present vs. the mathematically
+     correct 362.664px with it removed) - Grid's track-sizing algorithm
+     transfers an aspect-ratio'd item's height-driven sizing needs into a
+     width contribution for its own column. Combined with JS mirroring
+     whatever (possibly already-inflated) width it reads back into height
+     every resize, that becomes a self-sustaining loop: an inflated width
+     produces a big height, which the ratio transfers into needing a big
+     width again, and each resize's JS just re-confirms the same value
+     rather than correcting it - which is exactly the reported symptom
+     (shrinking the window makes tiles bigger, and they get stuck there,
+     because nothing ever breaks the cycle short of a full reload, which
+     starts pinHeights() fresh with no pre-existing height to feed it). */
   -webkit-perspective:1400px;
   perspective:1400px;
   cursor:pointer;
   border-radius:12px;
   transition:transform .25s ease;
+  /* Plain min-height, not aspect-ratio, as a floor: pinHeights() runs on a
+     deferred script, so there's a brief window before it sets the real
+     inline height where the tile would otherwise be zero-height (its
+     children are all position:absolute, so they don't hold this box
+     open). A fixed min-height doesn't get transferred into the grid
+     item's own width contribution the way aspect-ratio did, so it can't
+     reintroduce the sizing bug above. */
+  min-height:200px;
   /* Deliberately NO overflow:hidden and NO container-type here, both of
      which used to be set and both of which broke the flip in iOS Safari
      (front face bleeding through mirrored on top of the back face, since
