@@ -3557,7 +3557,14 @@ p.article-disclaimer{
   cursor:pointer;
   border-radius:12px;
   transition:transform .25s ease;
-  container-type:inline-size;
+  /* container-type:inline-size used to be set here for no reason nothing
+     on the site ever queries against it (no @container rule targets this
+     element) - and CSS Containment is documented to conflict with
+     preserve-3d/backface-visibility in Safari specifically. That is what
+     was actually behind the iOS flip bug: not a missing compositing
+     layer (translateZ(0) alone didn't fix it), but the front face's
+     supposedly-hidden backface bleeding through, mirrored, on top of the
+     back face once flipped. Removed rather than worked around. */
 }
 .settlement-tile:not(.flipped):hover{ transform:translateY(-6px); }
 .settlement-tile:not(.flipped):hover .settlement-photo{ transform:scale(1.04); }
