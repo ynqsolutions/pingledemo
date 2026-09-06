@@ -17,8 +17,18 @@ const siteHeader = document.querySelector('.site-header');
 // once web fonts are ready, on orientation change, and on
 // visualViewport's own resize event (the iOS-specific one that fires
 // when the address bar shows/hides) covers all of those triggers.
+//
+// Measures the header's bottom edge (getBoundingClientRect), not just
+// its own offsetHeight: .promo-banner sits above the sticky header, so
+// while it's still on screen (page not yet scrolled) the header itself
+// is pushed down by the banner's height, and the mobile nav needs to
+// start below THAT, not just below the header's own height - using
+// offsetHeight alone ignored the banner and let the nav panel overlap
+// the header. Also re-measured right before the nav opens (see
+// openNav), since the banner scrolling away changes this value and the
+// periodic triggers above don't include scroll.
 function setHeaderHeightVar(){
-  if(siteHeader) document.documentElement.style.setProperty('--header-h', siteHeader.offsetHeight + 'px');
+  if(siteHeader) document.documentElement.style.setProperty('--header-h', siteHeader.getBoundingClientRect().bottom + 'px');
 }
 setHeaderHeightVar();
 window.addEventListener('resize', setHeaderHeightVar);
@@ -40,6 +50,7 @@ if(window.visualViewport){
 // is the standard fix: the page truly can't move while the nav is
 // open, and closeNav restores the exact scroll position afterward.
 function openNav(){
+  setHeaderHeightVar();
   mobileNav.classList.add('open');
   burgerBtn.setAttribute('aria-expanded','true');
   const scrollY = window.scrollY;

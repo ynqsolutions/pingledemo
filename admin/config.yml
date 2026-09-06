@@ -13,6 +13,27 @@ public_folder: "/assets/uploads"
 
 collections:
   # ---------------------------------------------------------------------
+  # Announcement — the scrolling banner above the header on every page.
+  # A single JSON file (content/announcement.json); generate_cms_sections.py
+  # bakes it into all pages between their <!-- CMS:BANNER:START/END -->
+  # markers on the next build. The link always points to the Free Case
+  # Review page (case-review.html, or case-review-es.html on Spanish
+  # pages) - only the wording is editable here.
+  # ---------------------------------------------------------------------
+  - name: "announcement"
+    label: "Announcement Banner"
+    files:
+      - name: "announcement"
+        label: "Announcement Banner"
+        file: "content/announcement.json"
+        description: "The scrolling banner above the header on every page. Changes apply site-wide on the next deploy."
+        fields:
+          - { label: "Message (English)", name: "message_en", widget: "string", hint: "e.g. Now Accepting Wrongful Termination Cases" }
+          - { label: "Link Text (English)", name: "link_text_en", widget: "string", hint: "e.g. Click for a Free Case Review. Links to the Free Case Review page." }
+          - { label: "Message (Spanish)", name: "message_es", widget: "string" }
+          - { label: "Link Text (Spanish)", name: "link_text_es", widget: "string" }
+
+  # ---------------------------------------------------------------------
   # Settlements — a single JSON file (content/settlements.json) holding a
   # list of tiles. Rendered on results-and-testimonials.html by js/main.js.
   # ---------------------------------------------------------------------

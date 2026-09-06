@@ -107,7 +107,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   display:flex;
   align-items:center;
   gap:10px;
-  padding:11px 28px;
+  padding:11px 56px;
   font-family:var(--font-cond);
   font-size:14px;
   font-weight:600;
@@ -135,7 +135,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   .promo-banner-track{ animation:none; }
 }
 @media (max-width:680px){
-  .promo-banner-item{ font-size:12.5px; padding:9px 20px; }
+  .promo-banner-item{ font-size:12.5px; padding:9px 36px; }
 }
 
 /* ================= HEADER ================= */
@@ -2068,6 +2068,14 @@ html.answerly-hidden iframe[placement]{ display:none !important; }
   .hero-media-form{ padding:36px 16px; }
   .snapshot-card{ padding:24px 20px 20px; border-radius:14px; }
   .video-card{ padding:8px; border-radius:14px; max-width:340px; transform:none; }
+  /* Home page only, for now (not the other pages sharing .video-card,
+     e.g. index-es.html or the city landing pages) - scoped to this one
+     page's video card by id rather than a shared class. margin-top, not
+     transform: .video-card plays a one-time entrance animation
+     (cardRise) that also animates `transform`, and its own end state
+     would silently override a plain transform override here once it
+     finishes. margin-top doesn't collide with that. */
+  #homeHeroVideoCard{ margin-top:-14px; }
   .video-frame{ max-height:520px; }
   .snapshot-glow{ width:340px; height:340px; }
   .snapshot-orbit{ width:260px; height:260px; }
