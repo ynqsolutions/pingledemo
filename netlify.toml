@@ -41,7 +41,13 @@
     # hash to allowlist, and nonces are not inherited into srcdoc. frame-src
     # 'self' is likewise required for that srcdoc frame to be created at
     # all. Removing the widget means both can go back to being dropped.
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.behold.so https://assets.calendly.com https://identity.netlify.com https://fcdn.answerly.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.behold.so https://assets.calendly.com; font-src 'self' data: https://fonts.gstatic.com https://fcdn.answerly.io; img-src 'self' data: https:; media-src 'self' https://fcdn.answerly.io; frame-src 'self' https://calendly.com https://*.calendly.com; frame-ancestors 'self'; connect-src 'self' https://*.behold.so https://calendly.com https://*.calendly.com https://identity.netlify.com https://fcdn.answerly.io https://api.answerly.io https://answerly.cloud wss://api.answerly.io; base-uri 'self'; form-action 'self'; object-src 'none'"
+    #
+    # Calendly is only ever a plain <a target="_blank"> link to
+    # calendly.com on this site (never an embedded widget/iframe), which
+    # needs no CSP allowance at all - dropped the assets.calendly.com /
+    # calendly.com / *.calendly.com entries that used to be here for an
+    # embed that doesn't exist.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.behold.so https://identity.netlify.com https://fcdn.answerly.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.behold.so; font-src 'self' data: https://fonts.gstatic.com https://fcdn.answerly.io; img-src 'self' data: https:; media-src 'self' https://fcdn.answerly.io; frame-src 'self'; frame-ancestors 'self'; connect-src 'self' https://*.behold.so https://identity.netlify.com https://fcdn.answerly.io https://api.answerly.io https://answerly.cloud wss://api.answerly.io; base-uri 'self'; form-action 'self'; object-src 'none'"
 
 # /admin (the Decap CMS editor) needs a much looser CSP than the rest of the
 # site — it loads its editor bundle from a CDN, talks to Netlify's Identity
