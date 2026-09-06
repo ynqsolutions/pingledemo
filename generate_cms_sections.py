@@ -155,12 +155,12 @@ def inject_banner_everywhere(announcement):
     en_banner = render_banner(
         announcement.get("message_en", ""),
         announcement.get("link_text_en", ""),
-        "case-review.html",
+        announcement.get("link_en", "case-review.html"),
     )
     es_banner = render_banner(
         announcement.get("message_es", ""),
         announcement.get("link_text_es", ""),
-        "case-review-es.html",
+        announcement.get("link_es", "case-review-es.html"),
     )
 
     count = 0

@@ -16,9 +16,7 @@ collections:
   # Announcement — the scrolling banner above the header on every page.
   # A single JSON file (content/announcement.json); generate_cms_sections.py
   # bakes it into all pages between their <!-- CMS:BANNER:START/END -->
-  # markers on the next build. The link always points to the Free Case
-  # Review page (case-review.html, or case-review-es.html on Spanish
-  # pages) - only the wording is editable here.
+  # markers on the next build.
   # ---------------------------------------------------------------------
   - name: "announcement"
     label: "Announcement Banner"
@@ -29,9 +27,11 @@ collections:
         description: "The scrolling banner above the header on every page. Changes apply site-wide on the next deploy."
         fields:
           - { label: "Message (English)", name: "message_en", widget: "string", hint: "e.g. Now Accepting Wrongful Termination Cases" }
-          - { label: "Link Text (English)", name: "link_text_en", widget: "string", hint: "e.g. Click for a Free Case Review. Links to the Free Case Review page." }
+          - { label: "Link Text (English)", name: "link_text_en", widget: "string", hint: "e.g. Click for a Free Case Review" }
+          - { label: "Link (English)", name: "link_en", widget: "string", hint: "Where the link text goes. A page on this site, e.g. case-review.html, or a full https:// address." }
           - { label: "Message (Spanish)", name: "message_es", widget: "string" }
           - { label: "Link Text (Spanish)", name: "link_text_es", widget: "string" }
+          - { label: "Link (Spanish)", name: "link_es", widget: "string", hint: "Where the link text goes. A page on this site, e.g. case-review-es.html, or a full https:// address." }
 
   # ---------------------------------------------------------------------
   # Settlements — a single JSON file (content/settlements.json) holding a
