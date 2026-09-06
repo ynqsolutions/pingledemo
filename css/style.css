@@ -81,6 +81,63 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .btn-outline-navy{ background:transparent; color:var(--navy-900); border-color:var(--navy-900); }
 .btn-outline-navy:hover{ background:var(--navy-900); color:var(--white); }
 
+/* ================= PROMO BANNER ================= */
+/* Sits before .site-header in the DOM, in normal flow (not sticky itself),
+   so it scrolls away with the page and .site-header's own position:sticky
+   then holds it at the true top:0 - no extra offset math needed anywhere
+   else on the site.
+
+   Pure-CSS marquee, same technique as .badge-slider-track: the message is
+   repeated several times per half (not just duplicated once, which is
+   what .ticker-track below does) so each half is comfortably wider than
+   any real viewport - see that rule's own comment for why a single
+   duplication leaves a visible gap on wide screens once the strip runs
+   out of content before the loop wraps. */
+.promo-banner{
+  background:var(--gold-500);
+  overflow:hidden;
+}
+.promo-banner-track{
+  display:flex;
+  align-items:center;
+  width:max-content;
+  animation:promo-banner-marquee 40s linear infinite;
+}
+.promo-banner-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 28px;
+  font-family:var(--font-cond);
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
+  color:var(--navy-950);
+  white-space:nowrap;
+}
+.promo-banner-item::before{ content:"\2022"; }
+.promo-banner-item a{
+  color:var(--navy-950);
+  text-decoration:underline;
+  text-underline-offset:2px;
+  font-weight:700;
+}
+.promo-banner-item a:hover{ color:var(--white); }
+@keyframes promo-banner-marquee{
+  from{ transform:translateX(0); }
+  to{ transform:translateX(-50%); }
+}
+@media (hover:hover){
+  .promo-banner:hover .promo-banner-track{ animation-play-state:paused; }
+}
+@media (prefers-reduced-motion: reduce){
+  .promo-banner-track{ animation:none; }
+}
+@media (max-width:680px){
+  .promo-banner-item{ font-size:12.5px; padding:9px 20px; }
+}
+
 /* ================= HEADER ================= */
 .site-header{
   position:sticky; top:0; z-index:100;

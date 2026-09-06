@@ -37,7 +37,7 @@ SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_FILE = "rss.html"
 PAGE_FILE_PATTERN = "rss-page-{n}.html"
 ARCHIVE_FILE = "content/rss-archive.json"
-CSS_VERSION = "293"
+CSS_VERSION = "294"
 JS_VERSION = "81"
 A11Y_CSS_VERSION = "10"
 A11Y_JS_VERSION = "14"
@@ -104,6 +104,9 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <body>
 
 <!-- ============ HEADER ============ -->
+<div class="promo-banner" aria-label="Announcement">
+  <div class="promo-banner-track"><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span></div>
+</div>
 <header class="site-header">
   <div class="header-inner wrap">
     <a href="index.html" class="logo"><img src="assets/Pingle_Logo_Outline.png?v=2" alt="Pingle Law"></a>
