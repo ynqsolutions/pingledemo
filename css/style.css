@@ -4849,7 +4849,7 @@ p.article-disclaimer{
   width:180px;
   height:180px;
   margin:28px 0;
-  background-image:url("../assets/Animations/404_character.png");
+  background-image:url("../assets/Animations/character_404.gif");
   background-repeat:no-repeat;
   background-position:center;
   background-size:contain;
@@ -5393,19 +5393,6 @@ p.article-disclaimer{
 .calc-result-loading img{
   width:110px;
   height:auto;
-  /* character_calculator.png is a single static frame, not a sprite
-     sheet, so there was nothing here to actually animate - the loading
-     state (shown for ~1s while the "calculation" fakes some thinking
-     time) just displayed it motionless the whole time. A plain bounce
-     is enough to read as "working on it" without needing new art. */
-  animation:calc-loading-bounce .9s ease-in-out infinite;
-}
-@keyframes calc-loading-bounce{
-  0%, 100%{ transform:translateY(0) rotate(0deg); }
-  50%{ transform:translateY(-10px) rotate(-4deg); }
-}
-@media (prefers-reduced-motion: reduce){
-  .calc-result-loading img{ animation:none; }
 }
 .calc-result-loading p{
   margin:0;
