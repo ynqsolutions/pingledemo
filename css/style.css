@@ -101,13 +101,13 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   display:flex;
   align-items:center;
   width:max-content;
-  animation:promo-banner-marquee 40s linear infinite;
+  animation:promo-banner-marquee 70s linear infinite;
 }
 .promo-banner-item{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:11px 56px;
+  padding:11px 88px;
   font-family:var(--font-cond);
   font-size:14px;
   font-weight:600;
@@ -116,7 +116,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   color:var(--navy-950);
   white-space:nowrap;
 }
-.promo-banner-item::before{ content:"•"; }
 .promo-banner-item a{
   color:var(--navy-950);
   text-decoration:underline;
@@ -135,7 +134,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   .promo-banner-track{ animation:none; }
 }
 @media (max-width:680px){
-  .promo-banner-item{ font-size:12.5px; padding:9px 36px; }
+  .promo-banner-item{ font-size:12.5px; padding:9px 56px; }
 }
 
 /* ================= HEADER ================= */
