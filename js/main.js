@@ -1275,3 +1275,71 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   });
 })();
 
+// Blog article "Share this article" row. The buttons were static
+// href="#" placeholders with no behavior wired up - data-share attributes
+// (copy/facebook/x/linkedin/email/reddit) were added alongside each one
+// so this handler doesn't have to guess intent from icon shape or the
+// aria-label text, which differs between the English and Spanish posts.
+(function(){
+  const buttons = document.querySelectorAll('.blog-share-btn[data-share]');
+  if(!buttons.length) return;
+
+  const pageUrl = location.href;
+  const pageTitle = document.title.replace(/\s*\|\s*Pingle Law\s*$/, '');
+
+  function openShareWindow(url){
+    window.open(url, '_blank', 'noopener,noreferrer,width=600,height=500');
+  }
+
+  async function copyLink(btn){
+    try {
+      await navigator.clipboard.writeText(pageUrl);
+    } catch(e){
+      // Clipboard API unavailable (older browser, non-HTTPS, or denied
+      // permission) - fall back to a hidden textarea + execCommand.
+      const ta = document.createElement('textarea');
+      ta.value = pageUrl;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch(e2){}
+      document.body.removeChild(ta);
+    }
+    btn.classList.add('copied');
+    window.clearTimeout(btn._copiedTimer);
+    btn._copiedTimer = window.setTimeout(function(){
+      btn.classList.remove('copied');
+    }, 1800);
+  }
+
+  buttons.forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const type = btn.getAttribute('data-share');
+      const encodedUrl = encodeURIComponent(pageUrl);
+      const encodedTitle = encodeURIComponent(pageTitle);
+      switch(type){
+        case 'copy':
+          copyLink(btn);
+          break;
+        case 'facebook':
+          openShareWindow('https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl);
+          break;
+        case 'x':
+          openShareWindow('https://twitter.com/intent/tweet?url=' + encodedUrl + '&text=' + encodedTitle);
+          break;
+        case 'linkedin':
+          openShareWindow('https://www.linkedin.com/sharing/share-offsite/?url=' + encodedUrl);
+          break;
+        case 'email':
+          location.href = 'mailto:?subject=' + encodedTitle + '&body=' + encodedUrl;
+          break;
+        case 'reddit':
+          openShareWindow('https://www.reddit.com/submit?url=' + encodedUrl + '&title=' + encodedTitle);
+          break;
+      }
+    });
+  });
+})();
+

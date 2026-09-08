@@ -4272,6 +4272,7 @@ p.article-disclaimer{
   margin-right:4px;
 }
 .blog-share-btn{
+  position:relative;
   width:32px;
   height:32px;
   border-radius:50%;
@@ -4283,6 +4284,23 @@ p.article-disclaimer{
   transition:border-color .18s ease, color .18s ease;
 }
 .blog-share-btn:hover{ border-color:var(--gold-500); color:var(--gold-500); }
+.blog-share-btn.copied{ border-color:var(--gold-500); color:var(--gold-500); }
+.blog-share-btn.copied::after{
+  content:"Copied!";
+  position:absolute;
+  bottom:calc(100% + 8px);
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--navy-900);
+  color:var(--white);
+  font-family:var(--font-cond);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:0.02em;
+  white-space:nowrap;
+  padding:4px 8px;
+  border-radius:4px;
+}
 
 .blog-sign{
   display:flex;
