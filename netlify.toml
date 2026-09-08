@@ -72,13 +72,13 @@
     #     srcdoc frame the bubble itself uses)
     #   - connect-src: https://re.answerly.io (their view/engagement
     #     analytics beacon)
+    #   - frame-src: https://calendly.com (FacePop's own "Schedule
+    #     Consultation" CTA embeds a Calendly scheduler directly in an
+    #     iframe - this is a *different* Calendly usage than the plain
+    #     <a target="_blank"> links used elsewhere on this site, which
+    #     still need no CSP allowance of their own)
     #
-    # Calendly is only ever a plain <a target="_blank"> link to
-    # calendly.com on this site (never an embedded widget/iframe), which
-    # needs no CSP allowance at all - dropped the assets.calendly.com /
-    # calendly.com / *.calendly.com entries that used to be here for an
-    # embed that doesn't exist.
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.behold.so https://identity.netlify.com https://fcdn.answerly.io https://app.answerly.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.behold.so https://answerly.cloud; font-src 'self' data: https://fonts.gstatic.com https://fcdn.answerly.io https://answerly.cloud; img-src 'self' data: https:; media-src 'self' blob: https://fcdn.answerly.io https://*.b-cdn.net https://*.cdninstagram.com; worker-src 'self' blob:; frame-src 'self' https://answerly.chat; frame-ancestors 'self'; connect-src 'self' https://*.behold.so https://identity.netlify.com https://fcdn.answerly.io https://api.answerly.io https://answerly.cloud https://app.answerly.io https://re.answerly.io https://*.b-cdn.net wss://api.answerly.io; base-uri 'self'; form-action 'self'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.behold.so https://identity.netlify.com https://fcdn.answerly.io https://app.answerly.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.behold.so https://answerly.cloud; font-src 'self' data: https://fonts.gstatic.com https://fcdn.answerly.io https://answerly.cloud; img-src 'self' data: https:; media-src 'self' blob: https://fcdn.answerly.io https://*.b-cdn.net https://*.cdninstagram.com; worker-src 'self' blob:; frame-src 'self' https://answerly.chat https://calendly.com; frame-ancestors 'self'; connect-src 'self' https://*.behold.so https://identity.netlify.com https://fcdn.answerly.io https://api.answerly.io https://answerly.cloud https://app.answerly.io https://re.answerly.io https://*.b-cdn.net wss://api.answerly.io; base-uri 'self'; form-action 'self'; object-src 'none'"
 
 # /admin (the Decap CMS editor) needs a much looser CSP than the rest of the
 # site — it loads its editor bundle from a CDN, talks to Netlify's Identity
