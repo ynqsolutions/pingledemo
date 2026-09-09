@@ -58,6 +58,23 @@
     return el ? el.dataset.step : null;
   }
 
+  // position:sticky pins this to the viewport's bottom-left, which knows
+  // nothing about the quiz card's own left edge - on a wide bubble (up to
+  // 220px) and a narrower browser window, the card can sit close enough
+  // to the left edge that the bubble visually overlaps its checkboxes.
+  // Measured, not a fixed breakpoint, so it holds at any window width.
+  function clampGuideWidth(){
+    if(window.innerWidth <= 680){
+      guide.style.removeProperty('--cr-guide-safe-width');
+      return;
+    }
+    const cardRect = card.getBoundingClientRect();
+    const guideRect = guide.getBoundingClientRect();
+    const available = cardRect.left - guideRect.left - 16;
+    const safeWidth = Math.max(150, Math.min(220, available));
+    guide.style.setProperty('--cr-guide-safe-width', safeWidth + 'px');
+  }
+
   function reset(){
     clearTimeout(typeTimer);
     clearTimeout(holdTimer);
@@ -80,6 +97,7 @@
 
   function poofIn(message){
     reset();
+    clampGuideWidth();
     currentMessage = message;
     isActive = true;
     // Sync the step-change watchdog right now, in case a step-change
@@ -148,4 +166,8 @@
       poofIn(MESSAGE_DEFAULT);
     }
   }, 1000);
+
+  window.addEventListener('resize', function(){
+    if(isActive) clampGuideWidth();
+  });
 })();

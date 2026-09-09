@@ -103,6 +103,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .promo-banner-viewport{
   display:grid;
   justify-items:center;
+  overflow:hidden;
 }
 .promo-banner-slide{
   grid-area:1 / 1;
@@ -115,13 +116,13 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   padding:11px 56px;
   text-align:center;
   opacity:0;
-  transform:translateY(10px);
+  transform:translateX(-40px);
   pointer-events:none;
   transition:opacity .6s ease, transform .6s ease;
 }
 .promo-banner-slide.is-active{
   opacity:1;
-  transform:translateY(0);
+  transform:translateX(0);
   pointer-events:auto;
 }
 .promo-banner-msg{

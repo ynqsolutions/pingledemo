@@ -450,7 +450,7 @@
   position:absolute;
   left:46px;
   bottom:54px;
-  max-width:220px;
+  max-width:var(--cr-guide-safe-width, 220px);
   background:var(--white);
   border:3px solid var(--navy-950);
   padding:12px 14px 14px;
