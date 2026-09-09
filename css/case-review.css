@@ -421,3 +421,134 @@
   .cr-btn-back{ width:100%; }
   .cr-result-actions .btn{ width:100%; }
 }
+
+/* ================= GUIDE CHARACTER (idle nudge) =================
+   Pops up bottom-left after 15s of no page activity (js/case-review-
+   guide.js), types out an encouraging line in an 8-bit dialogue box,
+   then poofs away 5s after typing finishes or immediately if the quiz
+   moves to the next step. Fixed to the viewport (not the card) so it
+   stays put regardless of scroll position. */
+.cr-guide{
+  position:fixed;
+  left:20px;
+  bottom:20px;
+  width:280px;
+  height:150px;
+  z-index:130;
+  pointer-events:none;
+}
+.cr-guide-bubble{
+  position:absolute;
+  left:46px;
+  bottom:54px;
+  max-width:220px;
+  background:var(--white);
+  border:3px solid var(--navy-950);
+  padding:12px 14px 14px;
+  font-family:var(--font-body);
+  font-size:13px;
+  line-height:1.5;
+  color:var(--ink);
+  opacity:0;
+  transform:translateY(6px) scale(0.94);
+  transform-origin:bottom left;
+  box-shadow:5px 5px 0 0 var(--navy-950);
+}
+/* stepped pixel corners (NES/Game Boy dialogue box notch) */
+.cr-guide-bubble::before{
+  content:"";
+  position:absolute;
+  inset:-3px;
+  pointer-events:none;
+  background:
+    linear-gradient(var(--navy-950),var(--navy-950)) top left,
+    linear-gradient(var(--navy-950),var(--navy-950)) top right,
+    linear-gradient(var(--navy-950),var(--navy-950)) bottom left,
+    linear-gradient(var(--navy-950),var(--navy-950)) bottom right;
+  background-repeat:no-repeat;
+  background-size:6px 6px;
+}
+.cr-guide-bubble::after{
+  content:"";
+  position:absolute;
+  left:26px;
+  bottom:-14px;
+  width:11px; height:11px;
+  background:var(--white);
+  border-right:3px solid var(--navy-950);
+  border-bottom:3px solid var(--navy-950);
+  box-shadow:5px 5px 0 0 var(--navy-950);
+}
+.cr-guide.is-bubble-in .cr-guide-bubble{ animation:crGuideBubbleIn 0.28s ease-out forwards; }
+.cr-guide.is-out .cr-guide-bubble{ animation:crGuideBubbleOut 0.3s ease-in forwards; }
+@keyframes crGuideBubbleIn{
+  0%{ opacity:0; transform:translateY(6px) scale(0.94); }
+  100%{ opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes crGuideBubbleOut{
+  0%{ opacity:1; transform:translateY(0) scale(1); }
+  100%{ opacity:0; transform:translateY(6px) scale(0.94); }
+}
+.cr-guide-cursor{
+  display:inline-block;
+  width:2px; height:1em;
+  background:var(--navy-950);
+  margin-left:1px;
+  vertical-align:-2px;
+  animation:crGuideCursorBlink 0.85s steps(1) infinite;
+}
+.cr-guide-cursor.hide{ opacity:0; animation:none; }
+@keyframes crGuideCursorBlink{ 50%{ opacity:0; } }
+
+.cr-guide-char-wrap{
+  position:absolute;
+  left:0;
+  bottom:-6px;
+  width:64px;
+  height:64px;
+}
+.cr-guide-char{
+  width:100%; height:100%;
+  object-fit:contain;
+  image-rendering:pixelated;
+  transform:scale(0) translateY(10px);
+  transform-origin:bottom center;
+  filter:drop-shadow(0 10px 14px rgba(10,15,39,0.35));
+}
+.cr-guide.is-in .cr-guide-char{ animation:crGuidePop 0.55s cubic-bezier(.34,1.56,.64,1) forwards; }
+.cr-guide.is-out .cr-guide-char{ animation:crGuidePopOut 0.35s ease-in forwards; }
+@keyframes crGuidePop{
+  0%{ transform:scale(0) translateY(10px); opacity:0; }
+  55%{ transform:scale(1.12) translateY(-4px); opacity:1; }
+  100%{ transform:scale(1) translateY(0); opacity:1; }
+}
+@keyframes crGuidePopOut{
+  0%{ transform:scale(1) translateY(0); opacity:1; }
+  100%{ transform:scale(0) translateY(8px); opacity:0; }
+}
+
+/* sparkle burst on entrance */
+.cr-guide-spark{
+  position:absolute;
+  left:32px; bottom:14px;
+  width:6px; height:6px;
+  border-radius:50%;
+  background:var(--gold-400);
+  opacity:0;
+  transform:translate(-50%,-50%);
+}
+.cr-guide.is-in .cr-guide-spark{ animation:crGuideSparkOut 0.5s ease-out forwards; }
+@keyframes crGuideSparkOut{
+  0%{ opacity:1; transform:translate(-50%,-50%) scale(1) translate(0,0); }
+  100%{ opacity:0; transform:translate(-50%,-50%) scale(0.3) translate(var(--dx), var(--dy)); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .cr-guide-char, .cr-guide-bubble, .cr-guide-spark{ animation:none !important; }
+  .cr-guide.is-in .cr-guide-char, .cr-guide.is-bubble-in .cr-guide-bubble{ opacity:1; transform:none; }
+}
+
+/* Above the fixed mobile sticky CTA bar (~93px tall) instead of behind it. */
+@media (max-width: 680px){
+  .cr-guide{ left:14px; bottom:112px; width:240px; }
+}
