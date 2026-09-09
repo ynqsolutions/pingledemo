@@ -3,6 +3,7 @@
 .bk{
   background:var(--navy-950) url("../assets/booking-background.jpg") center/cover no-repeat;
   color:var(--white);
+  padding-top:12px;
 }
 .bk-inner{
   max-width:var(--container);
@@ -19,8 +20,8 @@
 .bk-left{ display:flex; flex-direction:column; overflow:hidden; }
 .bk-hero{
   position:relative;
-  padding:18px 24px 0 40px;
-  min-height:660px;
+  padding:14px 24px 0 40px;
+  min-height:560px;
   display:flex;
   flex-direction:column;
 }
@@ -51,7 +52,7 @@
 }
 .bk-photo{
   position:absolute;
-  right:-12%;
+  right:-23%;
   bottom:0;
   width:84%;
   z-index:1;

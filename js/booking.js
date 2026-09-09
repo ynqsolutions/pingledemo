@@ -11,6 +11,7 @@
   var state = { date: null, time: null };
   var today = new Date();
   today.setHours(0, 0, 0, 0);
+  var maxDate = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
   var viewYear = today.getFullYear();
   var viewMonth = today.getMonth();
   var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -23,6 +24,7 @@
   function renderCalendar(){
     calMonth.textContent = MONTHS[viewMonth] + ' ' + viewYear;
     calPrev.disabled = (viewYear === today.getFullYear() && viewMonth === today.getMonth());
+    calNext.disabled = (viewYear === maxDate.getFullYear() && viewMonth === maxDate.getMonth());
     calGrid.innerHTML = '';
     var firstDay = new Date(viewYear, viewMonth, 1).getDay();
     var days = new Date(viewYear, viewMonth + 1, 0).getDate();
@@ -34,7 +36,7 @@
     for(var d = 1; d <= days; d++){
       var dt = new Date(viewYear, viewMonth, d);
       var dow = dt.getDay();
-      var disabled = dt < today || dow === 0 || dow === 6;
+      var disabled = dt < today || dt > maxDate || dow === 0 || dow === 6;
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = String(d);
