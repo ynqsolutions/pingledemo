@@ -246,6 +246,65 @@
     setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
   }
 
-  // ---- Reviews mini-carousel (single real review today - arrows are a no-op
-  // until a second review is added, kept enabled for the layout to hold) ----
+  // ---- Reviews mini-carousel ----
+  // These 10 are the real reviews from results-and-testimonials.html's
+  // #reviewGrid, copied here rather than fetched live (that page has no
+  // JSON data source for reviews the way content/settlements.json backs
+  // the settlement tiles - they're hand-written into that page's HTML).
+  // Update both places if a review changes; centralizing this into a
+  // shared content/reviews.json read by generate_cms_sections.py would
+  // be the real fix if this needs to be truly kept in sync going forward.
+  var REVIEWS = [
+    { platform: 'Google', name: 'Jordan A.', loc: 'Fountain Valley, CA', text: "The Law Office of Corey A. Pingle are amazing; they were able to settle my employment case within months and answered all my questions every step of the way. Big shoutout to Matt who's a great attorney, I'd recommend them to anyone who needs a great team to handle their workplace concerns." },
+    { platform: 'Google', name: 'Jay Lim', loc: 'Fountain Valley, CA', text: 'This law firm has been trustworthy and supportive throughout all the painstaking processes. Corey and Emilija are professional, smart, and dedicated attorneys whom anyone who has been treated unfairly can rely on. Mary was also always empathetic and kind. Absolutely recommendable.' },
+    { platform: 'Yelp', name: 'Rather N.', loc: 'Fountain Valley, CA', text: "Best attorney around! Great lawyers, they were efficient and fast and got me a settlement I wanted. Would use them again! I didn't have to put much work into this, they did most of the work." },
+    { platform: 'Google', name: 'Jennifer Yost', loc: 'Fountain Valley, CA', text: "I can't say enough kind words about this law office. I had an employer that owed me a month and a half of back wages and they got me almost twice the money I was owed in a settlement within a matter of weeks." },
+    { platform: 'Google', name: 'Cindy Le', loc: 'Fountain Valley, CA', text: 'Corey is an amazing attorney who fought hard for my case for a little over a year. With the information he was given, he still managed to win my case and make sure justice was served. Thank you again, Corey, for everything!' },
+    { platform: 'Google', name: 'Nichole Kyea', loc: 'Fountain Valley, CA', text: "I can't say enough great things about the Law Offices of Corey A. Pingle. From start to finish, the entire team was professional, responsive, and truly invested in achieving the best possible outcome." },
+    { platform: 'Google', name: 'Angelina Sanchez', loc: 'Sacramento, CA', text: 'I had a wonderful experience working with this law firm and couldn’t be more satisfied with the service I received. From start to finish, the team was professional, responsive, and made me feel supported throughout the entire process. A special thank you to Matt Briggs for all of his assistance.' },
+    { platform: 'Google', name: 'Jesus Castro', loc: 'Sacramento, CA', text: 'Este abogado es muy bueno. Me ayudo con mi caso. Muchas gracias.' },
+    { platform: 'Google', name: 'Ayse Sozer', loc: 'Sacramento, CA', text: 'I had an excellent experience working with Corey Pingle. From the start, he was knowledgeable, responsive, and clearly experienced in employment law. He took the time to explain everything in a way that made sense and kept me informed throughout the entire process.' },
+    { platform: 'Google', name: 'Monica Levin', loc: 'Sacramento, CA', text: 'The attorneys at Pingle Law did a great job. Friendly and responsive. They gave me a free consultation, they do a great job!' }
+  ];
+
+  var reviewEl = document.getElementById('bkReview');
+  if(reviewEl){
+    var quoteEl = document.getElementById('bkReviewQuote');
+    var srcEl = document.getElementById('bkReviewSrc');
+    var reviewIndex = 0;
+    var reviewTimer = null;
+    var AUTO_ADVANCE_MS = 6000;
+
+    function paintReview(i){
+      var r = REVIEWS[i];
+      quoteEl.textContent = '“' + r.text + '”';
+      srcEl.innerHTML = '<b>' + (r.platform === 'Yelp' ? 'Y' : 'G') + '</b> ' + esc(r.name) + ' · Verified ' + r.platform + ' Review';
+    }
+    function showReview(i, animate){
+      reviewIndex = (i + REVIEWS.length) % REVIEWS.length;
+      if(!animate){ paintReview(reviewIndex); return; }
+      reviewEl.classList.add('is-fading');
+      setTimeout(function(){
+        paintReview(reviewIndex);
+        reviewEl.classList.remove('is-fading');
+      }, 250);
+    }
+    function scheduleNext(){
+      clearTimeout(reviewTimer);
+      reviewTimer = setTimeout(function(){
+        showReview(reviewIndex + 1, true);
+        scheduleNext();
+      }, AUTO_ADVANCE_MS);
+    }
+    document.getElementById('bkRevPrev').addEventListener('click', function(){
+      showReview(reviewIndex - 1, true);
+      scheduleNext();
+    });
+    document.getElementById('bkRevNext').addEventListener('click', function(){
+      showReview(reviewIndex + 1, true);
+      scheduleNext();
+    });
+    showReview(0, false);
+    scheduleNext();
+  }
 })();

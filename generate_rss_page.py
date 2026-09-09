@@ -37,8 +37,8 @@ SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_FILE = "rss.html"
 PAGE_FILE_PATTERN = "rss-page-{n}.html"
 ARCHIVE_FILE = "content/rss-archive.json"
-CSS_VERSION = "300"
-JS_VERSION = "83"
+CSS_VERSION = "301"
+JS_VERSION = "84"
 A11Y_CSS_VERSION = "12"
 A11Y_JS_VERSION = "15"
 FETCH_TIMEOUT = 12
@@ -105,7 +105,9 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 
 <!-- ============ HEADER ============ -->
 <div class="promo-banner" aria-label="Announcement">
-  <div class="promo-banner-track"><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span><span class="promo-banner-item">Now Accepting Wrongful Termination Cases <a href="case-review.html">Click for a Free Case Review</a></span></div>
+  <div class="promo-banner-viewport">
+    <div class="promo-banner-slide is-active"><span class="promo-banner-msg">Now Accepting Wrongful Termination Cases</span> <a href="case-review.html">Click for a Free Case Review</a></div>
+  </div>
 </div>
 <header class="site-header">
   <div class="header-inner wrap">
@@ -150,7 +152,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
   <div class="mobile-nav-footer">
     <span class="mobile-nav-lang-label">Se Habla Español</span>
     <a href="tel:+17145932306" class="btn btn-outline-light mobile-nav-phone-btn">(714) 593-2306</a>
-    <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="btn btn-gold">Free Consultation</a>
+    <a href="schedule-consultation.html" class="btn btn-gold">Free Consultation</a>
   </div>
 </div>
 
@@ -194,7 +196,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         <li>Real answers</li>
       </ul>
       <div class="cta-buttons">
-        <a href="https://calendly.com/pinglelaw/30min" target="_blank" rel="noopener" class="btn btn-gold">Free Consultation</a>
+        <a href="schedule-consultation.html" class="btn btn-gold">Free Consultation</a>
         <a href="contact.html" class="btn btn-outline-light">Contact Us</a>
       </div>
     </div>

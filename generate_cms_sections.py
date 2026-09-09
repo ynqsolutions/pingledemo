@@ -42,13 +42,6 @@ TEAM_GRID_RE = re.compile(r'(<!-- CMS:TEAM:START -->)(.*?)(<!-- CMS:TEAM:END -->
 SETTLEMENT_GRID_RE = re.compile(r'(<!-- CMS:SETTLEMENTS:START -->)(.*?)(<!-- CMS:SETTLEMENTS:END -->)', re.S)
 BANNER_RE = re.compile(r'(<!-- CMS:BANNER:START -->\n)(.*?)(\n<!-- CMS:BANNER:END -->)', re.S)
 
-# Repeated several times per half (not just duplicated once) so the
-# marquee is always comfortably wider than any real viewport before it
-# loops — see the .promo-banner-track / .badge-slider-track comments in
-# css/style.css for why a single duplication leaves a visible gap on wide
-# screens.
-BANNER_REPEATS_PER_HALF = 6
-
 
 def render_team_card(member):
     name = escape(member.get("name", ""))
@@ -125,12 +118,28 @@ def render_settlement_tile(item):
       </div>'''
 
 
-def render_banner(message, link_text, href):
-    item = f'<span class="promo-banner-item">{escape(message)} <a href="{escape(href)}">{escape(link_text)}</a></span>'
-    half = item * BANNER_REPEATS_PER_HALF
+def render_banner(messages):
+    """Up to 3 slides that cross-fade on a timer (js/main.js) - the first
+    is active by default so the banner still shows something correctly
+    if JS hasn't run yet. A single message (today's real content) means
+    there's only one slide, always active - no rotation to run."""
+    slides = []
+    for i, msg in enumerate(messages[:3]):
+        message = escape(msg.get("message", ""))
+        link_text = escape(msg.get("link_text", ""))
+        href = escape(msg.get("link", ""))
+        active = " is-active" if i == 0 else ""
+        slides.append(
+            f'    <div class="promo-banner-slide{active}">'
+            f'<span class="promo-banner-msg">{message}</span> '
+            f'<a href="{href}">{link_text}</a></div>'
+        )
+    slides_html = "\n".join(slides)
     return (
         '<div class="promo-banner" aria-label="Announcement">\n'
-        f'  <div class="promo-banner-track">{half}{half}</div>\n'
+        '  <div class="promo-banner-viewport">\n'
+        f'{slides_html}\n'
+        '  </div>\n'
         '</div>'
     )
 
@@ -152,16 +161,18 @@ def inject(filepath, pattern, rendered_items):
 
 
 def inject_banner_everywhere(announcement):
-    en_banner = render_banner(
-        announcement.get("message_en", ""),
-        announcement.get("link_text_en", ""),
-        announcement.get("link_en", "case-review.html"),
-    )
-    es_banner = render_banner(
-        announcement.get("message_es", ""),
-        announcement.get("link_text_es", ""),
-        announcement.get("link_es", "case-review-es.html"),
-    )
+    messages_en = announcement.get("messages_en") or [{
+        "message": announcement.get("message_en", ""),
+        "link_text": announcement.get("link_text_en", ""),
+        "link": announcement.get("link_en", "case-review.html"),
+    }]
+    messages_es = announcement.get("messages_es") or [{
+        "message": announcement.get("message_es", ""),
+        "link_text": announcement.get("link_text_es", ""),
+        "link": announcement.get("link_es", "case-review-es.html"),
+    }]
+    en_banner = render_banner(messages_en)
+    es_banner = render_banner(messages_es)
 
     count = 0
     for filepath in sorted(glob.glob("*.html")):

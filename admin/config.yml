@@ -13,10 +13,11 @@ public_folder: "/assets/uploads"
 
 collections:
   # ---------------------------------------------------------------------
-  # Announcement — the scrolling banner above the header on every page.
-  # A single JSON file (content/announcement.json); generate_cms_sections.py
-  # bakes it into all pages between their <!-- CMS:BANNER:START/END -->
-  # markers on the next build.
+  # Announcement — the banner above the header on every page. Up to 3
+  # messages per language; with more than one, they cross-fade on a timer
+  # (no manual prev/next). A single JSON file (content/announcement.json);
+  # generate_cms_sections.py bakes it into all pages between their
+  # <!-- CMS:BANNER:START/END --> markers on the next build.
   # ---------------------------------------------------------------------
   - name: "announcement"
     label: "Announcement Banner"
@@ -24,14 +25,28 @@ collections:
       - name: "announcement"
         label: "Announcement Banner"
         file: "content/announcement.json"
-        description: "The scrolling banner above the header on every page. Changes apply site-wide on the next deploy."
+        description: "The banner above the header on every page. Add up to 3 messages per language - with more than one, they rotate. Changes apply site-wide on the next deploy."
         fields:
-          - { label: "Message (English)", name: "message_en", widget: "string", hint: "e.g. Now Accepting Wrongful Termination Cases" }
-          - { label: "Link Text (English)", name: "link_text_en", widget: "string", hint: "e.g. Click for a Free Case Review" }
-          - { label: "Link (English)", name: "link_en", widget: "string", hint: "Where the link text goes. A page on this site, e.g. case-review.html, or a full https:// address." }
-          - { label: "Message (Spanish)", name: "message_es", widget: "string" }
-          - { label: "Link Text (Spanish)", name: "link_text_es", widget: "string" }
-          - { label: "Link (Spanish)", name: "link_es", widget: "string", hint: "Where the link text goes. A page on this site, e.g. case-review-es.html, or a full https:// address." }
+          - label: "Messages (English)"
+            name: "messages_en"
+            widget: "list"
+            min: 1
+            max: 3
+            summary: "{{fields.message}}"
+            fields:
+              - { label: "Message", name: "message", widget: "string", hint: "e.g. Now Accepting Wrongful Termination Cases" }
+              - { label: "Link Text", name: "link_text", widget: "string", hint: "e.g. Click for a Free Case Review" }
+              - { label: "Link", name: "link", widget: "string", hint: "Where the link text goes. A page on this site, e.g. case-review.html, or a full https:// address." }
+          - label: "Messages (Spanish)"
+            name: "messages_es"
+            widget: "list"
+            min: 1
+            max: 3
+            summary: "{{fields.message}}"
+            fields:
+              - { label: "Message", name: "message", widget: "string" }
+              - { label: "Link Text", name: "link_text", widget: "string" }
+              - { label: "Link", name: "link", widget: "string", hint: "Where the link text goes. A page on this site, e.g. case-review-es.html, or a full https:// address." }
 
   # ---------------------------------------------------------------------
   # Settlements — a single JSON file (content/settlements.json) holding a

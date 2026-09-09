@@ -93,21 +93,36 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    any real viewport - see that rule's own comment for why a single
    duplication leaves a visible gap on wide screens once the strip runs
    out of content before the loop wraps. */
+/* A single centered message at a time, cross-fading into the next on an
+   interval (js/main.js) - up to 3 configured in content/announcement.json
+   - rather than a continuously-scrolling ticker. No prev/next controls;
+   it only ever advances on its own. */
 .promo-banner{
   background:var(--gold-500);
-  overflow:hidden;
 }
-.promo-banner-track{
+.promo-banner-viewport{
+  display:grid;
+  justify-items:center;
+}
+.promo-banner-slide{
+  grid-area:1 / 1;
   display:flex;
   align-items:center;
-  width:max-content;
-  animation:promo-banner-marquee 70s linear infinite;
+  justify-content:center;
+  flex-wrap:wrap;
+  column-gap:10px;
+  row-gap:2px;
+  padding:11px 56px;
+  text-align:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .6s ease;
 }
-.promo-banner-item{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:11px 88px;
+.promo-banner-slide.is-active{
+  opacity:1;
+  pointer-events:auto;
+}
+.promo-banner-msg{
   font-family:var(--font-cond);
   font-size:14px;
   font-weight:600;
@@ -116,25 +131,24 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   color:var(--navy-950);
   white-space:nowrap;
 }
-.promo-banner-item a{
+.promo-banner-slide a{
+  font-family:var(--font-cond);
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
   color:var(--navy-950);
   text-decoration:underline;
   text-underline-offset:2px;
-  font-weight:700;
+  white-space:nowrap;
 }
-.promo-banner-item a:hover{ color:var(--white); }
-@keyframes promo-banner-marquee{
-  from{ transform:translateX(0); }
-  to{ transform:translateX(-50%); }
-}
-@media (hover:hover){
-  .promo-banner:hover .promo-banner-track{ animation-play-state:paused; }
-}
+.promo-banner-slide a:hover{ color:var(--white); }
 @media (prefers-reduced-motion: reduce){
-  .promo-banner-track{ animation:none; }
+  .promo-banner-slide{ transition:none; }
 }
 @media (max-width:680px){
-  .promo-banner-item{ font-size:12.5px; padding:9px 56px; }
+  .promo-banner-msg, .promo-banner-slide a{ font-size:12.5px; }
+  .promo-banner-slide{ padding:9px 20px; }
 }
 
 /* ================= HEADER ================= */

@@ -19,8 +19,8 @@
 .bk-left{ display:flex; flex-direction:column; overflow:hidden; }
 .bk-hero{
   position:relative;
-  padding:40px 24px 0 40px;
-  min-height:680px;
+  padding:18px 24px 0 40px;
+  min-height:660px;
   display:flex;
   flex-direction:column;
 }
@@ -117,8 +117,19 @@
   align-items:start;
 }
 .bk-review .stars{ color:var(--gold-400); font-size:15px; letter-spacing:2px; white-space:nowrap; padding-top:2px; }
-.bk-review .quote{ font-size:14.5px; line-height:1.5; color:rgba(255,255,255,0.92); }
-.bk-review .src{ grid-column:2; display:flex; align-items:center; gap:7px; font-size:12.5px; color:rgba(255,255,255,0.6); }
+.bk-review .quote{
+  font-size:14.5px;
+  line-height:1.5;
+  color:rgba(255,255,255,0.92);
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
+  transition:opacity .25s ease;
+}
+.bk-review.is-fading .quote,
+.bk-review.is-fading .src{ opacity:0; }
+.bk-review .src{ grid-column:2; display:flex; align-items:center; gap:7px; font-size:12.5px; color:rgba(255,255,255,0.6); transition:opacity .25s ease; }
 .bk-review .src b{ font-weight:700; font-size:14px; color:#4285F4; }
 .bk-review.is-hidden{ display:none; }
 
@@ -140,10 +151,9 @@
   font-family:var(--font-cond); font-size:15px; font-weight:700;
 }
 .bk-platform .score .stars{ color:#F5B301; font-size:13px; letter-spacing:1px; }
-.bk-platform .count{ margin-top:4px; font-size:12.5px; color:rgba(255,255,255,0.6); }
 
 /* ---- right: form card ---- */
-.bk-right{ padding:36px 32px 36px 28px; }
+.bk-right{ padding:18px 32px 36px 28px; }
 .bk-card{
   background:var(--white);
   color:var(--ink);
@@ -299,9 +309,10 @@
 .bk-office a{ color:var(--navy-900); text-decoration:underline; }
 .bk-office a:hover{ color:var(--gold-500); }
 
-/* ---- mobile ---- */
+/* ---- mobile: booking form shows first, trust panel/reviews below it ---- */
 @media (max-width:920px){
-  .bk-hero{ padding:36px 20px 0; min-height:0; }
+  .bk-right{ order:-1; padding:16px 0 28px; }
+  .bk-hero{ padding:28px 20px 0; min-height:0; }
   .bk-copy{ max-width:100%; }
   .bk-hero h1{ white-space:normal; font-size:clamp(40px,11vw,54px); }
   .bk-sub{ max-width:none; }
@@ -309,6 +320,5 @@
   .bk-photo{ position:relative; right:auto; width:88%; margin:8px 0 0 auto; display:block; }
   .bk-results{ margin:0 20px; padding:18px 0 16px; }
   .bk-reviews{ padding:22px 20px 32px; }
-  .bk-right{ padding:0 0 28px; }
   .bk-card{ border-radius:0; padding:28px 22px 24px; }
 }
