@@ -22,7 +22,10 @@
 
   const bubbleText = document.getElementById('crGuideBubbleText');
   const cursor = document.getElementById('crGuideCursor');
-  const formSection = document.querySelector('.cr-wrap');
+  // The white quiz card specifically, not the whole .cr-wrap section (which
+  // also includes the tan hero background above it) - the guide should only
+  // show while that white card itself is on screen.
+  const formSection = card;
   const step9Textarea = document.getElementById('crAnythingElse');
 
   const MESSAGE_DEFAULT = "Keep going! You're doing great so far. Just need a little more information.";

@@ -206,27 +206,27 @@
 .a11y-icon-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:8px;
+  gap:9px;
 }
 .a11y-icon-toggle{
   display:flex;
   flex-direction:row;
   align-items:center;
   justify-content:flex-start;
-  gap:8px;
-  padding:9px 10px;
+  gap:10px;
+  padding:13px 12px;
   border:1.5px solid var(--paper-line, #D8CFB6);
   border-radius:10px;
   background:var(--white, #fff);
   color:var(--ink, #131521);
-  font-size:12px;
+  font-size:13px;
   font-weight:600;
-  line-height:1.2;
+  line-height:1.25;
   text-align:left;
   cursor:pointer;
   min-height:0;
 }
-.a11y-icon-toggle-icon svg{ width:18px; height:18px; flex:none; }
+.a11y-icon-toggle-icon svg{ width:21px; height:21px; flex:none; }
 .a11y-icon-toggle-icon{ display:flex; }
 .a11y-icon-toggle:hover{ border-color:#1D4ED8; }
 .a11y-icon-toggle:focus-visible{ outline:3px solid #1D4ED8; outline-offset:2px; }

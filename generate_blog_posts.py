@@ -58,7 +58,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
-<link rel="stylesheet" href="css/a11y-widget.css?v=11">
+<link rel="stylesheet" href="css/a11y-widget.css?v=12">
 </head>
 <body class="page-article">
 
