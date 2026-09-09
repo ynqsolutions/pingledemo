@@ -1,8 +1,20 @@
-// Idle-nudge guide character for the case review quiz. Kept separate from
+// Guide character for the case review quiz. Kept separate from
 // case-review.js (which owns the quiz's step state) rather than reaching
 // into its closure - this reads the active step straight off the DOM
 // (case-review.js's showStep() toggles a plain .active class per .cr-step,
 // see js/case-review.js) so the two files stay independent.
+//
+// Trigger rules (deliberately narrow, per feedback that a broad "any
+// mouse/keyboard/scroll activity" definition almost never accumulates 15
+// idle seconds during normal form-filling, so the guide never appeared):
+//   - Default message: no click on a "Continue" button for 15s. Only
+//     Continue clicks reset this clock - not mouse movement, scrolling,
+//     typing, or any other interaction.
+//   - Step 9 message: only on step 9, and only once per page load. Fires
+//     on whichever happens first - typing more than 15 words into that
+//     step's textarea, or the same 15s-since-Continue idle rule.
+//   - Never shown while the quiz section has scrolled out of view (e.g.
+//     the visitor has scrolled down into the footer/final CTA).
 (function(){
   const card = document.getElementById('crCard');
   const guide = document.getElementById('crGuide');
@@ -10,34 +22,36 @@
 
   const bubbleText = document.getElementById('crGuideBubbleText');
   const cursor = document.getElementById('crGuideCursor');
+  const formSection = document.querySelector('.cr-wrap');
+  const step9Textarea = document.getElementById('crAnythingElse');
 
   const MESSAGE_DEFAULT = "Keep going! You're doing great so far. Just need a little more information.";
   const MESSAGE_STEP_9 = "This is helpful information! Just a couple more questions until you're finished.";
   const IDLE_MS = 15000;
+  const STEP_9_WORD_THRESHOLD = 15;
   const TYPE_SPEED = 26;
   const HOLD_AFTER_TYPE = 5000;
 
-  let lastActivity = Date.now();
+  let lastContinueClick = Date.now();
   let isActive = false;
+  let step9MessageShown = false;
+  let formVisible = true;
   let typeTimer = null;
   let holdTimer = null;
   let charIndex = 0;
   let currentMessage = '';
 
-  function markActivity(){
-    lastActivity = Date.now();
-  }
-  ['mousemove', 'keydown', 'scroll', 'touchstart', 'click', 'input', 'change'].forEach(function(evt){
-    window.addEventListener(evt, markActivity, { passive: true });
+  // Only a Continue click resets the idle clock - delegated so it covers
+  // the Continue button on every step without needing 10 listeners.
+  card.addEventListener('click', function(e){
+    if(e.target.closest('.cr-btn-next[data-next]')){
+      lastContinueClick = Date.now();
+    }
   });
 
   function activeStep(){
     const el = card.querySelector('.cr-step.active');
     return el ? el.dataset.step : null;
-  }
-
-  function messageForStep(step){
-    return step === '9' ? MESSAGE_STEP_9 : MESSAGE_DEFAULT;
   }
 
   function reset(){
@@ -60,15 +74,16 @@
     }
   }
 
-  function poofIn(){
-    // The result screen has already been submitted/decided - an "almost
-    // done" nudge doesn't make sense there, so skip it.
-    const step = activeStep();
-    if(!step || step === 'result') return;
-
+  function poofIn(message){
+    if(!formVisible) return;
     reset();
-    currentMessage = messageForStep(step);
+    currentMessage = message;
     isActive = true;
+    // Sync the step-change watchdog right now, in case a step-change
+    // mutation is still queued (not yet delivered to the observer) at the
+    // exact moment this fires - otherwise that stale callback would see
+    // isActive just turned true and immediately dismiss what just opened.
+    lastSeenStep = activeStep();
     guide.classList.add('is-in');
     setTimeout(function(){
       if(!isActive) return;
@@ -84,28 +99,59 @@
     isActive = false;
     guide.classList.remove('is-in', 'is-bubble-in');
     guide.classList.add('is-out');
-    // Start a fresh 15s idle window from the moment it leaves, rather than
-    // from whatever old timestamp lastActivity already held - otherwise it
-    // could immediately re-trigger a second after dismissing.
-    lastActivity = Date.now();
+    // Start a fresh 15s window from the moment it leaves, rather than from
+    // whatever old click timestamp already applied - otherwise it could
+    // immediately re-trigger a second after dismissing.
+    lastContinueClick = Date.now();
   }
 
   // Dismiss immediately if the quiz moves to a different step while the
   // guide is showing, rather than waiting out the 5s hold.
   let lastSeenStep = activeStep();
-  const observer = new MutationObserver(function(){
+  const stepObserver = new MutationObserver(function(){
     const step = activeStep();
     if(step !== lastSeenStep){
       lastSeenStep = step;
       if(isActive) poofOut();
     }
   });
-  observer.observe(card, { attributes: true, attributeFilter: ['class'], subtree: true });
+  stepObserver.observe(card, { attributes: true, attributeFilter: ['class'], subtree: true });
+
+  // Only appears while the quiz section itself is on screen - scrolling
+  // down into the final CTA/footer dismisses it and stops it retriggering.
+  if(formSection && 'IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      formVisible = entries[entries.length - 1].isIntersecting;
+      if(!formVisible && isActive) poofOut();
+    }, { threshold: 0 }).observe(formSection);
+  }
+
+  // Step 9's "couple more questions" nudge fires early the moment someone
+  // writes a substantial answer, instead of waiting out the idle timer.
+  if(step9Textarea){
+    step9Textarea.addEventListener('input', function(){
+      if(step9MessageShown || isActive) return;
+      if(activeStep() !== '9') return;
+      const wordCount = step9Textarea.value.trim().split(/\s+/).filter(Boolean).length;
+      if(wordCount > STEP_9_WORD_THRESHOLD){
+        step9MessageShown = true;
+        poofIn(MESSAGE_STEP_9);
+      }
+    });
+  }
 
   setInterval(function(){
-    if(isActive) return;
-    if(Date.now() - lastActivity >= IDLE_MS){
-      poofIn();
+    if(isActive || !formVisible) return;
+    const step = activeStep();
+    if(!step || step === 'result') return;
+    if(Date.now() - lastContinueClick < IDLE_MS) return;
+
+    if(step === '9'){
+      if(step9MessageShown) return;
+      step9MessageShown = true;
+      poofIn(MESSAGE_STEP_9);
+    } else {
+      poofIn(MESSAGE_DEFAULT);
     }
   }, 1000);
 })();

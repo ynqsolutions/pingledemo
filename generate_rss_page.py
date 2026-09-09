@@ -40,7 +40,7 @@ ARCHIVE_FILE = "content/rss-archive.json"
 CSS_VERSION = "300"
 JS_VERSION = "83"
 A11Y_CSS_VERSION = "11"
-A11Y_JS_VERSION = "14"
+A11Y_JS_VERSION = "15"
 FETCH_TIMEOUT = 12
 USER_AGENT = "PingleLawSite/1.0 (+https://www.pinglelaw.com)"
 # Keeps each page fast and gives search engines more distinct, indexable

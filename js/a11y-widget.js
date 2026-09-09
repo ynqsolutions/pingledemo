@@ -277,14 +277,39 @@
   }
   applyState();
 
-  // ---- Drag range for the tab (only used while the drawer is closed) ----
+  // ---- Drag range for the tab (only used while the drawer is closed).
+  // Bounded so it can never be dragged above the sticky header, and on
+  // mobile, never below the top of the fixed mobile-sticky-cta bar. ----
   function dragRange(){
     const margin = 12;
     const tabHeight = tabBtn.offsetHeight;
-    const minTop = margin;
-    const maxTop = Math.max(minTop, window.innerHeight - tabHeight - margin);
+
+    const header = document.querySelector('.site-header');
+    const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+    const minTop = Math.max(margin, headerBottom + margin);
+
+    let bottomReserve = margin;
+    const stickyCta = document.querySelector('.mobile-sticky-cta');
+    if(stickyCta && getComputedStyle(stickyCta).display !== 'none'){
+      bottomReserve = stickyCta.offsetHeight + margin;
+    }
+    const maxTop = Math.max(minTop, window.innerHeight - tabHeight - bottomReserve);
+
     return { minTop, maxTop };
   }
+
+  function clampToRange(){
+    if(state.top === null) return;
+    const { minTop, maxTop } = dragRange();
+    if(state.top < minTop || state.top > maxTop){
+      state.top = Math.max(minTop, Math.min(state.top, maxTop));
+      saveState(state);
+      applyState();
+    }
+  }
+  // Re-clamp a position restored from a previous visit (or saved before
+  // this header/footer boundary existed) as soon as real layout is known.
+  clampToRange();
 
   // ---- Drawer open/close with focus management. The drawer slides in
   // from the left and fills with real space, so the tab itself is hidden
@@ -467,13 +492,5 @@
     });
   });
 
-  window.addEventListener('resize', () => {
-    if(state.top === null) return;
-    const { minTop, maxTop } = dragRange();
-    if(state.top < minTop || state.top > maxTop){
-      state.top = Math.max(minTop, Math.min(state.top, maxTop));
-      saveState(state);
-      applyState();
-    }
-  });
+  window.addEventListener('resize', clampToRange);
 })();
