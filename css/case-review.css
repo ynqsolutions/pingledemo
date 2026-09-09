@@ -512,8 +512,8 @@
   position:absolute;
   left:0;
   bottom:-6px;
-  width:64px;
-  height:64px;
+  width:96px;
+  height:96px;
 }
 .cr-guide-char{
   width:100%; height:100%;
@@ -521,7 +521,6 @@
   image-rendering:pixelated;
   transform:scale(0) translateY(10px);
   transform-origin:bottom center;
-  filter:drop-shadow(0 10px 14px rgba(10,15,39,0.35));
 }
 .cr-guide.is-in .cr-guide-char{ animation:crGuidePop 0.55s cubic-bezier(.34,1.56,.64,1) forwards; }
 .cr-guide.is-out .cr-guide-char{ animation:crGuidePopOut 0.35s ease-in forwards; }
