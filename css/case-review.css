@@ -25,6 +25,7 @@
 .cr-wrap{
   background:var(--paper);
   padding:32px 0 96px;
+  position:relative;
 }
 .cr-card{
   max-width:760px;
@@ -429,12 +430,12 @@
    moves to the next step. Fixed to the viewport (not the card) so it
    stays put regardless of scroll position. */
 .cr-guide{
-  position:fixed;
+  position:absolute;
   left:20px;
   bottom:20px;
   width:280px;
   height:150px;
-  z-index:130;
+  z-index:5;
   pointer-events:none;
 }
 .cr-guide-bubble{
@@ -548,7 +549,9 @@
   .cr-guide.is-in .cr-guide-char, .cr-guide.is-bubble-in .cr-guide-bubble{ opacity:1; transform:none; }
 }
 
-/* Above the fixed mobile sticky CTA bar (~93px tall) instead of behind it. */
+/* No longer needs to dodge the fixed mobile sticky CTA bar - being part of
+   .cr-wrap's own flow (not position:fixed to the viewport) already keeps
+   it inside this section's bottom padding, well above that bar. */
 @media (max-width: 680px){
-  .cr-guide{ left:14px; bottom:112px; width:240px; }
+  .cr-guide{ left:14px; bottom:16px; width:240px; }
 }

@@ -13,8 +13,14 @@
 //   - Step 9 message: only on step 9, and only once per page load. Fires
 //     on whichever happens first - typing more than 15 words into that
 //     step's textarea, or the same 15s-since-Continue idle rule.
-//   - Never shown while the quiz section has scrolled out of view (e.g.
-//     the visitor has scrolled down into the footer/final CTA).
+//
+// The markup itself (case-review.html) lives inside .cr-wrap and is
+// position:absolute relative to it, not position:fixed to the viewport -
+// so it's structurally confined to that tan quiz section and scrolls away
+// with it, rather than needing JS to track whether it's currently on
+// screen (an earlier fixed-position version tried that with an
+// IntersectionObserver, which occasionally raced page layout on its first
+// callback and got permanently stuck reporting "not visible").
 (function(){
   const card = document.getElementById('crCard');
   const guide = document.getElementById('crGuide');
@@ -22,10 +28,6 @@
 
   const bubbleText = document.getElementById('crGuideBubbleText');
   const cursor = document.getElementById('crGuideCursor');
-  // The white quiz card specifically, not the whole .cr-wrap section (which
-  // also includes the tan hero background above it) - the guide should only
-  // show while that white card itself is on screen.
-  const formSection = card;
   const step9Textarea = document.getElementById('crAnythingElse');
 
   const MESSAGE_DEFAULT = "Keep going! You're doing great so far. Just need a little more information.";
@@ -38,7 +40,6 @@
   let lastContinueClick = Date.now();
   let isActive = false;
   let step9MessageShown = false;
-  let formVisible = true;
   let typeTimer = null;
   let holdTimer = null;
   let charIndex = 0;
@@ -78,7 +79,6 @@
   }
 
   function poofIn(message){
-    if(!formVisible) return;
     reset();
     currentMessage = message;
     isActive = true;
@@ -120,15 +120,6 @@
   });
   stepObserver.observe(card, { attributes: true, attributeFilter: ['class'], subtree: true });
 
-  // Only appears while the quiz section itself is on screen - scrolling
-  // down into the final CTA/footer dismisses it and stops it retriggering.
-  if(formSection && 'IntersectionObserver' in window){
-    new IntersectionObserver(function(entries){
-      formVisible = entries[entries.length - 1].isIntersecting;
-      if(!formVisible && isActive) poofOut();
-    }, { threshold: 0 }).observe(formSection);
-  }
-
   // Step 9's "couple more questions" nudge fires early the moment someone
   // writes a substantial answer, instead of waiting out the idle timer.
   if(step9Textarea){
@@ -144,7 +135,7 @@
   }
 
   setInterval(function(){
-    if(isActive || !formVisible) return;
+    if(isActive) return;
     const step = activeStep();
     if(!step || step === 'result') return;
     if(Date.now() - lastContinueClick < IDLE_MS) return;

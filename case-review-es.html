@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=300">
-<link rel="stylesheet" href="css/case-review.css?v=10">
+<link rel="stylesheet" href="css/case-review.css?v=11">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -75,21 +75,6 @@
     <a href="case-review-es.html" class="mobile-sticky-btn mobile-sticky-consult">Evaluación Gratuita</a>
   </div>
   <span class="mobile-sticky-lang">Se Habla Espa&ntilde;ol</span>
-</div>
-
-<!-- ============ GUIDE CHARACTER (idle nudge) ============ -->
-<div class="cr-guide" id="crGuide" aria-hidden="true">
-  <div class="cr-guide-bubble" id="crGuideBubble">
-    <span id="crGuideBubbleText"></span><span class="cr-guide-cursor" id="crGuideCursor"></span>
-  </div>
-  <div class="cr-guide-char-wrap">
-    <span class="cr-guide-spark" style="--dx:-26px; --dy:-14px;"></span>
-    <span class="cr-guide-spark" style="--dx:24px; --dy:-18px; animation-delay:.03s;"></span>
-    <span class="cr-guide-spark" style="--dx:-14px; --dy:-30px; animation-delay:.06s;"></span>
-    <span class="cr-guide-spark" style="--dx:18px; --dy:-28px; animation-delay:.02s;"></span>
-    <span class="cr-guide-spark" style="--dx:0px; --dy:-34px; animation-delay:.08s;"></span>
-    <img class="cr-guide-char" src="assets/Animations/character_talkinghead.gif" alt="" loading="lazy">
-  </div>
 </div>
 
 <main>
@@ -314,6 +299,25 @@
 
     </div>
   </div>
+
+  <!-- ============ GUIDE CHARACTER (idle nudge) ============
+       A child of this section (not position:fixed to the viewport) so it
+       stays confined to this tan quiz section specifically, scrolling
+       with the page instead of floating over the footer/final CTA below
+       once the visitor scrolls past this section. -->
+  <div class="cr-guide" id="crGuide" aria-hidden="true">
+    <div class="cr-guide-bubble" id="crGuideBubble">
+      <span id="crGuideBubbleText"></span><span class="cr-guide-cursor" id="crGuideCursor"></span>
+    </div>
+    <div class="cr-guide-char-wrap">
+      <span class="cr-guide-spark" style="--dx:-26px; --dy:-14px;"></span>
+      <span class="cr-guide-spark" style="--dx:24px; --dy:-18px; animation-delay:.03s;"></span>
+      <span class="cr-guide-spark" style="--dx:-14px; --dy:-30px; animation-delay:.06s;"></span>
+      <span class="cr-guide-spark" style="--dx:18px; --dy:-28px; animation-delay:.02s;"></span>
+      <span class="cr-guide-spark" style="--dx:0px; --dy:-34px; animation-delay:.08s;"></span>
+      <img class="cr-guide-char" src="assets/Animations/character_talkinghead.gif" alt="" loading="lazy">
+    </div>
+  </div>
 </section>
 
 <!-- ============ FINAL CTA ============ -->
@@ -451,7 +455,7 @@
 
 <script src="js/main.js?v=83" defer></script>
 <script src="js/case-review.js?v=13" defer></script>
-<script src="js/case-review-guide.js?v=4" defer></script>
+<script src="js/case-review-guide.js?v=6" defer></script>
 
 <script src="js/a11y-widget.js?v=15" defer></script>
 </body>
