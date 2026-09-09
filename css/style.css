@@ -116,9 +116,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   padding:11px 56px;
   text-align:center;
   opacity:0;
-  transform:translateX(-40px);
+  transform:translateX(-100vw);
   pointer-events:none;
-  transition:opacity .6s ease, transform .6s ease;
+  transition:opacity 1.1s ease, transform 1.1s ease;
 }
 .promo-banner-slide.is-active{
   opacity:1;
