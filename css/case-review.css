@@ -442,7 +442,7 @@
   bottom:20px;
   width:280px;
   height:0;
-  z-index:5;
+  z-index:145;
   pointer-events:none;
 }
 .cr-guide-bubble{
@@ -556,9 +556,12 @@
   .cr-guide.is-in .cr-guide-char, .cr-guide.is-bubble-in .cr-guide-bubble{ opacity:1; transform:none; }
 }
 
-/* No longer needs to dodge the fixed mobile sticky CTA bar - being part of
-   .cr-wrap's own flow (not position:fixed to the viewport) already keeps
-   it inside this section's bottom padding, well above that bar. */
+/* While actively stuck, position:sticky's `bottom` offset is measured
+   from the viewport's bottom edge exactly like position:fixed would be -
+   it only stops behaving that way once scrolled past the section. So on
+   mobile this still has to clear the fixed mobile-sticky-cta bar
+   (~93px tall), the same as the earlier fixed-position version did,
+   or it renders stuck underneath that bar. */
 @media (max-width: 680px){
-  .cr-guide{ left:14px; bottom:16px; width:240px; }
+  .cr-guide{ left:14px; bottom:108px; width:240px; }
 }
