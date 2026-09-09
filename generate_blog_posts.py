@@ -31,8 +31,8 @@ import sys
 SITE_DIR = os.path.dirname(os.path.abspath(__file__))
 BLOG_CONTENT_DIR = os.path.join(SITE_DIR, "content", "blog")
 
-CSS_VERSION = "305"
-JS_VERSION = "84"
+CSS_VERSION = "306"
+JS_VERSION = "85"
 
 # Ad promos an editor can pick from the CMS "Ad" dropdown (admin/config.yml).
 # Add new options here as more promos get built.

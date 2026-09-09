@@ -116,7 +116,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   padding:11px 56px;
   text-align:center;
   opacity:0;
-  transform:translateX(-100vw);
+  transform:translateX(100vw);
   pointer-events:none;
   transition:opacity 1.1s ease, transform 1.1s ease;
 }
@@ -124,6 +124,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   opacity:1;
   transform:translateX(0);
   pointer-events:auto;
+}
+.promo-banner-slide.is-leaving{
+  opacity:0;
+  transform:translateX(-100vw);
 }
 .promo-banner-msg{
   font-family:var(--font-cond);

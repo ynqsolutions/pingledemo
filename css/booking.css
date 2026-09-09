@@ -52,9 +52,9 @@
 }
 .bk-photo{
   position:absolute;
-  right:-5%;
+  right:-26%;
   bottom:0;
-  width:92%;
+  width:84%;
   z-index:1;
   filter:drop-shadow(0 20px 30px rgba(0,0,0,0.5));
 }
@@ -66,7 +66,7 @@
   background:linear-gradient(180deg, rgba(10,15,39,0.55), rgba(10,15,39,0.85));
   border-top:1px solid rgba(255,255,255,0.18);
   border-bottom:1px solid rgba(255,255,255,0.12);
-  padding:20px 24px 18px 0;
+  padding:20px 0 18px 24px;
 }
 .bk-results-label{
   display:block;
