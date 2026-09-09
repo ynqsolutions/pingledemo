@@ -442,6 +442,7 @@
   bottom:20px;
   width:280px;
   height:0;
+  transform:translateZ(0);
   z-index:145;
   pointer-events:none;
 }
@@ -520,11 +521,12 @@
    here would push the character's bottom edge into the fixed mobile
    sticky CTA bar's territory. Desktop has no such bar to clear. */
 @media (min-width:681px){
-  .cr-guide-char-wrap{ width:125px; height:125px; bottom:-34px; }
+  .cr-guide-char-wrap{ width:125px; height:125px; bottom:-30px; }
 }
 .cr-guide-char{
   width:100%; height:100%;
   object-fit:contain;
+  object-position:center bottom;
   image-rendering:pixelated;
   transform:scale(0) translateY(10px);
   transform-origin:bottom center;
@@ -570,4 +572,5 @@
    or it renders stuck underneath that bar. */
 @media (max-width: 680px){
   .cr-guide{ left:14px; bottom:108px; width:240px; }
+  .cr-guide-char-wrap{ bottom:-9px; }
 }
