@@ -430,11 +430,18 @@
    moves to the next step. Fixed to the viewport (not the card) so it
    stays put regardless of scroll position. */
 .cr-guide{
-  position:absolute;
+  /* Sticky, not fixed/absolute: stays pinned near the bottom of the
+     viewport while the visitor scrolls through this section, then simply
+     stops (scrolls away with the rest of the content) once the section's
+     own bottom edge is reached - it never floats past this section into
+     the footer/final CTA below. height:0 so it takes no visible space of
+     its own; the bubble/character are positioned off of this 0-height
+     anchor line via their own absolute offsets below. */
+  position:sticky;
   left:20px;
   bottom:20px;
   width:280px;
-  height:150px;
+  height:0;
   z-index:5;
   pointer-events:none;
 }
