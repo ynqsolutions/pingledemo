@@ -121,10 +121,15 @@ def render_settlement_tile(item):
 def render_banner(messages):
     """Up to 3 slides that cross-fade on a timer (js/main.js) - the first
     is active by default so the banner still shows something correctly
-    if JS hasn't run yet. A single message (today's real content) means
-    there's only one slide, always active - no rotation to run."""
+    if JS hasn't run yet. A single message is duplicated into two identical
+    slides so the banner still cross-fades (matches the same message back
+    in) instead of sitting static - "sliding" is expected even when there's
+    only one real message today."""
+    slides_source = messages[:3]
+    if len(slides_source) == 1:
+        slides_source = slides_source * 2
     slides = []
-    for i, msg in enumerate(messages[:3]):
+    for i, msg in enumerate(slides_source):
         message = escape(msg.get("message", ""))
         link_text = escape(msg.get("link_text", ""))
         href = escape(msg.get("link", ""))
