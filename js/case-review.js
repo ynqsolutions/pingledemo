@@ -265,8 +265,18 @@
       </label>
     `;
 
+    const ratingPillHtml = `
+      <span class="cr-rating-pill">
+        <span class="cr-rating-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+        <span class="cr-rating-txt"><strong>4.9</strong> from 250+ reviews</span>
+      </span>
+    `;
+
     const strongHtml = `
-      <span class="cr-result-badge cr-badge-strong">Likely a strong case</span>
+      <div class="cr-badge-row">
+        <span class="cr-result-badge cr-badge-strong">Likely a strong case</span>
+        ${ratingPillHtml}
+      </div>
       <h2>Based on your answers, <em>this looks worth pursuing.</em></h2>
       <p>Nothing here rules your case out, and several of your answers are exactly the kind of thing employment attorneys look for. The next step is a free, no-obligation conversation with our office to go over the details and what your options actually look like.</p>
       ${consentHtml}
@@ -278,7 +288,10 @@
     `;
 
     const maybeHtml = `
-      <span class="cr-result-badge cr-badge-maybe">Worth a conversation</span>
+      <div class="cr-badge-row">
+        <span class="cr-result-badge cr-badge-maybe">Worth a conversation</span>
+        ${ratingPillHtml}
+      </div>
       <h2>Your situation has <em>some complicating factors</em> &mdash; but that doesn't rule it out.</h2>
       <p>One or more of your answers can change your options or timeline. That doesn't mean there's no case. It just means an attorney needs to look at the specifics before anyone can say for sure.</p>
       ${consentHtml}

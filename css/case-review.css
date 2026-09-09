@@ -305,11 +305,17 @@
   line-height:1.65;
   max-width:560px;
 }
+.cr-badge-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
 .cr-result-badge{
   display:inline-flex;
   align-items:center;
   gap:8px;
-  margin-bottom:18px;
   padding:9px 18px;
   border-radius:999px;
   font-family:var(--font-cond);
@@ -330,6 +336,28 @@
   background:#1E6B47;
   color:#fff;
 }
+/* Combined review rating, shown beside the outcome badge on the results
+   step - reuses the same pill shape as .cr-result-badge (quieter, outlined)
+   rather than a separate strip/tile, so it reads as one badge row. */
+.cr-rating-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 16px 8px 14px;
+  border-radius:999px;
+  background:var(--paper-dim);
+  border:1px solid var(--paper-line);
+}
+.cr-rating-pill .cr-rating-stars{ color:var(--gold-500); font-size:13px; letter-spacing:1px; }
+.cr-rating-pill .cr-rating-txt{
+  font-family:var(--font-cond);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.02em;
+  color:var(--navy-900);
+  white-space:nowrap;
+}
+.cr-rating-pill .cr-rating-txt strong{ font-weight:700; }
 
 .cr-consent{
   display:flex;
