@@ -72,7 +72,22 @@
   // change, so the new question is always what's actually on screen.
   function scrollCardIntoView(){
     const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 61;
-    const top = card.getBoundingClientRect().top + window.scrollY - headerH - 16;
+    const margin = 16;
+    const cardRect = card.getBoundingClientRect();
+    const availableH = window.innerHeight - headerH;
+    let top;
+    if(cardRect.height + margin * 2 <= availableH){
+      // Whole card fits on screen - align its top just under the header,
+      // same as before.
+      top = cardRect.top + window.scrollY - headerH - margin;
+    } else {
+      // Card is taller than the viewport (long steps like the option
+      // grids, or step 10's contact fields) - top-aligning would leave
+      // the Continue button below the fold. Align the card's bottom to
+      // the bottom of the viewport instead, with a small gap, so the
+      // controls the visitor needs next are always on screen.
+      top = cardRect.bottom + window.scrollY - window.innerHeight + margin;
+    }
     window.scrollTo({ top: Math.max(top, 0), behavior: 'instant' });
   }
   function showStep(target){

@@ -41,11 +41,16 @@
    flex-wrap on the card + no shrinking/no truncation on its two stat
    blocks means at narrow widths the whole "reviews" block drops to its
    own row instead of any text getting squeezed or cut off mid-word. */
+/* Always a single row, at every width - font sizes and gaps scale down
+   with clamp()/vw instead of the card wrapping into a stacked layout
+   (stacking read badly: see the two screenshots that prompted this).
+   Nothing here truncates or clips text; it just gets smaller. */
 .cr-stat-card{
   display:inline-flex;
-  flex-wrap:wrap;
-  align-items:stretch;
+  flex-wrap:nowrap;
+  align-items:center;
   justify-content:center;
+  gap:clamp(4px, 2vw, 14px);
   background:rgba(255,255,255,0.5);
   backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);
@@ -53,50 +58,45 @@
   border-radius:14px;
   box-shadow:0 12px 30px -18px rgba(10,15,39,0.2);
   margin-top:24px;
+  width:fit-content;
   max-width:100%;
   box-sizing:border-box;
+  padding:clamp(8px, 2.4vw, 16px) clamp(6px, 3vw, 22px);
 }
 .cr-stat-block{
   display:flex;
   align-items:center;
-  gap:12px;
-  padding:16px 22px;
+  gap:clamp(4px, 1.6vw, 12px);
   flex-shrink:0;
+  min-width:0;
 }
 .cr-stat-avatars{ display:flex; flex-shrink:0; }
 .cr-stat-avatars img{
-  width:32px; height:32px; min-width:32px;
+  width:clamp(15px, 4vw, 32px); height:clamp(15px, 4vw, 32px); min-width:clamp(15px, 4vw, 32px);
   border-radius:50%; object-fit:cover;
   border:2px solid rgba(255,255,255,0.85);
   display:block; flex-shrink:0;
 }
-.cr-stat-avatars img + img{ margin-left:-10px; }
-.cr-stat-text{ display:flex; flex-direction:column; text-align:left; }
+.cr-stat-avatars img + img{ margin-left:clamp(-10px, -2.4vw, -6px); }
+.cr-stat-text{ display:flex; flex-direction:column; text-align:left; min-width:0; }
 .cr-stat-num{
   font-family:var(--font-display);
-  font-size:20px; font-weight:700;
+  font-size:clamp(12px, 3.6vw, 20px); font-weight:700;
   color:var(--navy-950);
   line-height:1;
   white-space:nowrap;
 }
 .cr-stat-label{
-  font-size:10.5px;
+  font-size:clamp(6px, 1.9vw, 10.5px);
   color:#5C5744;
   text-transform:uppercase;
-  letter-spacing:0.05em;
+  letter-spacing:clamp(0px, 0.3vw, 0.03em);
   font-weight:600;
-  margin-top:4px;
+  margin-top:3px;
   white-space:nowrap;
 }
-.cr-stat-star{ color:var(--gold-500); font-size:20px; letter-spacing:1px; flex-shrink:0; }
-.cr-stat-divider{ width:1px; background:rgba(179,138,60,0.35); align-self:center; height:36px; flex-shrink:0; }
-@media (max-width:520px){
-  .cr-stat-divider{ display:none; }
-  .cr-stat-card{ flex-direction:column; align-items:stretch; width:100%; max-width:340px; }
-  .cr-stat-block{ justify-content:center; width:100%; box-sizing:border-box; }
-  .cr-stat-text{ align-items:center; }
-  .cr-stat-num, .cr-stat-label{ white-space:normal; text-align:center; }
-}
+.cr-stat-star{ color:var(--gold-500); font-size:clamp(12px, 3.6vw, 20px); letter-spacing:1px; flex-shrink:0; }
+.cr-stat-divider{ width:1px; background:rgba(179,138,60,0.35); align-self:stretch; flex-shrink:0; }
 
 .cr-wrap{
   background:var(--paper);
@@ -113,7 +113,7 @@
 .cr-mountains{
   position:absolute;
   left:0; right:0; bottom:0;
-  height:260px;
+  height:180px;
   z-index:0;
   pointer-events:none;
 }
