@@ -9,7 +9,7 @@
   max-width:var(--container);
   margin:0 auto;
   display:grid;
-  grid-template-columns:66% 34%;
+  grid-template-columns:60% 40%;
   align-items:start;
 }
 @media (max-width:920px){
@@ -52,11 +52,10 @@
 }
 .bk-photo{
   position:absolute;
-  right:-15%;
+  right:-8%;
   bottom:0;
-  width:90%;
+  width:76%;
   z-index:1;
-  transform:scaleX(-1);
   filter:drop-shadow(0 20px 30px rgba(0,0,0,0.5));
 }
 
