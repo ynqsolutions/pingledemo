@@ -395,7 +395,6 @@
       .then(() => {
         if(window.bumpConsultCounter) window.bumpConsultCounter();
         resultContent.innerHTML = `
-          <span class="cr-result-badge cr-badge-strong">Request sent</span>
           <h2>Thank you, ${escapeHtml(answers.fullName.split(' ')[0] || '')}. <em>We've got your details.</em></h2>
           <p>Someone from our office will reach out to ${escapeHtml(answers.phone)} or ${escapeHtml(answers.email)} shortly to schedule your free consultation.</p>
           <div class="cr-result-actions">
