@@ -270,6 +270,15 @@
         <span class="cr-rating-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
         <span class="cr-rating-txt"><strong>4.9</strong> from 250+ reviews</span>
       </span>
+      <span class="cr-counter-pill">
+        <span class="cr-counter-avatars">
+          <img src="assets/avatars/consult-1.png" alt="">
+          <img src="assets/avatars/consult-2.png" alt="">
+          <img src="assets/avatars/consult-3.png" alt="">
+          <img src="assets/avatars/consult-4.png" alt="">
+        </span>
+        <span class="cr-counter-text"><strong class="consult-counter-num">380</strong> people requested a consultation</span>
+      </span>
     `;
 
     const strongHtml = `
@@ -384,6 +393,7 @@
       body: encode(payload)
     })
       .then(() => {
+        if(window.bumpConsultCounter) window.bumpConsultCounter();
         resultContent.innerHTML = `
           <span class="cr-result-badge cr-badge-strong">Request sent</span>
           <h2>Thank you, ${escapeHtml(answers.fullName.split(' ')[0] || '')}. <em>We've got your details.</em></h2>

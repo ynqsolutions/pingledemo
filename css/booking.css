@@ -260,6 +260,22 @@
 .bk-input svg{ position:absolute; right:14px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:#8E8A80; pointer-events:none; }
 .bk-count{ align-self:flex-end; margin-top:6px; font-size:12px; color:var(--ink-soft); }
 
+.bk-counter-row{ margin-top:22px; display:flex; justify-content:center; }
+.bk-counter{
+  display:inline-flex; flex-wrap:wrap; align-items:center; justify-content:center;
+  gap:8px 10px; max-width:100%; box-sizing:border-box;
+  background:#FBF6EC; border:1px solid var(--paper-line); border-radius:999px;
+  padding:7px 14px 7px 7px;
+}
+.bk-counter-avatars{ display:flex; flex-shrink:0; }
+.bk-counter-avatars img{
+  width:26px; height:26px; min-width:26px; flex-shrink:0;
+  border-radius:50%; object-fit:cover; border:2px solid #FBF6EC; display:block;
+}
+.bk-counter-avatars img + img{ margin-left:-8px; }
+.bk-counter-text{ font-size:12.5px; color:var(--navy-900); white-space:nowrap; }
+.bk-counter-text b{ color:var(--navy-950); }
+
 .bk-btn-row{ margin-top:26px; display:flex; gap:12px; }
 .bk-btn-primary{
   flex:1;

@@ -188,6 +188,7 @@
       body: encodeForm(payload)
     })
       .then(function(){
+        if(window.bumpConsultCounter) window.bumpConsultCounter();
         buildSummary();
         showStep(3);
       })

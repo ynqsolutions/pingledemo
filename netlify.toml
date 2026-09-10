@@ -1,5 +1,6 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
   # 1. Turns any Markdown posts added via /admin (content/blog/*.md) into
   #    real blog-<slug>.html pages, same pattern as generate_sitemap.py.
   # 2. Bakes team-card and settlement-tile HTML into about.html and

@@ -360,6 +360,35 @@
 }
 .cr-rating-pill .cr-rating-txt strong{ font-weight:700; }
 
+.cr-counter-pill{
+  display:inline-flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+  gap:8px 10px;
+  max-width:100%;
+  box-sizing:border-box;
+  padding:7px 14px 7px 7px;
+  border-radius:999px;
+  background:var(--paper-dim);
+  border:1px solid var(--paper-line);
+}
+.cr-counter-avatars{ display:flex; flex-shrink:0; }
+.cr-counter-avatars img{
+  width:22px; height:22px; min-width:22px; flex-shrink:0;
+  border-radius:50%; object-fit:cover; border:2px solid var(--paper-dim); display:block;
+}
+.cr-counter-avatars img + img{ margin-left:-7px; }
+.cr-counter-text{
+  font-family:var(--font-cond);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.02em;
+  color:var(--navy-900);
+  white-space:nowrap;
+}
+.cr-counter-text strong{ font-weight:700; }
+
 .cr-consent{
   display:flex;
   align-items:flex-start;
