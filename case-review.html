@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=307">
-<link rel="stylesheet" href="css/case-review.css?v=22">
+<link rel="stylesheet" href="css/case-review.css?v=24">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -93,11 +93,42 @@
   <div class="wrap cr-hero-inner">
     <h1 class="cr-hero-title">Free Case Review</h1>
     <p class="cr-hero-sub">Takes just a minute or two. There's no cost or obligations.</p>
+
+    <div class="cr-stat-card">
+      <div class="cr-stat-block">
+        <span class="cr-stat-avatars">
+          <img src="assets/avatars/consult-1.png" alt="">
+          <img src="assets/avatars/consult-2.png" alt="">
+          <img src="assets/avatars/consult-3.png" alt="">
+          <img src="assets/avatars/consult-4.png" alt="">
+        </span>
+        <span class="cr-stat-text">
+          <span class="cr-stat-num"><span class="consult-counter-num">1,041</span></span>
+          <span class="cr-stat-label">people requested a consultation</span>
+        </span>
+      </div>
+      <span class="cr-stat-divider"></span>
+      <div class="cr-stat-block">
+        <span class="cr-stat-star">&#9733;</span>
+        <span class="cr-stat-text">
+          <span class="cr-stat-num">4.9</span>
+          <span class="cr-stat-label">from 250+ reviews</span>
+        </span>
+      </div>
+    </div>
+
   </div>
 </section>
 
 <!-- ============ QUIZ ============ -->
 <section class="cr-wrap">
+  <div class="cr-mountains" aria-hidden="true">
+    <svg viewBox="0 0 900 200" preserveAspectRatio="none">
+      <path d="M0 200 L0 130 L110 55 L200 110 L300 35 L400 100 L520 25 L620 90 L720 45 L820 105 L900 65 L900 200 Z" fill="#6B4A2E" opacity="0.16"/>
+      <path d="M0 200 L0 155 L140 90 L260 135 L380 80 L500 140 L640 75 L760 130 L900 90 L900 200 Z" fill="#8B5E3C" opacity="0.22"/>
+      <path d="M0 200 L0 178 L180 135 L340 172 L520 130 L700 175 L900 140 L900 200 Z" fill="#A9713F" opacity="0.28"/>
+    </svg>
+  </div>
   <div class="wrap">
     <div class="cr-card" id="crCard">
 
@@ -464,7 +495,7 @@
 
 <script src="js/main.js?v=85" defer></script>
 <script src="js/consult-counter.js?v=1" defer></script>
-<script src="js/case-review.js?v=15" defer></script>
+<script src="js/case-review.js?v=16" defer></script>
 <script src="js/case-review-guide.js?v=8" defer></script>
 
 <script src="js/a11y-widget.js?v=15" defer></script>
