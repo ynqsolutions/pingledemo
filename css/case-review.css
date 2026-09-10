@@ -570,6 +570,11 @@
    (~93px tall), the same as the earlier fixed-position version did,
    or it renders stuck underneath that bar. */
 @media (max-width: 680px){
-  .cr-guide{ left:14px; bottom:108px; width:240px; }
-  .cr-guide-char-wrap{ bottom:-9px; }
+  .cr-guide{ left:14px; bottom:138px; width:240px; }
+  .cr-guide-char-wrap{ bottom:-33px; }
+  /* Swipeable on mobile (js/case-review-guide.js) - the guide itself stays
+     pointer-events:none so it never blocks taps on page content behind
+     it, but the bubble/character need pointer-events back on to actually
+     receive the touch gesture that dismisses them. */
+  .cr-guide-bubble, .cr-guide-char-wrap{ pointer-events:auto; }
 }

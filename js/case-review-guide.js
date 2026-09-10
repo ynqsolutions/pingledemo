@@ -170,4 +170,23 @@
   window.addEventListener('resize', function(){
     if(isActive) clampGuideWidth();
   });
+
+  // Swipe-to-dismiss on mobile, where there's no other obvious way to
+  // close the nudge early. Any swipe past a small threshold, in any
+  // direction, dismisses it - this is a "get this out of my way" gesture,
+  // not a drag-in-a-specific-direction one.
+  const SWIPE_DISMISS_PX = 40;
+  let touchStartX = 0;
+  let touchStartY = 0;
+  guide.addEventListener('touchstart', function(e){
+    if(!isActive || !e.touches.length) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  guide.addEventListener('touchmove', function(e){
+    if(!isActive || !e.touches.length) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if(Math.hypot(dx, dy) > SWIPE_DISMISS_PX) poofOut();
+  }, { passive: true });
 })();
