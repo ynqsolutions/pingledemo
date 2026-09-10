@@ -226,26 +226,16 @@
 .bk-time-wrap{ margin-top:22px; }
 .bk-time-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
 .bk-time{
-  display:flex; align-items:center; gap:10px;
-  padding:14px; border-radius:10px;
-  border:1.5px solid var(--paper-line); background:var(--white); text-align:left;
+  display:flex; flex-direction:column; align-items:center; text-align:center; gap:8px;
+  padding:18px 12px; border-radius:10px;
+  border:1.5px solid var(--paper-line); background:var(--white);
   min-width:0;
 }
 .bk-time .lbl, .bk-time .rng{ overflow-wrap:break-word; }
-.bk-time svg{ width:22px; height:22px; flex:none; color:var(--navy-900); }
-.bk-time .lbl{ font-size:14px; font-weight:600; color:var(--navy-950); }
-.bk-time .rng{ margin-top:2px; font-size:12px; color:var(--ink-soft); }
+.bk-time svg{ width:26px; height:26px; flex:none; color:var(--navy-900); }
+.bk-time .lbl{ font-size:16px; font-weight:700; color:var(--navy-950); }
+.bk-time .rng{ margin-top:2px; font-size:13px; color:var(--ink-soft); }
 .bk-time:hover{ border-color:var(--gold-500); }
-/* Between the mobile stack (920px) and a comfortably wide desktop form
-   column, the card gets narrow enough that "Afternoon" and its time
-   range don't fit next to the icon on one line - wrapping mid-word
-   instead of shrinking cleanly. Stack icon-over-text and tighten up so
-   all 3 tiles keep their single row instead of overflowing or wrapping. */
-@media (min-width:921px) and (max-width:1150px){
-  .bk-time{ flex-direction:column; align-items:center; text-align:center; gap:6px; padding:10px 6px; }
-  .bk-time .lbl{ font-size:12.5px; }
-  .bk-time .rng{ font-size:10.5px; }
-}
 .bk-time.is-selected{ border-color:var(--gold-500); background:#FBF6EC; box-shadow:0 0 0 3px rgba(179,138,60,0.15); }
 .bk-time.is-selected svg{ color:var(--gold-500); }
 @media (max-width:520px){ .bk-time-grid{ grid-template-columns:1fr; } }
