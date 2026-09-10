@@ -642,20 +642,27 @@
   .cr-guide-char-wrap{ bottom:-33px; }
   /* Swipeable on mobile (js/case-review-guide.js) - the guide itself stays
      pointer-events:none so it never blocks taps on page content behind
-     it, but the bubble/character need pointer-events back on to actually
-     receive the touch gesture that dismisses them. */
-  .cr-guide-bubble, .cr-guide-char-wrap{ pointer-events:auto; }
+     it. The bubble/character only need pointer-events back on while
+     actually visible/interactive (is-in / is-bubble-in), so the swipe
+     gesture can reach them; by default, and once dismissed ("is-out"),
+     they stay none. Previously this was unconditional, so the
+     invisible-but-still-there hit box was catching taps meant for
+     whatever sits underneath it - e.g. the result screen's "Restart
+     Review" link, which the guide's bottom-left position happens to
+     overlap, went dead on mobile. */
+  .cr-guide-bubble, .cr-guide-char-wrap{ pointer-events:none; }
+  .cr-guide.is-in .cr-guide-char-wrap,
+  .cr-guide.is-bubble-in .cr-guide-bubble{ pointer-events:auto; }
 }
 
 /* ================= MOBILE FULLSCREEN QUIZ SHEET =================
    Mobile only: the quiz section (.cr-wrap, which already contains the
    card AND the guide character) presents as an app-like fullscreen
    sheet on load, with a peek gap at the top showing the page behind it
-   as a swipe-down affordance. Closing it (X, or swipe down on the
-   handle) drops back to the normal embedded page for the rest of the
-   session, with a small reopen tab to jump back in. Elements are
-   injected by js/case-review.js so no separate markup is needed on
-   either language page. */
+   - tapping that peek area, or swiping the handle down, closes the
+   sheet the same as the X does, all with a slide-down animation.
+   Elements are injected by js/case-review.js so no separate markup is
+   needed on either language page. */
 body.cr-fullscreen-lock{ overflow:hidden; }
 
 @media (max-width:680px){
@@ -669,8 +676,17 @@ body.cr-fullscreen-lock{ overflow:hidden; }
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
     box-shadow:0 -12px 30px rgba(10,15,39,0.25);
+    transition:transform .28s cubic-bezier(.2,.8,.2,1);
+    will-change:transform;
   }
   .cr-wrap.is-fullscreen .wrap{ padding-top:6px; }
+  /* .cr-mountains defaults to position:absolute (see above), which
+     anchors "bottom:0" to the bottom of the scrollable content rather
+     than the visible viewport once a step's content is taller than the
+     sheet - on tall steps that pushed the skyline off-screen instead of
+     sitting flush at the bottom. Pin it to the viewport instead while
+     the sheet is open. */
+  .cr-wrap.is-fullscreen .cr-mountains{ position:fixed; }
 }
 
 .cr-fs-handle{ display:none; }
@@ -681,36 +697,32 @@ body.cr-fullscreen-lock{ overflow:hidden; }
 }
 .cr-fs-handle span{ width:36px; height:4px; border-radius:2px; background:var(--paper-line); }
 
+/* Plain X, no circle background, sized as a proper tap target and set
+   a step back from the edge; a warm dark gold rather than black so it
+   sits in the site's palette. */
 .cr-fs-close{ display:none; }
 .cr-wrap.is-fullscreen .cr-fs-close{
   display:flex; align-items:center; justify-content:center;
-  position:absolute; top:8px; right:10px;
-  width:32px; height:32px;
+  position:absolute; top:12px; right:16px;
+  width:44px; height:44px;
   background:none; border:none;
-  color:var(--ink-soft);
-  font-size:22px; line-height:1;
+  color:#8A6425;
+  font-size:24px; line-height:1;
   z-index:5;
 }
 
-/* Subtle reopen tab - a slim edge tab rather than a prominent floating
-   button, so it doesn't compete with the page once someone has chosen
-   to browse normally. */
-.cr-fs-reopen{ display:none; }
+/* Icon-only fullscreen toggle, inside the card itself (not a floating
+   overlay) - visible only on mobile, only when the sheet is closed. */
+.cr-fs-toggle{ display:none; }
 @media (max-width:680px){
-  .cr-fs-reopen{
-    display:flex; align-items:center; gap:6px;
-    position:fixed; z-index:250;
-    right:0; top:70%;
-    background:rgba(10,15,39,0.72);
-    color:rgba(255,255,255,0.9);
-    padding:7px 9px 7px 11px;
-    border-radius:8px 0 0 8px;
-    font-family:var(--font-cond);
-    font-size:10.5px;
-    font-weight:600;
-    letter-spacing:0.03em;
-    text-transform:uppercase;
-    border:none;
+  .cr-fs-toggle{
+    display:flex; align-items:center; justify-content:center;
+    position:absolute; top:14px; right:14px;
+    width:34px; height:34px;
+    background:none; border:none;
+    color:#8A6425;
+    z-index:2;
   }
-  .cr-fs-reopen svg{ width:13px; height:13px; flex-shrink:0; }
+  .cr-fs-toggle svg{ width:18px; height:18px; }
+  .cr-wrap.is-fullscreen .cr-fs-toggle{ display:none; }
 }

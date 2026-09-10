@@ -417,14 +417,18 @@
   // On mobile only, the quiz section presents as an app-like fullscreen
   // sheet on load (matches the max-width:680px breakpoint the rest of
   // this page's mobile CSS uses). A peek gap at the top shows the page
-  // behind it as a swipe-down affordance. Closing it (X, or swiping the
-  // handle down) drops to the normal embedded page for the rest of the
-  // tab's session; a small edge tab lets the visitor jump back in.
+  // behind it; tapping that peek area, tapping X, or swiping the handle
+  // down all close it with the same slide-down animation, dropping back
+  // to the normal embedded page for the rest of the tab's session. The
+  // reopen control lives inside the card itself (icon only) rather than
+  // as a floating overlay, so it can't sit on top of - and block clicks
+  // on - page content like the result screen's buttons.
   (function(){
     const wrap = document.querySelector('.cr-wrap');
     if(!wrap) return;
     const mq = window.matchMedia('(max-width:680px)');
     const DISMISS_KEY = 'crQuizFullscreenClosed';
+    const CLOSE_ANIM_MS = 280;
 
     const handle = document.createElement('div');
     handle.className = 'cr-fs-handle';
@@ -438,52 +442,89 @@
     closeBtn.textContent = '×';
     wrap.appendChild(closeBtn);
 
-    const reopenBtn = document.createElement('button');
-    reopenBtn.type = 'button';
-    reopenBtn.className = 'cr-fs-reopen';
-    reopenBtn.hidden = true;
-    reopenBtn.setAttribute('aria-label', 'Open full screen');
-    reopenBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m11 0h3a2 2 0 0 0 2-2v-3"/></svg><span>Full screen</span>';
-    document.body.appendChild(reopenBtn);
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'cr-fs-toggle';
+    toggleBtn.hidden = true;
+    toggleBtn.setAttribute('aria-label', 'Open full screen');
+    toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m11 0h3a2 2 0 0 0 2-2v-3"/></svg>';
+    card.appendChild(toggleBtn);
 
     function openFullscreen(){
+      wrap.style.transition = 'none';
+      wrap.style.transform = '';
       wrap.classList.add('is-fullscreen');
       document.body.classList.add('cr-fullscreen-lock');
-      reopenBtn.hidden = true;
+      toggleBtn.hidden = true;
       sessionStorage.removeItem(DISMISS_KEY);
+      // Force layout so the transition re-enables on the *next* change
+      // instead of animating this initial state in.
+      void wrap.offsetHeight;
+      wrap.style.transition = '';
     }
-    function closeFullscreen(){
+    function finishClose(){
       wrap.classList.remove('is-fullscreen');
       document.body.classList.remove('cr-fullscreen-lock');
-      reopenBtn.hidden = false;
+      wrap.style.transition = '';
+      wrap.style.transform = '';
+      toggleBtn.hidden = false;
       sessionStorage.setItem(DISMISS_KEY, '1');
+    }
+    function closeFullscreen(){
+      wrap.style.transition = 'transform ' + CLOSE_ANIM_MS + 'ms cubic-bezier(.2,.8,.2,1)';
+      wrap.style.transform = 'translateY(100%)';
+      window.setTimeout(finishClose, CLOSE_ANIM_MS);
     }
 
     closeBtn.addEventListener('click', closeFullscreen);
-    reopenBtn.addEventListener('click', openFullscreen);
+    toggleBtn.addEventListener('click', openFullscreen);
 
+    // Tapping the peek gap above the sheet (i.e. anywhere above its top
+    // edge) closes it too, same as tapping the page behind an app modal.
+    document.addEventListener('click', function(e){
+      if(!e.isTrusted) return;
+      if(!wrap.classList.contains('is-fullscreen')) return;
+      if(e.clientY < wrap.getBoundingClientRect().top){
+        closeFullscreen();
+      }
+    });
+
+    // Swipe down on the handle: the sheet follows the finger live, then
+    // either springs back or finishes the close, both animated.
     let touchStartY = null;
+    let lastDy = 0;
     handle.addEventListener('touchstart', function(e){
       touchStartY = e.touches[0].clientY;
+      lastDy = 0;
+      wrap.style.transition = 'none';
     }, { passive: true });
     handle.addEventListener('touchmove', function(e){
       if(touchStartY === null) return;
-      if(e.touches[0].clientY - touchStartY > 60){
-        closeFullscreen();
-        touchStartY = null;
-      }
+      lastDy = Math.max(0, e.touches[0].clientY - touchStartY);
+      wrap.style.transform = 'translateY(' + lastDy + 'px)';
     }, { passive: true });
-    handle.addEventListener('touchend', function(){ touchStartY = null; });
+    handle.addEventListener('touchend', function(){
+      if(touchStartY === null) return;
+      if(lastDy > 80){
+        closeFullscreen();
+      } else {
+        wrap.style.transition = 'transform ' + CLOSE_ANIM_MS + 'ms cubic-bezier(.2,.8,.2,1)';
+        wrap.style.transform = '';
+      }
+      touchStartY = null;
+    });
 
     function syncToViewport(){
       if(!mq.matches){
         wrap.classList.remove('is-fullscreen');
         document.body.classList.remove('cr-fullscreen-lock');
-        reopenBtn.hidden = true;
+        wrap.style.transition = '';
+        wrap.style.transform = '';
+        toggleBtn.hidden = true;
         return;
       }
       if(sessionStorage.getItem(DISMISS_KEY)){
-        reopenBtn.hidden = false;
+        toggleBtn.hidden = false;
       } else {
         openFullscreen();
       }
