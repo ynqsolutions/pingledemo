@@ -70,22 +70,20 @@
   // looking blank until they scroll back up to find it. Instead, scroll
   // the card's top to sit just under the sticky header on every step
   // change, so the new question is always what's actually on screen.
-  function scrollCardIntoView(){
+  function scrollCardIntoView(target){
     const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 61;
     const margin = 16;
     const cardRect = card.getBoundingClientRect();
-    const availableH = window.innerHeight - headerH;
     let top;
-    if(cardRect.height + margin * 2 <= availableH){
-      // Whole card fits on screen - align its top just under the header,
-      // same as before.
+    if(String(target) === '1'){
+      // First step only: align the card's top just under the header, so
+      // the hero/stat card above it stays visible.
       top = cardRect.top + window.scrollY - headerH - margin;
     } else {
-      // Card is taller than the viewport (long steps like the option
-      // grids, or step 10's contact fields) - top-aligning would leave
-      // the Continue button below the fold. Align the card's bottom to
-      // the bottom of the viewport instead, with a small gap, so the
-      // controls the visitor needs next are always on screen.
+      // Every other step (and the result panel): align the card's
+      // bottom to the bottom of the viewport, with a small gap, so the
+      // controls the visitor needs next are always on screen without
+      // scrolling past the hero content above.
       top = cardRect.bottom + window.scrollY - window.innerHeight + margin;
     }
     window.scrollTo({ top: Math.max(top, 0), behavior: 'instant' });
@@ -94,7 +92,7 @@
     steps.forEach(s => s.classList.toggle('active', s.dataset.step === String(target)));
     current = target;
     updateProgress();
-    scrollCardIntoView();
+    scrollCardIntoView(target);
   }
 
   // ---- Option tile handling (single + multi select) ----
