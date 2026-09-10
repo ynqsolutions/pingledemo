@@ -52,9 +52,9 @@
 }
 .bk-photo{
   position:absolute;
-  right:-17%;
+  right:-2%;
   bottom:0;
-  width:84%;
+  width:95%;
   z-index:1;
   filter:drop-shadow(0 20px 30px rgba(0,0,0,0.5));
 }
