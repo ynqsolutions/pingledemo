@@ -332,7 +332,7 @@
   .bk-hero h1{ white-space:normal; font-size:clamp(40px,11vw,54px); }
   .bk-sub{ max-width:none; }
   .bk-guarantee{ width:200px; margin-top:20px; }
-  .bk-photo{ position:relative; right:auto; width:88%; margin:8px 0 0 auto; display:block; }
+  .bk-photo{ position:relative; right:auto; width:106%; max-width:106%; margin:8px 0 0 auto; display:block; }
   .bk-results{ margin:0 20px; padding:18px 0 16px; }
   .bk-reviews{ padding:22px 20px 32px; }
   .bk-card{ border-radius:0; padding:28px 22px 24px; }
