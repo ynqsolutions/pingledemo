@@ -435,12 +435,19 @@
     handle.innerHTML = '<span></span>';
     wrap.prepend(handle);
 
+    // Close (fullscreen) / reopen (closed) icon bar - in-flow at the very
+    // top of the card, above "Step X of 10", instead of floating over a
+    // corner of the screen.
+    const fsBar = document.createElement('div');
+    fsBar.className = 'cr-fs-bar';
+    card.prepend(fsBar);
+
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'cr-fs-close';
     closeBtn.setAttribute('aria-label', 'Close full screen');
     closeBtn.textContent = '×';
-    wrap.appendChild(closeBtn);
+    fsBar.appendChild(closeBtn);
 
     const toggleBtn = document.createElement('button');
     toggleBtn.type = 'button';
@@ -448,7 +455,7 @@
     toggleBtn.hidden = true;
     toggleBtn.setAttribute('aria-label', 'Open full screen');
     toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m11 0h3a2 2 0 0 0 2-2v-3"/></svg>';
-    card.appendChild(toggleBtn);
+    fsBar.appendChild(toggleBtn);
 
     function openFullscreen(){
       wrap.style.transition = 'none';

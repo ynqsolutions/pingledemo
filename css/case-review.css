@@ -668,7 +668,20 @@ body.cr-fullscreen-lock{ overflow:hidden; }
 @media (max-width:680px){
   .cr-wrap.is-fullscreen{
     position:fixed;
-    top:36px; left:0; right:0; bottom:0;
+    top:36px; left:0; right:0; bottom:auto;
+    /* iOS Safari's address/tab bar can show or hide as the sheet is
+       scrolled, which changes how much of the screen is actually
+       visible. A plain "bottom:0" (or a fixed-position descendant's
+       "bottom:0") is measured against the LARGE viewport - the size
+       assuming browser chrome is collapsed - so whenever the chrome is
+       actually showing, that box (and anything pinned to its bottom
+       edge, like the mountains and the guide) sits partly below the
+       real visible fold. dvh tracks the true, currently-visible
+       viewport instead, so this stays flush regardless of toolbar
+       state. The plain vh line is a fallback for browsers without dvh
+       support; the dvh line after it wins wherever it's understood. */
+    height:calc(100vh - 36px);
+    height:calc(100dvh - 36px);
     z-index:300;
     background:var(--paper);
     border-radius:20px 20px 0 0;
@@ -677,16 +690,37 @@ body.cr-fullscreen-lock{ overflow:hidden; }
     -webkit-overflow-scrolling:touch;
     box-shadow:0 -12px 30px rgba(10,15,39,0.25);
     transition:transform .28s cubic-bezier(.2,.8,.2,1);
-    will-change:transform;
+    /* No will-change:transform here on purpose - it (like an actual
+       transform value) creates a new containing block for this
+       element's position:fixed descendants, which pulled the mountains
+       and guide's fixed-positioning math off by this sheet's own 36px
+       top offset instead of tracking the real viewport. Animation still
+       runs smoothly on the `transition` alone. */
   }
   .cr-wrap.is-fullscreen .wrap{ padding-top:6px; }
   /* .cr-mountains defaults to position:absolute (see above), which
      anchors "bottom:0" to the bottom of the scrollable content rather
      than the visible viewport once a step's content is taller than the
      sheet - on tall steps that pushed the skyline off-screen instead of
-     sitting flush at the bottom. Pin it to the viewport instead while
-     the sheet is open. */
-  .cr-wrap.is-fullscreen .cr-mountains{ position:fixed; }
+     sitting flush at the bottom. Pin it to the true visible viewport
+     bottom instead (dvh, same reasoning as above) while the sheet is
+     open, computed as a "top" offset rather than "bottom:0" since
+     bottom:0 on a fixed element has the exact same large-viewport
+     problem described above. */
+  .cr-wrap.is-fullscreen .cr-mountains{
+    position:fixed;
+    bottom:auto;
+    top:calc(100vh - 180px);
+    top:calc(100dvh - 180px);
+  }
+  /* Same dvh reasoning for the guide character: it's position:sticky
+     within this section, so it already tracks .cr-wrap's own bottom
+     edge correctly once that edge itself is sized with dvh above - but
+     its bottom offset was tuned to clear the fixed mobile-sticky-cta
+     bar, which sits *behind* this sheet (z-index 140 vs. 300) and is
+     therefore never visible while the sheet is open. Pull it in closer
+     to the sheet's real bottom instead of leaving that dead gap. */
+  .cr-wrap.is-fullscreen .cr-guide{ bottom:24px; }
 }
 
 .cr-fs-handle{ display:none; }
@@ -697,31 +731,30 @@ body.cr-fullscreen-lock{ overflow:hidden; }
 }
 .cr-fs-handle span{ width:36px; height:4px; border-radius:2px; background:var(--paper-line); }
 
-/* Plain X, no circle background, sized as a proper tap target and set
-   a step back from the edge; a warm dark gold rather than black so it
-   sits in the site's palette. */
-.cr-fs-close{ display:none; }
+/* Close (fullscreen) / reopen (closed) icon bar - in-flow at the top of
+   the card, above "Step X of 10", rather than floating over the
+   corner. Only one of the two buttons is ever visible at a time. */
+.cr-fs-bar{ display:none; }
+@media (max-width:680px){
+  .cr-fs-bar{
+    display:flex;
+    margin:-8px 0 18px -8px;
+  }
+}
+.cr-fs-close, .cr-fs-toggle{ display:none; }
 .cr-wrap.is-fullscreen .cr-fs-close{
   display:flex; align-items:center; justify-content:center;
-  position:absolute; top:12px; right:16px;
-  width:44px; height:44px;
+  width:40px; height:40px;
   background:none; border:none;
   color:#8A6425;
   font-size:24px; line-height:1;
-  z-index:5;
 }
-
-/* Icon-only fullscreen toggle, inside the card itself (not a floating
-   overlay) - visible only on mobile, only when the sheet is closed. */
-.cr-fs-toggle{ display:none; }
 @media (max-width:680px){
   .cr-fs-toggle{
     display:flex; align-items:center; justify-content:center;
-    position:absolute; top:14px; right:14px;
-    width:34px; height:34px;
+    width:40px; height:40px;
     background:none; border:none;
     color:#8A6425;
-    z-index:2;
   }
   .cr-fs-toggle svg{ width:18px; height:18px; }
   .cr-wrap.is-fullscreen .cr-fs-toggle{ display:none; }
