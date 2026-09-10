@@ -281,6 +281,10 @@
       var r = REVIEWS[i];
       quoteEl.textContent = '“' + r.text + '”';
       srcEl.innerHTML = '<b>' + (r.platform === 'Yelp' ? 'Y' : 'G') + '</b> ' + esc(r.name) + ' · Verified ' + r.platform + ' Review';
+      // REVIEWS is in the same order as results-and-testimonials.html's
+      // #reviewGrid (data-index/id="review-N" starts at 1), so this array
+      // position + 1 always lines up with the right card there.
+      reviewEl.href = 'results-and-testimonials.html#review-' + (i + 1);
     }
     function showReview(i, animate){
       reviewIndex = (i + REVIEWS.length) % REVIEWS.length;
@@ -298,14 +302,55 @@
         scheduleNext();
       }, AUTO_ADVANCE_MS);
     }
-    document.getElementById('bkRevPrev').addEventListener('click', function(){
+    document.getElementById('bkRevPrev').addEventListener('click', function(e){
+      e.preventDefault();
       showReview(reviewIndex - 1, true);
       scheduleNext();
     });
-    document.getElementById('bkRevNext').addEventListener('click', function(){
+    document.getElementById('bkRevNext').addEventListener('click', function(e){
+      e.preventDefault();
       showReview(reviewIndex + 1, true);
       scheduleNext();
     });
+
+    // Swipe left/right to change reviews - one pointer-based implementation
+    // covers mouse drag (desktop) and touch swipe (mobile) alike. A drag
+    // past the threshold changes the review and suppresses the click, so
+    // it doesn't ALSO navigate to the results page; anything under the
+    // threshold is treated as a plain tap/click and follows the link.
+    var SWIPE_PX = 40;
+    var dragStartX = null;
+    var dragDeltaX = 0;
+    var didSwipe = false;
+
+    reviewEl.addEventListener('pointerdown', function(e){
+      dragStartX = e.clientX;
+      dragDeltaX = 0;
+      didSwipe = false;
+    });
+    reviewEl.addEventListener('pointermove', function(e){
+      if(dragStartX === null) return;
+      dragDeltaX = e.clientX - dragStartX;
+    });
+    function endDrag(){
+      if(dragStartX === null) return;
+      if(Math.abs(dragDeltaX) > SWIPE_PX){
+        didSwipe = true;
+        showReview(reviewIndex + (dragDeltaX < 0 ? 1 : -1), true);
+        scheduleNext();
+      }
+      dragStartX = null;
+      dragDeltaX = 0;
+    }
+    reviewEl.addEventListener('pointerup', endDrag);
+    reviewEl.addEventListener('pointercancel', endDrag);
+    reviewEl.addEventListener('click', function(e){
+      if(didSwipe){
+        e.preventDefault();
+        didSwipe = false;
+      }
+    });
+
     showReview(0, false);
     scheduleNext();
   }

@@ -52,7 +52,7 @@
 }
 .bk-photo{
   position:absolute;
-  right:-26%;
+  right:-17%;
   bottom:0;
   width:84%;
   z-index:1;
@@ -116,7 +116,14 @@
   grid-template-columns:auto 1fr;
   gap:6px 16px;
   align-items:start;
+  text-decoration:none;
+  color:inherit;
+  cursor:pointer;
+  touch-action:pan-y;
+  user-select:none;
+  transition:border-color .2s ease, background .2s ease;
 }
+.bk-review:hover{ border-color:rgba(255,255,255,0.35); background:rgba(255,255,255,0.1); }
 .bk-review .stars{ color:var(--gold-400); font-size:15px; letter-spacing:2px; white-space:nowrap; padding-top:2px; }
 .bk-review .quote{
   font-size:14.5px;
