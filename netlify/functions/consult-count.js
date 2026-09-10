@@ -10,9 +10,11 @@ import { getStore } from '@netlify/blobs';
 // The counter starts at 0 the day this ships, which would show "0 people"
 // on day one - not false since every submission still adds a real +1, but
 // deliberately offset by this fixed constant so the badge starts at a
-// realistic number instead of an obviously-fresh zero. Raise or remove
-// this if the real count later grows past it.
-const BASELINE = 380;
+// realistic number instead of an obviously-fresh zero. This is the firm's
+// actual historical total of case reviews + consultation requests across
+// both the English and Spanish pages, as of launch. Raise or remove this
+// if the real count later grows past it.
+const BASELINE = 1041;
 
 export default async (req) => {
   const store = getStore('consultation-stats');

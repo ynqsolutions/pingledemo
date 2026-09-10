@@ -277,7 +277,7 @@
           <img src="assets/avatars/consult-3.png" alt="">
           <img src="assets/avatars/consult-4.png" alt="">
         </span>
-        <span class="cr-counter-text"><strong class="consult-counter-num">380</strong> people requested a consultation</span>
+        <span class="cr-counter-text"><strong class="consult-counter-num">1,041</strong> people requested a consultation</span>
       </span>
     `;
 
