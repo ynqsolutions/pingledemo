@@ -21,7 +21,7 @@
 .bk-hero{
   position:relative;
   padding:14px 24px 0 40px;
-  min-height:620px;
+  min-height:760px;
   display:flex;
   flex-direction:column;
 }
@@ -52,7 +52,7 @@
 }
 .bk-photo{
   position:absolute;
-  right:-6%;
+  right:0%;
   bottom:0;
   width:85%;
   z-index:1;
