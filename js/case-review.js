@@ -28,6 +28,27 @@
 
   let current = 1;
 
+  // ---- Browser back button steps back through the quiz instead of
+  // leaving the page ----
+  // Every forward move (Continue, See My Results, Restart) pushes a
+  // history entry carrying the step it lands on. The in-page Back
+  // button just calls history.back() instead of jumping straight to
+  // showStep(), so it and the browser's own back button both funnel
+  // through the same popstate handler and stay in sync. Once a visitor
+  // has backed past step 1 - i.e. past everything this page pushed -
+  // e.state is whatever was there before they arrived (typically none),
+  // and the browser is left to navigate to the actual previous page as
+  // normal.
+  history.replaceState({ crStep: 1 }, '', location.href);
+  function pushStepState(step){
+    history.pushState({ crStep: step }, '', location.href);
+  }
+  window.addEventListener('popstate', function(e){
+    if(e.state && e.state.crStep){
+      showStep(e.state.crStep);
+    }
+  });
+
   // Prefill contact fields if the homepage teaser form passed them along.
   (function prefillFromQuery(){
     const params = new URLSearchParams(window.location.search);
@@ -193,7 +214,7 @@
     btn.addEventListener('click', () => {
       const stepEl = btn.closest('.cr-step');
       const n = Number(stepEl.dataset.step);
-      if(n > 1) showStep(n - 1);
+      if(n > 1) history.back();
     });
   });
 
@@ -213,6 +234,7 @@
 
       if(n < totalQuestionSteps){
         showStep(n + 1);
+        pushStepState(n + 1);
       }
     });
   });
@@ -254,6 +276,7 @@
 
     renderResult();
     showStep('result');
+    pushStepState('result');
   });
 
   // ---- Qualification logic ----
@@ -337,6 +360,7 @@
     seeResultsBtn.classList.remove('is-ready');
     card.querySelectorAll('.cr-error.show').forEach(e => e.classList.remove('show'));
     showStep(1);
+    pushStepState(1);
   }
 
   // ---- Submit to Netlify Forms, then show a thank-you state ----
@@ -427,8 +451,13 @@
     const wrap = document.querySelector('.cr-wrap');
     if(!wrap) return;
     const mq = window.matchMedia('(max-width:680px)');
-    const DISMISS_KEY = 'crQuizFullscreenClosed';
     const CLOSE_ANIM_MS = 280;
+    // In-memory only, not sessionStorage: every fresh navigation to this
+    // page (clicking a "Free Case Review" link from anywhere else on the
+    // site, a reload, etc.) should default to full screen again, even if
+    // it was closed earlier in the same tab's session. Staying closed
+    // only applies for the rest of *this* page view.
+    let dismissedThisLoad = false;
 
     const handle = document.createElement('div');
     handle.className = 'cr-fs-handle';
@@ -463,7 +492,7 @@
       wrap.classList.add('is-fullscreen');
       document.body.classList.add('cr-fullscreen-lock');
       toggleBtn.hidden = true;
-      sessionStorage.removeItem(DISMISS_KEY);
+      dismissedThisLoad = false;
       // Force layout so the transition re-enables on the *next* change
       // instead of animating this initial state in.
       void wrap.offsetHeight;
@@ -475,7 +504,7 @@
       wrap.style.transition = '';
       wrap.style.transform = '';
       toggleBtn.hidden = false;
-      sessionStorage.setItem(DISMISS_KEY, '1');
+      dismissedThisLoad = true;
     }
     function closeFullscreen(){
       wrap.style.transition = 'transform ' + CLOSE_ANIM_MS + 'ms cubic-bezier(.2,.8,.2,1)';
@@ -530,7 +559,7 @@
         toggleBtn.hidden = true;
         return;
       }
-      if(sessionStorage.getItem(DISMISS_KEY)){
+      if(dismissedThisLoad){
         toggleBtn.hidden = false;
       } else {
         openFullscreen();
