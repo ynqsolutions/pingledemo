@@ -1764,35 +1764,103 @@ footer a:hover{ color:var(--white); }
 .mobile-sticky-cta{
   display:none;
   flex-direction:column;
+  align-items:center;
+  gap:2px;
   position:fixed;
   left:0; right:0; bottom:0;
   z-index:140;
-  background:var(--navy-950);
-  border-top:2px solid var(--gold-500);
+  padding:0 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  background:none;
+  pointer-events:none;
 }
-.mobile-sticky-buttons{ display:flex; }
-.mobile-sticky-btn{
+/* Floating glass dock, 3 icon buttons. Each button needs two presses to
+   actually navigate: the first "arms" it (shows its label in a tooltip,
+   slides the gold bubble under it), the second - on that same, already-
+   armed button - activates it. Dragging a finger across the dock previews
+   whichever icon it's over the same way a first tap would, without
+   activating, so lifting mid-drag never fires an action by accident;
+   only ending back on the button that was armed when the gesture began
+   counts as a confirming press. See js/main.js for the interaction. */
+.mcta-dock{
+  pointer-events:auto;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  max-width:320px;
+  padding:6px;
+  border-radius:999px;
+  background:rgba(10,15,39,0.55);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,0.14);
+  box-shadow:0 16px 40px -16px rgba(0,0,0,0.55);
+  touch-action:none;
+}
+.mcta-bubble{
+  position:absolute;
+  top:0; left:0;
+  width:0; height:0;
+  border-radius:50%;
+  background:var(--gold-500);
+  box-shadow:0 6px 16px -4px rgba(179,138,60,0.65);
+  opacity:0;
+  transform:translate(0,0);
+  transition:transform .28s cubic-bezier(.34,1.3,.4,1), opacity .18s ease;
+  pointer-events:none;
+  z-index:0;
+}
+.mcta-dock.has-armed .mcta-bubble{ opacity:1; }
+.mcta-btn{
+  position:relative;
+  z-index:1;
   flex:1;
   display:flex; align-items:center; justify-content:center;
-  gap:8px;
-  padding:20px 12px;
-  font-family:var(--font-cond);
-  font-size:18px;
-  font-weight:700;
-  letter-spacing:0.01em;
-  text-transform:uppercase;
+  height:52px;
+  border-radius:50%;
+  background:none; border:none;
+  color:rgba(255,255,255,0.85);
+  transition:color .2s ease;
 }
-.mobile-sticky-call{ color:var(--white); background:var(--navy-900); }
-.mobile-sticky-consult{ color:var(--white); background:var(--gold-500); }
+.mcta-btn.is-armed{ color:var(--navy-950); }
+.mcta-icon{ width:21px; height:21px; }
+.mcta-tip{
+  position:absolute;
+  bottom:calc(100% + 10px);
+  left:50%;
+  transform:translateX(-50%) translateY(4px);
+  background:var(--navy-950);
+  color:var(--white);
+  font-family:var(--font-cond);
+  font-size:11.5px;
+  font-weight:700;
+  letter-spacing:0.02em;
+  white-space:nowrap;
+  padding:7px 14px;
+  border-radius:999px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease, transform .18s ease;
+}
+.mcta-btn.is-armed .mcta-tip{ opacity:1; transform:translateX(-50%) translateY(0); }
+.mcta-tip::after{
+  content:"";
+  position:absolute; top:100%; left:50%;
+  transform:translateX(-50%);
+  border:5px solid transparent;
+  border-top-color:var(--navy-950);
+}
 .mobile-sticky-lang{
-  padding:6px 0 8px;
+  padding:6px 0 2px;
   text-align:center;
   font-family:var(--font-cond);
-  font-size:12px;
+  font-size:11px;
   font-weight:600;
   letter-spacing:0.06em;
   text-transform:uppercase;
-  color:var(--gold-300);
+  color:rgba(255,255,255,0.65);
+  text-shadow:0 1px 3px rgba(10,15,39,0.6);
 }
 
 /* ---- Answerly chat widget (js/answerly-widget.js) ----

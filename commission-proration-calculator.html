@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=307">
+<link rel="stylesheet" href="css/style.css?v=308">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -108,9 +108,20 @@
 
 <!-- ============ MOBILE STICKY CTA ============ -->
 <div class="mobile-sticky-cta" aria-hidden="false">
-  <div class="mobile-sticky-buttons">
-    <a href="tel:+17145932306" class="mobile-sticky-btn mobile-sticky-call">Call Now</a>
-    <a href="case-review.html" class="mobile-sticky-btn mobile-sticky-consult">Free Case Review</a>
+  <div class="mcta-dock" role="group" aria-label="Quick actions">
+    <span class="mcta-bubble" aria-hidden="true"></span>
+    <button type="button" class="mcta-btn" data-href="tel:+17145932306" aria-label="Call Now">
+      <svg class="mcta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span class="mcta-tip">Call Now</span>
+    </button>
+    <button type="button" class="mcta-btn" data-href="contact.html" aria-label="Contact Us">
+      <svg class="mcta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+      <span class="mcta-tip">Contact Us</span>
+    </button>
+    <button type="button" class="mcta-btn" data-href="schedule-consultation.html" aria-label="Schedule Consultation">
+      <svg class="mcta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="mcta-tip">Schedule Consultation</span>
+    </button>
   </div>
   <span class="mobile-sticky-lang">Se Habla Espa&ntilde;ol</span>
 </div>
@@ -458,7 +469,7 @@
   </div>
 </footer>
 
-<script src="js/main.js?v=85" defer></script>
+<script src="js/main.js?v=86" defer></script>
 <script src="js/commission-proration-calculator.js?v=1" defer></script>
 <script src="js/a11y-widget.js?v=15" defer></script>
 <script src="js/answerly-widget.js?v=3" defer></script>
