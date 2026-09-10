@@ -646,3 +646,71 @@
      receive the touch gesture that dismisses them. */
   .cr-guide-bubble, .cr-guide-char-wrap{ pointer-events:auto; }
 }
+
+/* ================= MOBILE FULLSCREEN QUIZ SHEET =================
+   Mobile only: the quiz section (.cr-wrap, which already contains the
+   card AND the guide character) presents as an app-like fullscreen
+   sheet on load, with a peek gap at the top showing the page behind it
+   as a swipe-down affordance. Closing it (X, or swipe down on the
+   handle) drops back to the normal embedded page for the rest of the
+   session, with a small reopen tab to jump back in. Elements are
+   injected by js/case-review.js so no separate markup is needed on
+   either language page. */
+body.cr-fullscreen-lock{ overflow:hidden; }
+
+@media (max-width:680px){
+  .cr-wrap.is-fullscreen{
+    position:fixed;
+    top:36px; left:0; right:0; bottom:0;
+    z-index:300;
+    background:var(--paper);
+    border-radius:20px 20px 0 0;
+    padding:0 0 24px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    box-shadow:0 -12px 30px rgba(10,15,39,0.25);
+  }
+  .cr-wrap.is-fullscreen .wrap{ padding-top:6px; }
+}
+
+.cr-fs-handle{ display:none; }
+.cr-wrap.is-fullscreen .cr-fs-handle{
+  display:flex; justify-content:center;
+  padding:10px 0 4px;
+  touch-action:none;
+}
+.cr-fs-handle span{ width:36px; height:4px; border-radius:2px; background:var(--paper-line); }
+
+.cr-fs-close{ display:none; }
+.cr-wrap.is-fullscreen .cr-fs-close{
+  display:flex; align-items:center; justify-content:center;
+  position:absolute; top:8px; right:10px;
+  width:32px; height:32px;
+  background:none; border:none;
+  color:var(--ink-soft);
+  font-size:22px; line-height:1;
+  z-index:5;
+}
+
+/* Subtle reopen tab - a slim edge tab rather than a prominent floating
+   button, so it doesn't compete with the page once someone has chosen
+   to browse normally. */
+.cr-fs-reopen{ display:none; }
+@media (max-width:680px){
+  .cr-fs-reopen{
+    display:flex; align-items:center; gap:6px;
+    position:fixed; z-index:250;
+    right:0; top:70%;
+    background:rgba(10,15,39,0.72);
+    color:rgba(255,255,255,0.9);
+    padding:7px 9px 7px 11px;
+    border-radius:8px 0 0 8px;
+    font-family:var(--font-cond);
+    font-size:10.5px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    border:none;
+  }
+  .cr-fs-reopen svg{ width:13px; height:13px; flex-shrink:0; }
+}

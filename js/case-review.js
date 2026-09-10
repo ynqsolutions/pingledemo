@@ -412,4 +412,83 @@
   }
 
   updateProgress();
+
+  // ---- Mobile fullscreen quiz sheet ----
+  // On mobile only, the quiz section presents as an app-like fullscreen
+  // sheet on load (matches the max-width:680px breakpoint the rest of
+  // this page's mobile CSS uses). A peek gap at the top shows the page
+  // behind it as a swipe-down affordance. Closing it (X, or swiping the
+  // handle down) drops to the normal embedded page for the rest of the
+  // tab's session; a small edge tab lets the visitor jump back in.
+  (function(){
+    const wrap = document.querySelector('.cr-wrap');
+    if(!wrap) return;
+    const mq = window.matchMedia('(max-width:680px)');
+    const DISMISS_KEY = 'crQuizFullscreenClosed';
+
+    const handle = document.createElement('div');
+    handle.className = 'cr-fs-handle';
+    handle.innerHTML = '<span></span>';
+    wrap.prepend(handle);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'cr-fs-close';
+    closeBtn.setAttribute('aria-label', 'Close full screen');
+    closeBtn.textContent = '×';
+    wrap.appendChild(closeBtn);
+
+    const reopenBtn = document.createElement('button');
+    reopenBtn.type = 'button';
+    reopenBtn.className = 'cr-fs-reopen';
+    reopenBtn.hidden = true;
+    reopenBtn.setAttribute('aria-label', 'Open full screen');
+    reopenBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m11 0h3a2 2 0 0 0 2-2v-3"/></svg><span>Full screen</span>';
+    document.body.appendChild(reopenBtn);
+
+    function openFullscreen(){
+      wrap.classList.add('is-fullscreen');
+      document.body.classList.add('cr-fullscreen-lock');
+      reopenBtn.hidden = true;
+      sessionStorage.removeItem(DISMISS_KEY);
+    }
+    function closeFullscreen(){
+      wrap.classList.remove('is-fullscreen');
+      document.body.classList.remove('cr-fullscreen-lock');
+      reopenBtn.hidden = false;
+      sessionStorage.setItem(DISMISS_KEY, '1');
+    }
+
+    closeBtn.addEventListener('click', closeFullscreen);
+    reopenBtn.addEventListener('click', openFullscreen);
+
+    let touchStartY = null;
+    handle.addEventListener('touchstart', function(e){
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    handle.addEventListener('touchmove', function(e){
+      if(touchStartY === null) return;
+      if(e.touches[0].clientY - touchStartY > 60){
+        closeFullscreen();
+        touchStartY = null;
+      }
+    }, { passive: true });
+    handle.addEventListener('touchend', function(){ touchStartY = null; });
+
+    function syncToViewport(){
+      if(!mq.matches){
+        wrap.classList.remove('is-fullscreen');
+        document.body.classList.remove('cr-fullscreen-lock');
+        reopenBtn.hidden = true;
+        return;
+      }
+      if(sessionStorage.getItem(DISMISS_KEY)){
+        reopenBtn.hidden = false;
+      } else {
+        openFullscreen();
+      }
+    }
+    syncToViewport();
+    mq.addEventListener('change', syncToViewport);
+  })();
 })();
