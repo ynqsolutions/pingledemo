@@ -242,7 +242,8 @@
       'DTSTART:' + icsStamp(start),
       'DTEND:' + icsStamp(end),
       'SUMMARY:Phone Consultation – Law Offices of Corey A. Pingle',
-      'DESCRIPTION:Someone from our office will call ' + fPhone.value.trim() + ' during this window (' + state.time + ', ' + RANGES[state.time] + ').',
+      'DESCRIPTION:Someone from our office will call you during this window (' + state.time + ', ' + RANGES[state.time] + '). Questions? Call us at (714) 593-2306.',
+      'CONTACT:Law Offices of Corey A. Pingle\\, (714) 593-2306',
       'LOCATION:Phone call',
       'END:VEVENT',
       'END:VCALENDAR'
