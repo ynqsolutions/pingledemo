@@ -89,7 +89,7 @@
 [[headers]]
   for = "/admin/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://identity.netlify.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.netlify.com https://api.github.com https://identity.netlify.com; frame-src https://api.netlify.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://identity.netlify.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.netlify.com https://api.github.com https://identity.netlify.com https://www.google-analytics.com; frame-src https://api.netlify.com https://app.netlify.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'"
 
 # CSS/JS are not hashed/fingerprinted (no build step), so a visitor's browser
 # cache can't tell an old deploy's file apart from a new one at the same URL.
