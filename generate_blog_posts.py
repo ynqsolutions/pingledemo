@@ -11,8 +11,11 @@ Each content/blog/*.md file has simple frontmatter:
     ---
     title: Page Title Here
     date: 2026-01-01
+    draft: false
     ---
     Body content in Markdown.
+
+A post with "draft: true" is skipped (no page generated).
 
 Only a small, dependency-free Markdown subset is supported (paragraphs,
 ##/### headings, **bold**, *italic*, [links](url), and - bullet lists) —
@@ -311,6 +314,12 @@ def build_posts():
             raw = f.read()
 
         fields, body_md = parse_frontmatter(raw)
+        # Drafts (draft: true in the frontmatter, set from the admin
+        # dashboard's Published/Draft toggle) stay out of the build entirely,
+        # so a post can be written and saved without going live.
+        if fields.get("draft", "").strip().lower() in ("true", "yes", "1"):
+            print(f"generate_blog_posts.py: skipping draft {filepath}")
+            continue
         title = fields.get("title", slug.replace("-", " ").title())
         body_html = markdown_to_html(body_md)
 
