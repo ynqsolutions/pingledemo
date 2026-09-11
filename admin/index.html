@@ -351,10 +351,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         View Live Site
       </a>
-      <button type="button" id="logoutBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
-        Log Out
-      </button>
     </div>
   </aside>
 
@@ -614,9 +610,14 @@
   if(window.netlifyIdentity){
     window.netlifyIdentity.on('init', function(user){ setUser(user); });
     window.netlifyIdentity.on('login', function(user){ setUser(user); window.netlifyIdentity.close(); resetLoaded(); route(); });
-    window.netlifyIdentity.on('logout', function(){ setUser(null); });
-    $('#gateLogin').addEventListener('click', function(){ window.netlifyIdentity.open('login'); });
-    $('#logoutBtn').addEventListener('click', doLogout);
+    // After logout the widget keeps a stale session in memory and its
+    // modal opens on the "logged in" panel instead of the sign-in form,
+    // so reload to a clean state.
+    window.netlifyIdentity.on('logout', function(){ setUser(null); location.replace(location.pathname); });
+    $('#gateLogin').addEventListener('click', function(){
+      if(currentUser()){ setUser(currentUser()); route(); return; }
+      window.netlifyIdentity.open('login');
+    });
     $('#logoutBtn2').addEventListener('click', doLogout);
   }
   function resetLoaded(){ Object.keys(editors).forEach(function(k){ editors[k].loaded = false; }); blog.loaded = false; }
