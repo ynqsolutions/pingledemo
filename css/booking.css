@@ -248,7 +248,7 @@
 .bk-input input, .bk-field textarea{
   width:100%;
   font-family:var(--font-body);
-  font-size:15px;
+  font-size:16px;
   padding:14px 42px 14px 14px;
   border-radius:8px;
   border:1.5px solid var(--paper-line);
@@ -262,7 +262,7 @@
 .bk-field select{
   width:100%;
   font-family:var(--font-body);
-  font-size:15px;
+  font-size:16px;
   padding:14px 42px 14px 14px;
   border-radius:8px;
   border:1.5px solid var(--paper-line);
