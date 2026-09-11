@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KN4LLF94MF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KN4LLF94MF');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pingle Law — Content Editor</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<!-- This page lives one level below the config file (the dashboard at
+     /admin/ owns that folder now), so tell Decap where to find it instead
+     of letting it look for ./config.yml next to this file. -->
+<link href="/admin/config.yml" type="text/yaml" rel="cms-config-url">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Decap CMS's own stylesheet sets a light gray background everywhere
+     and its own font stack. Match the site's look: dark navy background
+     + Inter on the pre-login screen, white background once logged in.
+     The cms-pre-login/cms-post-login class is toggled by the script
+     below based on Netlify Identity state.
+
+     Decap's own component classes carry a build-specific random hash
+     (e.g. "css-zwje8v-LoginButton-button-..."), so these use [class*=]
+     substring selectors on the stable, human-readable part of each name
+     rather than the full class, so they keep working across CMS updates
+     that only change the hash. */
+  body.cms-pre-login{ background:#0A0F27 !important; }
+  body.cms-post-login{ background:#ffffff !important; }
+
+  body, input, textarea, select, button{ font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+  [class*="StyledAuthenticationPage"]{
+    gap:28px !important;
+  }
+  [class*="LoginButton-button"]{
+    background:#B38A3C !important;
+    color:#0A0F27 !important;
+    font-weight:600 !important;
+    border-radius:8px !important;
+    box-shadow:0 12px 28px -10px rgba(179,138,60,0.55) !important;
+    transition:background .2s ease, transform .2s ease !important;
+  }
+  [class*="LoginButton-button"]:hover{
+    background:#C9A24F !important;
+    transform:translateY(-1px);
+  }
+  [class*="GoBackButtonStyle"]{
+    opacity:0.6;
+    transition:opacity .2s ease;
+  }
+  [class*="GoBackButtonStyle"]:hover{ opacity:1; }
+
+  /* Way back to the dashboard. Decap renders into its own root and
+     doesn't offer a hook for extra nav, so this sits fixed at the
+     bottom-left, outside its tree, and only once someone is logged in
+     (the pre-login screen is Decap's own, no chrome around it). */
+  .back-to-dashboard{
+    display:none;
+    position:fixed; left:16px; bottom:16px; z-index:99999;
+    align-items:center; gap:8px;
+    padding:10px 14px; border-radius:999px;
+    background:#0A0F27; color:#fff;
+    font-size:13px; font-weight:600; text-decoration:none;
+    box-shadow:0 10px 24px -10px rgba(10,15,39,0.6);
+  }
+  .back-to-dashboard:hover{ background:#151F49; }
+  body.cms-post-login .back-to-dashboard{ display:inline-flex; }
+</style>
+<!-- Decap CMS (formerly Netlify CMS) — the actual editor UI. Everything
+     below this line is boilerplate; the real configuration lives in
+     admin/config.yml. -->
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+<a class="back-to-dashboard" href="/admin/">
+  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+  Dashboard
+</a>
+<script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+<script>
+  // If Netlify Identity redirects here after an invite/password-recovery
+  // link (e.g. #invite_token=...) instead of via the homepage, handle it
+  // the same way so the "set your password" flow still works.
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.on("init", (user) => {
+      document.body.classList.toggle("cms-pre-login", !user);
+      document.body.classList.toggle("cms-post-login", !!user);
+      if (!user) {
+        window.netlifyIdentity.on("login", () => {
+          document.location.href = "/admin/cms/";
+        });
+      }
+    });
+    window.netlifyIdentity.on("logout", () => {
+      document.body.classList.remove("cms-post-login");
+      document.body.classList.add("cms-pre-login");
+    });
+  }
+</script>
+</body>
+</html>
