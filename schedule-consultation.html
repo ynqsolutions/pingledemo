@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=309">
-<link rel="stylesheet" href="css/booking.css?v=23">
+<link rel="stylesheet" href="css/booking.css?v=24">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -219,7 +219,6 @@
         <!-- STEP 2: contact info -->
         <div class="bk-step" data-step="2">
           <h2>Tell Us a Few Details</h2>
-          <p class="bk-hint">So the attorney who calls you already has context for your situation.</p>
 
           <div class="bk-fields">
             <div class="bk-field">
@@ -254,6 +253,22 @@
               <span class="bk-label">Briefly Tell Us About Your Situation <span class="req">*</span></span>
               <textarea id="bkSituation" maxlength="500" placeholder="e.g., wrongful termination, unpaid wages, harassment, etc."></textarea>
               <span class="bk-count"><span id="bkCount">0</span>/500</span>
+            </div>
+            <div class="bk-field full">
+              <span class="bk-label">How Did You Hear About Us?</span>
+              <select id="bkHeardFrom">
+                <option value="" selected disabled>Select one</option>
+                <option value="Google">Google</option>
+                <option value="Referral">Referral</option>
+                <option value="ChatGPT/Claude">ChatGPT/Claude</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Other">Other</option>
+              </select>
+              <div class="bk-referral-field" id="bkReferralField" hidden>
+                <div class="bk-input">
+                  <input type="text" id="bkReferralName" placeholder="Who referred you?" autocomplete="off">
+                </div>
+              </div>
             </div>
           </div>
 
@@ -408,12 +423,13 @@
   <input type="text" name="phone">
   <input type="text" name="email">
   <input type="text" name="situation">
+  <input type="text" name="heardFrom">
   <input type="text" name="sc-bot-field">
 </form>
 
 <script src="js/main.js?v=85" defer></script>
 <script src="js/consult-counter.js?v=1" defer></script>
-<script src="js/booking.js?v=2" defer></script>
+<script src="js/booking.js?v=3" defer></script>
 <script src="js/a11y-widget.js?v=15" defer></script>
 </body>
 </html>

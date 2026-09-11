@@ -116,6 +116,9 @@
   var fEmail = document.getElementById('bkEmail');
   var fSituation = document.getElementById('bkSituation');
   var fCount = document.getElementById('bkCount');
+  var fHeardFrom = document.getElementById('bkHeardFrom');
+  var referralField = document.getElementById('bkReferralField');
+  var fReferralName = document.getElementById('bkReferralName');
   var toStep3 = document.getElementById('bkToStep3');
   var step2Error = document.getElementById('bkStep2Error');
 
@@ -124,6 +127,10 @@
     updateStep2();
   });
   [fFirst, fLast, fEmail].forEach(function(el){ el.addEventListener('input', updateStep2); });
+
+  fHeardFrom.addEventListener('change', function(){
+    referralField.hidden = fHeardFrom.value !== 'Referral';
+  });
 
   function step2Valid(){
     return !!(fFirst.value.trim() && fLast.value.trim() &&
@@ -172,6 +179,11 @@
     btn.setAttribute('disabled', 'true');
     btn.textContent = 'Sending…';
 
+    var heardFrom = fHeardFrom.value;
+    if(heardFrom === 'Referral' && fReferralName.value.trim()){
+      heardFrom = 'Referral: ' + fReferralName.value.trim();
+    }
+
     var payload = {
       'form-name': 'schedule-consultation',
       preferredDate: state.date.toISOString().slice(0, 10),
@@ -179,7 +191,8 @@
       fullName: fFirst.value.trim() + ' ' + fLast.value.trim(),
       phone: fPhone.value.trim(),
       email: fEmail.value.trim(),
-      situation: fSituation.value.trim()
+      situation: fSituation.value.trim(),
+      heardFrom: heardFrom
     };
 
     fetch('/', {
