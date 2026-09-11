@@ -229,8 +229,28 @@
   }
   var TIME_START_HOUR = { Morning: 9, Afternoon: 13, Evening: 17 };
 
+  // The call window times (9am/1pm/5pm) are the office's Los Angeles
+  // time, not the visitor's own - without this, a visitor outside
+  // Pacific time got a calendar event built from those hours in their
+  // own local timezone instead, landing at the wrong UTC instant (and
+  // therefore the wrong time once their calendar app converts it back).
+  // Since America/Los_Angeles switches between PST (UTC-8) and PDT
+  // (UTC-7), this checks which one is in effect on the chosen date via
+  // Intl rather than hardcoding an offset.
+  function losAngelesOffsetMinutes(year, month, day){
+    var probeUTC = Date.UTC(year, month, day, 20, 0, 0);
+    var tzName = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles', timeZoneName: 'short'
+    }).formatToParts(new Date(probeUTC)).find(function(p){ return p.type === 'timeZoneName'; }).value;
+    return tzName === 'PDT' ? -7 * 60 : -8 * 60;
+  }
+  function losAngelesWallTimeToUTC(year, month, day, hour){
+    var offsetMin = losAngelesOffsetMinutes(year, month, day);
+    return new Date(Date.UTC(year, month, day, hour, 0, 0) - offsetMin * 60000);
+  }
+
   document.getElementById('bkAddCalendar').addEventListener('click', function(){
-    var start = new Date(state.date.getFullYear(), state.date.getMonth(), state.date.getDate(), TIME_START_HOUR[state.time], 0, 0);
+    var start = losAngelesWallTimeToUTC(state.date.getFullYear(), state.date.getMonth(), state.date.getDate(), TIME_START_HOUR[state.time]);
     var end = new Date(start.getTime() + 30 * 60000);
     var ics = [
       'BEGIN:VCALENDAR',
