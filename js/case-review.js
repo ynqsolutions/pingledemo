@@ -370,6 +370,15 @@
       .join('&');
   }
 
+  // Surfaces computeOutcome()'s qualification signal as a plain-language
+  // priority label for the office's notification email, without sending
+  // the raw internal outcome value itself.
+  function priorityLabel(outcome){
+    return outcome === 'strong'
+      ? '🔥 HIGH PRIORITY - Strong Case'
+      : 'Standard Priority - Needs Attorney Review';
+  }
+
   function submitCaseReview(e){
     const btn = e.currentTarget;
     const resultContent = document.getElementById('crResultContent');
@@ -378,6 +387,7 @@
 
     const payload = {
       'form-name': 'case-review',
+      priority: priorityLabel(answers.outcome),
       fullName: answers.fullName,
       phone: answers.phone,
       email: answers.email,
