@@ -2189,6 +2189,24 @@ html.answerly-hidden iframe[placement]{ display:none !important; }
   flex-direction:column;
   gap:16px;
 }
+.contact-case-review-note{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin-top:18px;
+  padding:14px 16px;
+  background:var(--paper-dim);
+  border:1px solid var(--paper-line);
+  border-left:3px solid var(--gold-500);
+  border-radius:6px;
+  font-size:13.5px;
+  line-height:1.55;
+  color:var(--ink-soft);
+}
+.contact-case-review-note svg{ flex:none; margin-top:2px; color:var(--gold-500); }
+.contact-case-review-note strong{ color:var(--navy-950); }
+.contact-case-review-note a{ color:var(--navy-900); text-decoration:underline; font-weight:600; }
+.contact-case-review-note a:hover{ color:var(--gold-500); }
 .form-row{ display:flex; flex-direction:column; gap:8px; min-width:0; }
 .form-row label{
   font-family:var(--font-cond);
