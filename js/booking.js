@@ -128,15 +128,23 @@
   });
   [fFirst, fLast, fEmail].forEach(function(el){ el.addEventListener('input', updateStep2); });
 
+  var HEARD_FROM_FILL_IN = { Referral: 'Who referred you?', Other: 'Please specify' };
   fHeardFrom.addEventListener('change', function(){
-    referralField.hidden = fHeardFrom.value !== 'Referral';
+    var placeholder = HEARD_FROM_FILL_IN[fHeardFrom.value];
+    referralField.hidden = !placeholder;
+    if(placeholder) fReferralName.placeholder = placeholder;
+    updateStep2();
   });
+  fReferralName.addEventListener('input', updateStep2);
 
   function step2Valid(){
+    var heardFromValid = !!fHeardFrom.value &&
+      (!HEARD_FROM_FILL_IN[fHeardFrom.value] || fReferralName.value.trim().length > 0);
     return !!(fFirst.value.trim() && fLast.value.trim() &&
       fPhone.value.replace(/\D/g, '').length === 10 &&
       /^\S+@\S+\.\S+$/.test(fEmail.value.trim()) &&
-      fSituation.value.trim().length > 0);
+      fSituation.value.trim().length > 0 &&
+      heardFromValid);
   }
   function updateStep2(){
     toStep3.disabled = !step2Valid();
@@ -180,8 +188,8 @@
     btn.textContent = 'Sending…';
 
     var heardFrom = fHeardFrom.value;
-    if(heardFrom === 'Referral' && fReferralName.value.trim()){
-      heardFrom = 'Referral: ' + fReferralName.value.trim();
+    if(HEARD_FROM_FILL_IN[heardFrom] && fReferralName.value.trim()){
+      heardFrom = heardFrom + ': ' + fReferralName.value.trim();
     }
 
     var payload = {

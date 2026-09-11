@@ -255,13 +255,14 @@
               <span class="bk-count"><span id="bkCount">0</span>/500</span>
             </div>
             <div class="bk-field full">
-              <span class="bk-label">How Did You Hear About Us?</span>
+              <span class="bk-label">How Did You Hear About Us? <span class="req">*</span></span>
               <select id="bkHeardFrom">
                 <option value="" selected disabled>Select one</option>
-                <option value="Google">Google</option>
+                <option value="Search Engine">Search Engine (Google, Bing, etc)</option>
+                <option value="LLM">LLM (ChatGPT, Claude, etc)</option>
+                <option value="Social Media">Social Media (Facebook, Instagram, LinkedIn)</option>
+                <option value="Online Ad">Online Ad (Paid search or social ads)</option>
                 <option value="Referral">Referral</option>
-                <option value="ChatGPT/Claude">ChatGPT/Claude</option>
-                <option value="Social Media">Social Media</option>
                 <option value="Other">Other</option>
               </select>
               <div class="bk-referral-field" id="bkReferralField" hidden>
@@ -272,7 +273,7 @@
             </div>
           </div>
 
-          <p class="bk-error" id="bkStep2Error">Please fill in your name, a 10-digit phone number, your email, and a short description.</p>
+          <p class="bk-error" id="bkStep2Error">Please fill in your name, a 10-digit phone number, your email, a short description, and how you heard about us.</p>
 
           <div class="bk-counter-row">
             <span class="bk-counter">
@@ -429,7 +430,7 @@
 
 <script src="js/main.js?v=85" defer></script>
 <script src="js/consult-counter.js?v=1" defer></script>
-<script src="js/booking.js?v=3" defer></script>
+<script src="js/booking.js?v=4" defer></script>
 <script src="js/a11y-widget.js?v=15" defer></script>
 </body>
 </html>
