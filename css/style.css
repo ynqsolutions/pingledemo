@@ -98,9 +98,35 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
    - rather than a continuously-scrolling ticker. No prev/next controls;
    it only ever advances on its own. */
 .promo-banner{
-  background:var(--gold-500);
+  position:relative;
+  background:linear-gradient(115deg, var(--gold-500) 0%, var(--gold-400) 45%, var(--gold-300) 58%, var(--gold-400) 72%, var(--gold-500) 100%);
+  overflow:hidden;
+}
+/* A soft diagonal highlight sweeps across the bar on a slow loop, like
+   light catching a metal surface - a subtle "shine" rather than a
+   literal moving bar. Purely decorative: sits above the gradient,
+   below the message text (z-index on .promo-banner-viewport). */
+.promo-banner::after{
+  content:"";
+  position:absolute;
+  top:0; bottom:0; left:-60%;
+  width:45%;
+  background:linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+  mix-blend-mode:soft-light;
+  pointer-events:none;
+  animation:promo-shine 6s ease-in-out infinite;
+}
+@keyframes promo-shine{
+  0%{ left:-60%; }
+  35%{ left:130%; }
+  100%{ left:130%; }
+}
+@media (prefers-reduced-motion: reduce){
+  .promo-banner::after{ animation:none; display:none; }
 }
 .promo-banner-viewport{
+  position:relative;
+  z-index:1;
   display:grid;
   justify-items:center;
   overflow:hidden;
