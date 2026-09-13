@@ -501,16 +501,16 @@
   var COLLECTIONS = {
     banner: {
       title: 'Announcement Banner', noun: 'message',
-      desc: 'The message strip above the header on every page. With more than one message, they rotate on a timer. Keep 1 to 3 per language.',
+      desc: 'The message strip above the header on every page. The whole message is a link. With more than one message, they rotate on a timer. Keep 1 to 3 per language.',
       file: 'content/announcement.json', commit: 'Update announcement banner via admin dashboard',
       lists: [ { key: 'messages_en', label: 'English', min: 1, max: 3 }, { key: 'messages_es', label: 'Spanish', min: 1, max: 3 } ],
       fields: [
-        { name: 'message', label: 'Message', type: 'text', required: true, hint: 'e.g. Now Accepting Wrongful Termination Cases' },
-        { name: 'link_text', label: 'Link Text', type: 'text', required: true, hint: 'e.g. Click for a Free Case Review' },
+        { name: 'message', label: 'Message', type: 'text', required: true, span: 2, hint: 'e.g. Now Accepting Wrongful Termination Cases. Shown as the clickable link text itself.' },
         { name: 'link', label: 'Link', type: 'text', required: true, span: 2, hint: 'A page on this site (case-review.html) or a full https:// address.' }
       ],
+      order: ['message', 'link'],
       summary: function(it){ return it.message; },
-      blank: function(){ return { message: '', link_text: '', link: '' }; }
+      blank: function(){ return { message: '', link: '' }; }
     },
     settlements: {
       title: 'Settlements', noun: 'tile',

@@ -2,14 +2,12 @@
   "messages_en": [
     {
       "message": "Now Accepting Wrongful Termination Cases",
-      "link_text": "Click for a Free Case Review",
       "link": "case-review.html"
     }
   ],
   "messages_es": [
     {
       "message": "Ahora Aceptamos Casos de Despido Injustificado",
-      "link_text": "Haga Clic para una Evaluación Gratuita de su Caso",
       "link": "case-review-es.html"
     }
   ]

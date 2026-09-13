@@ -124,24 +124,26 @@ def render_banner(messages):
     if JS hasn't run yet. A single message is duplicated into two identical
     slides so the banner still cross-fades (matches the same message back
     in) instead of sitting static - "sliding" is expected even when there's
-    only one real message today."""
+    only one real message today.
+
+    The whole message is one link to the case-review page - no separate
+    "click here" text, and .shine-sweep (css/style.css) gives the bar a
+    diagonal highlight on hover."""
     slides_source = messages[:3]
     if len(slides_source) == 1:
         slides_source = slides_source * 2
     slides = []
     for i, msg in enumerate(slides_source):
         message = escape(msg.get("message", ""))
-        link_text = escape(msg.get("link_text", ""))
         href = escape(msg.get("link", ""))
         active = " is-active" if i == 0 else ""
         slides.append(
             f'    <div class="promo-banner-slide{active}">'
-            f'<span class="promo-banner-msg">{message}</span> '
-            f'<a href="{href}">{link_text}</a></div>'
+            f'<a class="promo-banner-link" href="{href}">{message}</a></div>'
         )
     slides_html = "\n".join(slides)
     return (
-        '<div class="promo-banner" aria-label="Announcement">\n'
+        '<div class="promo-banner shine-sweep" aria-label="Announcement">\n'
         '  <div class="promo-banner-viewport">\n'
         f'{slides_html}\n'
         '  </div>\n'
@@ -168,12 +170,10 @@ def inject(filepath, pattern, rendered_items):
 def inject_banner_everywhere(announcement):
     messages_en = announcement.get("messages_en") or [{
         "message": announcement.get("message_en", ""),
-        "link_text": announcement.get("link_text_en", ""),
         "link": announcement.get("link_en", "case-review.html"),
     }]
     messages_es = announcement.get("messages_es") or [{
         "message": announcement.get("message_es", ""),
-        "link_text": announcement.get("link_text_es", ""),
         "link": announcement.get("link_es", "case-review-es.html"),
     }]
     en_banner = render_banner(messages_en)
