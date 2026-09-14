@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=309">
-<link rel="stylesheet" href="css/case-review.css?v=33">
+<link rel="stylesheet" href="css/case-review.css?v=34">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -335,10 +335,15 @@
       <!-- Result -->
       <div class="cr-step" data-step="result" id="crResultStep">
         <div class="cr-result" id="crResultContent"></div>
-        <div class="cr-result-loading" id="crResultLoading" hidden>
-          <img src="assets/Animations/character_calculator.gif" alt="" width="110" height="98">
-          <p>Reviewing your answers&hellip;</p>
-        </div>
+      </div>
+
+      <!-- Sibling of the .cr-step elements (not nested in one) so
+           inset:0 below always matches .cr-card's own full box exactly,
+           regardless of which step is showing or how tall its content
+           is - see css/case-review.css for why. -->
+      <div class="cr-result-loading" id="crResultLoading" hidden>
+        <img src="assets/Animations/character_calculator.gif" alt="" width="110" height="98">
+        <p>Reviewing your answers&hellip;</p>
       </div>
 
     </div>
@@ -498,7 +503,7 @@
 
 <script src="js/main.js?v=85" defer></script>
 <script src="js/consult-counter.js?v=1" defer></script>
-<script src="js/case-review.js?v=25" defer></script>
+<script src="js/case-review.js?v=26" defer></script>
 <script src="js/case-review-guide.js?v=8" defer></script>
 
 <script src="js/a11y-widget.js?v=15" defer></script>

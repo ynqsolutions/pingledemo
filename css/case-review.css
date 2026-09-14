@@ -176,7 +176,6 @@
 }
 
 .cr-step{ display:none; position:relative; z-index:1; }
-#crResultStep{ overflow:hidden; }
 
 /* "See My Results" loading state: same pattern as the calculators'
    .calc-result-loading (blurred content behind a centered gif+caption
@@ -188,6 +187,12 @@
   user-select:none;
 }
 .cr-result-loading{
+  /* A sibling of #crResultStep (not nested in it, see the HTML) so
+     inset:0 matches .cr-card's own full box exactly - card padding,
+     any content above the result step, all of it - rather than only
+     the result content's own (possibly shorter) box. .cr-card is
+     already position:relative + overflow:hidden, so this can't bleed
+     past the actual visible card either. */
   position:absolute;
   inset:0;
   z-index:5;
@@ -759,9 +764,17 @@ body.cr-fullscreen-lock{ overflow:hidden; }
   .cr-wrap.is-fullscreen .cr-guide{
     position:fixed;
     bottom:auto;
-    top:calc(100vh - 24px);
-    top:calc(100dvh - 24px);
+    /* 40px gap plus the device's home-indicator safe area (iPhones with
+       no home button reserve that strip at the very bottom - dvh alone
+       doesn't account for it), then .cr-guide-char-wrap below is pulled
+       back to sit flush with this anchor instead of extending past it
+       (its default -33px mobile offset was enough, combined with a
+       24px gap here, to push the character a few pixels below the real
+       edge - cut off by the browser chrome/home indicator). */
+    top:calc(100vh - 40px);
+    top:calc(100dvh - 40px - env(safe-area-inset-bottom, 0px));
   }
+  .cr-wrap.is-fullscreen .cr-guide-char-wrap{ bottom:0; }
 }
 
 .cr-fs-handle{ display:none; }

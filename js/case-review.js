@@ -138,6 +138,22 @@
     scrollCardIntoViewSettled(target);
   }
 
+  // Focusing a plain input normally, on iOS, makes Safari itself scroll
+  // whatever it decides needs to move to clear the keyboard - and inside
+  // the fullscreen quiz sheet (position:fixed, its own internal scroll)
+  // that "helpful" scroll acts on the real page behind the sheet instead
+  // of the sheet's own content, so a sliver of the actual site header
+  // becomes visible above the keyboard while the sheet appears to have
+  // shifted. {preventScroll:true} stops that automatic scroll; scrolling
+  // the input into view ourselves afterward (which only moves .cr-wrap's
+  // own internal scroll, being the nearest scrollable ancestor) gets the
+  // same "field visible above the keyboard" result without ever touching
+  // the outer page.
+  function focusOtherInput(input){
+    input.focus({ preventScroll: true });
+    input.scrollIntoView({ block: 'center' });
+  }
+
   // ---- Option tile handling (single + multi select) ----
   card.querySelectorAll('.cr-options').forEach(group => {
     const isMulti = group.dataset.multi === 'true';
@@ -170,7 +186,7 @@
           if(opt.dataset.other === 'true' && otherField){
             const isSelected = opt.classList.contains('selected');
             otherField.hidden = !isSelected;
-            if(isSelected) otherField.querySelector('input').focus();
+            if(isSelected) focusOtherInput(otherField.querySelector('input'));
           }
           answers[field] = collectMultiValues();
           if(nextBtn){
