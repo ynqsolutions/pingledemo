@@ -717,9 +717,21 @@ body.cr-fullscreen-lock{ overflow:hidden; }
        real visible fold. dvh tracks the true, currently-visible
        viewport instead, so this stays flush regardless of toolbar
        state. The plain vh line is a fallback for browsers without dvh
-       support; the dvh line after it wins wherever it's understood. */
+       support; the dvh line after it wins wherever it's understood.
+
+       dvh does NOT, however, track the on-screen keyboard opening -
+       that shrinks the visual viewport specifically, which iOS doesn't
+       treat as a toolbar change. Left alone, the sheet (and the
+       mountains/guide pinned to its bottom, below) stay sized for the
+       keyboard-less viewport while the keyboard covers part of them,
+       which is exactly what showed up as "blank space" and a squished,
+       misbehaving mobile-sticky-cta bar peeking out from behind. --cr-
+       vvh (js/case-review.js, from window.visualViewport) is the one
+       value that does track the keyboard, and wins here as the last
+       declaration wherever it's been set. */
     height:calc(100vh - 36px);
     height:calc(100dvh - 36px);
+    height:calc(var(--cr-vvh, 100vh) - 36px);
     z-index:300;
     background:var(--paper);
     border-radius:20px 20px 0 0;
@@ -750,6 +762,7 @@ body.cr-fullscreen-lock{ overflow:hidden; }
     bottom:auto;
     top:calc(100vh - 180px);
     top:calc(100dvh - 180px);
+    top:calc(var(--cr-vvh, 100vh) - 180px);
   }
   /* position:sticky (the base rule) only pins the guide once scrolling
      would otherwise carry it past the bottom threshold - on a short
@@ -773,6 +786,7 @@ body.cr-fullscreen-lock{ overflow:hidden; }
        edge - cut off by the browser chrome/home indicator). */
     top:calc(100vh - 40px);
     top:calc(100dvh - 40px - env(safe-area-inset-bottom, 0px));
+    top:calc(var(--cr-vvh, 100vh) - 40px - env(safe-area-inset-bottom, 0px));
   }
   .cr-wrap.is-fullscreen .cr-guide-char-wrap{ bottom:0; }
 }

@@ -1914,6 +1914,10 @@ html.answerly-hidden iframe[placement]{ display:none !important; }
   
   
   .mobile-sticky-cta{ display:flex; }
+  /* Hidden instead while a text field has focus (js/main.js toggles
+     body.kb-open) - see that script's comment for why the bar and the
+     iOS keyboard don't mix. */
+  body.kb-open .mobile-sticky-cta{ display:none; }
   /* Answerly chat widget: hidden below this breakpoint entirely (phones),
      shown at tablet/iPad widths and up. See the Answerly comment above
      .mobile-sticky-lang for why this targets [placement] and uses

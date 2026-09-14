@@ -1375,3 +1375,22 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   }, SLIDE_MS);
 })();
 
+// Hide the mobile sticky CTA bar while the on-screen keyboard is open.
+// It's position:fixed;bottom:0, which on iOS Safari gets measured
+// against the LAYOUT viewport - when the keyboard opens, that viewport
+// still doesn't shrink the way the actually-visible area does, so the
+// bar (and the browser's own floating address-bar pill) end up
+// rendered stacked awkwardly right above the keyboard instead of at the
+// real bottom of the screen, with taps landing in the wrong place and a
+// stretch of blank space left where the bar used to be. Any page with
+// both this bar and a text field can hit it, not just one form - simply
+// hiding the bar for as long as a field is focused sidesteps the whole
+// mess and is standard practice for sticky bottom bars + iOS keyboards.
+(function(){
+  const bar = document.querySelector('.mobile-sticky-cta');
+  if(!bar) return;
+  const isFieldEl = el => el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) && el.type !== 'checkbox' && el.type !== 'radio' && el.type !== 'button' && el.type !== 'submit';
+  document.addEventListener('focusin', e => { if(isFieldEl(e.target)) document.body.classList.add('kb-open'); });
+  document.addEventListener('focusout', e => { if(isFieldEl(e.target)) document.body.classList.remove('kb-open'); });
+})();
+

@@ -1,3 +1,24 @@
+// --cr-vvh: the fullscreen sheet's height and its pinned mountains/guide
+// (css/case-review.css) are otherwise sized off 100dvh, which tracks the
+// browser chrome (address bar) collapsing but NOT the on-screen keyboard
+// opening - iOS shrinks the visual viewport for the keyboard without
+// treating it as a chrome change. Left alone, the sheet stayed sized for
+// the keyboard-less viewport while the keyboard covered part of it,
+// which is what showed up as extra blank space and the real page's
+// mobile-sticky-cta bar peeking out, squished, above the keyboard.
+// window.visualViewport does track the keyboard; mirroring its height
+// into a CSS variable lets the same "top:calc(...)" rules account for it
+// too, as the last (winning) declaration.
+(function(){
+  const vv = window.visualViewport;
+  if(!vv) return;
+  function syncVvh(){
+    document.documentElement.style.setProperty('--cr-vvh', vv.height + 'px');
+  }
+  syncVvh();
+  vv.addEventListener('resize', syncVvh);
+})();
+
 (function(){
   const card = document.getElementById('crCard');
   if(!card) return;
