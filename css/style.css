@@ -125,20 +125,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 .promo-banner{
   position:relative;
-  /* Darker base than the site's usual --gold-500, with several
-     highlight/shadow bands (not just one light-to-dark sweep) so it
-     reads as brushed metal rather than a flat tint - the .shine-sweep
-     highlight on top is the added polish, this gradient is the base
-     "metal" underneath it. */
-  background:linear-gradient(115deg,
-    #6E5220 0%,
-    #8A6828 13%,
-    #B3893C 28%,
-    #7A5D22 40%,
-    #C9A24F 52%,
-    #8A6828 64%,
-    #B3893C 78%,
-    #6E5220 100%);
+  background:var(--gold-500);
   overflow:hidden;
 }
 .promo-banner::after{ z-index:1; }

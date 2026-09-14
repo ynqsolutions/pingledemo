@@ -508,6 +508,36 @@
     // only applies for the rest of *this* page view.
     let dismissedThisLoad = false;
 
+    // body.cr-fullscreen-lock{overflow:hidden} alone doesn't reliably stop
+    // background scrolling on iOS Safari - with the keyboard open (typing
+    // into any field in the sheet) or on a scroll gesture that starts
+    // outside .cr-wrap's own scroll container, iOS can still scroll the
+    // real document behind this position:fixed sheet, briefly revealing
+    // the actual page (its header, etc.) above/behind the popup. Pinning
+    // <body> itself with position:fixed - the standard iOS body-scroll-
+    // lock technique - closes that gap; the negative `top` keeps the
+    // (now-fixed) body visually still at its current scroll position,
+    // and unlockBodyScroll restores the real scroll position afterward
+    // since a fixed body always reports scrollY as 0 while locked.
+    let lockedScrollY = 0;
+    function lockBodyScroll(){
+      lockedScrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = '-' + lockedScrollY + 'px';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.classList.add('cr-fullscreen-lock');
+    }
+    function unlockBodyScroll(){
+      if(!document.body.classList.contains('cr-fullscreen-lock')) return;
+      document.body.classList.remove('cr-fullscreen-lock');
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      window.scrollTo(0, lockedScrollY);
+    }
+
     const handle = document.createElement('div');
     handle.className = 'cr-fs-handle';
     handle.innerHTML = '<span></span>';
@@ -539,7 +569,7 @@
       wrap.style.transition = 'none';
       wrap.style.transform = '';
       wrap.classList.add('is-fullscreen');
-      document.body.classList.add('cr-fullscreen-lock');
+      lockBodyScroll();
       toggleBtn.hidden = true;
       dismissedThisLoad = false;
       // Force layout so the transition re-enables on the *next* change
@@ -549,7 +579,7 @@
     }
     function finishClose(){
       wrap.classList.remove('is-fullscreen');
-      document.body.classList.remove('cr-fullscreen-lock');
+      unlockBodyScroll();
       wrap.style.transition = '';
       wrap.style.transform = '';
       toggleBtn.hidden = false;
@@ -602,7 +632,7 @@
     function syncToViewport(){
       if(!mq.matches){
         wrap.classList.remove('is-fullscreen');
-        document.body.classList.remove('cr-fullscreen-lock');
+        unlockBodyScroll();
         wrap.style.transition = '';
         wrap.style.transform = '';
         toggleBtn.hidden = true;
