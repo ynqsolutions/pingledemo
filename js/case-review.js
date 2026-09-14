@@ -91,6 +91,22 @@
   // looking blank until they scroll back up to find it. Instead, scroll
   // the card's top to sit just under the sticky header on every step
   // change, so the new question is always what's actually on screen.
+  // iOS Safari's address bar can still be showing (a shorter viewport)
+  // at the instant this runs, then auto-collapse a moment later as the
+  // scroll settles - growing the viewport and shifting everything on
+  // screen upward without moving the scroll position again. Because the
+  // bottom-align math below is a one-shot scrollTo, whatever it lands on
+  // stays put while the content visually creeps up underneath it, so a
+  // control near the bottom of the step (like a dropdown) ends up
+  // rendered a little higher than where the visitor actually taps -
+  // "press slightly above it" is exactly that gap. visualViewport.height
+  // reflects the true, currently-visible height (unlike innerHeight,
+  // which reports the large/chrome-collapsed size even while chrome is
+  // still showing), and re-running the same alignment once more after a
+  // short delay corrects for any chrome collapse that happened mid-scroll.
+  function viewportHeight(){
+    return (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  }
   function scrollCardIntoView(target){
     const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 61;
     const margin = 16;
@@ -105,15 +121,21 @@
       // bottom to the bottom of the viewport, with a small gap, so the
       // controls the visitor needs next are always on screen without
       // scrolling past the hero content above.
-      top = cardRect.bottom + window.scrollY - window.innerHeight + margin;
+      top = cardRect.bottom + window.scrollY - viewportHeight() + margin;
     }
     window.scrollTo({ top: Math.max(top, 0), behavior: 'instant' });
+  }
+  // Re-align once more shortly after, once iOS's address-bar animation
+  // (if it ran at all) has finished - a no-op if nothing changed.
+  function scrollCardIntoViewSettled(target){
+    scrollCardIntoView(target);
+    setTimeout(function(){ scrollCardIntoView(target); }, 400);
   }
   function showStep(target){
     steps.forEach(s => s.classList.toggle('active', s.dataset.step === String(target)));
     current = target;
     updateProgress();
-    scrollCardIntoView(target);
+    scrollCardIntoViewSettled(target);
   }
 
   // ---- Option tile handling (single + multi select) ----
@@ -274,9 +296,23 @@
     answers.email = email;
     answers.bestTimeToCall = bestTime;
 
+    // Same pattern as the calculators' loading state: the real result is
+    // rendered (and already correctly sized) right away but hidden behind
+    // a blur + gif overlay for a few seconds, instead of an instant swap,
+    // so it reads as the guide actually "reviewing" the answers.
     renderResult();
+    const resultContent = document.getElementById('crResultContent');
+    const resultLoading = document.getElementById('crResultLoading');
+    resultContent.classList.add('is-blurred');
+    resultLoading.hidden = false;
+    seeResultsBtn.disabled = true;
     showStep('result');
     pushStepState('result');
+    setTimeout(() => {
+      resultLoading.hidden = true;
+      resultContent.classList.remove('is-blurred');
+      seeResultsBtn.disabled = false;
+    }, 4500);
   });
 
   // ---- Qualification logic ----

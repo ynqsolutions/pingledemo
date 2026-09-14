@@ -176,6 +176,39 @@
 }
 
 .cr-step{ display:none; position:relative; z-index:1; }
+#crResultStep{ overflow:hidden; }
+
+/* "See My Results" loading state: same pattern as the calculators'
+   .calc-result-loading (blurred content behind a centered gif+caption
+   overlay) instead of a bare instant swap, while computeOutcome()'s
+   result is "revealed" (js/case-review.js). */
+.cr-result.is-blurred{
+  filter:blur(10px);
+  pointer-events:none;
+  user-select:none;
+}
+.cr-result-loading{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  background:rgba(243,239,230,0.55);
+}
+.cr-result-loading[hidden]{ display:none; }
+.cr-result-loading img{ width:110px; height:auto; }
+.cr-result-loading p{
+  margin:0;
+  font-family:var(--font-cond);
+  font-size:12.5px;
+  font-weight:700;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  color:var(--gold-500);
+}
 .cr-step.active{ display:block; animation:crStepIn .35s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes crStepIn{
   from{ opacity:0; transform:translateY(10px); }
@@ -713,14 +746,22 @@ body.cr-fullscreen-lock{ overflow:hidden; }
     top:calc(100vh - 180px);
     top:calc(100dvh - 180px);
   }
-  /* Same dvh reasoning for the guide character: it's position:sticky
-     within this section, so it already tracks .cr-wrap's own bottom
-     edge correctly once that edge itself is sized with dvh above - but
-     its bottom offset was tuned to clear the fixed mobile-sticky-cta
-     bar, which sits *behind* this sheet (z-index 140 vs. 300) and is
-     therefore never visible while the sheet is open. Pull it in closer
-     to the sheet's real bottom instead of leaving that dead gap. */
-  .cr-wrap.is-fullscreen .cr-guide{ bottom:24px; }
+  /* position:sticky (the base rule) only pins the guide once scrolling
+     would otherwise carry it past the bottom threshold - on a short
+     step (little content, nothing to scroll) its static in-flow
+     position sits right after the short card, well above the sheet's
+     actual bottom edge, with only the mountains graphic filling the
+     gap below it. Fixed positioning (like .cr-mountains above) keeps it
+     glued to the true visible bottom on every step regardless of
+     content height or scroll position - computed the same dvh-aware
+     way as the mountains, since a plain "bottom:24px" on a fixed
+     element has the same large-viewport problem described above. */
+  .cr-wrap.is-fullscreen .cr-guide{
+    position:fixed;
+    bottom:auto;
+    top:calc(100vh - 24px);
+    top:calc(100dvh - 24px);
+  }
 }
 
 .cr-fs-handle{ display:none; }
