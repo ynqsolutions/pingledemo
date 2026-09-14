@@ -1394,3 +1394,24 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   document.addEventListener('focusout', e => { if(isFieldEl(e.target)) document.body.classList.remove('kb-open'); });
 })();
 
+// Metallic shine animation on tap for the mobile sticky CTA buttons
+// (.shine-sweep already gives them the gradient; see css/style.css for
+// why a plain :active-driven sweep can get cut short by a quick tap -
+// .is-shining plays it as a real animation instead, so a click always
+// gets the full sweep). Re-triggering the animation on a second tap
+// needs the class removed and re-added on a fresh frame - just adding
+// it again while already present wouldn't restart a running animation.
+(function(){
+  const SHINE_MS = 700;
+  document.querySelectorAll('.mobile-sticky-btn.shine-sweep').forEach(btn => {
+    let resetTimer = null;
+    btn.addEventListener('click', () => {
+      btn.classList.remove('is-shining');
+      void btn.offsetWidth; // force reflow so the re-add below restarts the animation
+      btn.classList.add('is-shining');
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => btn.classList.remove('is-shining'), SHINE_MS);
+    });
+  });
+})();
+

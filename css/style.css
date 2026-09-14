@@ -123,6 +123,25 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   .shine-sweep:hover::after, .shine-sweep:active::after{ transition:none; left:-60%; }
 }
 
+/* A quick tap's :active state can end (finger lifts) before the
+   transition above finishes sweeping, especially on a real click that
+   also navigates - cutting the shine off mid-way instead of a clean
+   sweep. .is-shining plays the same sweep as a proper animation instead
+   (runs to completion on its own timeline, not tied to how long the
+   element stays :active); js/main.js adds it on click for the mobile
+   sticky CTA buttons and removes it once the animation ends so the next
+   tap replays it. */
+@keyframes shineSweepPlay{
+  0%{ left:-60%; }
+  100%{ left:130%; }
+}
+.shine-sweep.is-shining::after{
+  animation:shineSweepPlay .7s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce){
+  .shine-sweep.is-shining::after{ animation:none; }
+}
+
 .promo-banner{
   position:relative;
   background:var(--gold-500);
