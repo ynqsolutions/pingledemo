@@ -929,10 +929,21 @@
     var msg = el('div', { class: 'photo-msg' });
     var pathInput = el('input', { type: 'text', disabled: readOnly, placeholder: 'assets/…', spellcheck: 'false', oninput: function(e){ setPath(e.target.value, false); } });
     pathInput.value = value;
-    function setPath(v, syncInput){
+    // A freshly uploaded file is committed to the repo right away, but
+    // isn't actually LIVE at its real URL until Netlify finishes the next
+    // deploy (a minute or two later) - pointing the preview at that URL
+    // immediately just shows a broken/blank thumbnail until the deploy
+    // catches up. previewOverride (a local blob: URL made straight from
+    // the chosen file) sidesteps that entirely: the browser can render it
+    // instantly without any network round-trip, and it's revoked the next
+    // time the preview changes so blob URLs don't pile up.
+    var localPreviewUrl = null;
+    function setPath(v, syncInput, previewOverride){
       onChange(v); if(syncInput) pathInput.value = v;
       preview.classList.toggle('is-empty', !v); preview.textContent = v ? '' : 'No photo';
-      preview.style.backgroundImage = v ? 'url("' + previewSrc(v) + '")' : '';
+      preview.style.backgroundImage = v ? 'url("' + (previewOverride || previewSrc(v)) + '")' : '';
+      if(localPreviewUrl && localPreviewUrl !== previewOverride){ URL.revokeObjectURL(localPreviewUrl); }
+      localPreviewUrl = previewOverride || null;
     }
     var controls = el('div', { class: 'photo-controls' }), row = el('div', { class: 'photo-row' });
     if(f.folder && !readOnly){
@@ -948,9 +959,12 @@
     var uploadBtn = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', disabled: readOnly, onclick: function(){ fileInput.click(); } }, [ 'Upload new' ]);
     fileInput.addEventListener('change', function(){
       var file = fileInput.files && fileInput.files[0]; if(!file) return;
+      var blobUrl = URL.createObjectURL(file);
+      preview.classList.remove('is-empty'); preview.textContent = '';
+      preview.style.backgroundImage = 'url("' + blobUrl + '")'; // instant preview, before the upload even starts
       uploadBtn.disabled = true; msg.className = 'photo-msg'; msg.textContent = 'Uploading ' + file.name + '…';
-      uploadPhoto(file, f.uploadFolder).then(function(path){ setPath(path, true); msg.textContent = 'Uploaded. Save to use it on the site.'; })
-        .catch(function(err){ msg.className = 'photo-msg is-error'; msg.textContent = err.message; })
+      uploadPhoto(file, f.uploadFolder).then(function(path){ setPath(path, true, blobUrl); msg.textContent = 'Uploaded. Save to use it on the site. The new photo will take a minute or two to show on the live site itself after saving, once the next deploy finishes.'; })
+        .catch(function(err){ msg.className = 'photo-msg is-error'; msg.textContent = err.message; URL.revokeObjectURL(blobUrl); if(value) preview.style.backgroundImage = 'url("' + previewSrc(value) + '")'; })
         .then(function(){ uploadBtn.disabled = readOnly; fileInput.value = ''; });
     });
     row.appendChild(uploadBtn); row.appendChild(fileInput);
