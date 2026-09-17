@@ -270,7 +270,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .header-phone .label{ color:var(--gold-300); font-size:12px; }
 .header-phone .num{ font-family:var(--font-cond); font-size:22px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; }
 
-.nav-desktop{ display:flex; align-items:center; gap:28px; }
+.nav-desktop{ display:flex; align-items:center; gap:22px; }
 .nav-desktop a{
   font-family:var(--font-cond);
   font-size:16px;
@@ -1871,7 +1871,17 @@ footer a:hover{ color:var(--white); }
 html.answerly-hidden iframe[placement]{ display:none !important; }
 
 /* ================= RESPONSIVE ================= */
-@media (max-width: 1240px){
+/* 1320px, not 1240px: the desktop nav (logo + 7 links + language toggle
+   + phone number) fit with only a little room to spare at the old
+   1240px cutoff when measured here - Windows renders text (especially
+   a condensed/bold font like this site's nav) measurably wider than
+   macOS does for the same markup, which was tipping some Windows Chrome
+   users over into a horizontally-overflowing header at widths just
+   above the old cutoff, forcing them to zoom out to see the whole page
+   and menu. The extra ~80px of margin (plus the tighter nav gap below)
+   covers that font-rendering difference without waiting on an exact
+   repro. */
+@media (max-width: 1320px){
   .nav-desktop{ display:none; }
   .burger{ display:flex; }
   .header-phone{ display:none; }
