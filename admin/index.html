@@ -256,7 +256,13 @@
   .toast.is-error{ background:var(--danger); }
 
   /* ---- Login gate ---- */
-  .gate{ position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; background:var(--bg); padding:24px; }
+  /* z-index:90, not 100: the Netlify Identity widget's own login iframe
+     (#netlify-identity-widget) renders at z-index:99 - with this gate at
+     100 it sat ON TOP of that iframe, so clicking "Sign In" genuinely
+     opened the real login form (confirmed - the form was there in the
+     DOM, fully functional) but it was invisible and unclickable behind
+     this overlay the whole time. Has to stay below 99. */
+  .gate{ position:fixed; inset:0; z-index:90; display:flex; align-items:center; justify-content:center; background:var(--bg); padding:24px; }
   .gate-card{ width:100%; max-width:400px; background:var(--card); border-radius:var(--r-card); box-shadow:var(--shadow); padding:36px 32px; text-align:center; }
   .gate-card .brand-mark{ width:52px; height:52px; border-radius:14px; margin:0 auto 18px; }
   .gate-card .brand-mark img{ height:20px; }
