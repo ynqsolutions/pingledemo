@@ -766,12 +766,52 @@
       ed.model = normalize(ed, data); ed.pristine = serialize(ed); ed.dirty = false; ed.busy = false; ed.loadError = ''; render(ed);
     }).catch(function(err){ ed.busy = false; ed.loadError = 'Couldn\'t load this content (' + err.message + ').'; render(ed); });
   }
+  // Photos an editor's own fields point to that live under one of that
+  // field's managed upload folders (assets/uploads, assets/cutouts) -
+  // never the site's original hand-placed images (assets/Corey_Polaroid2.
+  // jpg and the like), which were never something the dashboard put
+  // there and aren't safe to delete just because a field moved on. Used
+  // to find "this old upload is no longer referenced anywhere in this
+  // collection" by comparing the set before a save against the set after
+  // - a set diff rather than a per-item/per-index comparison, so
+  // reordering, adding, or removing items can never misidentify an
+  // untouched photo as orphaned.
+  function collectManagedPhotoPaths(def, dataObj){
+    var paths = new Set();
+    def.lists.forEach(function(list){
+      (dataObj[list.key] || []).forEach(function(item){
+        def.fields.forEach(function(f){
+          if(f.type !== 'photo' || !f.uploadFolder) return;
+          var v = item[f.name];
+          if(v && v.indexOf(f.uploadFolder + '/') === 0) paths.add(v);
+        });
+      });
+    });
+    return paths;
+  }
+  // Best-effort, fire-and-forget: a failed cleanup delete leaves an
+  // unused file sitting around (same as before this feature existed),
+  // never something worth blocking or failing the actual content save
+  // over.
+  function pruneOrphanedPhotos(paths){
+    paths.forEach(function(path){
+      repoGetFile(path).then(function(existing){
+        if(!existing) return;
+        return repoDeleteFile(path, 'Remove replaced photo ' + path.split('/').pop() + ' via admin dashboard', existing.sha);
+      }).catch(function(){});
+    });
+  }
+
   function saveEditor(ed){
     if(ed.readOnly || ed.busy) return;
     if(!validate(ed)){ render(ed); toast('A few fields need attention before saving.', true); return; }
     var body = serialize(ed); ed.busy = true; renderStatus(ed);
+    var oldPhotoPaths = collectManagedPhotoPaths(ed.def, JSON.parse(ed.pristine));
     repoPutFile(ed.def.file, utf8ToB64(body), ed.def.commit, ed.sha).then(function(res){
       ed.sha = res && res.content && res.content.sha ? res.content.sha : ed.sha;
+      var newPhotoPaths = collectManagedPhotoPaths(ed.def, JSON.parse(body));
+      var orphaned = Array.from(oldPhotoPaths).filter(function(p){ return !newPhotoPaths.has(p); });
+      if(orphaned.length) pruneOrphanedPhotos(orphaned);
       ed.pristine = body; ed.dirty = false; ed.busy = false; ed.lastSaved = new Date(); renderStatus(ed); $('#bellBtn').classList.add('has-dot');
       toast('Saved. The site will update in a couple of minutes.');
     }).catch(function(err){
@@ -1061,11 +1101,11 @@
   }
   function openPost(slugOrNew){
     if(slugOrNew === 'new'){
-      blog.cur = { isNew: true, path: null, slug: '', sha: null, fields: { title: '', date: todayISO(), photo: '', ad: 'none', draft: false }, body: '' };
+      blog.cur = { isNew: true, path: null, slug: '', sha: null, fields: { title: '', date: todayISO(), photo: '', ad: 'none', draft: false }, body: '', prevPhoto: '' };
     } else {
       var p = (blog.posts || []).filter(function(x){ return x.slug === slugOrNew; })[0];
       if(!p){ location.hash = '#blog'; return; }
-      blog.cur = { isNew: false, path: p.path, slug: p.slug, sha: p.sha, fields: { title: p.fields.title || '', date: p.fields.date || '', photo: p.fields.photo || '', ad: p.fields.ad || 'none', draft: /^(true|yes|1)$/i.test(String(p.fields.draft || '')) }, body: p.body || '' };
+      blog.cur = { isNew: false, path: p.path, slug: p.slug, sha: p.sha, fields: { title: p.fields.title || '', date: p.fields.date || '', photo: p.fields.photo || '', ad: p.fields.ad || 'none', draft: /^(true|yes|1)$/i.test(String(p.fields.draft || '')) }, body: p.body || '', prevPhoto: p.fields.photo || '' };
     }
     blog.pristine = serializePost(blog.cur); blog.dirty = false; blog.errors = {}; blog.mode = 'edit';
     renderBlog();
@@ -1090,6 +1130,10 @@
     var body = serializePost(p); blog.busy = true; renderBlogStatus();
     repoPutFile(p.path, utf8ToB64(body), (p.isNew ? 'Add blog post: ' : 'Update blog post: ') + p.fields.title.trim(), p.sha).then(function(res){
       p.sha = res && res.content && res.content.sha ? res.content.sha : p.sha;
+      if(p.prevPhoto && p.prevPhoto !== p.fields.photo && p.prevPhoto.indexOf('assets/uploads/') === 0){
+        pruneOrphanedPhotos([p.prevPhoto]);
+      }
+      p.prevPhoto = p.fields.photo;
       var wasNew = p.isNew; p.isNew = false; blog.pristine = body; blog.dirty = false; blog.busy = false;
       var entry = { path: p.path, slug: p.slug, sha: p.sha, fields: Object.assign({}, p.fields, { draft: p.fields.draft ? 'true' : 'false' }), body: p.body };
       var idx = (blog.posts || []).findIndex(function(x){ return x.slug === p.slug; });
