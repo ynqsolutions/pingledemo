@@ -22,6 +22,13 @@
       "bio": "Anna works directly with clients from intake through resolution, making sure every question is answered and every detail of the case is handled with care."
     },
     {
+      "name": "Mary",
+      "title": "Intake Specialist",
+      "email": "",
+      "photo": "assets/uploads/mary-polaroid-large.jpeg",
+      "bio": ""
+    },
+    {
       "name": "Leah",
       "title": "Administrative Assistant",
       "email": "",
@@ -29,10 +36,10 @@
       "bio": ""
     },
     {
-      "name": "Mary",
-      "title": "Intake Specialist",
+      "name": "Lucy",
+      "title": "Administrative Assistant",
       "email": "",
-      "photo": "assets/uploads/mary-polaroid-large.jpeg",
+      "photo": "assets/uploads/lucy-polaroid.jpeg",
       "bio": ""
     }
   ]
