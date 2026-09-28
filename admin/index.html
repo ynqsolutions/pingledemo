@@ -351,6 +351,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
         Blog Posts
       </a>
+      <a href="#ai-crawlers" data-view="ai-crawlers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h.01M16 16h.01"/></svg>
+        AI Crawlers
+      </a>
     </nav>
     <div class="sidebar-foot">
       <a href="/" target="_blank" rel="noopener">
@@ -482,6 +486,7 @@
       <section class="view" data-view="settlements" data-editor="settlements"></section>
       <section class="view" data-view="team" data-editor="team"></section>
       <section class="view" data-view="blog" id="blogView"></section>
+      <section class="view" data-view="ai-crawlers" id="aiCrawlersView"></section>
 
     </div>
   </div>
@@ -1313,8 +1318,86 @@
     save.disabled = blog.readOnly || blog.busy || (!blog.dirty && !(blog.cur && blog.cur.isNew));
   }
 
+  // ---- AI Crawlers (netlify/edge-functions/ai-bot-logger.js + netlify/
+  // functions/ai-bot-stats.js) - a read-only view of which AI platforms
+  // have actually visited the site. Public, unauthenticated data (just
+  // aggregate crawler-traffic counts), so this is a plain fetch, not a
+  // Git Gateway call like the rest of the dashboard. ----
+  var aiCrawlers = { root: $('#aiCrawlersView'), loaded: false, busy: false, error: '', totals: {}, recent: [] };
+  function loadAiCrawlers(){
+    aiCrawlers.loaded = true; aiCrawlers.busy = true; aiCrawlers.error = ''; renderAiCrawlers();
+    fetch('/.netlify/functions/ai-bot-stats?format=json', { cache: 'no-store' })
+      .then(function(r){ if(!r.ok) throw new Error('Request failed (' + r.status + ')'); return r.json(); })
+      .then(function(data){
+        aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || []; aiCrawlers.busy = false; renderAiCrawlers();
+      })
+      .catch(function(err){ aiCrawlers.busy = false; aiCrawlers.error = err.message; renderAiCrawlers(); });
+  }
+  function renderAiCrawlers(){
+    var root = aiCrawlers.root; root.innerHTML = '';
+    root.appendChild(el('div', { class: 'page-head' }, [
+      el('div', {}, [
+        el('h1', { text: 'AI Crawlers' }),
+        el('p', { text: 'Visits from known AI crawlers and agents (GPTBot, ClaudeBot, PerplexityBot, and others), logged automatically on every page request.' })
+      ]),
+      el('div', { class: 'page-head-actions' }, [
+        el('button', { type: 'button', class: 'btn btn-ghost', onclick: function(){ aiCrawlers.loaded = false; loadAiCrawlers(); } }, [ 'Refresh' ])
+      ])
+    ]));
+    if(aiCrawlers.busy && !Object.keys(aiCrawlers.totals).length){ root.appendChild(el('div', { class: 'loading', text: 'Loading…' })); return; }
+    if(aiCrawlers.error){ root.appendChild(el('div', { class: 'notice notice-error' }, [ icon(I.warn), el('div', { text: 'Couldn\'t load crawler activity (' + aiCrawlers.error + ').' }) ])); return; }
+
+    var rows = Object.keys(aiCrawlers.totals).map(function(k){ return Object.assign({ needle: k }, aiCrawlers.totals[k]); });
+    rows.sort(function(a, b){ return b.count - a.count; });
+    var totalHits = rows.reduce(function(sum, r){ return sum + r.count; }, 0);
+
+    var stats = el('div', { class: 'stats' });
+    stats.appendChild(el('div', { class: 'stat' }, [
+      el('div', { class: 'stat-top' }, [ 'Total AI Hits', el('span', { class: 'ico' }, [ icon(I.hash, '1.9') ]) ]),
+      el('div', { class: 'stat-num', text: fmt(totalHits) })
+    ]));
+    stats.appendChild(el('div', { class: 'stat' }, [
+      el('div', { class: 'stat-top' }, [ 'Distinct Bots Seen', el('span', { class: 'ico' }, [ icon(I.check, '1.9') ]) ]),
+      el('div', { class: 'stat-num', text: fmt(rows.length) })
+    ]));
+    root.appendChild(stats);
+
+    var byBotCard = el('div', { class: 'card' });
+    byBotCard.appendChild(el('h2', { text: 'By Crawler' }));
+    if(!rows.length){
+      byBotCard.appendChild(el('div', { class: 'empty-state', text: 'No AI crawler visits recorded yet. Check back after the site has been live a while - crawl frequency varies a lot by platform.' }));
+    } else {
+      var list = el('div', { class: 'posts' });
+      rows.forEach(function(r){
+        list.appendChild(el('div', { class: 'post-row' }, [
+          el('div', { class: 'title' }, [ r.label, el('small', { text: r.needle }) ]),
+          el('span', { class: 'date', text: 'Last seen ' + relTime(r.lastSeen) }),
+          el('span', { class: 'pill', text: fmt(r.count) + ' hit' + (r.count === 1 ? '' : 's') })
+        ]));
+      });
+      byBotCard.appendChild(list);
+    }
+    root.appendChild(byBotCard);
+
+    var recentCard = el('div', { class: 'card' });
+    recentCard.appendChild(el('h2', {}, [ 'Recent Hits', el('small', { text: aiCrawlers.recent.length + ' shown' }) ]));
+    if(!aiCrawlers.recent.length){
+      recentCard.appendChild(el('div', { class: 'empty-state', text: 'Nothing yet.' }));
+    } else {
+      var recentList = el('div', { class: 'posts' });
+      aiCrawlers.recent.slice(0, 50).forEach(function(r){
+        recentList.appendChild(el('div', { class: 'post-row' }, [
+          el('div', { class: 'title' }, [ r.label, el('small', { text: r.path }) ]),
+          el('span', { class: 'date', text: relTime(r.time) })
+        ]));
+      });
+      recentCard.appendChild(recentList);
+    }
+    root.appendChild(recentCard);
+  }
+
   // ---- Routing (hash) ----
-  var VIEW_TITLES = { overview: 'Dashboard', banner: 'Announcement Banner', settlements: 'Settlements', team: 'Legal Team', blog: 'Blog Posts' };
+  var VIEW_TITLES = { overview: 'Dashboard', banner: 'Announcement Banner', settlements: 'Settlements', team: 'Legal Team', blog: 'Blog Posts', 'ai-crawlers': 'AI Crawlers' };
   var currentView = null, currentHash = null;
   function route(){
     var raw = (location.hash || '#overview').slice(1), parts = raw.split('/'), key = parts[0], sub = parts.slice(1).join('/');
@@ -1344,6 +1427,7 @@
         if(!blog.loaded) loadBlogList(); else renderBlog();
       }
     }
+    if(key === 'ai-crawlers' && !aiCrawlers.loaded) loadAiCrawlers();
     setMenu(false); window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', route);
