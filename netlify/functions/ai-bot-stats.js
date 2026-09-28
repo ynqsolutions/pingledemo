@@ -77,9 +77,10 @@ export default async (req) => {
         <tr>
           <td>${escapeHtml(r.label)}</td>
           <td class="mono">${escapeHtml(r.path)}</td>
+          <td class="mono">${r.referer ? escapeHtml(r.referer) : '—'}</td>
           <td>${escapeHtml(timeAgo(r.time))}</td>
         </tr>`).join('')
-    : `<tr><td colspan="3" class="empty">Nothing yet.</td></tr>`;
+    : `<tr><td colspan="4" class="empty">Nothing yet.</td></tr>`;
 
   const html = `<!doctype html>
 <html lang="en"><head>
@@ -122,9 +123,10 @@ export default async (req) => {
   </table>
   <h2>Recent Hits</h2>
   <table>
-    <tr><th>Platform</th><th>Page</th><th>When</th></tr>
+    <tr><th>Platform</th><th>Page</th><th>Referer</th><th>When</th></tr>
     ${recentHtml}
   </table>
+  <p class="hint">Referer is only ever populated for "live lookup" agents (ChatGPT-User, Perplexity-User, Claude-Web/User, OAI-SearchBot) - those are triggered by an actual person's question right now, and some platforms pass the search page (sometimes the query itself) through this header. Training crawlers (GPTBot, ClaudeBot, CCBot, etc.) have no query behind them, so it's always blank there - expected, not missing data. No platform is guaranteed to send anything useful here.</p>
   <p class="hint">Raw data: <a href="/.netlify/functions/ai-bot-stats?format=json">?format=json</a></p>
 </div>
 </body></html>`;

@@ -1389,13 +1389,16 @@
 
     var recentCard = el('div', { class: 'card' });
     recentCard.appendChild(el('h2', {}, [ 'Recent Hits', el('small', { text: aiCrawlers.recent.length + ' shown' }) ]));
+    recentCard.appendChild(el('p', { class: 'field-hint', style: 'margin:-8px 0 16px;' }, [
+      'A referer only shows up for "live lookup" agents (ChatGPT-User, Perplexity-User, Claude-Web/User, OAI-SearchBot) - a real person’s question happening right now. Training crawlers (GPTBot, ClaudeBot, CCBot, etc.) have no query behind them, so it’s always blank there.'
+    ]));
     if(!aiCrawlers.recent.length){
       recentCard.appendChild(el('div', { class: 'empty-state', text: 'Nothing yet.' }));
     } else {
       var recentList = el('div', { class: 'posts' });
       aiCrawlers.recent.slice(0, 50).forEach(function(r){
         recentList.appendChild(el('div', { class: 'post-row' }, [
-          el('div', { class: 'title' }, [ r.label, el('small', { text: r.path }) ]),
+          el('div', { class: 'title' }, [ r.label, el('small', { text: r.path + (r.referer ? '  •  referer: ' + r.referer : '') }) ]),
           el('span', { class: 'date', text: relTime(r.time) })
         ]));
       });

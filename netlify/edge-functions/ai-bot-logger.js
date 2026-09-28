@@ -59,19 +59,29 @@ export default async (req, context) => {
 
   if(match){
     const url = new URL(req.url);
-    console.log(`[ai-bot] ${match.label} -> ${url.pathname}`);
+    // The Referer header only ever matters for the "live lookup" agents
+    // (ChatGPT-User, Perplexity-User, Claude-Web/User, OAI-SearchBot) -
+    // those are triggered by an actual person's question right now, and
+    // some platforms have been known to pass the search/query page (and
+    // sometimes the query text itself) through this header. Training
+    // crawlers (GPTBot, ClaudeBot, CCBot, etc.) are systematic content
+    // crawls with no query behind them, so this will just be empty for
+    // those - expected, not a bug. No guarantee any platform sends
+    // anything useful here at all; this only records whatever shows up.
+    const referer = req.headers.get('referer') || '';
+    console.log(`[ai-bot] ${match.label} -> ${url.pathname}${referer ? ' (referer: ' + referer + ')' : ''}`);
 
     // Fire-and-forget: never await this on the request path, so a Blobs
     // hiccup can never slow down or break the page for the crawler (or
     // for anyone) - context.waitUntil lets it finish after the response
     // has already gone out.
-    context.waitUntil(recordHit(match, url.pathname, userAgent));
+    context.waitUntil(recordHit(match, url.pathname, userAgent, referer));
   }
 
   return context.next();
 };
 
-async function recordHit(match, pathname, userAgent){
+async function recordHit(match, pathname, userAgent, referer){
   try {
     const store = getStore('ai-bot-log');
     const today = new Date().toISOString().slice(0, 10);
@@ -88,7 +98,7 @@ async function recordHit(match, pathname, userAgent){
     // crawled without needing to page through raw logs.
     const recentKey = 'recent';
     const recent = (await store.get(recentKey, { type: 'json' })) || [];
-    recent.unshift({ bot: match.needle, label: match.label, path: pathname, time: new Date().toISOString() });
+    recent.unshift({ bot: match.needle, label: match.label, path: pathname, referer: referer || null, time: new Date().toISOString() });
     await store.setJSON(recentKey, recent.slice(0, 200));
 
     // One counter per bot per day, so trends over time are visible
