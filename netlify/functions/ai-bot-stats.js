@@ -1,13 +1,33 @@
 // Human-readable report of what netlify/edge-functions/ai-bot-logger.js
 // has recorded: total hits per known AI crawler, when each was last
-// seen, and a feed of the most recent individual hits. Visit
-// /.netlify/functions/ai-bot-stats directly in a browser - no login
-// needed, this is just aggregate crawler-traffic counts, nothing
-// sensitive. Add ?format=json for the raw data instead of the page.
+// seen, and a feed of the most recent individual hits. Gated behind
+// Netlify Identity - only reachable while signed into /admin, same as
+// the rest of the dashboard - not something anyone can load by just
+// knowing the URL. admin/index.html sends the signed-in user's JWT as
+// an Authorization header; this verifies that token against the site's
+// own Identity endpoint (GoTrue's /user) before returning anything.
 import { getStore } from '@netlify/blobs';
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+function gateHtml(message){
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex">
+<title>Sign in required — Pingle Law</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F6F8;color:#111827;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:24px;text-align:center;}
+a{color:#1F7A5C;font-weight:600;}</style></head>
+<body><div><p>${escapeHtml(message)}</p><p><a href="/admin/">Sign in at /admin</a></p></div></body></html>`;
+}
+async function verifyUser(req){
+  const auth = req.headers.get('authorization');
+  if(!auth) return false;
+  try {
+    const origin = new URL(req.url).origin;
+    const res = await fetch(origin + '/.netlify/identity/user', { headers: { authorization: auth } });
+    return res.ok;
+  } catch (err) {
+    return false;
+  }
 }
 function timeAgo(iso){
   if(!iso) return 'never';
@@ -19,11 +39,22 @@ function timeAgo(iso){
 }
 
 export default async (req) => {
+  const url = new URL(req.url);
+  const authed = await verifyUser(req);
+  if(!authed){
+    if(url.searchParams.get('format') === 'json'){
+      return Response.json({ error: 'Sign in required.' }, { status: 401 });
+    }
+    return new Response(gateHtml('Sign in to view AI crawler activity.'), {
+      status: 401,
+      headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }
+    });
+  }
+
   const store = getStore('ai-bot-log');
   const totals = (await store.get('totals', { type: 'json' })) || {};
   const recent = (await store.get('recent', { type: 'json' })) || [];
 
-  const url = new URL(req.url);
   if(url.searchParams.get('format') === 'json'){
     return Response.json({ totals, recent });
   }

@@ -1320,14 +1320,22 @@
 
   // ---- AI Crawlers (netlify/edge-functions/ai-bot-logger.js + netlify/
   // functions/ai-bot-stats.js) - a read-only view of which AI platforms
-  // have actually visited the site. Public, unauthenticated data (just
-  // aggregate crawler-traffic counts), so this is a plain fetch, not a
-  // Git Gateway call like the rest of the dashboard. ----
+  // have actually visited the site. Not a Git Gateway call (no repo
+  // content involved), but still gated: the request carries the signed-
+  // in user's Identity JWT as a Bearer token, which the function itself
+  // verifies server-side before returning anything - not reachable just
+  // by knowing the URL. ----
   var aiCrawlers = { root: $('#aiCrawlersView'), loaded: false, busy: false, error: '', totals: {}, recent: [] };
   function loadAiCrawlers(){
     aiCrawlers.loaded = true; aiCrawlers.busy = true; aiCrawlers.error = ''; renderAiCrawlers();
-    fetch('/.netlify/functions/ai-bot-stats?format=json', { cache: 'no-store' })
-      .then(function(r){ if(!r.ok) throw new Error('Request failed (' + r.status + ')'); return r.json(); })
+    var user = currentUser();
+    if(!user){ aiCrawlers.busy = false; aiCrawlers.error = 'Sign in to view this.'; renderAiCrawlers(); return; }
+    // The endpoint itself checks this token server-side (gated, not a
+    // public URL) - this header is what makes that check pass, not just
+    // a formality.
+    user.jwt().then(function(token){
+      return fetch('/.netlify/functions/ai-bot-stats?format=json', { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } });
+    }).then(function(r){ if(!r.ok) throw new Error(r.status === 401 ? 'Sign in to view this.' : 'Request failed (' + r.status + ')'); return r.json(); })
       .then(function(data){
         aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || []; aiCrawlers.busy = false; renderAiCrawlers();
       })
