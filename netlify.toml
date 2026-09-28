@@ -126,6 +126,10 @@
   from = "/home"
   to = "/"
   status = 301
+[[redirects]]
+  from = "/ai-crawlers"
+  to = "/.netlify/functions/ai-bot-stats"
+  status = 200
 
 # ---------------------------------------------------------------------------
 # WordPress migration (pinglelaw.com moved here from a WordPress site on
