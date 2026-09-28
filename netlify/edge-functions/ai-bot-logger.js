@@ -101,6 +101,13 @@ async function recordHit(match, pathname, userAgent, referer){
     recent.unshift({ bot: match.needle, label: match.label, path: pathname, referer: referer || null, time: new Date().toISOString() });
     await store.setJSON(recentKey, recent.slice(0, 200));
 
+    // Running per-page tally, so "which pages do AI crawlers care about"
+    // covers all time instead of only the capped recent feed above.
+    const pagesKey = 'pages';
+    const pages = (await store.get(pagesKey, { type: 'json' })) || {};
+    pages[pathname] = (pages[pathname] || 0) + 1;
+    await store.setJSON(pagesKey, pages);
+
     // One counter per bot per day, so trends over time are visible
     // without keeping every single hit forever.
     const dailyKey = `daily/${today}`;

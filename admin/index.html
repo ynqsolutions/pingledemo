@@ -250,6 +250,112 @@
   .md-preview-label{ font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
   .md-preview .is-empty{ color:var(--soft); }
 
+  /* ---- AI Crawlers view ----
+     Series colors are the dataviz reference palette's first three
+     categorical slots (validated as a set, all-pairs, light surface):
+     one per crawler TYPE, and every mark that carries a type color also
+     carries its type as text (aqua sits under 3:1 contrast - relief rule). */
+  .ai-root{ --t-training:#2a78d6; --t-search:#eb6834; --t-live:#1baf7a; --grid:#EEF0F3; }
+  .ai-hero{ position:relative; overflow:hidden; border-radius:var(--r-card); padding:28px 30px; margin-bottom:20px;
+    background:radial-gradient(120% 140% at 85% 20%, #1c2a57 0%, #0A0F27 55%, #070a1c 100%); color:#fff;
+    display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:24px; align-items:center; }
+  .ai-hero-kicker{ display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#9fb3ff; }
+  .ai-live-dot{ width:8px; height:8px; border-radius:50%; background:#34d399; box-shadow:0 0 0 0 rgba(52,211,153,0.6); animation:aiPing 1.8s ease-out infinite; }
+  .ai-hero-num{ font-size:56px; font-weight:700; letter-spacing:-0.03em; line-height:1; margin:14px 0 6px; font-variant-numeric:tabular-nums; }
+  .ai-hero-sub{ color:#c7cfe8; font-size:14px; max-width:460px; }
+  .ai-split{ display:flex; height:10px; border-radius:999px; overflow:hidden; gap:2px; margin-top:20px; background:rgba(255,255,255,0.08); max-width:460px; }
+  .ai-split span{ height:100%; transform-origin:left; animation:aiGrowX .9s cubic-bezier(.2,.8,.2,1) both; }
+  .ai-split-legend{ display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:10px; font-size:12.5px; color:#c7cfe8; }
+  .ai-split-legend b{ color:#fff; font-weight:600; }
+  .ai-key{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+  .ai-radar{ width:220px; height:220px; justify-self:end; }
+  .ai-radar .ring{ fill:none; stroke:rgba(159,179,255,0.18); }
+  .ai-radar .pulse{ fill:none; stroke:rgba(159,179,255,0.55); transform-origin:110px 110px; animation:aiRing 3.2s ease-out infinite; }
+  .ai-radar .pulse.p2{ animation-delay:1.06s; } .ai-radar .pulse.p3{ animation-delay:2.13s; }
+  .ai-radar .sweep{ transform-origin:110px 110px; animation:aiSpin 6s linear infinite; }
+  .ai-radar .blip{ transform-box:fill-box; transform-origin:center; animation:aiBlip 2.4s ease-in-out infinite; }
+  .ai-radar .core{ fill:#fff; }
+
+  .ai-tiles{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:16px; margin-bottom:20px; }
+  .ai-tile{ background:var(--card); border-radius:var(--r-card); padding:18px 20px; box-shadow:var(--shadow); animation:aiRise .5s cubic-bezier(.2,.8,.2,1) both; }
+  .ai-tile:nth-child(2){ animation-delay:.06s; } .ai-tile:nth-child(3){ animation-delay:.12s; } .ai-tile:nth-child(4){ animation-delay:.18s; }
+  .ai-tile-label{ font-size:12.5px; color:var(--muted); font-weight:500; display:flex; align-items:center; gap:8px; }
+  .ai-tile-num{ font-size:30px; font-weight:600; letter-spacing:-0.02em; margin-top:10px; font-variant-numeric:tabular-nums; line-height:1; }
+  .ai-tile-sub{ font-size:12px; color:var(--soft); margin-top:8px; }
+  .ai-delta{ font-size:12px; font-weight:600; padding:2px 8px; border-radius:999px; margin-left:8px; vertical-align:middle; }
+  .ai-delta.up{ background:var(--accent-100); color:var(--accent-700); } .ai-delta.flat{ background:var(--field); color:var(--muted); }
+  .ai-delta.down{ background:var(--warn-100); color:var(--warn-800); }
+  .ai-spark{ display:block; width:100%; height:34px; margin-top:10px; }
+  .ai-spark path.line{ fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:var(--len); stroke-dashoffset:var(--len); animation:aiDraw 1.2s .2s cubic-bezier(.2,.8,.2,1) forwards; }
+
+  .ai-grid2{ display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:20px; align-items:start; }
+  .ai-grid2 > .card{ margin:0; }
+  .ai-card-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+  .ai-card-head h2{ margin:0 !important; }
+  .ai-card-head p{ margin:4px 0 0; font-size:12.5px; color:var(--muted); }
+  .ai-legend{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12.5px; color:var(--ink); }
+  .ai-chart-outer{ position:relative; }
+  .ai-chart-wrap{ overflow-x:auto; overflow-y:hidden; }
+  .ai-chart{ display:block; width:100%; min-width:460px; height:auto; }
+  .ai-chart .gridline{ stroke:var(--grid); stroke-width:1; }
+  .ai-chart .axis{ fill:var(--soft); font-size:11px; font-family:inherit; }
+  .ai-chart .day{ transform-box:fill-box; transform-origin:50% 100%; animation:aiGrowY .7s cubic-bezier(.2,.8,.2,1) both; transition:opacity .15s ease; }
+  .ai-chart.is-hovering .day{ opacity:.35; } .ai-chart.is-hovering .day.is-hot{ opacity:1; }
+  .ai-chart .hit{ fill:transparent; cursor:crosshair; outline:none; }
+  .ai-chart .zero{ fill:var(--grid); }
+  .ai-tip{ position:absolute; pointer-events:none; background:var(--ink); color:#fff; border-radius:10px; padding:9px 12px; font-size:12.5px; line-height:1.5; box-shadow:0 12px 30px -12px rgba(17,24,39,0.5); opacity:0; transform:translate(-50%, -8px); transition:opacity .12s ease; white-space:nowrap; z-index:3; }
+  .ai-tip.is-on{ opacity:1; }
+  .ai-tip b{ display:block; margin-bottom:2px; }
+  .ai-table{ margin-top:14px; font-size:13px; }
+  .ai-table summary{ cursor:pointer; color:var(--muted); font-weight:500; }
+  .ai-table table{ width:100%; border-collapse:collapse; margin-top:10px; }
+  .ai-table th, .ai-table td{ text-align:right; padding:6px 8px; border-top:1px solid var(--line); font-variant-numeric:tabular-nums; }
+  .ai-table th:first-child, .ai-table td:first-child{ text-align:left; }
+  .ai-table th{ font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; border-top:none; }
+
+  .ai-bars{ display:flex; flex-direction:column; gap:14px; }
+  .ai-bar-row{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 12px; align-items:center; animation:aiRise .45s cubic-bezier(.2,.8,.2,1) both; }
+  .ai-bar-name{ font-size:13.5px; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ai-bar-name small{ font-weight:500; color:var(--muted); margin-left:6px; }
+  .ai-bar-val{ font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; }
+  .ai-bar-track{ grid-column:1 / -1; height:8px; border-radius:999px; background:var(--field); overflow:hidden; }
+  .ai-bar-fill{ height:100%; border-radius:999px; transform-origin:left; animation:aiGrowX .9s cubic-bezier(.2,.8,.2,1) both; }
+  .ai-bar-meta{ grid-column:1 / -1; font-size:11.5px; color:var(--soft); }
+
+  .ai-feed{ position:relative; display:flex; flex-direction:column; }
+  .ai-feed::before{ content:""; position:absolute; left:7px; top:6px; bottom:6px; width:2px; background:var(--line); border-radius:2px; }
+  .ai-feed-item{ position:relative; padding:0 0 16px 28px; animation:aiRise .4s cubic-bezier(.2,.8,.2,1) both; }
+  .ai-feed-item:last-child{ padding-bottom:0; }
+  .ai-feed-dot{ position:absolute; left:2px; top:4px; width:12px; height:12px; border-radius:50%; border:2px solid var(--card); box-shadow:0 0 0 1px var(--line); }
+  .ai-feed-dot.is-fresh::after{ content:""; position:absolute; inset:-2px; border-radius:50%; background:inherit; animation:aiPingSoft 1.8s ease-out infinite; }
+  .ai-feed-top{ display:flex; justify-content:space-between; gap:10px; font-size:13.5px; }
+  .ai-feed-top b{ font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ai-feed-top span{ color:var(--soft); font-size:12px; white-space:nowrap; }
+  .ai-feed-path{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; color:var(--muted); margin-top:2px; overflow-wrap:anywhere; }
+  .ai-type{ display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:999px; background:var(--field); color:var(--ink); margin-top:5px; }
+  .ai-ref{ font-size:12px; color:var(--accent-700); margin-top:4px; overflow-wrap:anywhere; }
+
+  @keyframes aiPing{ 0%{ box-shadow:0 0 0 0 rgba(52,211,153,0.6); } 100%{ box-shadow:0 0 0 10px rgba(52,211,153,0); } }
+  @keyframes aiPingSoft{ 0%{ transform:scale(1); opacity:.55; } 100%{ transform:scale(2.6); opacity:0; } }
+  @keyframes aiRing{ 0%{ transform:scale(.15); opacity:.9; } 100%{ transform:scale(1); opacity:0; } }
+  @keyframes aiSpin{ to{ transform:rotate(360deg); } }
+  @keyframes aiBlip{ 0%,100%{ transform:scale(1); opacity:1; } 50%{ transform:scale(1.35); opacity:.75; } }
+  @keyframes aiGrowX{ from{ transform:scaleX(0); } }
+  @keyframes aiGrowY{ from{ transform:scaleY(0); } }
+  @keyframes aiRise{ from{ opacity:0; transform:translateY(8px); } }
+  @keyframes aiDraw{ to{ stroke-dashoffset:0; } }
+  @media (prefers-reduced-motion: reduce){
+    .ai-root *, .ai-root *::before, .ai-root *::after{ animation:none !important; }
+    .ai-spark path.line{ stroke-dashoffset:0; }
+  }
+  @media (max-width:1180px){ .ai-grid2{ grid-template-columns:minmax(0,1fr); } .ai-tiles{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+  @media (max-width:640px){
+    .ai-hero{ grid-template-columns:1fr; padding:22px; }
+    .ai-radar{ display:none; }
+    .ai-hero-num{ font-size:44px; }
+  }
+  @media (max-width:420px){ .ai-tiles{ grid-template-columns:1fr; } }
+
   /* ---- Toast ---- */
   .toast{ position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(10px); background:var(--ink); color:#fff; padding:12px 18px; border-radius:12px; font-size:13.5px; font-weight:500; box-shadow:0 16px 40px -14px rgba(17,24,39,0.6); opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:80; max-width:calc(100vw - 32px); }
   .toast.is-on{ opacity:1; transform:translateX(-50%) translateY(0); }
@@ -1325,7 +1431,7 @@
   // in user's Identity JWT as a Bearer token, which the function itself
   // verifies server-side before returning anything - not reachable just
   // by knowing the URL. ----
-  var aiCrawlers = { root: $('#aiCrawlersView'), loaded: false, busy: false, error: '', totals: {}, recent: [] };
+  var aiCrawlers = { root: $('#aiCrawlersView'), loaded: false, busy: false, error: '', totals: {}, recent: [], daily: [], pages: {} };
   function loadAiCrawlers(){
     aiCrawlers.loaded = true; aiCrawlers.busy = true; aiCrawlers.error = ''; renderAiCrawlers();
     var user = currentUser();
@@ -1337,16 +1443,197 @@
       return fetch('/.netlify/functions/ai-bot-stats?format=json', { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } });
     }).then(function(r){ if(!r.ok) throw new Error(r.status === 401 ? 'Sign in to view this.' : 'Request failed (' + r.status + ')'); return r.json(); })
       .then(function(data){
-        aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || []; aiCrawlers.busy = false; renderAiCrawlers();
+        aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || [];
+        aiCrawlers.daily = data.daily || []; aiCrawlers.pages = data.pages || {};
+        aiCrawlers.busy = false; renderAiCrawlers();
       })
       .catch(function(err){ aiCrawlers.busy = false; aiCrawlers.error = err.message; renderAiCrawlers(); });
   }
+
+  // Crawler TYPE drives every color on this page (one categorical slot per
+  // type, fixed order, never cycled). Anything not listed is a training /
+  // data-collection crawler.
+  var AI_TYPES = {
+    training: { label: 'Training', color: 'var(--t-training)', hex: '#2a78d6', note: 'Builds AI training data on a schedule - no one asked anything.' },
+    search:   { label: 'Search index', color: 'var(--t-search)', hex: '#eb6834', note: 'Indexes pages so an AI search engine can cite them later.' },
+    live:     { label: 'Live lookup', color: 'var(--t-live)', hex: '#1baf7a', note: 'A real person asked an AI something just now and it fetched this page.' }
+  };
+  var AI_TYPE_ORDER = ['training', 'search', 'live'];
+  var AI_TYPE_OF = {
+    'ChatGPT-User': 'live', 'Claude-Web': 'live', 'Claude-User': 'live', 'anthropic-ai': 'live', 'Perplexity-User': 'live',
+    'OAI-SearchBot': 'search', 'PerplexityBot': 'search', 'Bingbot': 'search', 'YouBot': 'search', 'DuckAssistBot': 'search'
+  };
+  function aiTypeOf(needle){ return AI_TYPE_OF[needle] || 'training'; }
+  function aiPlatform(label){ var i = String(label || '').indexOf(' ('); return i > 0 ? label.slice(0, i) : (label || 'Unknown'); }
+  function aiReduced(){ return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  function aiCountUp(node, to, ms){
+    // requestAnimationFrame doesn't run in a background tab, so without
+    // this the number could sit at 0 until the tab is looked at.
+    if(aiReduced() || !to || document.hidden){ node.textContent = fmt(to); return; }
+    setTimeout(function(){ node.textContent = fmt(to); }, (ms || 1000) + 400);
+    var start = null; ms = ms || 1000;
+    function step(t){
+      if(start === null) start = t;
+      var p = Math.min(1, (t - start) / ms), e = 1 - Math.pow(1 - p, 3);
+      node.textContent = fmt(Math.round(to * e));
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  function svgEl(tag, attrs, children){
+    var n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.keys(attrs || {}).forEach(function(k){ n.setAttribute(k, attrs[k]); });
+    (children || []).forEach(function(c){ if(c) n.appendChild(c); });
+    return n;
+  }
+  function roundTopPath(x, y, w, h, r){
+    r = Math.min(r, w / 2, h);
+    return 'M' + x + ',' + (y + h) + 'V' + (y + r) + 'Q' + x + ',' + y + ' ' + (x + r) + ',' + y +
+      'H' + (x + w - r) + 'Q' + (x + w) + ',' + y + ' ' + (x + w) + ',' + (y + r) + 'V' + (y + h) + 'Z';
+  }
+  function niceMax(v){
+    if(v <= 4) return 4;
+    var pow = Math.pow(10, Math.floor(Math.log10(v))), n = v / pow;
+    var step = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
+    return step * pow;
+  }
+  function shortDate(iso){
+    var d = new Date(iso + 'T12:00:00');
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+  function aiDayTypes(counts){
+    var out = { training: 0, search: 0, live: 0 };
+    Object.keys(counts || {}).forEach(function(k){ out[aiTypeOf(k)] += counts[k]; });
+    return out;
+  }
+
+  // Animated radar for the hero: sweeping arm + expanding rings, with one
+  // blip per platform seen (bigger blip = more hits), placed at a stable
+  // angle so it doesn't jump around between refreshes.
+  function aiRadar(platforms){
+    var svg = svgEl('svg', { class: 'ai-radar', viewBox: '0 0 220 220', 'aria-hidden': 'true' });
+    var defs = svgEl('defs');
+    var grad = svgEl('linearGradient', { id: 'aiSweepGrad', x1: '0', y1: '0', x2: '1', y2: '0' }, [
+      svgEl('stop', { offset: '0', 'stop-color': '#9fb3ff', 'stop-opacity': '0' }),
+      svgEl('stop', { offset: '1', 'stop-color': '#9fb3ff', 'stop-opacity': '0.45' })
+    ]);
+    defs.appendChild(grad); svg.appendChild(defs);
+    [30, 60, 90].forEach(function(r){ svg.appendChild(svgEl('circle', { class: 'ring', cx: 110, cy: 110, r: r })); });
+    svg.appendChild(svgEl('line', { x1: 110, y1: 18, x2: 110, y2: 202, stroke: 'rgba(159,179,255,0.12)' }));
+    svg.appendChild(svgEl('line', { x1: 18, y1: 110, x2: 202, y2: 110, stroke: 'rgba(159,179,255,0.12)' }));
+    ['p1', 'p2', 'p3'].forEach(function(c){ svg.appendChild(svgEl('circle', { class: 'pulse ' + c, cx: 110, cy: 110, r: 95, 'stroke-width': 1.5 })); });
+    svg.appendChild(svgEl('g', { class: 'sweep' }, [ svgEl('path', { d: 'M110,110 L110,15 A95,95 0 0,1 177,43 Z', fill: 'url(#aiSweepGrad)' }) ]));
+    var max = platforms.reduce(function(m, p){ return Math.max(m, p.count); }, 1);
+    platforms.slice(0, 10).forEach(function(p, i){
+      var hash = 0; for(var c = 0; c < p.name.length; c++) hash = (hash * 31 + p.name.charCodeAt(c)) >>> 0;
+      var angle = (hash % 360) * Math.PI / 180, dist = 38 + (hash % 50);
+      var x = 110 + Math.cos(angle) * dist, y = 110 + Math.sin(angle) * dist, r = 3 + 4 * (p.count / max);
+      var blip = svgEl('circle', { class: 'blip', cx: x.toFixed(1), cy: y.toFixed(1), r: r.toFixed(1), fill: AI_TYPES[p.type].hex, stroke: '#0A0F27', 'stroke-width': 2 });
+      blip.style.animationDelay = (i * 0.3) + 's';
+      blip.appendChild(svgEl('title')); blip.firstChild.textContent = p.name + ' - ' + fmt(p.count) + ' hits';
+      svg.appendChild(blip);
+    });
+    svg.appendChild(svgEl('circle', { class: 'core', cx: 110, cy: 110, r: 4 }));
+    return svg;
+  }
+
+  // Tiny inline sparkline (one series, so no legend - the tile names it).
+  function aiSpark(values, color){
+    var w = 200, h = 34, max = Math.max.apply(null, values.concat([1]));
+    var pts = values.map(function(v, i){ return [ (i / Math.max(1, values.length - 1)) * (w - 4) + 2, h - 3 - (v / max) * (h - 6) ]; });
+    var d = pts.map(function(p, i){ return (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join('');
+    var svg = svgEl('svg', { class: 'ai-spark', viewBox: '0 0 ' + w + ' ' + h, preserveAspectRatio: 'none', 'aria-hidden': 'true' });
+    svg.appendChild(svgEl('path', { d: d + 'L' + (w - 2) + ',' + h + 'L2,' + h + 'Z', fill: color, 'fill-opacity': '0.10' }));
+    var line = svgEl('path', { class: 'line', d: d, stroke: color });
+    line.style.setProperty('--len', '600');
+    svg.appendChild(line);
+    return svg;
+  }
+
+  // 30-day stacked bars by crawler type, with per-day hover/focus tooltip
+  // (hit target is the whole day column, not just the bar) and a table
+  // view underneath for anyone who'd rather read numbers.
+  function aiTrendChart(daily){
+    var W = 720, H = 240, L = 34, R = 24, T = 12, B = 28, pw = W - L - R, ph = H - T - B;
+    var days = daily.map(function(d){ var t = aiDayTypes(d.counts); t.date = d.date; t.total = t.training + t.search + t.live; return t; });
+    var yMax = niceMax(days.reduce(function(m, d){ return Math.max(m, d.total); }, 0));
+    var slot = pw / Math.max(1, days.length), bw = Math.max(4, Math.min(16, slot - 6));
+    var wrap = el('div', { class: 'ai-chart-wrap' });
+    var svg = svgEl('svg', { class: 'ai-chart', viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'AI crawler hits per day for the last 30 days, stacked by crawler type' });
+    for(var g = 0; g <= 4; g++){
+      var gy = T + ph - (g / 4) * ph, val = Math.round((g / 4) * yMax);
+      svg.appendChild(svgEl('line', { class: 'gridline', x1: L, x2: W - R, y1: gy, y2: gy }));
+      var lbl = svgEl('text', { class: 'axis', x: L - 8, y: gy + 4, 'text-anchor': 'end' }); lbl.textContent = fmt(val); svg.appendChild(lbl);
+    }
+    var tip = el('div', { class: 'ai-tip', role: 'status' });
+    var groups = [];
+    days.forEach(function(d, i){
+      var x = L + i * slot + (slot - bw) / 2, g = svgEl('g', { class: 'day' });
+      g.style.animationDelay = (i * 0.018) + 's';
+      if(!d.total){
+        g.appendChild(svgEl('rect', { class: 'zero', x: x, y: T + ph - 2, width: bw, height: 2, rx: 1 }));
+      } else {
+        var y = T + ph, present = AI_TYPE_ORDER.filter(function(k){ return d[k] > 0; });
+        present.forEach(function(k, idx){
+          var h = (d[k] / yMax) * ph, gap = idx > 0 ? 2 : 0, top = idx === present.length - 1;
+          var segH = Math.max(1, h - gap); y -= h;
+          if(top) g.appendChild(svgEl('path', { d: roundTopPath(x, y, bw, segH, 4), fill: AI_TYPES[k].hex }));
+          else g.appendChild(svgEl('rect', { x: x, y: y + gap, width: bw, height: segH, fill: AI_TYPES[k].hex }));
+        });
+      }
+      svg.appendChild(g); groups.push(g);
+      if(i % 5 === 0 || i === days.length - 1){
+        var xl = svgEl('text', { class: 'axis', x: x + bw / 2, y: H - 8, 'text-anchor': 'middle' }); xl.textContent = shortDate(d.date); svg.appendChild(xl);
+      }
+    });
+    days.forEach(function(d, i){
+      var hit = svgEl('rect', { class: 'hit', x: L + i * slot, y: T, width: slot, height: ph, tabindex: '0', 'aria-label': shortDate(d.date) + ': ' + d.total + ' hits' });
+      function show(){
+        svg.classList.add('is-hovering'); groups.forEach(function(gg, j){ gg.classList.toggle('is-hot', j === i); });
+        tip.innerHTML = '';
+        tip.appendChild(el('b', { text: shortDate(d.date) + ' · ' + fmt(d.total) + ' hit' + (d.total === 1 ? '' : 's') }));
+        AI_TYPE_ORDER.forEach(function(k){
+          tip.appendChild(el('div', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[k].hex }), AI_TYPES[k].label + ': ' + fmt(d[k]) ]));
+        });
+        var rect = svg.getBoundingClientRect(), scale = rect.width / W, colX = (L + i * slot + slot / 2) * scale - wrap.scrollLeft;
+        var top = (T + ph - (d.total / yMax) * ph) * scale;
+        tip.style.left = Math.min(Math.max(colX, 80), wrap.clientWidth - 80) + 'px';
+        tip.style.top = Math.max(0, top - 84) + 'px';
+        tip.classList.add('is-on');
+      }
+      function hide(){ svg.classList.remove('is-hovering'); groups.forEach(function(gg){ gg.classList.remove('is-hot'); }); tip.classList.remove('is-on'); }
+      hit.addEventListener('mouseenter', show); hit.addEventListener('focus', show);
+      hit.addEventListener('mouseleave', hide); hit.addEventListener('blur', hide);
+      svg.appendChild(hit);
+    });
+    wrap.appendChild(svg);
+    var outer = el('div', { class: 'ai-chart-outer' }, [ wrap, tip ]);
+
+    var table = el('details', { class: 'ai-table' }, [ el('summary', { text: 'View as table' }) ]);
+    var tbl = el('table'), head = el('tr', {}, [ el('th', { text: 'Date' }) ]);
+    AI_TYPE_ORDER.forEach(function(k){ head.appendChild(el('th', { text: AI_TYPES[k].label })); });
+    head.appendChild(el('th', { text: 'Total' })); tbl.appendChild(head);
+    days.slice().reverse().forEach(function(d){
+      var tr = el('tr', {}, [ el('td', { text: shortDate(d.date) }) ]);
+      AI_TYPE_ORDER.forEach(function(k){ tr.appendChild(el('td', { text: fmt(d[k]) })); });
+      tr.appendChild(el('td', { text: fmt(d.total) })); tbl.appendChild(tr);
+    });
+    table.appendChild(tbl);
+    return el('div', {}, [ outer, table ]);
+  }
+
+  function aiLegend(){
+    var lg = el('div', { class: 'ai-legend' });
+    AI_TYPE_ORDER.forEach(function(k){ lg.appendChild(el('span', { title: AI_TYPES[k].note }, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[k].hex }), AI_TYPES[k].label ])); });
+    return lg;
+  }
+
   function renderAiCrawlers(){
-    var root = aiCrawlers.root; root.innerHTML = '';
+    var root = aiCrawlers.root; root.innerHTML = ''; root.classList.add('ai-root');
     root.appendChild(el('div', { class: 'page-head' }, [
       el('div', {}, [
         el('h1', { text: 'AI Crawlers' }),
-        el('p', { text: 'Visits from known AI crawlers and agents (GPTBot, ClaudeBot, PerplexityBot, and others), logged automatically on every page request.' })
+        el('p', { text: 'Which AI platforms are reading the site, what kind of visit it was, and which pages they care about. Logged automatically on every page request.' })
       ]),
       el('div', { class: 'page-head-actions' }, [
         el('button', { type: 'button', class: 'btn btn-ghost', onclick: function(){ aiCrawlers.loaded = false; loadAiCrawlers(); } }, [ 'Refresh' ])
@@ -1355,56 +1642,149 @@
     if(aiCrawlers.busy && !Object.keys(aiCrawlers.totals).length){ root.appendChild(el('div', { class: 'loading', text: 'Loading…' })); return; }
     if(aiCrawlers.error){ root.appendChild(el('div', { class: 'notice notice-error' }, [ icon(I.warn), el('div', { text: 'Couldn\'t load crawler activity (' + aiCrawlers.error + ').' }) ])); return; }
 
-    var rows = Object.keys(aiCrawlers.totals).map(function(k){ return Object.assign({ needle: k }, aiCrawlers.totals[k]); });
+    var rows = Object.keys(aiCrawlers.totals).map(function(k){ return Object.assign({ needle: k, type: aiTypeOf(k) }, aiCrawlers.totals[k]); });
     rows.sort(function(a, b){ return b.count - a.count; });
-    var totalHits = rows.reduce(function(sum, r){ return sum + r.count; }, 0);
+    var totalHits = rows.reduce(function(s, r){ return s + r.count; }, 0);
+    var byType = { training: 0, search: 0, live: 0 };
+    rows.forEach(function(r){ byType[r.type] += r.count; });
+    var lastSeen = rows.reduce(function(m, r){ return r.lastSeen && (!m || r.lastSeen > m) ? r.lastSeen : m; }, null);
 
-    var stats = el('div', { class: 'stats' });
-    stats.appendChild(el('div', { class: 'stat' }, [
-      el('div', { class: 'stat-top' }, [ 'Total AI Hits', el('span', { class: 'ico' }, [ icon(I.hash, '1.9') ]) ]),
-      el('div', { class: 'stat-num', text: fmt(totalHits) })
-    ]));
-    stats.appendChild(el('div', { class: 'stat' }, [
-      el('div', { class: 'stat-top' }, [ 'Distinct Bots Seen', el('span', { class: 'ico' }, [ icon(I.check, '1.9') ]) ]),
-      el('div', { class: 'stat-num', text: fmt(rows.length) })
-    ]));
-    root.appendChild(stats);
+    var platformsMap = {};
+    rows.forEach(function(r){
+      var name = aiPlatform(r.label), p = platformsMap[name] || (platformsMap[name] = { name: name, count: 0, type: r.type, typeCounts: {} });
+      p.count += r.count; p.typeCounts[r.type] = (p.typeCounts[r.type] || 0) + r.count;
+    });
+    var platforms = Object.keys(platformsMap).map(function(k){
+      var p = platformsMap[k];
+      p.type = AI_TYPE_ORDER.slice().sort(function(a, b){ return (p.typeCounts[b] || 0) - (p.typeCounts[a] || 0); })[0];
+      return p;
+    }).sort(function(a, b){ return b.count - a.count; });
 
-    var byBotCard = el('div', { class: 'card' });
-    byBotCard.appendChild(el('h2', { text: 'By Crawler' }));
-    if(!rows.length){
-      byBotCard.appendChild(el('div', { class: 'empty-state', text: 'No AI crawler visits recorded yet. Check back after the site has been live a while - crawl frequency varies a lot by platform.' }));
-    } else {
-      var list = el('div', { class: 'posts' });
-      rows.forEach(function(r){
-        list.appendChild(el('div', { class: 'post-row' }, [
-          el('div', { class: 'title' }, [ r.label, el('small', { text: r.needle }) ]),
-          el('span', { class: 'date', text: 'Last seen ' + relTime(r.lastSeen) }),
-          el('span', { class: 'pill', text: fmt(r.count) + ' hit' + (r.count === 1 ? '' : 's') })
-        ]));
-      });
-      byBotCard.appendChild(list);
+    var daily = aiCrawlers.daily.length ? aiCrawlers.daily : [];
+    var dayTotals = daily.map(function(d){ var t = aiDayTypes(d.counts); return t.training + t.search + t.live; });
+    var dayLive = daily.map(function(d){ return aiDayTypes(d.counts).live; });
+    var last7 = dayTotals.slice(-7).reduce(function(s, v){ return s + v; }, 0);
+    var prev7 = dayTotals.slice(-14, -7).reduce(function(s, v){ return s + v; }, 0);
+
+    // ---- Hero ----
+    var heroNum = el('div', { class: 'ai-hero-num', text: '0' });
+    var split = el('div', { class: 'ai-split', role: 'img', 'aria-label': AI_TYPE_ORDER.map(function(k){ return AI_TYPES[k].label + ' ' + byType[k]; }).join(', ') });
+    var splitLegend = el('div', { class: 'ai-split-legend' });
+    AI_TYPE_ORDER.forEach(function(k, i){
+      if(totalHits && byType[k]){
+        var seg = el('span', { style: 'background:' + AI_TYPES[k].hex + ';flex:' + byType[k] + ' 1 0' });
+        seg.style.animationDelay = (0.15 + i * 0.12) + 's'; split.appendChild(seg);
+      }
+      var pct = totalHits ? Math.round(byType[k] / totalHits * 100) : 0;
+      splitLegend.appendChild(el('span', { title: AI_TYPES[k].note }, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[k].hex }), AI_TYPES[k].label + ' ', el('b', { text: pct + '%' }) ]));
+    });
+    root.appendChild(el('div', { class: 'ai-hero' }, [
+      el('div', {}, [
+        el('span', { class: 'ai-hero-kicker' }, [ el('span', { class: 'ai-live-dot' }), 'Listening on every page' ]),
+        heroNum,
+        el('div', { class: 'ai-hero-sub', text: totalHits
+          ? 'AI crawler visits from ' + platforms.length + ' platform' + (platforms.length === 1 ? '' : 's') + '. Last one ' + relTime(lastSeen) + '.'
+          : 'No AI crawler visits yet. Crawl frequency varies a lot by platform - check back after the site has been live a while.' }),
+        split, splitLegend
+      ]),
+      aiRadar(platforms)
+    ]));
+    aiCountUp(heroNum, totalHits, 1200);
+
+    // ---- Tiles ----
+    function tile(label, value, sub, extra){
+      var count = el('span', { text: '0' }), num = el('div', { class: 'ai-tile-num' }, [ count ]);
+      var t = el('div', { class: 'ai-tile' }, [ el('div', { class: 'ai-tile-label' }, [ label ]), num, sub ? el('div', { class: 'ai-tile-sub', text: sub }) : null, extra || null ]);
+      aiCountUp(count, value, 900);
+      return { node: t, num: num };
     }
-    root.appendChild(byBotCard);
+    var tiles = el('div', { class: 'ai-tiles' });
+    var t7 = tile('Last 7 days', last7, 'vs. ' + fmt(prev7) + ' the 7 days before', dayTotals.length ? aiSpark(dayTotals.slice(-14), '#1F7A5C') : null);
+    var diff = last7 - prev7;
+    t7.num.appendChild(el('span', { class: 'ai-delta ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat'), text: (diff > 0 ? '▲ ' : diff < 0 ? '▼ ' : '') + (prev7 ? Math.abs(Math.round(diff / prev7 * 100)) + '%' : (diff > 0 ? 'new' : '0%')) }));
+    tiles.appendChild(t7.node);
+    tiles.appendChild(tile(el('span', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES.live.hex }), 'Live lookups' ]), byType.live, 'Real people asking an AI right now', dayLive.length ? aiSpark(dayLive.slice(-14), AI_TYPES.live.hex) : null).node);
+    tiles.appendChild(tile('Platforms seen', platforms.length, platforms.length ? 'Top: ' + platforms[0].name : 'None yet').node);
+    tiles.appendChild(tile('Pages crawled', Object.keys(aiCrawlers.pages).length, 'Distinct URLs any AI has read').node);
+    root.appendChild(tiles);
 
-    var recentCard = el('div', { class: 'card' });
-    recentCard.appendChild(el('h2', {}, [ 'Recent Hits', el('small', { text: aiCrawlers.recent.length + ' shown' }) ]));
-    recentCard.appendChild(el('p', { class: 'field-hint', style: 'margin:-8px 0 16px;' }, [
-      'A referer only shows up for "live lookup" agents (ChatGPT-User, Perplexity-User, Claude-Web/User, OAI-SearchBot) - a real person’s question happening right now. Training crawlers (GPTBot, ClaudeBot, CCBot, etc.) have no query behind them, so it’s always blank there.'
+    // ---- Trend chart + platforms ----
+    var trendCard = el('div', { class: 'card' }, [
+      el('div', { class: 'ai-card-head' }, [
+        el('div', {}, [ el('h2', { text: 'Last 30 days' }), el('p', { text: 'Hits per day, stacked by crawler type. Hover a day for the breakdown.' }) ]),
+        aiLegend()
+      ]),
+      daily.length ? aiTrendChart(daily) : el('div', { class: 'empty-state', text: 'Daily history appears here once the next deploy is live.' })
+    ]);
+
+    var platCard = el('div', { class: 'card' });
+    platCard.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'By platform' }), el('p', { text: 'Bar color = the type most of its visits were.' }) ]) ]));
+    if(!platforms.length){
+      platCard.appendChild(el('div', { class: 'empty-state', text: 'No platforms yet.' }));
+    } else {
+      var bars = el('div', { class: 'ai-bars' }), pMax = platforms[0].count;
+      platforms.slice(0, 8).forEach(function(p, i){
+        var fill = el('div', { class: 'ai-bar-fill', style: 'width:' + Math.max(3, p.count / pMax * 100) + '%;background:' + AI_TYPES[p.type].hex });
+        fill.style.animationDelay = (0.1 + i * 0.07) + 's';
+        var row = el('div', { class: 'ai-bar-row' }, [
+          el('div', { class: 'ai-bar-name' }, [ p.name, el('small', { text: AI_TYPES[p.type].label }) ]),
+          el('div', { class: 'ai-bar-val', text: fmt(p.count) }),
+          el('div', { class: 'ai-bar-track' }, [ fill ]),
+          el('div', { class: 'ai-bar-meta', text: AI_TYPE_ORDER.filter(function(k){ return p.typeCounts[k]; }).map(function(k){ return fmt(p.typeCounts[k]) + ' ' + AI_TYPES[k].label.toLowerCase(); }).join(' · ') })
+        ]);
+        row.style.animationDelay = (i * 0.05) + 's';
+        bars.appendChild(row);
+      });
+      platCard.appendChild(bars);
+    }
+    root.appendChild(el('div', { class: 'ai-grid2' }, [ trendCard, platCard ]));
+
+    // ---- Top pages + live feed ----
+    var pageRows = Object.keys(aiCrawlers.pages).map(function(k){ return { path: k, count: aiCrawlers.pages[k] }; }).sort(function(a, b){ return b.count - a.count; });
+    var pagesCard = el('div', { class: 'card' });
+    pagesCard.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Most-read pages' }), el('p', { text: 'All-time AI crawler hits per page.' }) ]) ]));
+    if(!pageRows.length){
+      pagesCard.appendChild(el('div', { class: 'empty-state', text: 'Page tallies start with the next crawler visit after this deploy.' }));
+    } else {
+      var pbars = el('div', { class: 'ai-bars' }), pgMax = pageRows[0].count;
+      pageRows.slice(0, 8).forEach(function(p, i){
+        var fill = el('div', { class: 'ai-bar-fill', style: 'width:' + Math.max(3, p.count / pgMax * 100) + '%;background:var(--accent)' });
+        fill.style.animationDelay = (0.1 + i * 0.07) + 's';
+        var row = el('div', { class: 'ai-bar-row' }, [
+          el('a', { class: 'ai-bar-name', href: p.path, target: '_blank', rel: 'noopener', style: 'font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:500;font-size:12.5px;' }, [ p.path ]),
+          el('div', { class: 'ai-bar-val', text: fmt(p.count) }),
+          el('div', { class: 'ai-bar-track' }, [ fill ])
+        ]);
+        row.style.animationDelay = (i * 0.05) + 's';
+        pbars.appendChild(row);
+      });
+      pagesCard.appendChild(pbars);
+    }
+
+    var feedCard = el('div', { class: 'card' });
+    feedCard.appendChild(el('div', { class: 'ai-card-head' }, [
+      el('div', {}, [ el('h2', {}, [ 'Live activity', el('small', { text: Math.min(25, aiCrawlers.recent.length) + ' latest' }) ]),
+        el('p', { text: 'A referer only ever appears on live lookups - training crawls have no question behind them.' }) ])
     ]));
     if(!aiCrawlers.recent.length){
-      recentCard.appendChild(el('div', { class: 'empty-state', text: 'Nothing yet.' }));
+      feedCard.appendChild(el('div', { class: 'empty-state', text: 'Nothing yet.' }));
     } else {
-      var recentList = el('div', { class: 'posts' });
-      aiCrawlers.recent.slice(0, 50).forEach(function(r){
-        recentList.appendChild(el('div', { class: 'post-row' }, [
-          el('div', { class: 'title' }, [ r.label, el('small', { text: r.path + (r.referer ? '  •  referer: ' + r.referer : '') }) ]),
-          el('span', { class: 'date', text: relTime(r.time) })
-        ]));
+      var feed = el('div', { class: 'ai-feed' });
+      aiCrawlers.recent.slice(0, 25).forEach(function(r, i){
+        var type = aiTypeOf(r.bot), fresh = (Date.now() - new Date(r.time).getTime()) < 3600000;
+        var item = el('div', { class: 'ai-feed-item' }, [
+          el('span', { class: 'ai-feed-dot' + (fresh ? ' is-fresh' : ''), style: 'background:' + AI_TYPES[type].hex }),
+          el('div', { class: 'ai-feed-top' }, [ el('b', { text: aiPlatform(r.label) }), el('span', { text: relTime(r.time) }) ]),
+          el('div', { class: 'ai-feed-path', text: r.path }),
+          el('span', { class: 'ai-type', text: AI_TYPES[type].label + ' · ' + r.bot }),
+          r.referer ? el('div', { class: 'ai-ref', text: 'from ' + r.referer }) : null
+        ]);
+        item.style.animationDelay = Math.min(i * 0.04, 0.8) + 's';
+        feed.appendChild(item);
       });
-      recentCard.appendChild(recentList);
+      feedCard.appendChild(feed);
     }
-    root.appendChild(recentCard);
+    root.appendChild(el('div', { class: 'ai-grid2', style: 'margin-top:20px;' }, [ pagesCard, feedCard ]));
   }
 
   // ---- Routing (hash) ----

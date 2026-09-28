@@ -56,7 +56,17 @@ export default async (req) => {
   const recent = (await store.get('recent', { type: 'json' })) || [];
 
   if(url.searchParams.get('format') === 'json'){
-    return Response.json({ totals, recent });
+    // Last 30 days of per-bot daily counts (oldest first; days with no
+    // hits come back as {} so the chart still gets an evenly spaced axis)
+    // plus the all-time per-page tally, for the admin dashboard's charts.
+    const days = [];
+    for(let i = 29; i >= 0; i--){
+      days.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
+    }
+    const dailyValues = await Promise.all(days.map(d => store.get('daily/' + d, { type: 'json' }).catch(() => null)));
+    const daily = days.map((date, i) => ({ date, counts: dailyValues[i] || {} }));
+    const pages = (await store.get('pages', { type: 'json' })) || {};
+    return Response.json({ totals, recent, daily, pages }, { headers: { 'cache-control': 'no-store' } });
   }
 
   const rows = Object.entries(totals).sort((a, b) => b[1].count - a[1].count);
