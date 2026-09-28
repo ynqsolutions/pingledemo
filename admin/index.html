@@ -250,6 +250,126 @@
   .md-preview-label{ font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
   .md-preview .is-empty{ color:var(--soft); }
 
+  /* ---- View heroes (shared by every section) ----
+     Same dark animated panel language as the AI Crawlers page: kicker,
+     title, one-line summary, count-up chips, the section's primary
+     actions, and a small animated graphic specific to that content. */
+  .vhero{ position:relative; overflow:hidden; border-radius:var(--r-card); padding:28px 30px; margin-bottom:22px;
+    background:radial-gradient(120% 140% at 85% 20%, #1c2a57 0%, #0A0F27 55%, #070a1c 100%); color:#fff;
+    display:grid; grid-template-columns:minmax(0,1fr) 240px; gap:24px; align-items:center; }
+  .vhero::after{ content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.05) 45%, transparent 60%); background-size:250% 100%; animation:vShine 7s ease-in-out infinite; }
+  .vhero-kicker{ display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#9fb3ff; }
+  .vhero h1{ margin:12px 0 6px; font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1.1; color:#fff; }
+  .vhero-sub{ color:#c7cfe8; font-size:14.5px; max-width:520px; margin:0; }
+  .vhero-chips{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .vhero-chip{ background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:10px 14px; min-width:96px; }
+  .vhero-chip b{ display:block; font-size:22px; font-weight:700; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; line-height:1.1; }
+  .vhero-chip span{ font-size:11.5px; color:#aab4d6; text-transform:uppercase; letter-spacing:0.05em; }
+  .vhero-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; position:relative; z-index:1; }
+  .vhero .btn-ghost{ background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.18); color:#fff; }
+  .vhero .btn-ghost:hover:not(:disabled){ background:rgba(255,255,255,0.16); border-color:rgba(255,255,255,0.3); }
+  .vhero .btn-primary{ background:#2f9c74; }
+  .vhero .btn-primary:hover:not(:disabled){ background:#34ad80; }
+  .vhero .btn:disabled{ opacity:0.4; }
+  .vhero-art{ justify-self:end; width:240px; height:190px; position:relative; }
+  .vhero-art svg{ width:100%; height:100%; overflow:visible; }
+
+  /* Dashboard: orbiting content areas */
+  .orb-ring{ fill:none; stroke:rgba(159,179,255,0.18); stroke-dasharray:3 6; }
+  .orb-spin{ transform-origin:120px 95px; animation:aiSpin 28s linear infinite; }
+  .orb-spin.rev{ animation-duration:40s; animation-direction:reverse; }
+  .orb-node{ transform-box:fill-box; transform-origin:center; animation:aiBlip 3s ease-in-out infinite; }
+  .orb-core{ animation:vGlow 3s ease-in-out infinite; }
+
+  /* Banner: live preview strip */
+  .bn-preview{ position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); border-radius:12px; overflow:hidden; box-shadow:0 18px 40px -18px rgba(0,0,0,0.7); }
+  .bn-strip{ background:#B38A3C; height:44px; position:relative; overflow:hidden; }
+  .bn-msg{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:0 12px; text-align:center;
+    color:#fff; font-size:11px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; text-shadow:0 1px 2px rgba(0,0,0,0.25);
+    opacity:0; animation:bnCycle var(--dur) linear infinite; animation-delay:var(--delay); }
+  .bn-strip::after{ content:""; position:absolute; top:0; bottom:0; left:-60%; width:45%; background:linear-gradient(115deg, transparent, rgba(255,255,255,0.5), transparent); mix-blend-mode:soft-light; animation:bnShine 4s ease-in-out infinite; }
+  .bn-site{ background:#0A0F27; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #B38A3C; }
+  .bn-logo{ font-weight:800; font-size:13px; letter-spacing:-0.02em; color:#fff; } .bn-logo i{ font-style:normal; color:#B38A3C; }
+  .bn-burger{ width:16px; height:10px; border-top:2px solid #fff; border-bottom:2px solid #fff; position:relative; }
+  .bn-burger::after{ content:""; position:absolute; left:0; right:0; top:2px; border-top:2px solid #fff; }
+  .bn-body{ background:#F3EFE6; height:52px; display:flex; flex-direction:column; gap:6px; padding:10px 12px; }
+  .bn-body span{ display:block; height:6px; border-radius:3px; background:#e2dccd; } .bn-body span:nth-child(2){ width:70%; } .bn-body span:nth-child(3){ width:45%; }
+
+  /* Settlements: amounts chart */
+  .st-bars{ display:flex; align-items:flex-end; justify-content:center; gap:10px; height:150px; padding-top:18px; }
+  .st-bar{ position:relative; width:26px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg, #d9b56a, #B38A3C); transform-origin:bottom; animation:aiGrowY .9s cubic-bezier(.2,.8,.2,1) both; box-shadow:0 10px 24px -12px rgba(179,138,60,0.8); }
+  .st-bar b{ position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); font-size:10.5px; font-weight:700; color:#fff; white-space:nowrap; }
+  .st-axis{ height:1px; background:rgba(255,255,255,0.2); margin-top:0; }
+
+  /* Team: avatar stack */
+  .tm-stack{ display:flex; align-items:center; justify-content:center; height:100%; }
+  .tm-av{ width:74px; height:74px; border-radius:50%; background:#1c2a57 center/cover no-repeat; border:3px solid #0A0F27; margin-left:-18px; box-shadow:0 12px 26px -10px rgba(0,0,0,0.8); animation:tmPop .6s cubic-bezier(.34,1.56,.64,1) both; }
+  .tm-av:first-child{ margin-left:0; }
+  .tm-av.is-more{ display:grid; place-items:center; font-weight:700; font-size:16px; background:#2f9c74; }
+
+  /* Blog: fanned document cards */
+  .bl-fan{ position:relative; width:100%; height:100%; }
+  .bl-doc{ position:absolute; left:50%; top:50%; width:110px; height:140px; margin:-70px 0 0 -55px; border-radius:10px; background:#fff; box-shadow:0 18px 36px -14px rgba(0,0,0,0.7);
+    padding:14px 12px; transform-origin:50% 120%; animation:blFan .8s cubic-bezier(.2,.8,.2,1) both; }
+  .bl-doc span{ display:block; height:6px; border-radius:3px; background:#e5e7eb; margin-bottom:7px; }
+  .bl-doc span:first-child{ height:10px; width:80%; background:#0A0F27; margin-bottom:12px; }
+  .bl-doc span:nth-child(3){ width:85%; } .bl-doc span:nth-child(5){ width:60%; }
+  .bl-doc .tag{ position:absolute; bottom:12px; left:12px; font-size:9px; font-weight:700; padding:2px 7px; border-radius:999px; background:var(--accent-100); color:var(--accent-700); }
+  .bl-doc .tag.draft{ background:var(--field); color:var(--muted); }
+
+  /* Dashboard extras */
+  .rs-bars{ display:flex; flex-direction:column; gap:12px; }
+  .rs-row{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 12px; align-items:center; }
+  .rs-row .n{ font-size:13.5px; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rs-row .n small{ color:var(--muted); font-weight:500; margin-left:6px; }
+  .rs-row .v{ font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .rs-track{ grid-column:1 / -1; height:8px; border-radius:999px; background:var(--field); overflow:hidden; }
+  .rs-fill{ height:100%; border-radius:999px; background:linear-gradient(90deg, #d9b56a, #B38A3C); transform-origin:left; animation:aiGrowX 1s cubic-bezier(.2,.8,.2,1) both; }
+  .act-feed{ position:relative; display:flex; flex-direction:column; }
+  .act-feed::before{ content:""; position:absolute; left:6px; top:6px; bottom:6px; width:2px; background:var(--line); border-radius:2px; }
+  .act-item{ position:relative; padding:0 0 14px 24px; font-size:13px; animation:aiRise .4s cubic-bezier(.2,.8,.2,1) both; }
+  .act-item:last-child{ padding-bottom:0; }
+  .act-item::before{ content:""; position:absolute; left:1px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid var(--card); box-shadow:0 0 0 1px var(--line); }
+  .act-item.is-fresh::before{ animation:vDotPulse 1.8s ease-out infinite; }
+  .act-item b{ display:block; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .act-item span{ color:var(--soft); font-size:12px; }
+
+  /* Hover lift on interactive surfaces */
+  .tile, .stat, .item, .ai-tile{ transition:transform .2s ease, box-shadow .2s ease, border-color .15s ease; }
+  .tile:hover, .stat:hover, .ai-tile:hover{ transform:translateY(-3px); box-shadow:0 1px 2px rgba(17,24,39,0.04), 0 18px 36px -22px rgba(17,24,39,0.35); }
+  .photo-preview{ transition:transform .25s ease; } .photo-preview:hover{ transform:scale(1.04); }
+  .nav a svg{ transition:transform .2s ease; } .nav a:hover svg, .nav a.is-current svg{ transform:scale(1.12); }
+
+  /* Entrance: only while switching sections (route() adds .is-entering
+     for ~1s), so editing - which re-renders often - never re-animates. */
+  .view.is-entering .vhero, .view.is-entering > .page-head{ animation:aiRise .5s cubic-bezier(.2,.8,.2,1) both; }
+  .view.is-entering .stat, .view.is-entering .tile, .view.is-entering .card, .view.is-entering .tip,
+  .view.is-entering .item, .view.is-entering .post-row, .view.is-entering .list-section-head{ animation:aiRise .5s cubic-bezier(.2,.8,.2,1) both; animation-delay:.08s; }
+  .view.is-entering :is(.stats, .manage, .items, .posts) > :nth-child(2){ animation-delay:.14s; }
+  .view.is-entering :is(.stats, .manage, .items, .posts) > :nth-child(3){ animation-delay:.2s; }
+  .view.is-entering :is(.stats, .manage, .items, .posts) > :nth-child(4){ animation-delay:.26s; }
+  .view.is-entering :is(.stats, .manage, .items, .posts) > :nth-child(5){ animation-delay:.32s; }
+  .view.is-entering :is(.stats, .manage, .items, .posts) > :nth-child(n+6){ animation-delay:.38s; }
+
+  @keyframes vShine{ 0%, 100%{ background-position:120% 0; } 50%{ background-position:-20% 0; } }
+  @keyframes vGlow{ 0%, 100%{ opacity:1; } 50%{ opacity:.65; } }
+  @keyframes vDotPulse{ 0%{ box-shadow:0 0 0 1px var(--line), 0 0 0 0 rgba(31,122,92,0.45); } 100%{ box-shadow:0 0 0 1px var(--line), 0 0 0 9px rgba(31,122,92,0); } }
+  @keyframes bnCycle{ 0%{ opacity:0; transform:translateX(30px); } 4%, 30%{ opacity:1; transform:translateX(0); } 34%, 100%{ opacity:0; transform:translateX(-30px); } }
+  @keyframes bnShine{ 0%{ left:-60%; } 45%, 100%{ left:130%; } }
+  @keyframes tmPop{ from{ opacity:0; transform:scale(.4) translateY(12px); } }
+  @keyframes blFan{ from{ transform:rotate(0deg) translateY(20px); opacity:0; } }
+  @media (prefers-reduced-motion: reduce){
+    .vhero *, .vhero::after, .view.is-entering *, .act-item, .act-item::before{ animation:none !important; }
+    .bn-msg{ opacity:0; } .bn-msg:first-child{ opacity:1; }
+    .tile:hover, .stat:hover, .ai-tile:hover, .photo-preview:hover{ transform:none; }
+  }
+  @media (max-width:760px){
+    .vhero{ grid-template-columns:1fr; padding:22px; }
+    .vhero-art{ display:none; }
+    .vhero h1{ font-size:26px; }
+  }
+
   /* ---- AI Crawlers view ----
      Series colors are the dataviz reference palette's first three
      categorical slots (validated as a set, all-pairs, light surface):
@@ -514,12 +634,7 @@
 
       <!-- ================= OVERVIEW ================= -->
       <section class="view" data-view="overview">
-        <div class="page-head">
-          <div>
-            <h1>Dashboard</h1>
-            <p>Edit the site's content right here. Saving commits the change and the site updates on the next deploy, usually within a couple of minutes.</p>
-          </div>
-        </div>
+        <div id="overviewHero"></div>
         <div class="stats">
           <div class="stat">
             <div class="stat-top">Consultation Requests<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span></div>
@@ -567,6 +682,10 @@
                 <div class="tile-actions"><a class="btn btn-primary btn-sm" href="#blog/new">New Post</a><a class="btn btn-ghost btn-sm" href="#blog">All Posts</a></div>
               </div>
             </div>
+            <div style="margin-top:28px;">
+              <div class="ai-card-head"><div><h2 style="margin:0;">Results at a glance</h2><p>Settlement tiles currently on the Results page, largest first.</p></div><a class="btn btn-ghost btn-sm" href="#settlements">Edit</a></div>
+              <div class="rs-bars" id="ovResults"><div class="loading" style="padding:16px;">Loading…</div></div>
+            </div>
           </div>
           <aside style="display:flex; flex-direction:column; gap:20px;">
             <div class="card" style="margin:0;">
@@ -578,6 +697,10 @@
                 <div><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Languages</span><b>English, Spanish</b></div>
                 <div><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>Status</span><span class="pill">Live</span></div>
               </div>
+            </div>
+            <div class="card" style="margin:0;">
+              <h2>Recent activity</h2>
+              <div class="act-feed" id="ovActivity"><div class="loading" style="padding:12px;">Loading…</div></div>
             </div>
             <div class="tip">
               <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span>
@@ -764,16 +887,207 @@
   function repoListDir(path){ return gateway('/contents/' + path + '?ref=' + BRANCH + '&t=' + Date.now(), { cache: 'no-store' }); }
   function repoRecentCommits(){ return gateway('/commits?sha=' + BRANCH + '&path=content&per_page=8&t=' + Date.now(), { cache: 'no-store' }); }
 
-  // ---- Overview stats (public JSON: reflects what's deployed) ----
+  // ---- View heroes + graphics (shared by every section) ----
+  // Entrance animations (count-ups, bars growing, avatars popping) only run
+  // while a section is first being shown - route() sets this window - so
+  // the editors, which re-render on every add/move/remove, stay calm.
+  var enteringUntil = 0;
+  function isEntering(){ return Date.now() < enteringUntil; }
+  function vCount(node, value){
+    if(typeof value !== 'number'){ node.textContent = value; return; }
+    if(isEntering()) aiCountUp(node, value, 900); else node.textContent = fmt(value);
+  }
+  function viewHero(o){
+    var chips = el('div', { class: 'vhero-chips' });
+    (o.chips || []).forEach(function(c){
+      var b = el('b', { text: typeof c.value === 'number' ? '0' : c.value });
+      chips.appendChild(el('div', { class: 'vhero-chip' }, [ b, el('span', { text: c.label }) ]));
+      if(c.id) b.id = c.id;
+      vCount(b, c.value);
+    });
+    return el('div', { class: 'vhero' }, [
+      el('div', { style: 'position:relative;z-index:1;min-width:0;' }, [
+        el('span', { class: 'vhero-kicker' }, [ el('span', { class: 'ai-live-dot' }), o.kicker || 'Pingle Law' ]),
+        el('h1', { text: o.title }),
+        el('p', { class: 'vhero-sub', text: o.sub || '' }),
+        chips,
+        (o.actions && o.actions.length) ? el('div', { class: 'vhero-actions' }, o.actions) : null
+      ]),
+      o.art ? el('div', { class: 'vhero-art', 'aria-hidden': 'true' }, [ o.art ]) : null
+    ]);
+  }
+  function parseAmount(a){
+    var m = String(a || '').replace(/[, ]/g, '').match(/\$?([\d.]+)\s*([KkMmBb]?)/);
+    if(!m) return 0;
+    var n = parseFloat(m[1]) || 0, u = m[2].toUpperCase();
+    return n * (u === 'K' ? 1e3 : u === 'M' ? 1e6 : u === 'B' ? 1e9 : 1);
+  }
+  function money(n){
+    if(n >= 1e6) return '$' + (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
+    if(n >= 1e3) return '$' + Math.round(n / 1e3) + 'K';
+    return '$' + Math.round(n);
+  }
+  function artOrbit(){
+    var svg = svgEl('svg', { viewBox: '0 0 240 190' });
+    svg.appendChild(svgEl('circle', { class: 'orb-ring', cx: 120, cy: 95, r: 48 }));
+    svg.appendChild(svgEl('circle', { class: 'orb-ring', cx: 120, cy: 95, r: 82 }));
+    var nodes = [ ['Banner', '#eda100'], ['Results', '#B38A3C'], ['Team', '#1baf7a'], ['Blog', '#3987e5'] ];
+    [0, 1].forEach(function(ring){
+      var g = svgEl('g', { class: 'orb-spin' + (ring ? ' rev' : '') });
+      nodes.filter(function(_, i){ return i % 2 === ring; }).forEach(function(n, j){
+        var r = ring ? 82 : 48, a = (j * 180 + ring * 60) * Math.PI / 180;
+        var x = 120 + Math.cos(a) * r, y = 95 + Math.sin(a) * r;
+        var node = svgEl('circle', { class: 'orb-node', cx: x.toFixed(1), cy: y.toFixed(1), r: 9, fill: n[1], stroke: '#0A0F27', 'stroke-width': 3 });
+        node.style.animationDelay = (j * 0.7 + ring) + 's';
+        node.appendChild(svgEl('title')); node.firstChild.textContent = n[0];
+        g.appendChild(node);
+      });
+      svg.appendChild(g);
+    });
+    svg.appendChild(svgEl('circle', { class: 'orb-core', cx: 120, cy: 95, r: 22, fill: '#1F7A5C', 'fill-opacity': '0.25' }));
+    svg.appendChild(svgEl('circle', { class: 'orb-core', cx: 120, cy: 95, r: 13, fill: '#2f9c74' }));
+    var t = svgEl('text', { x: 120, y: 99.5, 'text-anchor': 'middle', fill: '#fff', 'font-size': '12', 'font-weight': '700', 'font-family': 'Georgia, serif', 'font-style': 'italic' });
+    t.textContent = 'L'; svg.appendChild(t);
+    return svg;
+  }
+  function artBanner(messages){
+    var msgs = (messages || []).filter(function(m){ return m && m.message; });
+    if(!msgs.length) msgs = [ { message: 'Your banner message' } ];
+    var per = 3, dur = Math.max(1, msgs.length) * per;
+    var strip = el('div', { class: 'bn-strip' });
+    msgs.forEach(function(m, i){
+      var d = el('div', { class: 'bn-msg', text: m.message });
+      d.style.setProperty('--dur', (msgs.length > 1 ? dur : per * 2) + 's');
+      d.style.setProperty('--delay', (i * per) + 's');
+      if(msgs.length === 1) d.style.animation = 'none', d.style.opacity = '1';
+      strip.appendChild(d);
+    });
+    return el('div', { class: 'bn-preview' }, [
+      strip,
+      el('div', { class: 'bn-site' }, [ el('span', { class: 'bn-logo', html: 'PINGLE<i>LAW</i>' }), el('span', { class: 'bn-burger' }) ]),
+      el('div', { class: 'bn-body' }, [ el('span'), el('span'), el('span') ])
+    ]);
+  }
+  function artSettlements(items){
+    var vals = (items || []).map(function(it){ return { v: parseAmount(it.amount), label: it.amount }; }).filter(function(x){ return x.v > 0; });
+    vals.sort(function(a, b){ return b.v - a.v; });
+    vals = vals.slice(0, 6);
+    var max = vals.length ? vals[0].v : 1;
+    var bars = el('div', { class: 'st-bars' });
+    vals.forEach(function(x, i){
+      var b = el('div', { class: 'st-bar', style: 'height:' + Math.max(8, x.v / max * 120) + 'px' }, [ el('b', { text: x.label }) ]);
+      b.style.animationDelay = (0.15 + i * 0.08) + 's';
+      if(!isEntering()) b.style.animation = 'none';
+      bars.appendChild(b);
+    });
+    return el('div', {}, [ bars, el('div', { class: 'st-axis' }) ]);
+  }
+  function artTeam(members){
+    var list = (members || []).filter(function(m){ return m && m.photo; });
+    var stack = el('div', { class: 'tm-stack' });
+    list.slice(0, 4).forEach(function(m, i){
+      var a = el('div', { class: 'tm-av', title: m.name || '', style: 'background-image:url("' + previewSrc(m.photo) + '");z-index:' + (10 - i) });
+      a.style.animationDelay = (0.1 + i * 0.1) + 's';
+      if(!isEntering()) a.style.animation = 'none';
+      stack.appendChild(a);
+    });
+    if(list.length > 4) stack.appendChild(el('div', { class: 'tm-av is-more', text: '+' + (list.length - 4) }));
+    return stack;
+  }
+  function artBlog(published, drafts){
+    var fan = el('div', { class: 'bl-fan' });
+    [ -14, 0, 14 ].forEach(function(rot, i){
+      var isDraft = i === 0 && drafts > 0;
+      var d = el('div', { class: 'bl-doc', style: 'transform:rotate(' + rot + 'deg) translateX(' + (rot * 1.6) + 'px);z-index:' + (i === 1 ? 3 : 1) }, [
+        el('span'), el('span'), el('span'), el('span'), el('span'),
+        el('em', { class: 'tag' + (isDraft ? ' draft' : ''), text: isDraft ? 'Draft' : 'Live' })
+      ]);
+      d.style.animationDelay = (0.1 + i * 0.1) + 's';
+      if(!isEntering()) d.style.animation = 'none';
+      fan.appendChild(d);
+    });
+    return fan;
+  }
+
+  // ---- Overview (public JSON: reflects what's deployed) ----
+  var overview = { consults: null, settlements: null, team: null, articles: null, pagesLive: null, activityLoaded: false };
+  function greeting(){
+    var h = new Date().getHours();
+    return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  }
+  function renderOverviewHero(){
+    var host = $('#overviewHero'); if(!host) return;
+    var recovered = (overview.settlements || []).reduce(function(s, it){ return s + parseAmount(it.amount); }, 0);
+    host.innerHTML = '';
+    host.appendChild(viewHero({
+      kicker: 'Pingle Law · Admin',
+      title: greeting(),
+      sub: 'Here’s what’s live on pinglelaw.com right now. Edit anything below - saving publishes it on the next deploy, usually within a couple of minutes.',
+      chips: [
+        { label: 'Results shown', value: overview.settlements ? money(recovered) : '—' },
+        { label: 'Pages live', value: overview.pagesLive == null ? '—' : overview.pagesLive },
+        { label: 'Languages', value: 2 }
+      ],
+      actions: [
+        el('a', { class: 'btn btn-primary btn-sm', href: '#blog/new' }, [ icon(I.plus), 'New Post' ]),
+        el('a', { class: 'btn btn-ghost btn-sm', href: '#settlements' }, [ 'Edit Results' ]),
+        el('a', { class: 'btn btn-ghost btn-sm', href: '#ai-crawlers' }, [ 'AI Crawlers' ])
+      ],
+      art: artOrbit()
+    }));
+  }
+  function renderOverviewResults(){
+    var host = $('#ovResults'); if(!host) return;
+    host.innerHTML = '';
+    var items = (overview.settlements || []).map(function(it){ return { it: it, v: parseAmount(it.amount) }; }).sort(function(a, b){ return b.v - a.v; });
+    if(!items.length){ host.appendChild(el('div', { class: 'empty-state', text: 'No settlement tiles yet.' })); return; }
+    var max = items[0].v || 1;
+    items.slice(0, 6).forEach(function(x, i){
+      var fill = el('div', { class: 'rs-fill', style: 'width:' + Math.max(4, x.v / max * 100) + '%' });
+      fill.style.animationDelay = (0.1 + i * 0.07) + 's';
+      host.appendChild(el('div', { class: 'rs-row' }, [
+        el('div', { class: 'n' }, [ x.it.classification || 'Settlement', el('small', { text: [x.it.occupation, x.it.location].filter(Boolean).join(' · ') }) ]),
+        el('div', { class: 'v', text: x.it.amount || '' }),
+        el('div', { class: 'rs-track' }, [ fill ])
+      ]));
+    });
+  }
+  function loadOverviewActivity(){
+    var host = $('#ovActivity'); if(!host || overview.activityLoaded) return;
+    if(!currentUser()){ host.innerHTML = ''; host.appendChild(el('div', { class: 'pop-empty', text: 'Sign in to see recent changes.' })); return; }
+    overview.activityLoaded = true;
+    repoRecentCommits().then(function(commits){
+      host.innerHTML = '';
+      if(!commits || !commits.length){ host.appendChild(el('div', { class: 'pop-empty', text: 'No content changes yet.' })); return; }
+      commits.slice(0, 6).forEach(function(c, i){
+        var msg = (c.commit && c.commit.message || '').split('\n')[0].replace(/ via admin dashboard$/, '');
+        var when = c.commit && c.commit.author && c.commit.author.date;
+        var fresh = when && (Date.now() - new Date(when).getTime()) < 86400000;
+        var item = el('div', { class: 'act-item' + (fresh ? ' is-fresh' : '') }, [ el('b', { text: msg, title: msg }), el('span', { text: when ? relTime(when) : '' }) ]);
+        item.style.animationDelay = (i * 0.06) + 's';
+        host.appendChild(item);
+      });
+    }).catch(function(){
+      overview.activityLoaded = false;
+      host.innerHTML = ''; host.appendChild(el('div', { class: 'pop-empty', text: 'Couldn’t load recent changes.' }));
+    });
+  }
   (function stats(){
-    function setText(id, text){ $('#' + id).textContent = text; }
+    function setNum(id, n){ var node = $('#' + id); if(node) vCount(node, n); }
     function getJSON(url){ return fetch(url, { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
-    getJSON('/.netlify/functions/consult-count').then(function(d){ setText('statConsults', fmt(d.count)); $('#statConsults').classList.add('is-live'); }).catch(function(){});
-    getJSON('/content/settlements.json').then(function(d){ setText('statSettlements', fmt((d.items || []).length)); }).catch(function(){});
-    getJSON('/content/team.json').then(function(d){ setText('statTeam', fmt((d.members || []).length)); }).catch(function(){});
-    getJSON('/content/announcement.json').then(function(d){ setText('sumBanner', (d.messages_en || []).length + ' EN · ' + (d.messages_es || []).length + ' ES'); }).catch(function(){});
+    renderOverviewHero();
+    getJSON('/.netlify/functions/consult-count').then(function(d){ setNum('statConsults', d.count); $('#statConsults').classList.add('is-live'); }).catch(function(){});
+    getJSON('/content/settlements.json').then(function(d){
+      overview.settlements = d.items || []; setNum('statSettlements', overview.settlements.length);
+      renderOverviewHero(); renderOverviewResults();
+    }).catch(function(){ var h = $('#ovResults'); if(h){ h.innerHTML = ''; h.appendChild(el('div', { class: 'empty-state', text: 'Couldn’t load results.' })); } });
+    getJSON('/content/team.json').then(function(d){ setNum('statTeam', (d.members || []).length); }).catch(function(){});
+    getJSON('/content/announcement.json').then(function(d){ $('#sumBanner').textContent = (d.messages_en || []).length + ' EN · ' + (d.messages_es || []).length + ' ES'; }).catch(function(){});
     fetch('/sitemap.xml', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); })
-      .then(function(xml){ setText('statArticles', fmt((xml.match(/<loc>[^<]*\/blog-[^<]*<\/loc>/g) || []).length)); }).catch(function(){});
+      .then(function(xml){
+        setNum('statArticles', (xml.match(/<loc>[^<]*\/blog-[^<]*<\/loc>/g) || []).length);
+        overview.pagesLive = (xml.match(/<loc>/g) || []).length; renderOverviewHero();
+      }).catch(function(){});
   })();
 
   // ---- Topbar: menu drawer, search, bell, user menu ----
@@ -989,13 +1303,37 @@
     return rail;
   }
 
+  // Per-section hero content: chips + graphic, computed from the editor's
+  // current model (null while it's still loading).
+  function editorHero(ed){
+    var m = ed.model, key = ed.key, chips = [], art = null;
+    if(key === 'banner'){
+      chips = [ { label: 'English', value: m ? (m.messages_en || []).length : '\u2014' }, { label: 'Spanish', value: m ? (m.messages_es || []).length : '\u2014' } ];
+      art = artBanner(m ? m.messages_en : []);
+    } else if(key === 'settlements'){
+      var items = m ? (m.items || []) : [];
+      var total = items.reduce(function(s, it){ return s + parseAmount(it.amount); }, 0);
+      chips = [ { label: 'Tiles', value: m ? items.length : '\u2014' }, { label: 'Total shown', value: m ? money(total) : '\u2014' } ];
+      art = artSettlements(items);
+    } else if(key === 'team'){
+      var members = m ? (m.members || []) : [];
+      chips = [ { label: 'Members', value: m ? members.length : '\u2014' }, { label: 'Attorneys', value: m ? members.filter(function(x){ return /attorney|partner/i.test(x.title || ''); }).length : '\u2014' } ];
+      art = artTeam(members);
+    }
+    return viewHero({
+      kicker: 'Edit \u00b7 ' + ed.def.title,
+      title: ed.def.title,
+      sub: ed.def.desc,
+      chips: chips,
+      actions: [ el('button', { type: 'button', class: 'btn btn-primary', 'data-role': 'save', onclick: function(){ saveEditor(ed); } }, [ 'Save Changes' ]) ],
+      art: art
+    });
+  }
+
   function render(ed){
     var def = ed.def, root = ed.root;
     root.innerHTML = '';
-    root.appendChild(el('div', { class: 'page-head' }, [
-      el('div', {}, [ el('h1', { text: def.title }), el('p', { text: def.desc }) ]),
-      el('div', { class: 'page-head-actions' }, [ el('button', { type: 'button', class: 'btn btn-primary', 'data-role': 'save', onclick: function(){ saveEditor(ed); } }, ['Save Changes']) ])
-    ]));
+    root.appendChild(editorHero(ed));
     var grid = el('div', { class: 'grid-rail' }), main = el('div', { style: 'min-width:0;' });
     grid.appendChild(main); grid.appendChild(editorRail(ed)); root.appendChild(grid);
 
@@ -1273,10 +1611,16 @@
   function renderBlog(){
     var root = blog.root; root.innerHTML = '';
     if(blog.mode === 'edit' && blog.cur) return renderPostEditor();
-    root.appendChild(el('div', { class: 'page-head' }, [
-      el('div', {}, [ el('h1', { text: 'Blog Posts' }), el('p', { text: 'Articles written here become their own pages on the site. Save as a draft to keep working, or publish when it\'s ready.' }) ]),
-      el('div', { class: 'page-head-actions' }, [ el('a', { class: 'btn btn-primary', href: '#blog/new', 'aria-disabled': blog.readOnly ? 'true' : null, onclick: function(e){ if(blog.readOnly){ e.preventDefault(); toast(blog.readOnlyReason, true); } } }, [ icon(I.plus), 'New Post' ]) ])
-    ]));
+    var postsAll = blog.posts || [];
+    var drafts = postsAll.filter(function(p){ return /^(true|yes|1)$/i.test(String(p.fields.draft || '')); }).length;
+    root.appendChild(viewHero({
+      kicker: 'Write \u00b7 Blog',
+      title: 'Blog Posts',
+      sub: 'Articles written here become their own pages on the site. Save as a draft to keep working, or publish when it\'s ready.',
+      chips: blog.posts ? [ { label: 'Published', value: postsAll.length - drafts }, { label: 'Drafts', value: drafts } ] : [],
+      actions: [ el('a', { class: 'btn btn-primary', href: '#blog/new', 'aria-disabled': blog.readOnly ? 'true' : null, onclick: function(e){ if(blog.readOnly){ e.preventDefault(); toast(blog.readOnlyReason, true); } } }, [ icon(I.plus), 'New Post' ]) ],
+      art: artBlog(postsAll.length - drafts, drafts)
+    }));
     if(blog.busy && !blog.posts){ root.appendChild(el('div', { class: 'loading', text: 'Loading posts…' })); return; }
     if(blog.readOnly) root.appendChild(el('div', { class: 'notice notice-warn' }, [ icon(I.info), el('div', {}, [ el('b', { text: 'Read-only. ' }), blog.readOnlyReason ]) ]));
     var card = el('div', { class: 'card' });
@@ -1801,8 +2145,18 @@
         dirtyEd.dirty = false; if(dirtyEd !== blog) dirtyEd.loaded = false;
       }
     }
+    var switching = currentView !== key || !currentHash || currentHash.split('/')[0] !== raw.split('/')[0] || (key === 'blog' && currentHash !== raw);
     currentView = key; currentHash = raw;
     document.querySelectorAll('.view').forEach(function(v){ v.classList.toggle('is-active', v.getAttribute('data-view') === key); });
+    if(switching){
+      enteringUntil = Date.now() + 1600;
+      document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('is-entering'); });
+      var activeView = document.querySelector('.view.is-active');
+      if(activeView){ void activeView.offsetWidth; activeView.classList.add('is-entering'); }
+      clearTimeout(route.enterTimer);
+      route.enterTimer = setTimeout(function(){ document.querySelectorAll('.view.is-entering').forEach(function(v){ v.classList.remove('is-entering'); }); }, 1600);
+    }
+    if(key === 'overview') loadOverviewActivity();
     document.querySelectorAll('#nav a').forEach(function(a){ a.classList.toggle('is-current', a.getAttribute('data-view') === key); });
     $('#crumbCurrent').textContent = VIEW_TITLES[key];
     searchInput.value = '';
