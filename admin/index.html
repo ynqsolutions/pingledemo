@@ -556,6 +556,49 @@
   }
   @media (prefers-reduced-motion: reduce){ .item.is-banner .item-head::after{ animation:none; display:none; } }
 
+  /* Settlements: compact expandable rows */
+  .items.is-compact-list{ gap:8px; }
+  .c-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; font-size:13px; color:var(--muted); }
+  .c-toolbar-btns{ display:flex; gap:6px; }
+  .item.is-compact{ border:1px solid var(--line); border-radius:var(--r-inner); box-shadow:0 1px 2px rgba(17,24,39,0.04); transition:border-color .15s ease, box-shadow .2s ease; }
+  .item.is-compact:hover{ border-color:var(--line-strong); }
+  .item.is-compact.is-open{ border-color:#d9b56a; box-shadow:0 14px 30px -22px rgba(179,138,60,0.7); }
+  .c-head{ cursor:pointer; padding:10px 12px; gap:12px; border-bottom:none; user-select:none; outline:none; border-radius:var(--r-inner); }
+  .c-head:hover{ background:#fcfaf5; }
+  .c-head:focus-visible{ box-shadow:0 0 0 3px rgba(179,138,60,0.35); }
+  .item.is-compact.is-open .c-head{ background:#fbf7ee; border-bottom:1px solid #efe4cb; border-radius:var(--r-inner) var(--r-inner) 0 0; }
+  .c-thumb{ width:42px; height:42px; border-radius:10px; flex:none; background:#0A0F27 center/cover no-repeat; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.05); }
+  .c-thumb.is-empty{ background:var(--field); }
+  .c-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .c-line{ display:flex; align-items:baseline; gap:10px; min-width:0; }
+  .c-amount{ flex:none; font-size:16px; font-weight:700; color:#9d7530; font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
+  .c-title{ font-size:14px; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .c-meta{ font-size:12.5px; color:var(--muted); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .c-chev{ flex:none; width:28px; height:28px; display:grid; place-items:center; color:var(--muted); }
+  .c-chev svg{ width:18px; height:18px; transition:transform .2s ease; }
+  .item.is-compact.is-open .c-chev svg{ transform:rotate(180deg); }
+  .item.is-compact .item-tools .btn-icon{ width:30px; height:30px; border-radius:8px; }
+  .item.is-compact .item-tools .btn-icon svg{ width:15px; height:15px; }
+  .item.is-compact .item-body{ display:none; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px 14px; padding:16px; }
+  .item.is-compact.is-open .item-body{ display:grid; animation:aiRise .25s cubic-bezier(.2,.8,.2,1) both; }
+  .item.is-compact .field.span-2{ grid-column:span 2; }
+  .item.is-compact .field:has(textarea){ grid-column:1 / -1; }
+  .item.is-compact textarea{ min-height:68px; }
+  .item.is-compact .field input[type="text"], .item.is-compact .field select, .item.is-compact .field textarea{ padding:10px 13px; font-size:14px; }
+  .item.is-compact .field-hint{ font-size:11.5px; }
+  .item.is-compact .photo{ grid-template-columns:60px minmax(0,1fr); gap:12px; }
+  .item.is-compact .photo-preview{ width:60px; height:60px; }
+  @media (max-width:900px){
+    .item.is-compact .item-body{ grid-template-columns:minmax(0,1fr); }
+    .item.is-compact .field.span-2{ grid-column:1 / -1; }
+  }
+  @media (max-width:560px){
+    .c-head .item-index{ display:none; }
+    .c-line{ flex-direction:column; gap:0; }
+    .item.is-compact .item-tools .btn-icon{ width:28px; height:28px; }
+  }
+  @media (prefers-reduced-motion: reduce){ .item.is-compact.is-open .item-body{ animation:none; } .c-chev svg{ transition:none; } }
+
   /* ---- Tile redesign (stat tiles, AI tiles, Manage Content cards) ----
      One shared look: each tile carries its own accent (--tc) - a thin
      colored top bar, a filled icon badge with a soft glow, a faint tint
@@ -891,6 +934,14 @@
         { name: 'description', label: 'Description', type: 'textarea', required: true, span: 2, hint: 'Shown when the tile is flipped.' }
       ],
       order: ['amount', 'classification', 'occupation', 'photo', 'location', 'description'],
+      // Compact list: each tile is a one-line row (thumb, amount, type,
+      // location/occupation) that expands in place to edit.
+      compact: {
+        amount: function(it){ return it.amount || '$\u2014'; },
+        title: function(it){ return it.classification || 'New settlement'; },
+        meta: function(it){ return [it.location, it.occupation].filter(Boolean).join(' \u00b7 ') || 'Click to add details'; },
+        photo: function(it){ return it.photo; }
+      },
       summary: function(it){ return [it.amount, it.classification].filter(Boolean).join(' — '); },
       blank: function(){ return { amount: '', classification: '', occupation: '', photo: '', location: '', description: '' }; }
     },
@@ -1509,14 +1560,30 @@
         ]));
       }
       if(ed.errors['_' + list.key]) section.appendChild(el('div', { class: 'notice notice-error' }, [ icon(I.warn), el('div', { text: ed.errors['_' + list.key] }) ]));
-      var wrap = el('div', { class: 'items' });
+      var wrap = el('div', { class: 'items' + (def.compact ? ' is-compact-list' : '') });
+      if(def.compact && items.length){
+        var setAll = function(open){
+          var set = ed.openItems || (ed.openItems = new WeakSet());
+          items.forEach(function(it){ if(open) set.add(it); else set.delete(it); });
+          wrap.querySelectorAll('.item.is-compact').forEach(function(c){ c.classList.toggle('is-open', open); var h = c.querySelector('.c-head'); if(h) h.setAttribute('aria-expanded', String(open)); });
+        };
+        section.appendChild(el('div', { class: 'c-toolbar' }, [
+          el('span', { text: items.length + ' ' + def.noun + (items.length === 1 ? '' : 's') + ' \u00b7 click one to edit' }),
+          el('span', { class: 'c-toolbar-btns' }, [
+            el('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: function(){ setAll(true); } }, [ 'Expand all' ]),
+            el('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: function(){ setAll(false); } }, [ 'Collapse all' ])
+          ])
+        ]));
+      }
       if(!items.length) wrap.appendChild(el('div', { class: 'empty-state', text: 'No ' + def.noun + 's yet. Add one below.' }));
       items.forEach(function(item, i){ wrap.appendChild(renderItem(ed, list, item, i, items.length)); });
       section.appendChild(wrap);
       var canAdd = !ed.readOnly && (list.max == null || items.length < list.max);
       section.appendChild(el('div', { class: 'add-row' }, [
         el('button', { type: 'button', class: 'btn btn-ghost', disabled: !canAdd, onclick: function(){
-          items.push(def.blank()); markDirty(ed); render(ed);
+          var added = def.blank(); items.push(added);
+          if(def.compact) (ed.openItems || (ed.openItems = new WeakSet())).add(added);
+          markDirty(ed); render(ed);
           var cards = ed.root.querySelectorAll('[data-list="' + list.key + '"] .item'), last = cards[cards.length - 1];
           if(last){ last.scrollIntoView({ behavior: 'smooth', block: 'center' }); var first = last.querySelector('input, textarea, select'); if(first) first.focus(); }
         } }, [ icon(I.plus), 'Add ' + def.noun ])
@@ -1532,14 +1599,44 @@
     var card = el('div', { class: 'item is-' + ed.key + (hasErr ? ' has-error' : '') });
     var summaryText = def.summary(item);
     var summary = el('div', { class: 'item-summary' + (summaryText ? '' : ' is-empty'), text: summaryText || 'New ' + def.noun });
-    card.appendChild(el('div', { class: 'item-head' }, [
-      el('span', { class: 'item-index', text: String(i + 1) }), summary,
-      el('div', { class: 'item-tools' }, [
-        el('button', { type: 'button', class: 'btn btn-ghost btn-icon', title: 'Move up', 'aria-label': 'Move up', disabled: ed.readOnly || i === 0, onclick: function(){ items.splice(i - 1, 0, items.splice(i, 1)[0]); markDirty(ed); render(ed); } }, [ icon(I.up) ]),
-        el('button', { type: 'button', class: 'btn btn-ghost btn-icon', title: 'Move down', 'aria-label': 'Move down', disabled: ed.readOnly || i === count - 1, onclick: function(){ items.splice(i + 1, 0, items.splice(i, 1)[0]); markDirty(ed); render(ed); } }, [ icon(I.down) ]),
-        el('button', { type: 'button', class: 'btn btn-danger btn-icon', title: 'Remove', 'aria-label': 'Remove', disabled: ed.readOnly || (list.min != null && count <= list.min), onclick: function(){ if(!confirm('Remove this ' + def.noun + '?')) return; items.splice(i, 1); markDirty(ed); render(ed); } }, [ icon(I.trash) ])
-      ])
-    ]));
+    var tools = el('div', { class: 'item-tools' }, [
+      el('button', { type: 'button', class: 'btn btn-ghost btn-icon', title: 'Move up', 'aria-label': 'Move up', disabled: ed.readOnly || i === 0, onclick: function(){ items.splice(i - 1, 0, items.splice(i, 1)[0]); markDirty(ed); render(ed); } }, [ icon(I.up) ]),
+      el('button', { type: 'button', class: 'btn btn-ghost btn-icon', title: 'Move down', 'aria-label': 'Move down', disabled: ed.readOnly || i === count - 1, onclick: function(){ items.splice(i + 1, 0, items.splice(i, 1)[0]); markDirty(ed); render(ed); } }, [ icon(I.down) ]),
+      el('button', { type: 'button', class: 'btn btn-danger btn-icon', title: 'Remove', 'aria-label': 'Remove', disabled: ed.readOnly || (list.min != null && count <= list.min), onclick: function(){ if(!confirm('Remove this ' + def.noun + '?')) return; items.splice(i, 1); markDirty(ed); render(ed); } }, [ icon(I.trash) ])
+    ]);
+    var compact = def.compact, refreshCompact = null, cThumb = null;
+    if(compact){
+      // Collapsed one-line row; open state is tracked per item object (a
+      // WeakSet), so it survives reordering and never touches saved data.
+      var openSet = ed.openItems || (ed.openItems = new WeakSet());
+      if(hasErr) openSet.add(item);
+      card.classList.add('is-compact');
+      if(openSet.has(item)) card.classList.add('is-open');
+      cThumb = el('span', { class: 'c-thumb' });
+      var cAmt = el('span', { class: 'c-amount' }), cTitle = el('span', { class: 'c-title' }), cMeta = el('span', { class: 'c-meta' });
+      refreshCompact = function(){
+        cAmt.textContent = compact.amount(item); cTitle.textContent = compact.title(item); cMeta.textContent = compact.meta(item);
+        var ph = compact.photo(item);
+        cThumb.style.backgroundImage = ph ? 'url("' + previewSrc(ph) + '")' : ''; cThumb.classList.toggle('is-empty', !ph);
+      };
+      refreshCompact();
+      var head = el('div', { class: 'item-head c-head', role: 'button', tabindex: '0', 'aria-expanded': String(openSet.has(item)) }, [
+        el('span', { class: 'item-index', text: String(i + 1) }), cThumb,
+        el('span', { class: 'c-text' }, [ el('span', { class: 'c-line' }, [ cAmt, cTitle ]), cMeta ]),
+        tools,
+        el('span', { class: 'c-chev', 'aria-hidden': 'true' }, [ icon(I.down) ])
+      ]);
+      var toggle = function(){
+        var open = !card.classList.contains('is-open');
+        card.classList.toggle('is-open', open); head.setAttribute('aria-expanded', String(open));
+        if(open) openSet.add(item); else openSet.delete(item);
+      };
+      head.addEventListener('click', function(e){ if(e.target.closest('.item-tools')) return; toggle(); });
+      head.addEventListener('keydown', function(e){ if(e.target === head && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); toggle(); } });
+      card.appendChild(head);
+    } else {
+      card.appendChild(el('div', { class: 'item-head' }, [ el('span', { class: 'item-index', text: String(i + 1) }), summary, tools ]));
+    }
     // Optional one-line note under the header (def.note), kept live as
     // fields change - the banner editor uses it for "Links to ...".
     var note = def.note ? el('div', { class: 'item-note', text: def.note(item) }) : null;
@@ -1554,6 +1651,10 @@
         if(ed.errors[errKey]){ delete ed.errors[errKey]; field.classList.remove('is-invalid'); var e = field.querySelector('.field-error'); if(e) e.remove(); }
         summary.textContent = def.summary(item) || 'New ' + def.noun; summary.classList.toggle('is-empty', !def.summary(item));
         if(note) note.textContent = def.note(item);
+        if(refreshCompact){
+          refreshCompact();
+          if(f.type === 'photo') setTimeout(function(){ var pv = body.querySelector('.photo-preview'); if(pv && pv.style.backgroundImage) cThumb.style.backgroundImage = pv.style.backgroundImage; }, 0);
+        }
         markDirty(ed);
       }
       var control;
