@@ -59,9 +59,22 @@ export default async (req) => {
     // Last 30 days of per-bot daily counts (oldest first; days with no
     // hits come back as {} so the chart still gets an evenly spaced axis)
     // plus the all-time per-page tally, for the admin dashboard's charts.
+    // Optional ?from=YYYY-MM-DD&to=YYYY-MM-DD (the admin's export uses
+    // this); defaults to the last 30 days. Capped at 366 days per request.
     const days = [];
-    for(let i = 29; i >= 0; i--){
-      days.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
+    const isDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
+    const fromQ = url.searchParams.get('from'), toQ = url.searchParams.get('to');
+    if(isDate(fromQ) && isDate(toQ)){
+      let a = new Date(fromQ + 'T00:00:00Z'), b = new Date(toQ + 'T00:00:00Z');
+      if(a > b){ const t = a; a = b; b = t; }
+      const span = Math.min(366, Math.round((b - a) / 86400000) + 1);
+      for(let i = span - 1; i >= 0; i--){
+        days.push(new Date(b.getTime() - i * 86400000).toISOString().slice(0, 10));
+      }
+    } else {
+      for(let i = 29; i >= 0; i--){
+        days.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
+      }
     }
     const dailyValues = await Promise.all(days.map(d => store.get('daily/' + d, { type: 'json' }).catch(() => null)));
     const daily = days.map((date, i) => ({ date, counts: dailyValues[i] || {} }));
