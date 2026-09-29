@@ -64,7 +64,16 @@ export default async (req, context) => {
   // WITHOUT recording a hit, so it never pollutes the real data.
   if(url.searchParams.has('__aibot_check')){
     let blobs = 'ok';
-    try { await getStore('ai-bot-log').get('totals', { type: 'json' }); }
+    try {
+      const store = getStore('ai-bot-log');
+      const totals = await store.get('totals', { type: 'json' });
+      blobs = 'read-ok(bots=' + (totals ? Object.keys(totals).length : 0) + ')';
+      // Write test goes to a separate key - never the real tallies.
+      const stamp = String(Date.now());
+      await store.setJSON('selftest', { stamp: stamp });
+      const back = await store.get('selftest', { type: 'json' });
+      blobs += back && back.stamp === stamp ? ' write-ok' : ' write-unconfirmed';
+    }
     catch (err) { blobs = 'error: ' + String(err && err.message || err).slice(0, 120); }
     const res = await context.next();
     const out = new Response(res.body, res);
