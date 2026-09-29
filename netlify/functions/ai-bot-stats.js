@@ -18,24 +18,19 @@ function gateHtml(message){
 a{color:#1F7A5C;font-weight:600;}</style></head>
 <body><div><p>${escapeHtml(message)}</p><p><a href="/admin/">Sign in at /admin</a></p></div></body></html>`;
 }
+// Returns { ok: true } or { ok: false, reason } - the reason is shown in the
+// admin so a rejected session can be diagnosed instead of guessed at.
 async function verifyUser(req){
   const auth = req.headers.get('authorization');
-  if(!auth) return false;
+  if(!auth) return { ok: false, reason: 'the request arrived without a login token' };
   try {
     const origin = new URL(req.url).origin;
     const res = await fetch(origin + '/.netlify/identity/user', { headers: { authorization: auth } });
-    return res.ok;
+    if(res.ok) return { ok: true };
+    return { ok: false, reason: 'Netlify Identity rejected the token (status ' + res.status + ')' };
   } catch (err) {
-    return false;
+    return { ok: false, reason: 'could not reach Netlify Identity: ' + String(err && err.message || err).slice(0, 100) };
   }
-}
-function timeAgo(iso){
-  if(!iso) return 'never';
-  const s = (Date.now() - new Date(iso).getTime()) / 1000;
-  if(s < 60) return 'just now';
-  if(s < 3600) return Math.floor(s / 60) + 'm ago';
-  if(s < 86400) return Math.floor(s / 3600) + 'h ago';
-  return Math.floor(s / 86400) + 'd ago';
 }
 
 // Reads everything the admin's AI Visibility page needs. Kept separate so
@@ -92,10 +87,10 @@ export default async (req) => {
     }
   }
 
-  const authed = await verifyUser(req);
-  if(!authed){
+  const auth = await verifyUser(req);
+  if(!auth.ok){
     if(url.searchParams.get('format') === 'json'){
-      return Response.json({ error: 'Sign in required.' }, { status: 401 });
+      return Response.json({ error: 'Sign in required.', reason: auth.reason }, { status: 401 });
     }
     return new Response(gateHtml('Sign in to view AI crawler activity.'), {
       status: 401,

@@ -2075,7 +2075,9 @@
       // Surface the server's own message (401 = not signed in; anything else
       // = a real error worth reading) instead of a bare status code.
       return r.json().catch(function(){ return {}; }).then(function(b){
-        throw new Error(r.status === 401 ? 'Sign in to view this.' : (b && b.error) || ('Request failed (' + r.status + ')'));
+        throw new Error(r.status === 401
+          ? 'The server didn\u2019t accept your login' + (b && b.reason ? ': ' + b.reason : '') + '. Try signing out and back in.'
+          : (b && b.error) || ('Request failed (' + r.status + ')'));
       });
     }).then(function(data){
         aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || [];
