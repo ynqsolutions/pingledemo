@@ -476,6 +476,50 @@
   }
   @media (max-width:420px){ .ai-tiles{ grid-template-columns:1fr; } }
 
+  /* ---- Tile redesign (stat tiles, AI tiles, Manage Content cards) ----
+     One shared look: each tile carries its own accent (--tc) - a thin
+     colored top bar, a filled icon badge with a soft glow, a faint tint
+     and decorative ring in the corner, bolder numbers, and a hover glow
+     in its own color. Accents cycle green / gold / blue / violet. */
+  .stats > :nth-child(4n+1), .ai-tiles > :nth-child(4n+1), .manage > :nth-child(4n+1){ --tc:#1F7A5C; }
+  .stats > :nth-child(4n+2), .ai-tiles > :nth-child(4n+2), .manage > :nth-child(4n+2){ --tc:#B38A3C; }
+  .stats > :nth-child(4n+3), .ai-tiles > :nth-child(4n+3), .manage > :nth-child(4n+3){ --tc:#2a78d6; }
+  .stats > :nth-child(4n+4), .ai-tiles > :nth-child(4n+4), .manage > :nth-child(4n+4){ --tc:#4a3aa7; }
+  .stat, .ai-tile, .tile{
+    position:relative; overflow:hidden; isolation:isolate;
+    border:1px solid var(--line); border-radius:var(--r-card);
+    background:#fff;
+    background:linear-gradient(155deg, #fff 55%, color-mix(in srgb, var(--tc, #1F7A5C) 8%, #fff) 100%);
+    box-shadow:0 1px 2px rgba(17,24,39,0.04), 0 12px 28px -22px rgba(17,24,39,0.3);
+  }
+  .stat::before, .ai-tile::before, .tile::before{
+    content:""; position:absolute; left:0; right:0; top:0; height:3px;
+    background:linear-gradient(90deg, var(--tc, #1F7A5C), color-mix(in srgb, var(--tc, #1F7A5C) 15%, transparent));
+  }
+  .stat::after, .ai-tile::after, .tile::after{
+    content:""; position:absolute; right:-34px; bottom:-34px; width:112px; height:112px; border-radius:50%;
+    border:16px solid var(--tc, #1F7A5C); opacity:.06; z-index:-1; transition:transform .35s ease, opacity .35s ease;
+  }
+  .stat:hover, .ai-tile:hover, .tile:hover{
+    transform:translateY(-3px);
+    border-color:color-mix(in srgb, var(--tc, #1F7A5C) 35%, var(--line));
+    box-shadow:0 1px 2px rgba(17,24,39,0.04), 0 20px 36px -22px color-mix(in srgb, var(--tc, #1F7A5C) 55%, transparent);
+  }
+  .stat:hover::after, .ai-tile:hover::after, .tile:hover::after{ transform:scale(1.15); opacity:.1; }
+  .stat-top .ico, .tile-head .ico{
+    background:var(--tc, #1F7A5C); color:#fff;
+    box-shadow:0 8px 18px -8px var(--tc, #1F7A5C);
+  }
+  .stat-num, .ai-tile-num{ font-size:32px; font-weight:700; letter-spacing:-0.025em; }
+  .stat-top, .ai-tile-label{ color:var(--ink); font-weight:600; font-size:13px; }
+  .stat-sub, .ai-tile-sub{ color:var(--muted); }
+  .tile{ padding:22px; }
+  .tile .btn-ghost{ background:#fff; }
+  @media (prefers-reduced-motion: reduce){
+    .stat:hover, .ai-tile:hover, .tile:hover{ transform:none; }
+    .stat::after, .ai-tile::after, .tile::after{ transition:none; }
+  }
+
   /* ---- Toast ---- */
   .toast{ position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(10px); background:var(--ink); color:#fff; padding:12px 18px; border-radius:12px; font-size:13.5px; font-weight:500; box-shadow:0 16px 40px -14px rgba(17,24,39,0.6); opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:80; max-width:calc(100vw - 32px); }
   .toast.is-on{ opacity:1; transform:translateX(-50%) translateY(0); }
@@ -579,7 +623,7 @@
       </a>
       <a href="#ai-crawlers" data-view="ai-crawlers">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h.01M16 16h.01"/></svg>
-        AI Crawlers
+        AI Visibility
       </a>
     </nav>
     <div class="sidebar-foot">
@@ -1031,7 +1075,7 @@
       actions: [
         el('a', { class: 'btn btn-primary btn-sm', href: '#blog/new' }, [ icon(I.plus), 'New Post' ]),
         el('a', { class: 'btn btn-ghost btn-sm', href: '#settlements' }, [ 'Edit Results' ]),
-        el('a', { class: 'btn btn-ghost btn-sm', href: '#ai-crawlers' }, [ 'AI Crawlers' ])
+        el('a', { class: 'btn btn-ghost btn-sm', href: '#ai-crawlers' }, [ 'AI Visibility' ])
       ],
       art: artOrbit()
     }));
@@ -1976,8 +2020,8 @@
     var root = aiCrawlers.root; root.innerHTML = ''; root.classList.add('ai-root');
     root.appendChild(el('div', { class: 'page-head' }, [
       el('div', {}, [
-        el('h1', { text: 'AI Crawlers' }),
-        el('p', { text: 'Which AI platforms are reading the site, what kind of visit it was, and which pages they care about. Logged automatically on every page request.' })
+        el('h1', { text: 'AI Visibility' }),
+        el('p', { text: 'Which AI platforms visit the site, why, and which pages they read.' })
       ]),
       el('div', { class: 'page-head-actions' }, [
         el('button', { type: 'button', class: 'btn btn-ghost', onclick: function(){ aiCrawlers.loaded = false; loadAiCrawlers(); } }, [ 'Refresh' ])
@@ -2024,7 +2068,7 @@
     });
     root.appendChild(el('div', { class: 'ai-hero' }, [
       el('div', {}, [
-        el('span', { class: 'ai-hero-kicker' }, [ el('span', { class: 'ai-live-dot' }), 'Listening on every page' ]),
+        el('span', { class: 'ai-hero-kicker' }, [ el('span', { class: 'ai-live-dot' }), 'Monitoring' ]),
         heroNum,
         el('div', { class: 'ai-hero-sub', text: totalHits
           ? 'AI crawler visits from ' + platforms.length + ' platform' + (platforms.length === 1 ? '' : 's') + '. Last one ' + relTime(lastSeen) + '.'
@@ -2132,7 +2176,7 @@
   }
 
   // ---- Routing (hash) ----
-  var VIEW_TITLES = { overview: 'Dashboard', banner: 'Announcement Banner', settlements: 'Settlements', team: 'Legal Team', blog: 'Blog Posts', 'ai-crawlers': 'AI Crawlers' };
+  var VIEW_TITLES = { overview: 'Dashboard', banner: 'Announcement Banner', settlements: 'Settlements', team: 'Legal Team', blog: 'Blog Posts', 'ai-crawlers': 'AI Visibility' };
   var currentView = null, currentHash = null;
   function route(){
     var raw = (location.hash || '#overview').slice(1), parts = raw.split('/'), key = parts[0], sub = parts.slice(1).join('/');
