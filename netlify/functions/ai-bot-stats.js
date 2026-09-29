@@ -38,8 +38,60 @@ function timeAgo(iso){
   return Math.floor(s / 86400) + 'd ago';
 }
 
+// Reads everything the admin's AI Visibility page needs. Kept separate so
+// the (unauthenticated, counts-only) health check below runs the exact same
+// code path as the real, gated request.
+async function gatherData(store, url){
+  const totals = (await store.get('totals', { type: 'json' })) || {};
+  const recent = (await store.get('recent', { type: 'json' })) || [];
+  // Last 30 days of per-bot daily counts (oldest first; days with no hits
+  // come back as {} so the chart still gets an evenly spaced axis), plus the
+  // all-time per-page tally. Optional ?from=YYYY-MM-DD&to=YYYY-MM-DD (the
+  // admin's export uses this); capped at 366 days per request.
+  const days = [];
+  const isDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
+  const fromQ = url.searchParams.get('from'), toQ = url.searchParams.get('to');
+  if(isDate(fromQ) && isDate(toQ)){
+    let a = new Date(fromQ + 'T00:00:00Z'), b = new Date(toQ + 'T00:00:00Z');
+    if(a > b){ const t = a; a = b; b = t; }
+    const span = Math.min(366, Math.round((b - a) / 86400000) + 1);
+    for(let i = span - 1; i >= 0; i--){
+      days.push(new Date(b.getTime() - i * 86400000).toISOString().slice(0, 10));
+    }
+  } else {
+    for(let i = 29; i >= 0; i--){
+      days.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
+    }
+  }
+  const dailyValues = await Promise.all(days.map(d => Promise.resolve().then(() => store.get('daily/' + d, { type: 'json' })).catch(() => null)));
+  const daily = days.map((date, i) => ({ date, counts: dailyValues[i] || {} }));
+  const pages = (await store.get('pages', { type: 'json' })) || {};
+  return { totals, recent, daily, pages };
+}
+
 export default async (req) => {
   const url = new URL(req.url);
+
+  // Health check - no login, but returns only counts (never the data
+  // itself): runs the same reads as the real request and reports whether
+  // they work and how much is stored.
+  if(url.searchParams.has('__check')){
+    try {
+      const d = await gatherData(getStore('ai-bot-log'), url);
+      return Response.json({
+        ok: true,
+        bots: Object.keys(d.totals).length,
+        totalHits: Object.values(d.totals).reduce((s, v) => s + (v && v.count || 0), 0),
+        recentEntries: d.recent.length,
+        newestRecent: d.recent[0] ? d.recent[0].time : null,
+        daysWithData: d.daily.filter(x => Object.keys(x.counts).length).length,
+        pages: Object.keys(d.pages).length
+      }, { headers: { 'cache-control': 'no-store' } });
+    } catch (err) {
+      return Response.json({ ok: false, error: String(err && err.message || err).slice(0, 200) }, { status: 500 });
+    }
+  }
+
   const authed = await verifyUser(req);
   if(!authed){
     if(url.searchParams.get('format') === 'json'){
@@ -51,35 +103,16 @@ export default async (req) => {
     });
   }
 
-  const store = getStore('ai-bot-log');
-  const totals = (await store.get('totals', { type: 'json' })) || {};
-  const recent = (await store.get('recent', { type: 'json' })) || [];
+  let data;
+  try {
+    data = await gatherData(getStore('ai-bot-log'), url);
+  } catch (err) {
+    return Response.json({ error: 'Could not read crawler data: ' + String(err && err.message || err).slice(0, 160) }, { status: 500 });
+  }
+  const { totals, recent } = data;
 
   if(url.searchParams.get('format') === 'json'){
-    // Last 30 days of per-bot daily counts (oldest first; days with no
-    // hits come back as {} so the chart still gets an evenly spaced axis)
-    // plus the all-time per-page tally, for the admin dashboard's charts.
-    // Optional ?from=YYYY-MM-DD&to=YYYY-MM-DD (the admin's export uses
-    // this); defaults to the last 30 days. Capped at 366 days per request.
-    const days = [];
-    const isDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
-    const fromQ = url.searchParams.get('from'), toQ = url.searchParams.get('to');
-    if(isDate(fromQ) && isDate(toQ)){
-      let a = new Date(fromQ + 'T00:00:00Z'), b = new Date(toQ + 'T00:00:00Z');
-      if(a > b){ const t = a; a = b; b = t; }
-      const span = Math.min(366, Math.round((b - a) / 86400000) + 1);
-      for(let i = span - 1; i >= 0; i--){
-        days.push(new Date(b.getTime() - i * 86400000).toISOString().slice(0, 10));
-      }
-    } else {
-      for(let i = 29; i >= 0; i--){
-        days.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
-      }
-    }
-    const dailyValues = await Promise.all(days.map(d => store.get('daily/' + d, { type: 'json' }).catch(() => null)));
-    const daily = days.map((date, i) => ({ date, counts: dailyValues[i] || {} }));
-    const pages = (await store.get('pages', { type: 'json' })) || {};
-    return Response.json({ totals, recent, daily, pages }, { headers: { 'cache-control': 'no-store' } });
+    return Response.json(data, { headers: { 'cache-control': 'no-store' } });
   }
 
   const rows = Object.entries(totals).sort((a, b) => b[1].count - a[1].count);
