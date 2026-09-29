@@ -1044,6 +1044,24 @@
     if(anyDirty() && !confirm('You have unsaved changes. Log out anyway?')) return;
     window.netlifyIdentity.logout();
   }
+  // The sign-in modal lives in a same-origin iframe the widget creates, so
+  // page CSS can't reach it: inject a rule hiding its "Coded by Netlify" link.
+  function hideNetlifyBadge(){
+    var f = document.getElementById('netlify-identity-widget');
+    if(!f) return;
+    function inject(){
+      try {
+        var d = f.contentDocument;
+        if(!d || !d.head || d.getElementById('hide-callout')) return;
+        var st = d.createElement('style'); st.id = 'hide-callout';
+        st.textContent = '.callOut,.netlifyLogo{display:none!important}';
+        d.head.appendChild(st);
+      } catch(e){}
+    }
+    inject(); f.addEventListener('load', inject);
+  }
+  new MutationObserver(hideNetlifyBadge).observe(document.body, { childList: true });
+  hideNetlifyBadge();
   if(window.netlifyIdentity){
     window.netlifyIdentity.on('init', function(user){ setUser(user); });
     window.netlifyIdentity.on('login', function(user){ setUser(user); window.netlifyIdentity.close(); resetLoaded(); route(); });
