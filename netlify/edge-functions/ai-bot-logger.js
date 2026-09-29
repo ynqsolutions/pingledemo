@@ -56,9 +56,24 @@ function matchBot(userAgent){
 export default async (req, context) => {
   const userAgent = req.headers.get('user-agent') || '';
   const match = matchBot(userAgent);
+  const url = new URL(req.url);
+
+  // Self-check: any page + ?__aibot_check=1 reports (in a response header)
+  // whether this function ran, whether the User-Agent matched, whether
+  // context.waitUntil exists, and whether Netlify Blobs is reachable -
+  // WITHOUT recording a hit, so it never pollutes the real data.
+  if(url.searchParams.has('__aibot_check')){
+    let blobs = 'ok';
+    try { await getStore('ai-bot-log').get('totals', { type: 'json' }); }
+    catch (err) { blobs = 'error: ' + String(err && err.message || err).slice(0, 120); }
+    const res = await context.next();
+    const out = new Response(res.body, res);
+    out.headers.set('x-ai-bot-check', 'match=' + (match ? match.needle : 'none') + '; waitUntil=' + (typeof context.waitUntil === 'function' ? 'yes' : 'no') + '; blobs=' + blobs);
+    out.headers.set('cache-control', 'no-store');
+    return out;
+  }
 
   if(match){
-    const url = new URL(req.url);
     // The Referer header only ever matters for the "live lookup" agents
     // (ChatGPT-User, Perplexity-User, Claude-Web/User, OAI-SearchBot) -
     // those are triggered by an actual person's question right now, and
@@ -71,11 +86,14 @@ export default async (req, context) => {
     const referer = req.headers.get('referer') || '';
     console.log(`[ai-bot] ${match.label} -> ${url.pathname}${referer ? ' (referer: ' + referer + ')' : ''}`);
 
-    // Fire-and-forget: never await this on the request path, so a Blobs
-    // hiccup can never slow down or break the page for the crawler (or
-    // for anyone) - context.waitUntil lets it finish after the response
-    // has already gone out.
-    context.waitUntil(recordHit(match, url.pathname, userAgent, referer));
+    // Prefer context.waitUntil (finishes after the response goes out). If
+    // the runtime doesn't provide it, calling it would throw and the hit
+    // would silently never be saved - so fall back to awaiting the write.
+    // Either way this only ever runs for matched bot requests; normal
+    // visitors never reach this line. recordHit never throws.
+    const pending = recordHit(match, url.pathname, userAgent, referer);
+    if(context && typeof context.waitUntil === 'function') context.waitUntil(pending);
+    else await pending;
   }
 
   return context.next();
