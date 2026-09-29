@@ -518,6 +518,44 @@
   @media (max-width:480px){ .ex-dates{ grid-template-columns:1fr; } }
   @media (prefers-reduced-motion: reduce){ .ex-backdrop, .ex-modal{ animation:none; } }
 
+  /* Live activity: scroll inside the card past 15 entries */
+  .ai-feed-scroll{ overflow-y:auto; overscroll-behavior:contain; margin-right:-8px; padding-right:8px; }
+  .ai-feed-scroll.is-scroll{ scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent; }
+  .ai-feed-hint{ margin-top:12px; padding-top:10px; border-top:1px solid var(--line); font-size:12px; color:var(--muted); text-align:center; transition:opacity .2s ease; }
+  .ai-feed-hint::after{ content:" \2193"; }
+  .ai-feed-hint.is-done{ opacity:.35; }
+
+  /* Announcement Banner tiles: each message's header is a live preview of
+     the real gold banner strip (same colors, uppercase type, and shine
+     sweep as the site), updating as you type. */
+  .item.is-banner{ border:1px solid var(--line); box-shadow:0 1px 2px rgba(17,24,39,0.04), 0 16px 34px -24px rgba(179,138,60,0.55); }
+  .item.is-banner .item-head{
+    position:relative; overflow:hidden; border-bottom:none; padding:16px 16px 16px 14px; min-height:64px;
+    background:linear-gradient(115deg, #a47b30 0%, #B38A3C 35%, #c9a24f 55%, #B38A3C 75%, #9d7530 100%);
+  }
+  .item.is-banner .item-head::after{
+    content:""; position:absolute; top:0; bottom:0; left:-60%; width:40%; pointer-events:none;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,0.45), transparent); mix-blend-mode:soft-light;
+    animation:bnShine 5s ease-in-out infinite;
+  }
+  .item.is-banner .item-summary{
+    color:#fff; text-align:center; text-transform:uppercase; letter-spacing:0.05em; font-weight:700; font-size:14px;
+    text-shadow:0 1px 2px rgba(0,0,0,0.25); white-space:normal; line-height:1.35; position:relative; z-index:1;
+  }
+  .item.is-banner .item-summary.is-empty{ color:rgba(255,255,255,0.7); font-weight:600; font-style:italic; text-transform:none; letter-spacing:0; }
+  .item.is-banner .item-index{ background:rgba(10,15,39,0.28); color:#fff; position:relative; z-index:1; }
+  .item.is-banner .item-tools{ position:relative; z-index:1; }
+  .item.is-banner .item-tools .btn{ background:rgba(255,255,255,0.16); border-color:rgba(255,255,255,0.28); color:#fff; }
+  .item.is-banner .item-tools .btn:hover:not(:disabled){ background:rgba(255,255,255,0.28); }
+  .item.is-banner .item-tools .btn:disabled{ opacity:.35; }
+  .item-note{ display:flex; align-items:center; gap:8px; padding:10px 20px; background:#0A0F27; color:#c7cfe8; font-size:12.5px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap:anywhere; }
+  .item-note::before{ content:""; width:7px; height:7px; border-radius:50%; background:#34d399; flex:none; box-shadow:0 0 0 3px rgba(52,211,153,0.18); }
+  [data-editor="banner"] .list-section-head h2::before{
+    content:attr(data-lang); display:inline-grid; place-items:center; min-width:30px; height:22px; padding:0 7px; margin-right:9px; border-radius:6px;
+    font-size:11px; font-weight:700; letter-spacing:0.04em; background:#0A0F27; color:#d9b56a; vertical-align:2px;
+  }
+  @media (prefers-reduced-motion: reduce){ .item.is-banner .item-head::after{ animation:none; display:none; } }
+
   /* ---- Tile redesign (stat tiles, AI tiles, Manage Content cards) ----
      One shared look: each tile carries its own accent (--tc) - a thin
      colored top bar, a filled icon badge with a soft glow, a faint tint
@@ -836,6 +874,7 @@
       ],
       order: ['message', 'link'],
       summary: function(it){ return it.message; },
+      note: function(it){ return it.link ? 'Links to ' + it.link : 'Add a link below'; },
       blank: function(){ return { message: '', link: '' }; }
     },
     settlements: {
@@ -1465,7 +1504,7 @@
       var section = el('div', { class: 'list-section', 'data-list': list.key });
       if(list.label || list.max != null){
         section.appendChild(el('div', { class: 'list-section-head' }, [
-          el('h2', { text: list.label || def.title }),
+          el('h2', { text: list.label || def.title, 'data-lang': list.key === 'messages_en' ? 'EN' : list.key === 'messages_es' ? 'ES' : null }),
           el('span', { text: items.length + (list.max != null ? ' of ' + list.max : '') + ' ' + def.noun + (items.length === 1 ? '' : 's') })
         ]));
       }
@@ -1490,7 +1529,7 @@
   function renderItem(ed, list, item, i, count){
     var def = ed.def, items = ed.model[list.key];
     var hasErr = def.fields.some(function(f){ return ed.errors[list.key + ':' + i + ':' + f.name]; });
-    var card = el('div', { class: 'item' + (hasErr ? ' has-error' : '') });
+    var card = el('div', { class: 'item is-' + ed.key + (hasErr ? ' has-error' : '') });
     var summaryText = def.summary(item);
     var summary = el('div', { class: 'item-summary' + (summaryText ? '' : ' is-empty'), text: summaryText || 'New ' + def.noun });
     card.appendChild(el('div', { class: 'item-head' }, [
@@ -1501,6 +1540,10 @@
         el('button', { type: 'button', class: 'btn btn-danger btn-icon', title: 'Remove', 'aria-label': 'Remove', disabled: ed.readOnly || (list.min != null && count <= list.min), onclick: function(){ if(!confirm('Remove this ' + def.noun + '?')) return; items.splice(i, 1); markDirty(ed); render(ed); } }, [ icon(I.trash) ])
       ])
     ]));
+    // Optional one-line note under the header (def.note), kept live as
+    // fields change - the banner editor uses it for "Links to ...".
+    var note = def.note ? el('div', { class: 'item-note', text: def.note(item) }) : null;
+    if(note) card.appendChild(note);
     var body = el('div', { class: 'item-body' });
     def.fields.forEach(function(f){
       var errKey = list.key + ':' + i + ':' + f.name, err = ed.errors[errKey];
@@ -1510,6 +1553,7 @@
         item[f.name] = v;
         if(ed.errors[errKey]){ delete ed.errors[errKey]; field.classList.remove('is-invalid'); var e = field.querySelector('.field-error'); if(e) e.remove(); }
         summary.textContent = def.summary(item) || 'New ' + def.noun; summary.classList.toggle('is-empty', !def.summary(item));
+        if(note) note.textContent = def.note(item);
         markDirty(ed);
       }
       var control;
@@ -2135,7 +2179,7 @@
     setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
     return rows.length;
   }
-  function writeReport(w, daily, from, to){
+  function writeReport(w, daily, from, to, recent){
     var rows = buildExportRows(daily);
     var byType = { training: 0, search: 0, live: 0 }, byPlat = {}, total = 0;
     rows.forEach(function(r){
@@ -2154,6 +2198,13 @@
     var dayRows = days.slice().reverse().map(function(d){
       return '<tr><td>' + d.date + '</td><td class="n">' + d.training + '</td><td class="n">' + d.search + '</td><td class="n">' + d.live + '</td><td class="n"><b>' + d.total + '</b></td></tr>';
     }).join('');
+    var act = (recent || []).filter(function(r){ var d = String(r.time || '').slice(0, 10); return d >= from && d <= to; });
+    var oldestRecorded = (recent || []).length ? String(recent[recent.length - 1].time || '').slice(0, 10) : null;
+    var actCapped = (recent || []).length >= 200 && oldestRecorded && oldestRecorded > from;
+    var actRows = act.map(function(r){
+      var t = aiTypeOf(r.bot);
+      return '<tr><td style="white-space:nowrap">' + esc(new Date(r.time).toLocaleString()) + '</td><td>' + esc(aiPlatform(r.label)) + '<br><span class="mute">' + esc(r.bot) + '</span></td><td><span class="key" style="background:' + AI_TYPES[t].hex + '"></span>' + AI_TYPES[t].label + '</td><td class="mono">' + esc(r.path) + '</td><td class="mono">' + (r.referer ? esc(r.referer) : '<span class="mute">&mdash;</span>') + '</td></tr>';
+    }).join('') || '<tr><td colspan="5" class="empty">No individually logged visits in this period.</td></tr>';
     var typeRows = AI_TYPE_ORDER.map(function(k){
       return '<tr><td><span class="key" style="background:' + AI_TYPES[k].hex + '"></span>' + AI_TYPES[k].label + '</td><td>' + esc(AI_TYPES[k].note) + '</td><td class="n">' + byType[k].toLocaleString() + '</td><td class="n">' + pct(byType[k]) + '</td></tr>';
     }).join('');
@@ -2167,6 +2218,7 @@
       '.n{text-align:right;font-variant-numeric:tabular-nums;} .empty{color:#9CA3AF;text-align:center;}' +
       '.key{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:-1px;}' +
       '.foot{margin-top:28px;color:#9CA3AF;font-size:11.5px;} tr{break-inside:avoid;}' +
+      '.note{color:#6B7280;font-size:12.5px;margin:-4px 0 10px;} .mute{color:#9CA3AF;font-size:11.5px;} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;word-break:break-all;}' +
       '@media print{body{padding:0;} @page{margin:16mm;}}' +
       '</style></head><body>' +
       '<h1>AI Visibility Report</h1>' +
@@ -2180,6 +2232,8 @@
       '<h2>By visit type</h2><table><tr><th>Type</th><th>What it means</th><th class="n">Visits</th><th class="n">Share</th></tr>' + typeRows + '</table>' +
       '<h2>By platform</h2><table><tr><th>Platform</th><th>Breakdown</th><th class="n">Visits</th><th class="n">Share</th></tr>' + platRows + '</table>' +
       '<h2>Daily</h2><table><tr><th>Date (UTC)</th><th class="n">Training</th><th class="n">AI Search</th><th class="n">Live lookup</th><th class="n">Total</th></tr>' + dayRows + '</table>' +
+      '<h2>Live activity</h2><p class="note">Individual visits in this period, newest first' + (actCapped ? '. The log itemizes only the most recent ' + (recent || []).length + ' visits overall, so earlier visits in this period are counted above but not listed here.' : '.') + '</p>' +
+      '<table><tr><th>When</th><th>Platform</th><th>Visit type</th><th>Page</th><th>Referer</th></tr>' + actRows + '</table>' +
       '<p class="foot">Visits are counted by user-agent from known AI crawlers and agents. Days are UTC calendar days. Use your browser’s print dialog to save this as a PDF.</p>' +
       '</body></html>';
     w.document.open(); w.document.write(html); w.document.close();
@@ -2248,7 +2302,7 @@
       }).then(function(r){ if(!r.ok) throw new Error(r.status === 401 ? 'Sign in to export.' : 'Request failed (' + r.status + ')'); return r.json(); })
         .then(function(data){
           var daily = data.daily || [];
-          var n = asPdf ? writeReport(w, daily, from, to) : downloadCsv(daily, from, to);
+          var n = asPdf ? writeReport(w, daily, from, to, data.recent || []) : downloadCsv(daily, from, to);
           close();
           toast(n ? (asPdf ? 'Report ready - use Save as PDF in the print dialog.' : 'CSV downloaded (' + n + ' rows).') : 'No AI visits in that period - the export is empty.');
         })
@@ -2396,14 +2450,14 @@
 
     var feedCard = el('div', { class: 'card' });
     feedCard.appendChild(el('div', { class: 'ai-card-head' }, [
-      el('div', {}, [ el('h2', {}, [ 'Live activity', el('small', { text: Math.min(25, aiCrawlers.recent.length) + ' latest' }) ]),
+      el('div', {}, [ el('h2', {}, [ 'Live activity', el('small', { text: aiCrawlers.recent.length + ' recorded' }) ]),
         el('p', { text: 'A referer only ever appears on live lookups - training crawls have no question behind them.' }) ])
     ]));
     if(!aiCrawlers.recent.length){
       feedCard.appendChild(el('div', { class: 'empty-state', text: 'Nothing yet.' }));
     } else {
       var feed = el('div', { class: 'ai-feed' });
-      aiCrawlers.recent.slice(0, 25).forEach(function(r, i){
+      aiCrawlers.recent.forEach(function(r, i){
         var type = aiTypeOf(r.bot), fresh = (Date.now() - new Date(r.time).getTime()) < 3600000;
         var item = el('div', { class: 'ai-feed-item' }, [
           el('span', { class: 'ai-feed-dot' + (fresh ? ' is-fresh' : ''), style: 'background:' + AI_TYPES[type].hex }),
@@ -2412,10 +2466,25 @@
           el('span', { class: 'ai-type', text: AI_TYPES[type].label + ' · ' + r.bot }),
           r.referer ? el('div', { class: 'ai-ref', text: 'from ' + r.referer }) : null
         ]);
-        item.style.animationDelay = Math.min(i * 0.04, 0.8) + 's';
+        item.style.animationDelay = Math.min(i * 0.04, 0.6) + 's';
         feed.appendChild(item);
       });
-      feedCard.appendChild(feed);
+      // Show the first 15 in full; anything past that scrolls inside the
+      // card. The line/timeline lives on the inner .ai-feed so it keeps
+      // running the full length while the outer box scrolls.
+      var scroller = el('div', { class: 'ai-feed-scroll' }, [ feed ]);
+      feedCard.appendChild(scroller);
+      if(aiCrawlers.recent.length > 15){
+        var hint = el('div', { class: 'ai-feed-hint', text: 'Scroll for ' + (aiCrawlers.recent.length - 15) + ' more' });
+        feedCard.appendChild(hint);
+        requestAnimationFrame(function(){
+          var cut = feed.children[14];
+          if(cut){ scroller.style.maxHeight = (cut.offsetTop + cut.offsetHeight + 4) + 'px'; scroller.classList.add('is-scroll'); }
+        });
+        scroller.addEventListener('scroll', function(){
+          hint.classList.toggle('is-done', scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4);
+        });
+      }
     }
     root.appendChild(el('div', { class: 'ai-grid2', style: 'margin-top:20px;' }, [ pagesCard, feedCard ]));
   }
