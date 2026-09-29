@@ -582,7 +582,7 @@
   .item.is-compact .item-body{ display:none; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px 14px; padding:16px; }
   .item.is-compact.is-open .item-body{ display:grid; animation:aiRise .25s cubic-bezier(.2,.8,.2,1) both; }
   .item.is-compact .field.span-2{ grid-column:span 2; }
-  .item.is-compact .field:has(textarea){ grid-column:1 / -1; }
+  .item.is-compact .field:has(textarea), .item.is-compact .field.span-2:has(textarea){ grid-column:1 / -1; }
   .item.is-compact textarea{ min-height:68px; }
   .item.is-compact .field input[type="text"], .item.is-compact .field select, .item.is-compact .field textarea{ padding:10px 13px; font-size:14px; }
   .item.is-compact .field-hint{ font-size:11.5px; }
@@ -598,6 +598,18 @@
     .item.is-compact .item-tools .btn-icon{ width:28px; height:28px; }
   }
   @media (prefers-reduced-motion: reduce){ .item.is-compact.is-open .item-body{ animation:none; } .c-chev svg{ transition:none; } }
+
+  /* Legal Team: same compact rows, people-styled */
+  .item.is-team .c-thumb{ border-radius:50%; width:44px; height:44px; background-position:center 20%; box-shadow:0 0 0 2px #fff, 0 0 0 3px var(--line); }
+  .item.is-team .c-amount{ color:var(--ink); font-size:15px; font-weight:700; }
+  .item.is-team .c-title{ font-weight:500; color:var(--muted); font-size:13.5px; }
+  .item.is-team.is-open{ border-color:#9fbfae; box-shadow:0 14px 30px -22px rgba(31,122,92,0.6); }
+  .item.is-team .c-head:hover{ background:#f6faf8; }
+  .item.is-team.is-open .c-head{ background:#f1f8f4; border-bottom-color:#dcebe3; }
+  .item.is-team .c-head:focus-visible{ box-shadow:0 0 0 3px rgba(31,122,92,0.3); }
+  .item.is-team.is-compact .field:has(input[type="email"]){ grid-column:span 1; }
+  .item.is-team.is-compact .field:has(.photo){ grid-column:1 / -1; }
+  @media (max-width:900px){ .item.is-team.is-compact .field:has(input[type="email"]){ grid-column:1 / -1; } }
 
   /* ---- Tile redesign (stat tiles, AI tiles, Manage Content cards) ----
      One shared look: each tile carries its own accent (--tc) - a thin
@@ -958,6 +970,15 @@
         { name: 'bio', label: 'Bio', type: 'textarea', required: false, span: 2, hint: 'Leave blank to hide the flip-to-read-bio card.' }
       ],
       order: ['name', 'title', 'email', 'photo', 'bio'],
+      compact: {
+        amount: function(it){ return it.name || 'New member'; },
+        title: function(it){ return it.title || ''; },
+        meta: function(it){
+          var bits = [ it.email ? it.email : 'No email shown', it.bio ? 'Has bio card' : 'No bio card' ];
+          return bits.join(' \u00b7 ');
+        },
+        photo: function(it){ return it.photo; }
+      },
       summary: function(it){ return [it.name, it.title].filter(Boolean).join(' — '); },
       blank: function(){ return { name: '', title: '', email: '', photo: '', bio: '' }; }
     }
