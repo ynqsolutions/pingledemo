@@ -495,6 +495,21 @@
   /* Dashboard hero: quick actions + live site status */
   .vhero.is-dash{ grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); align-items:stretch; }
   .vhero.is-dash h1{ font-size:26px; margin-bottom:0; }
+  .dash-hero{ grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) !important; align-items:center; }
+  .dash-sub{ margin:6px 0 0; color:rgba(255,255,255,.72); font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dash-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+  .dash-btn{ display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border-radius:999px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); color:#fff; text-decoration:none; font-weight:600; font-size:13.5px; transition:background .15s ease, transform .15s ease; }
+  .dash-btn:hover{ background:rgba(255,255,255,.2); transform:translateY(-1px); }
+  .dash-btn:first-child{ background:#fff; color:#0A0F27; border-color:#fff; }
+  .dash-btn svg{ width:16px; height:16px; }
+  .dash-banner{ position:relative; z-index:1; display:flex; flex-direction:column; gap:8px; padding:18px 20px; border-radius:16px; background:linear-gradient(135deg,#B38A3C,#8a6a2c); color:#fff; text-decoration:none; box-shadow:0 18px 40px -22px rgba(179,138,60,.9); }
+  .dash-banner-lb{ display:flex; align-items:center; gap:8px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; opacity:.85; }
+  .dash-banner-msg{ font-size:16px; font-weight:700; line-height:1.35; }
+  .dash-banner-edit{ font-size:12.5px; opacity:.8; }
+  .stat-link{ text-decoration:none; color:inherit; transition:transform .15s ease, box-shadow .15s ease; }
+  .stat-link:hover{ transform:translateY(-2px); }
+  .dash-note{ margin:14px 0 0; font-size:12.5px; color:var(--soft); }
+  @media (max-width:900px){ .dash-hero{ grid-template-columns:minmax(0,1fr) !important; } .dash-sub{ white-space:normal; } }
   .qa-grid{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:18px; }
   .qa{ display:flex; gap:11px; align-items:flex-start; padding:12px 13px; border-radius:14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
     color:#fff; transition:background .18s ease, transform .18s ease, border-color .18s ease; animation:aiRise .45s cubic-bezier(.2,.8,.2,1) both; min-width:0; }
@@ -855,77 +870,31 @@
       <section class="view" data-view="overview">
         <div id="overviewHero"></div>
         <div class="stats">
+          <a class="stat stat-link" href="#ai-crawlers">
+            <div class="stat-top">AI visits · 7 days<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg></span></div>
+            <div class="stat-num" id="statAi">—</div>
+            <div class="stat-sub" id="statAiSub">Crawler visits across all AI platforms</div>
+          </a>
           <div class="stat">
-            <div class="stat-top">Consultation Requests<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span></div>
+            <div class="stat-top">Consultation requests<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span></div>
             <div class="stat-num" id="statConsults">—</div>
-            <div class="stat-sub">Shown on the case review &amp; booking pages</div>
+            <div class="stat-sub">Total, shown on the site</div>
           </div>
-          <div class="stat">
-            <div class="stat-top">Settlement Tiles<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span></div>
-            <div class="stat-num" id="statSettlements">—</div>
-            <div class="stat-sub">On the Results page</div>
-          </div>
-          <div class="stat">
-            <div class="stat-top">Team Members<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span></div>
-            <div class="stat-num" id="statTeam">—</div>
-            <div class="stat-sub">On the About page</div>
-          </div>
-          <div class="stat">
-            <div class="stat-top">Published Articles<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span></div>
+          <a class="stat stat-link" href="#blog">
+            <div class="stat-top">Published articles<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span></div>
             <div class="stat-num" id="statArticles">—</div>
             <div class="stat-sub">Blog pages currently live</div>
-          </div>
+          </a>
+          <a class="stat stat-link" href="#settlements">
+            <div class="stat-top">Results shown<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span></div>
+            <div class="stat-num" id="statSettlements">—</div>
+            <div class="stat-sub">Settlement tiles on the Results page</div>
+          </a>
         </div>
-        <div class="grid-rail">
-          <div class="card" style="margin:0;">
-            <h2>Manage Content</h2>
-            <div class="manage">
-              <div class="tile">
-                <div class="tile-head"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 13z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>Announcement Banner</div>
-                <p>The rotating message strip above the header on every page. Up to 3 messages per language.</p>
-                <div class="tile-actions"><a class="btn btn-ghost btn-sm" href="#banner">Edit Banner</a></div>
-              </div>
-              <div class="tile">
-                <div class="tile-head"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Settlements</div>
-                <p>The result tiles on the Results &amp; Testimonials page. Reorder, add, or retire cases.</p>
-                <div class="tile-actions"><a class="btn btn-ghost btn-sm" href="#settlements">Edit Tiles</a></div>
-              </div>
-              <div class="tile">
-                <div class="tile-head"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>Legal Team</div>
-                <p>Attorney and staff cards on the About page, including photos, bios, and contact emails.</p>
-                <div class="tile-actions"><a class="btn btn-ghost btn-sm" href="#team">Edit Team</a></div>
-              </div>
-              <div class="tile">
-                <div class="tile-head"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg></span>Blog Posts</div>
-                <p>Write articles that become their own pages on the site. Save as a draft or publish.</p>
-                <div class="tile-actions"><a class="btn btn-primary btn-sm" href="#blog/new">New Post</a><a class="btn btn-ghost btn-sm" href="#blog">All Posts</a></div>
-              </div>
-            </div>
-            <div style="margin-top:28px;">
-              <div class="ai-card-head"><div><h2 style="margin:0;">Results at a glance</h2><p>Settlement tiles currently on the Results page, largest first.</p></div><a class="btn btn-ghost btn-sm" href="#settlements">Edit</a></div>
-              <div class="rs-bars" id="ovResults"><div class="loading" style="padding:16px;">Loading…</div></div>
-            </div>
-          </div>
-          <aside style="display:flex; flex-direction:column; gap:20px;">
-            <div class="card" style="margin:0;">
-              <h2>Site Summary</h2>
-              <div class="kv">
-                <div><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>Site</span><b>pinglelaw.com</b></div>
-                <div><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 13z"/></svg>Banner</span><b id="sumBanner">—</b></div>
-                <div><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>CMS posts</span><b id="sumPosts">—</b></div>
-                <div><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Languages</span><b>English, Spanish</b></div>
-                <div><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>Status</span><span class="pill">Live</span></div>
-              </div>
-            </div>
-            <div class="card" style="margin:0;">
-              <h2>Recent activity</h2>
-              <div class="act-feed" id="ovActivity"><div class="loading" style="padding:12px;">Loading…</div></div>
-            </div>
-            <div class="tip">
-              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span>
-              <div><b>Tip: changes go live on deploy</b><p>Saving here commits to the site. The change appears on pinglelaw.com within a couple of minutes once the build finishes.</p></div>
-            </div>
-          </aside>
+        <div class="card" style="margin:0;">
+          <div class="ai-card-head"><div><h2 style="margin:0;">Recent activity</h2><p>Latest content changes saved to the site.</p></div></div>
+          <div class="act-feed" id="ovActivity"><div class="loading" style="padding:12px;">Loading…</div></div>
+          <p class="dash-note">Changes saved here go live on pinglelaw.com within a couple of minutes, once the site rebuilds.</p>
         </div>
       </section>
 
@@ -1261,53 +1230,32 @@
   function renderOverviewHero(){
     var host = $('#overviewHero'); if(!host) return;
     host.innerHTML = '';
+    var h = new Date().getHours(), hello = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    var user = currentUser(), name = user && user.user_metadata && user.user_metadata.full_name ? String(user.user_metadata.full_name).split(' ')[0] : '';
     var actions = [
-      { href: '#blog/new', ico: 'plus', color: '#2f9c74', label: 'Write a blog post', hint: 'Draft or publish an article' },
-      { href: '#banner', ico: 'megaphone', color: '#B38A3C', label: 'Update the banner', hint: 'Message shown on every page' },
-      { href: '#settlements', ico: 'dollar', color: '#c98500', label: 'Add a result', hint: 'New settlement tile' },
-      { href: '#team', ico: 'users', color: '#3987e5', label: 'Edit the team', hint: 'Photos, titles, and bios' },
-      { href: '#ai-crawlers', ico: 'chart', color: '#9085e9', label: 'AI Visibility', hint: 'Traffic from AI + report' },
-      { href: '#search-updates', ico: 'globe', color: '#199e70', label: 'Search updates', hint: 'Notify Bing + page dates' }
+      { href: '#blog/new', ico: 'plus', label: 'Write a blog post' },
+      { href: '#banner', ico: 'megaphone', label: 'Update the banner' },
+      { href: '#search-updates', ico: 'globe', label: 'Mark pages updated' }
     ];
-    var grid = el('div', { class: 'qa-grid' });
-    actions.forEach(function(a, i){
-      var link = el('a', { class: 'qa', href: a.href, target: a.external ? '_blank' : null, rel: a.external ? 'noopener' : null }, [
-        el('span', { class: 'qi', style: 'background:' + a.color }, [ icon(QA_ICONS[a.ico], '2') ]),
-        el('span', {}, [ el('b', { text: a.label }), el('span', { text: a.hint }) ])
-      ]);
-      link.style.animationDelay = (0.05 + i * 0.05) + 's';
-      grid.appendChild(link);
-    });
-
-    var signedIn = !!currentUser();
-    function row(label, value, sub, live){
-      return el('div', { class: 'qs-row' }, [
-        el('label', {}, [ live ? el('span', { class: 'ai-live-dot' }) : null, label ]),
-        el('div', { text: value }),
-        sub ? el('small', { text: sub }) : null
-      ]);
-    }
-    var status = el('div', { class: 'qs' }, [
-      el('div', { class: 'qs-head', text: 'Site status' }),
-      row('Live banner', overview.banner || '—', null, true),
-      row('Last content change',
-        overview.lastChange ? relTime(overview.lastChange.when) : (signedIn ? 'Loading…' : 'Sign in to see'),
-        overview.lastChange ? overview.lastChange.msg : null),
-      row('AI visits · last 7 days',
-        overview.ai7 != null ? fmt(overview.ai7) : (signedIn ? 'Loading…' : 'Sign in to see'),
-        overview.ai7 != null ? 'Across all AI platforms' : null),
-      row('Consultation requests', overview.consults != null ? fmt(overview.consults) : '—', 'Total, shown on the site')
-    ]);
-
-    host.appendChild(el('div', { class: 'vhero is-dash' }, [
+    var btns = el('div', { class: 'dash-actions' }, actions.map(function(a){
+      return el('a', { class: 'dash-btn', href: a.href }, [ icon(QA_ICONS[a.ico], '2'), a.label ]);
+    }));
+    var last = overview.lastChange;
+    host.appendChild(el('div', { class: 'vhero is-dash dash-hero' }, [
       el('div', { style: 'position:relative;z-index:1;min-width:0;' }, [
         el('span', { class: 'vhero-kicker' }, [ el('span', { class: 'ai-live-dot' }), 'Dashboard' ]),
-        el('h1', { text: 'What would you like to do?' }),
-        grid
+        el('h1', { text: hello + (name ? ', ' + name : '') + '.' }),
+        el('p', { class: 'dash-sub', text: last ? 'Last change ' + relTime(last.when) + ': ' + last.msg : 'Here’s what’s happening on pinglelaw.com.' }),
+        btns
       ]),
-      status
+      el('a', { class: 'dash-banner', href: '#banner', title: 'Edit the banner' }, [
+        el('span', { class: 'dash-banner-lb' }, [ el('span', { class: 'ai-live-dot' }), 'Live banner' ]),
+        el('span', { class: 'dash-banner-msg', text: overview.banner || '—' }),
+        el('span', { class: 'dash-banner-edit', text: 'Edit →' })
+      ])
     ]));
   }
+
   function renderOverviewResults(){
     var host = $('#ovResults'); if(!host) return;
     host.innerHTML = '';
@@ -1357,22 +1305,21 @@
         overview.ai7 = aiLocalDaily(d, isoDay(addLocalDays(new Date(), -6)), isoDay(new Date())).reduce(function(s, day){
           return s + Object.keys(day.counts || {}).reduce(function(t, k){ return t + day.counts[k]; }, 0);
         }, 0);
+        var n = $('#statAi'); if(n) vCount(n, overview.ai7);
         renderOverviewHero();
-      }).catch(function(){ overview.aiLoaded = false; });
+      }).catch(function(){ overview.aiLoaded = false; var n = $('#statAi'); if(n) n.textContent = currentUser() ? '—' : 'Sign in'; });
   }
   (function stats(){
     function setNum(id, n){ var node = $('#' + id); if(node) vCount(node, n); }
     function getJSON(url){ return fetch(url, { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
     renderOverviewHero();
     getJSON('/.netlify/functions/consult-count').then(function(d){
-      overview.consults = d.count; setNum('statConsults', d.count); $('#statConsults').classList.add('is-live'); renderOverviewHero();
+      overview.consults = d.count; setNum('statConsults', d.count); renderOverviewHero();
     }).catch(function(){});
     getJSON('/content/settlements.json').then(function(d){
-      overview.settlements = d.items || []; setNum('statSettlements', overview.settlements.length); renderOverviewResults();
+      overview.settlements = d.items || []; setNum('statSettlements', overview.settlements.length);
     }).catch(function(){ var h = $('#ovResults'); if(h){ h.innerHTML = ''; h.appendChild(el('div', { class: 'empty-state', text: 'Couldn’t load results.' })); } });
-    getJSON('/content/team.json').then(function(d){ setNum('statTeam', (d.members || []).length); }).catch(function(){});
     getJSON('/content/announcement.json').then(function(d){
-      $('#sumBanner').textContent = (d.messages_en || []).length + ' EN · ' + (d.messages_es || []).length + ' ES';
       var first = (d.messages_en || [])[0]; overview.banner = first && first.message ? first.message : null; renderOverviewHero();
     }).catch(function(){});
     fetch('/sitemap.xml', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); })
@@ -1884,7 +1831,7 @@
     }).then(function(posts){
       posts.sort(function(a, b){ return String(b.fields.date || '').localeCompare(String(a.fields.date || '')) || a.slug.localeCompare(b.slug); });
       blog.posts = posts; blog.readOnly = false; blog.readOnlyReason = ''; blog.busy = false;
-      $('#sumPosts').textContent = String(posts.length);
+      if($('#sumPosts')) $('#sumPosts').textContent = String(posts.length);
       renderBlog();
     }).catch(function(err){
       blog.busy = false; blog.readOnly = true; blog.posts = blog.posts || [];
@@ -1931,7 +1878,7 @@
       var entry = { path: p.path, slug: p.slug, sha: p.sha, fields: Object.assign({}, p.fields, { draft: p.fields.draft ? 'true' : 'false' }), body: p.body };
       var idx = (blog.posts || []).findIndex(function(x){ return x.slug === p.slug; });
       if(idx >= 0) blog.posts[idx] = entry; else (blog.posts = blog.posts || []).push(entry);
-      $('#sumPosts').textContent = String(blog.posts.length); $('#bellBtn').classList.add('has-dot');
+      if($('#sumPosts')) $('#sumPosts').textContent = String(blog.posts.length); $('#bellBtn').classList.add('has-dot');
       renderBlog();
       toast(p.fields.draft ? 'Draft saved.' : (wasNew ? 'Post published. It goes live on the next deploy.' : 'Post updated. The site refreshes on the next deploy.'));
       if(wasNew) history.replaceState(null, '', '#blog/' + p.slug);
@@ -1946,7 +1893,7 @@
     blog.busy = true; renderBlogStatus();
     repoDeleteFile(p.path, 'Delete blog post: ' + p.fields.title.trim(), p.sha).then(function(){
       blog.posts = (blog.posts || []).filter(function(x){ return x.slug !== p.slug; });
-      $('#sumPosts').textContent = String(blog.posts.length);
+      if($('#sumPosts')) $('#sumPosts').textContent = String(blog.posts.length);
       blog.busy = false; blog.dirty = false; blog.cur = null; blog.mode = 'list'; renderBlog();
       location.hash = '#blog'; toast('Post deleted.');
     }).catch(function(err){ blog.busy = false; renderBlogStatus(); toast('Delete failed: ' + err.message, true); });
