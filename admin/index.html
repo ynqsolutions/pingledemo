@@ -2407,7 +2407,7 @@
     } else {
       summary.push(span + ', AI crawlers and assistants visited pinglelaw.com <b>' + n0(total) + ' time' + (total === 1 ? '' : 's') + '</b> across <b>' + plats.length + ' platform' + (plats.length === 1 ? '' : 's') + '</b>.');
       var top = plats.slice(0, 3).map(function(p){ return esc(p.name) + ' (' + n0(p.count) + ')'; });
-      summary.push((plats[0] ? '<b>' + esc(plats[0].name) + '</b> was the most active, with ' + pctOf(plats[0].count, total) + '% of all visits' : '') + (plats.length > 1 ? ', followed by ' + joinList(top.slice(1)) : '') + '.');
+      summary.push((plats[0] ? '<b>' + esc(plats[0].name) + '</b> was the most active, with ' + n0(plats[0].count) + ' visit' + (plats[0].count === 1 ? '' : 's') + ' (' + pctOf(plats[0].count, total) + '% of the total)' : '') + (plats.length > 1 ? ', followed by ' + joinList(top.slice(1)) : '') + '.');
       summary.push(byType.live ? '<b>' + n0(byType.live) + '</b> of these ' + (byType.live === 1 ? 'was a live lookup' : 'were live lookups') + ' - a person asked an AI a question and it opened a page on the site to answer.' : 'None were live lookups; the activity was crawlers indexing the site or collecting training data.');
       if(byType.search) summary.push(n0(byType.search) + ' ' + (byType.search === 1 ? 'was' : 'were') + ' AI-search crawls that keep the site available to AI search tools.');
       if(busiest && N > 1) summary.push('Activity peaked on <b>' + esc(longDate(busiest.date)) + '</b> with ' + n0(busiest.total) + ' visit' + (busiest.total === 1 ? '' : 's') + '.');
