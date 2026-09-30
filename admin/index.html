@@ -537,6 +537,10 @@
   @media (prefers-reduced-motion: reduce){ .ex-backdrop, .ex-modal{ animation:none; } }
 
   /* Live activity: scroll inside the card past 15 entries */
+  .ai-feed-filter{ gap:10px; margin-bottom:12px; }
+  .ai-feed-date{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); font-weight:600; }
+  .ai-feed-date input{ font:inherit; font-size:13px; padding:6px 8px; border:1.5px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); }
+  .ai-feed-range{ font-size:12px; color:var(--soft); }
   .ai-feed-day{ font:inherit; font-size:13px; font-weight:600; padding:7px 10px; border:1.5px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); cursor:pointer; max-width:100%; }
   .ai-feed-day:hover{ border-color:var(--accent); }
   .ai-feed-scroll{ overflow-y:auto; overscroll-behavior:contain; margin-right:-8px; padding-right:8px; }
@@ -2854,20 +2858,31 @@
       feedCard.innerHTML = '';
       var all = aiCrawlers.recent || [], dayCounts = {}, dayList = [];
       all.forEach(function(r){ var d = isoDay(new Date(r.time)); if(!dayCounts[d]){ dayCounts[d] = 0; dayList.push(d); } dayCounts[d]++; });
-      dayList.sort().reverse();
-      var pick = aiCrawlers.feedDay || '';
-      if(pick && !dayCounts[pick]) pick = aiCrawlers.feedDay = '';
-      var list = pick ? all.filter(function(r){ return isoDay(new Date(r.time)) === pick; }) : all;
-      var sel = el('select', { class: 'ai-feed-day', 'aria-label': 'Filter live activity by day', onchange: function(e){ aiCrawlers.feedDay = e.target.value; renderFeed(); } },
-        [ el('option', { value: '', text: 'All days (' + all.length + ')' }) ].concat(dayList.map(function(d){ return el('option', { value: d, text: shortDate(d) + ' (' + dayCounts[d] + ')' }); })));
-      sel.value = pick;
+      dayList.sort();
+      var oldestDay = dayList[0] || '', newestDay = dayList[dayList.length - 1] || '';
+      var fFrom = aiCrawlers.feedFrom || '', fTo = aiCrawlers.feedTo || '';
+      if(fFrom && fTo && fFrom > fTo){ var sw = fFrom; fFrom = fTo; fTo = sw; }
+      var filtered = !!(fFrom || fTo);
+      var list = filtered ? all.filter(function(r){ var d = isoDay(new Date(r.time)); return (!fFrom || d >= fFrom) && (!fTo || d <= fTo); }) : all;
+      var single = filtered && fFrom && fFrom === fTo;
+      function dateIn(label, val, key){
+        var inp = el('input', { type: 'date', value: val, min: oldestDay, max: newestDay, 'aria-label': label, onchange: function(e){ aiCrawlers[key] = e.target.value; renderFeed(); } });
+        return el('label', { class: 'ai-feed-date' }, [ label, inp ]);
+      }
+      var filterRow = all.length ? el('div', { class: 'ai-views ai-feed-filter' }, [
+        dateIn('From', fFrom, 'feedFrom'), dateIn('To', fTo, 'feedTo'),
+        filtered ? el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Clear', onclick: function(){ aiCrawlers.feedFrom = ''; aiCrawlers.feedTo = ''; renderFeed(); } }) : null,
+        el('span', { class: 'sp' }),
+        el('span', { class: 'ai-feed-range', text: 'Logged: ' + shortDate(oldestDay) + ' – ' + shortDate(newestDay) })
+      ]) : null;
       feedCard.appendChild(el('div', { class: 'ai-card-head' }, [
-        el('div', {}, [ el('h2', {}, [ 'Live activity', el('small', { text: (pick ? list.length + ' on ' + shortDate(pick) : all.length + ' recorded') }) ]),
-          el('p', { text: 'A referer only ever appears on live lookups - training crawls have no question behind them.' }) ]),
-        all.length ? sel : null
+        el('div', {}, [ el('h2', {}, [ 'Live activity', el('small', { text: filtered ? list.length + ' of ' + all.length : all.length + ' recorded' }) ]),
+          el('p', { text: 'A referer only ever appears on live lookups - training crawls have no question behind them.' }) ])
       ]));
+      if(filterRow) feedCard.appendChild(filterRow);
+      var pick = single;
       if(!list.length){
-        feedCard.appendChild(el('div', { class: 'empty-state', text: 'Nothing yet.' }));
+        feedCard.appendChild(el('div', { class: 'empty-state', text: filtered ? 'No logged visits in that date range.' : 'Nothing yet.' }));
         return;
       }
       var feed = el('div', { class: 'ai-feed' });
@@ -2875,7 +2890,7 @@
         var type = aiTypeOf(r.bot), fresh = (Date.now() - new Date(r.time).getTime()) < 3600000;
         var item = el('div', { class: 'ai-feed-item' }, [
           el('span', { class: 'ai-feed-dot' + (fresh ? ' is-fresh' : ''), style: 'background:' + AI_TYPES[type].hex }),
-          el('div', { class: 'ai-feed-top' }, [ el('b', { text: aiPlatform(r.label) }), el('span', { text: pick ? new Date(r.time).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : relTime(r.time) }) ]),
+          el('div', { class: 'ai-feed-top' }, [ el('b', { text: aiPlatform(r.label) }), el('span', { text: pick ? new Date(r.time).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : filtered ? new Date(r.time).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : relTime(r.time) }) ]),
           el('div', { class: 'ai-feed-path', text: r.path }),
           el('span', { class: 'ai-type', text: AI_TYPES[type].label + ' · ' + r.bot }),
           r.referer ? el('div', { class: 'ai-ref', text: 'from ' + r.referer }) : null
