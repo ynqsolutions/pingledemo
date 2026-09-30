@@ -144,6 +144,15 @@ async function recordHit(match, pathname, userAgent, referer){
 
     // One counter per bot per day, so trends over time are visible
     // without keeping every single hit forever.
+    // Same counts per UTC hour, so viewers can see days in their own time
+    // zone (a UTC day can't be split after the fact).
+    const hoursKey = `hours/${today}`;
+    const hoursDoc = (await store.get(hoursKey, { type: 'json' })) || {};
+    const hh = new Date().toISOString().slice(11, 13);
+    hoursDoc[hh] = hoursDoc[hh] || {};
+    hoursDoc[hh][match.needle] = (hoursDoc[hh][match.needle] || 0) + 1;
+    await store.setJSON(hoursKey, hoursDoc);
+
     const dailyKey = `daily/${today}`;
     const daily = (await store.get(dailyKey, { type: 'json' })) || {};
     daily[match.needle] = (daily[match.needle] || 0) + 1;

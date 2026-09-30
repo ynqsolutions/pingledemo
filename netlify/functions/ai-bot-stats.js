@@ -49,7 +49,7 @@ async function gatherData(store, url){
   if(isDate(fromQ) && isDate(toQ)){
     let a = new Date(fromQ + 'T00:00:00Z'), b = new Date(toQ + 'T00:00:00Z');
     if(a > b){ const t = a; a = b; b = t; }
-    const span = Math.min(366, Math.round((b - a) / 86400000) + 1);
+    const span = Math.min(370, Math.round((b - a) / 86400000) + 1);
     for(let i = span - 1; i >= 0; i--){
       days.push(new Date(b.getTime() - i * 86400000).toISOString().slice(0, 10));
     }
@@ -61,7 +61,13 @@ async function gatherData(store, url){
   const dailyValues = await Promise.all(days.map(d => Promise.resolve().then(() => store.get('daily/' + d, { type: 'json' })).catch(() => null)));
   const daily = days.map((date, i) => ({ date, counts: dailyValues[i] || {} }));
   const pages = (await store.get('pages', { type: 'json' })) || {};
-  return { totals, recent, daily, pages };
+  // Per-hour (UTC) counters for the same days, so the admin can re-bucket
+  // them into the viewing device's own time zone. Days recorded before the
+  // hourly counters existed simply have no entry here.
+  const hourValues = await Promise.all(days.map(d => Promise.resolve().then(() => store.get('hours/' + d, { type: 'json' })).catch(() => null)));
+  const hours = {};
+  days.forEach((d, i) => { if(hourValues[i]) hours[d] = hourValues[i]; });
+  return { totals, recent, daily, pages, hours };
 }
 
 export default async (req) => {
