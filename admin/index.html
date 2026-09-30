@@ -1108,6 +1108,13 @@
   .feed-day em{ margin-left:auto; font-style:normal; color:var(--soft); font-size:12px; font-variant-numeric:tabular-nums; }
   .feed-time{ font-variant-numeric:tabular-nums; white-space:nowrap; }
   @media (max-width:560px){ .feed-filters .pl-type{ flex:1; } .feed-range{ align-items:stretch; } .feed-dash{ display:none; } }
+
+  /* ---- No outer frame: the admin fills the window ---- */
+  body{ background:#fff; }
+  .shell{ margin:0 !important; border-radius:0 !important; box-shadow:none !important; min-height:100vh !important; overflow:visible !important; background:#fff; }
+  .sidebar{ top:0 !important; height:100vh !important; }
+  .main{ margin:0 !important; border-radius:0 !important; box-shadow:none !important; }
+  .topbar{ border-radius:0 !important; }
 </style>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
