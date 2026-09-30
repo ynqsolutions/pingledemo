@@ -6,8 +6,8 @@
 // [[edge_functions]] in netlify.toml). Two record-keeping paths:
 //   1. console.log on every match - shows up immediately in the Edge
 //      Functions log tab in the Netlify dashboard, free, no setup.
-//   2. A running tally + a capped recent-hits feed in Netlify Blobs, read
-//      by netlify/functions/ai-bot-stats.js so the numbers survive past
+//   2. One small record per hit in Netlify Blobs, added up by
+//      netlify/functions/ai-bot-stats.js so the numbers survive past
 //      whatever log retention Netlify applies and can be viewed as a
 //      simple report instead of scrolling raw logs.
 //
@@ -115,48 +115,20 @@ export default async (req, context) => {
   return response;
 };
 
+// One tiny record per hit, under a key that already carries everything the
+// stats page counts (day, hour, bot, page). Nothing is read first and no
+// shared counter is updated, so simultaneous visits - crawlers like Meta's
+// fire many at once - can never overwrite each other's counts (the old
+// read-add-write counters could and did lose hits). The stats function
+// adds the keys up (and rolls old days into a compact summary).
 async function recordHit(match, pathname, userAgent, referer){
   try {
     const store = getStore('ai-bot-log');
-    const today = new Date().toISOString().slice(0, 10);
-
-    const totalsKey = 'totals';
-    const totals = (await store.get(totalsKey, { type: 'json' })) || {};
-    totals[match.needle] = totals[match.needle] || { label: match.label, count: 0, lastSeen: null };
-    totals[match.needle].count += 1;
-    totals[match.needle].lastSeen = new Date().toISOString();
-    await store.setJSON(totalsKey, totals);
-
-    // A capped feed of the most recent hits across all bots, newest
-    // first - enough for a human to sanity-check what's actually being
-    // crawled without needing to page through raw logs.
-    const recentKey = 'recent';
-    const recent = (await store.get(recentKey, { type: 'json' })) || [];
-    recent.unshift({ bot: match.needle, label: match.label, path: pathname, referer: referer || null, time: new Date().toISOString() });
-    await store.setJSON(recentKey, recent.slice(0, 200));
-
-    // Running per-page tally, so "which pages do AI crawlers care about"
-    // covers all time instead of only the capped recent feed above.
-    const pagesKey = 'pages';
-    const pages = (await store.get(pagesKey, { type: 'json' })) || {};
-    pages[pathname] = (pages[pathname] || 0) + 1;
-    await store.setJSON(pagesKey, pages);
-
-    // One counter per bot per day, so trends over time are visible
-    // without keeping every single hit forever.
-    // Same counts per UTC hour, so viewers can see days in their own time
-    // zone (a UTC day can't be split after the fact).
-    const hoursKey = `hours/${today}`;
-    const hoursDoc = (await store.get(hoursKey, { type: 'json' })) || {};
-    const hh = new Date().toISOString().slice(11, 13);
-    hoursDoc[hh] = hoursDoc[hh] || {};
-    hoursDoc[hh][match.needle] = (hoursDoc[hh][match.needle] || 0) + 1;
-    await store.setJSON(hoursKey, hoursDoc);
-
-    const dailyKey = `daily/${today}`;
-    const daily = (await store.get(dailyKey, { type: 'json' })) || {};
-    daily[match.needle] = (daily[match.needle] || 0) + 1;
-    await store.setJSON(dailyKey, daily);
+    const now = new Date();
+    const iso = now.toISOString();
+    const pathKey = encodeURIComponent(pathname).slice(0, 240);
+    const key = `h/${iso.slice(0, 10)}/${iso.slice(11, 13)}/${match.needle}/${pathKey}/${now.getTime()}-${Math.random().toString(36).slice(2, 8)}`;
+    await store.setJSON(key, { label: match.label, path: pathname, referer: referer || null });
   } catch (err) {
     // Never let a logging failure surface anywhere visitor- or
     // crawler-facing - just note it for whoever next checks the logs.

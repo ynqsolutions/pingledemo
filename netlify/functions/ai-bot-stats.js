@@ -33,16 +33,113 @@ async function verifyUser(req){
   }
 }
 
+// ---- Reading the log --------------------------------------------------
+// The edge function writes ONE record per hit under
+//   h/<UTC date>/<UTC hour>/<bot>/<url-encoded page>/<ms>-<random>
+// so nothing is ever read-modified-written (simultaneous crawler visits used
+// to overwrite each other's counts). Everything is counted from the keys.
+// Days older than yesterday are folded into one small "rollup/<date>" doc and
+// their raw records deleted, which keeps listing fast. Counts kept by the
+// previous scheme (totals, pages, recent, daily/<date>, hours/<date>) are a
+// frozen baseline that is added in.
+const LEGACY_LAST_DAY = '2026-10-02'; // no pre-change daily/hours docs exist after this date
+const LABELS = {
+  'GPTBot': 'OpenAI (GPTBot - training crawl)', 'ChatGPT-User': 'OpenAI (ChatGPT - live browsing)', 'OAI-SearchBot': 'OpenAI (search)',
+  'ClaudeBot': 'Anthropic (ClaudeBot - training crawl)', 'Claude-Web': 'Anthropic (Claude - live browsing)', 'Claude-User': 'Anthropic (Claude - live browsing)',
+  'anthropic-ai': 'Anthropic (API-triggered fetch)', 'PerplexityBot': 'Perplexity (search crawl)', 'Perplexity-User': 'Perplexity (live browsing)',
+  'CCBot': 'Common Crawl (feeds many LLM training sets)', 'Google-Extended': 'Google (AI training signal)', 'GoogleOther': 'Google (other/experimental crawl)',
+  'Applebot-Extended': 'Apple (AI training signal)', 'Bytespider': 'ByteDance/TikTok (feeds Doubao etc.)', 'Amazonbot': 'Amazon (feeds Alexa/Rufus)',
+  'meta-externalagent': 'Meta (AI training crawl)', 'Diffbot': 'Diffbot (data extraction, feeds various LLMs)', 'YouBot': 'You.com', 'Timpibot': 'Timpi',
+  'cohere-ai': 'Cohere', 'DuckAssistBot': 'DuckDuckGo (AI Assist)', 'Bingbot': 'Microsoft Bing (feeds Copilot)'
+};
+
+function addDaysIso(iso, n){ const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function parseKey(key){
+  const p = key.split('/');
+  if(p.length < 6 || p[0] !== 'h') return null;
+  let path; try { path = decodeURIComponent(p[4]); } catch (e) { path = p[4]; }
+  return { key, date: p[1], hour: p[2], bot: p[3], path, ms: Number(p[5].split('-')[0]) || 0 };
+}
+async function listKeys(store, prefix){
+  const out = [];
+  for await (const page of store.list({ prefix, paginate: true })) for(const b of page.blobs) out.push(b.key);
+  return out;
+}
+async function listDirs(store, prefix){
+  const out = [];
+  for await (const page of store.list({ prefix, directories: true, paginate: true })) for(const d of (page.directories || [])) out.push(d);
+  return out;
+}
+// { hours: {HH: {bot: n}}, pages: {path: n}, last: {bot: ms} } for one day's records.
+function aggregate(parsed){
+  const agg = { hours: {}, pages: {}, last: {} };
+  parsed.forEach(h => {
+    const hr = agg.hours[h.hour] || (agg.hours[h.hour] = {});
+    hr[h.bot] = (hr[h.bot] || 0) + 1;
+    agg.pages[h.path] = (agg.pages[h.path] || 0) + 1;
+    if(h.ms > (agg.last[h.bot] || 0)) agg.last[h.bot] = h.ms;
+  });
+  return agg;
+}
+function dayCounts(agg){
+  const c = {};
+  Object.values(agg.hours || {}).forEach(hr => Object.keys(hr).forEach(b => { c[b] = (c[b] || 0) + hr[b]; }));
+  return c;
+}
+async function inChunks(items, size, fn){
+  for(let i = 0; i < items.length; i += size) await Promise.all(items.slice(i, i + size).map(fn));
+}
+
 // Reads everything the admin's AI Visibility page needs. Kept separate so
 // the (unauthenticated, counts-only) health check below runs the exact same
 // code path as the real, gated request.
 async function gatherData(store, url){
-  const totals = (await store.get('totals', { type: 'json' })) || {};
-  const recent = (await store.get('recent', { type: 'json' })) || [];
-  // Last 30 days of per-bot daily counts (oldest first; days with no hits
-  // come back as {} so the chart still gets an evenly spaced axis), plus the
-  // all-time per-page tally. Optional ?from=YYYY-MM-DD&to=YYYY-MM-DD (the
-  // admin's export uses this); capped at 366 days per request.
+  const today = new Date().toISOString().slice(0, 10);
+  const liveFrom = addDaysIso(today, -1); // yesterday and today stay as raw records
+
+  // ---- new-format days: rollups + raw records ----
+  const newDays = new Map();       // date -> aggregate
+  const liveHits = [];             // parsed records of the still-raw days (for the feed)
+  const rollupDates = (await listKeys(store, 'rollup/')).map(k => k.slice(7));
+  await Promise.all(rollupDates.map(async d => {
+    const doc = await store.get('rollup/' + d, { type: 'json' });
+    if(doc) newDays.set(d, doc);
+  }));
+  const rawDates = (await listDirs(store, 'h/')).map(d => d.split('/')[1]).filter(Boolean);
+  await Promise.all(rawDates.filter(d => !newDays.has(d)).map(async d => {
+    const keys = await listKeys(store, 'h/' + d + '/');
+    const parsed = keys.map(parseKey).filter(Boolean);
+    const agg = aggregate(parsed);
+    newDays.set(d, agg);
+    if(d >= liveFrom){ parsed.forEach(h => liveHits.push(h)); return; }
+    try {
+      await store.setJSON('rollup/' + d, agg);
+      await inChunks(keys, 25, k => store.delete(k));
+    } catch (e) { /* stays raw; counted again next time, never lost */ }
+  }));
+
+  // ---- all-time totals + pages: frozen baseline + new-format days ----
+  const legacyTotals = (await store.get('totals', { type: 'json' })) || {};
+  const totals = {};
+  Object.keys(legacyTotals).forEach(k => { totals[k] = Object.assign({}, legacyTotals[k]); });
+  const pages = Object.assign({}, (await store.get('pages', { type: 'json' })) || {});
+  newDays.forEach(agg => {
+    const c = dayCounts(agg);
+    Object.keys(c).forEach(b => {
+      const t = totals[b] || (totals[b] = { label: LABELS[b] || b, count: 0, lastSeen: null });
+      t.count += c[b];
+    });
+    Object.keys(agg.last || {}).forEach(b => {
+      const iso = new Date(agg.last[b]).toISOString();
+      if(totals[b] && (!totals[b].lastSeen || iso > totals[b].lastSeen)) totals[b].lastSeen = iso;
+    });
+    Object.keys(agg.pages || {}).forEach(p => { pages[p] = (pages[p] || 0) + agg.pages[p]; });
+  });
+
+  // ---- per-day + per-hour counts for the requested window ----
+  // Last 30 days by default, or ?from=YYYY-MM-DD&to=YYYY-MM-DD (the admin's
+  // export uses this; capped at 370 days). Days with no hits come back as {}
+  // so the chart keeps an evenly spaced axis.
   const days = [];
   const isDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
   const fromQ = url.searchParams.get('from'), toQ = url.searchParams.get('to');
@@ -50,23 +147,44 @@ async function gatherData(store, url){
     let a = new Date(fromQ + 'T00:00:00Z'), b = new Date(toQ + 'T00:00:00Z');
     if(a > b){ const t = a; a = b; b = t; }
     const span = Math.min(370, Math.round((b - a) / 86400000) + 1);
-    for(let i = span - 1; i >= 0; i--){
-      days.push(new Date(b.getTime() - i * 86400000).toISOString().slice(0, 10));
-    }
+    for(let i = span - 1; i >= 0; i--) days.push(new Date(b.getTime() - i * 86400000).toISOString().slice(0, 10));
   } else {
-    for(let i = 29; i >= 0; i--){
-      days.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
-    }
+    for(let i = 29; i >= 0; i--) days.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
   }
-  const dailyValues = await Promise.all(days.map(d => Promise.resolve().then(() => store.get('daily/' + d, { type: 'json' })).catch(() => null)));
-  const daily = days.map((date, i) => ({ date, counts: dailyValues[i] || {} }));
-  const pages = (await store.get('pages', { type: 'json' })) || {};
-  // Per-hour (UTC) counters for the same days, so the admin can re-bucket
-  // them into the viewing device's own time zone. Days recorded before the
-  // hourly counters existed simply have no entry here.
-  const hourValues = await Promise.all(days.map(d => Promise.resolve().then(() => store.get('hours/' + d, { type: 'json' })).catch(() => null)));
-  const hours = {};
-  days.forEach((d, i) => { if(hourValues[i]) hours[d] = hourValues[i]; });
+  const legacyDays = days.filter(d => d <= LEGACY_LAST_DAY);
+  const legacyDaily = {}, legacyHours = {};
+  await inChunks(legacyDays, 20, async d => {
+    const [dd, hh] = await Promise.all([
+      Promise.resolve().then(() => store.get('daily/' + d, { type: 'json' })).catch(() => null),
+      Promise.resolve().then(() => store.get('hours/' + d, { type: 'json' })).catch(() => null)
+    ]);
+    if(dd) legacyDaily[d] = dd;
+    if(hh) legacyHours[d] = hh;
+  });
+  const daily = [], hours = {};
+  days.forEach(d => {
+    const counts = Object.assign({}, legacyDaily[d] || {});
+    const nd = newDays.get(d);
+    if(nd){ const c = dayCounts(nd); Object.keys(c).forEach(b => { counts[b] = (counts[b] || 0) + c[b]; }); }
+    daily.push({ date: d, counts });
+    const hr = {};
+    Object.keys(legacyHours[d] || {}).forEach(h => { hr[h] = Object.assign({}, legacyHours[d][h]); });
+    if(nd) Object.keys(nd.hours || {}).forEach(h => {
+      hr[h] = hr[h] || {};
+      Object.keys(nd.hours[h]).forEach(b => { hr[h][b] = (hr[h][b] || 0) + nd.hours[h][b]; });
+    });
+    if(Object.keys(hr).length) hours[d] = hr;
+  });
+
+  // ---- recent feed: newest raw records first, then the old capped feed ----
+  liveHits.sort((a, b) => b.ms - a.ms);
+  const fresh = await Promise.all(liveHits.slice(0, 100).map(async h => {
+    const v = await Promise.resolve().then(() => store.get(h.key, { type: 'json' })).catch(() => null);
+    return { bot: h.bot, label: (v && v.label) || LABELS[h.bot] || h.bot, path: (v && v.path) || h.path, referer: (v && v.referer) || null, time: new Date(h.ms).toISOString() };
+  }));
+  const legacyRecent = (await store.get('recent', { type: 'json' })) || [];
+  const recent = fresh.concat(legacyRecent).slice(0, 200);
+
   return { totals, recent, daily, pages, hours };
 }
 
