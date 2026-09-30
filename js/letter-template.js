@@ -64,16 +64,23 @@
   // window width, banners or widgets (printing the live page let Chrome
   // shrink everything to fit whatever was overflowing). Same look as the
   // .doc download: Times New Roman 12pt, 1.5 line-height, 1in margins plus
-  // 0.75in extra at the top for letterhead.
+  // 0.75in extra at the top for letterhead. The page margin is 0 (the 1in
+  // comes from a repeating table header/footer + cell padding) because
+  // browsers only print their URL/date/page-number lines inside a page
+  // margin, so a zero @page margin keeps those off the paper.
   function doPrint(){
     const lines = getLetterText().split('\n').map(line => escapeHtml(line) || '&nbsp;');
     const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(document.title)}</title>
 <style>
-@page{ size:letter; margin:1in; }
+@page{ size:letter; margin:0; }
 html,body{ margin:0; padding:0; background:#fff; }
-body{ padding-top:0.75in; font-family:"Times New Roman",Times,serif; font-size:12pt; line-height:1.5; color:#000; }
+body{ font-family:"Times New Roman",Times,serif; font-size:12pt; line-height:1.5; color:#000; }
+table{ width:100%; border-collapse:collapse; }
+td{ padding:0 1in; }
+thead td, tfoot td{ height:1in; padding:0; }
 p{ margin:0; white-space:pre-wrap; }
-</style></head><body>${lines.map(l => '<p>' + l + '</p>').join('')}</body></html>`;
+p:first-child{ padding-top:0.75in; }
+</style></head><body><table><thead><tr><td></td></tr></thead><tfoot><tr><td></td></tr></tfoot><tbody><tr><td>${lines.map(l => '<p>' + l + '</p>').join('')}</td></tr></tbody></table></body></html>`;
     const frame = document.createElement('iframe');
     frame.setAttribute('aria-hidden', 'true');
     frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
