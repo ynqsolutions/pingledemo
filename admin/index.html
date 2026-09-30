@@ -537,6 +537,8 @@
   @media (prefers-reduced-motion: reduce){ .ex-backdrop, .ex-modal{ animation:none; } }
 
   /* Live activity: scroll inside the card past 15 entries */
+  .ai-feed-day{ font:inherit; font-size:13px; font-weight:600; padding:7px 10px; border:1.5px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); cursor:pointer; max-width:100%; }
+  .ai-feed-day:hover{ border-color:var(--accent); }
   .ai-feed-scroll{ overflow-y:auto; overscroll-behavior:contain; margin-right:-8px; padding-right:8px; }
   .ai-feed-scroll.is-scroll{ scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent; }
   .ai-feed-hint{ margin-top:12px; padding-top:10px; border-top:1px solid var(--line); font-size:12px; color:var(--muted); text-align:center; transition:opacity .2s ease; }
@@ -2848,19 +2850,32 @@
     }
 
     var feedCard = el('div', { class: 'card' });
-    feedCard.appendChild(el('div', { class: 'ai-card-head' }, [
-      el('div', {}, [ el('h2', {}, [ 'Live activity', el('small', { text: aiCrawlers.recent.length + ' recorded' }) ]),
-        el('p', { text: 'A referer only ever appears on live lookups - training crawls have no question behind them.' }) ])
-    ]));
-    if(!aiCrawlers.recent.length){
-      feedCard.appendChild(el('div', { class: 'empty-state', text: 'Nothing yet.' }));
-    } else {
+    function renderFeed(){
+      feedCard.innerHTML = '';
+      var all = aiCrawlers.recent || [], dayCounts = {}, dayList = [];
+      all.forEach(function(r){ var d = isoDay(new Date(r.time)); if(!dayCounts[d]){ dayCounts[d] = 0; dayList.push(d); } dayCounts[d]++; });
+      dayList.sort().reverse();
+      var pick = aiCrawlers.feedDay || '';
+      if(pick && !dayCounts[pick]) pick = aiCrawlers.feedDay = '';
+      var list = pick ? all.filter(function(r){ return isoDay(new Date(r.time)) === pick; }) : all;
+      var sel = el('select', { class: 'ai-feed-day', 'aria-label': 'Filter live activity by day', onchange: function(e){ aiCrawlers.feedDay = e.target.value; renderFeed(); } },
+        [ el('option', { value: '', text: 'All days (' + all.length + ')' }) ].concat(dayList.map(function(d){ return el('option', { value: d, text: shortDate(d) + ' (' + dayCounts[d] + ')' }); })));
+      sel.value = pick;
+      feedCard.appendChild(el('div', { class: 'ai-card-head' }, [
+        el('div', {}, [ el('h2', {}, [ 'Live activity', el('small', { text: (pick ? list.length + ' on ' + shortDate(pick) : all.length + ' recorded') }) ]),
+          el('p', { text: 'A referer only ever appears on live lookups - training crawls have no question behind them.' }) ]),
+        all.length ? sel : null
+      ]));
+      if(!list.length){
+        feedCard.appendChild(el('div', { class: 'empty-state', text: 'Nothing yet.' }));
+        return;
+      }
       var feed = el('div', { class: 'ai-feed' });
-      aiCrawlers.recent.forEach(function(r, i){
+      list.forEach(function(r, i){
         var type = aiTypeOf(r.bot), fresh = (Date.now() - new Date(r.time).getTime()) < 3600000;
         var item = el('div', { class: 'ai-feed-item' }, [
           el('span', { class: 'ai-feed-dot' + (fresh ? ' is-fresh' : ''), style: 'background:' + AI_TYPES[type].hex }),
-          el('div', { class: 'ai-feed-top' }, [ el('b', { text: aiPlatform(r.label) }), el('span', { text: relTime(r.time) }) ]),
+          el('div', { class: 'ai-feed-top' }, [ el('b', { text: aiPlatform(r.label) }), el('span', { text: pick ? new Date(r.time).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : relTime(r.time) }) ]),
           el('div', { class: 'ai-feed-path', text: r.path }),
           el('span', { class: 'ai-type', text: AI_TYPES[type].label + ' · ' + r.bot }),
           r.referer ? el('div', { class: 'ai-ref', text: 'from ' + r.referer }) : null
@@ -2873,8 +2888,8 @@
       // running the full length while the outer box scrolls.
       var scroller = el('div', { class: 'ai-feed-scroll' }, [ feed ]);
       feedCard.appendChild(scroller);
-      if(aiCrawlers.recent.length > 15){
-        var hint = el('div', { class: 'ai-feed-hint', text: 'Scroll for ' + (aiCrawlers.recent.length - 15) + ' more' });
+      if(list.length > 15){
+        var hint = el('div', { class: 'ai-feed-hint', text: 'Scroll for ' + (list.length - 15) + ' more' });
         feedCard.appendChild(hint);
         requestAnimationFrame(function(){
           var cut = feed.children[14];
@@ -2885,6 +2900,7 @@
         });
       }
     }
+    renderFeed();
     root.appendChild(el('div', { class: 'ai-grid2', style: 'margin-top:20px;' }, [ pagesCard, feedCard ]));
   }
 
