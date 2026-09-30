@@ -433,6 +433,18 @@
   .ai-bar-val{ font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; }
   .ai-bar-track{ grid-column:1 / -1; height:8px; border-radius:999px; background:var(--field); overflow:hidden; }
   .ai-bar-fill{ height:100%; border-radius:999px; transform-origin:left; animation:aiGrowX .9s cubic-bezier(.2,.8,.2,1) both; }
+  .ai-views{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:14px; }
+  .ai-views .sp{ flex:1; }
+  .ai-hm-cap{ font-size:12px; color:var(--muted); margin:-2px 0 8px; }
+  .ai-hm-scroll{ overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; }
+  .ai-hm{ display:grid; gap:3px; align-items:center; min-width:540px; }
+  .ai-hm .hm-name{ font-size:13px; font-weight:600; padding-right:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:0; background:var(--card); z-index:1; }
+  .ai-hm .hm-h{ font-size:10.5px; color:var(--soft); text-align:center; font-variant-numeric:tabular-nums; }
+  .ai-hm .hm-h.is-mark{ color:var(--muted); font-weight:600; }
+  .ai-hm .hm-c{ height:26px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:600; font-variant-numeric:tabular-nums; background:var(--field); color:var(--soft); }
+  .ai-hm .hm-c.has{ background:color-mix(in srgb, var(--hc) calc(var(--a) * 100%), var(--field)); color:var(--ink); }
+  .ai-hm .hm-c.has.hi{ color:#fff; }
+  .ai-hm .hm-t{ font-size:12.5px; font-weight:700; text-align:right; font-variant-numeric:tabular-nums; padding-left:6px; }
   .ai-chips{ display:flex; flex-wrap:wrap; gap:6px; }
   .ai-chip{ appearance:none; border:1.5px solid var(--line); background:var(--card); color:var(--muted); font:inherit; font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:999px; cursor:pointer; transition:background .15s ease, color .15s ease, border-color .15s ease; }
   .ai-chip:hover{ border-color:var(--accent); color:var(--ink); }
@@ -2626,11 +2638,49 @@
       var chips = el('div', { class: 'ai-chips', role: 'group', 'aria-label': 'Filter by crawler type' }, [ ['all', 'All'], ['search', 'AI Search'], ['live', 'Live lookup'], ['training', 'Training'] ].map(function(c){
         return el('button', { type: 'button', class: 'ai-chip', 'aria-pressed': f === c[0] ? 'true' : 'false', text: c[1], onclick: function(){ aiCrawlers.platFilter = c[0]; renderPlat30(); } });
       }));
+      var pv = aiCrawlers.platView || 'daily';
+      var views = el('div', { class: 'ai-chips', role: 'group', 'aria-label': 'Layout' }, [ ['daily', 'Day by day'], ['total', 'Totals'] ].map(function(c){
+        return el('button', { type: 'button', class: 'ai-chip', 'aria-pressed': pv === c[0] ? 'true' : 'false', text: c[1], onclick: function(){ aiCrawlers.platView = c[0]; renderPlat30(); } });
+      }));
       plat30.appendChild(el('div', { class: 'ai-card-head' }, [
-        el('div', {}, [ el('h2', { text: 'Platforms · last 30 days' }), el('p', { text: fmt(total) + ' visit' + (total === 1 ? '' : 's') + (f === 'all' ? ' across all types' : ' of type ' + AI_TYPES[f].label) + ', by platform. Days follow this device’s time zone.' }) ]),
-        chips
+        el('div', {}, [ el('h2', { text: 'Platforms · last 30 days' }), el('p', { text: fmt(total) + ' visit' + (total === 1 ? '' : 's') + (f === 'all' ? ' across all types' : ' of type ' + AI_TYPES[f].label) + ', by platform' + (pv === 'daily' ? ' and day' : '') + '. Days follow this device’s time zone.' }) ]),
+        el('div', { style: 'display:flex;flex-direction:column;gap:8px;align-items:flex-end;' }, [ views, chips ])
       ]));
       if(!list.length){ plat30.appendChild(el('div', { class: 'empty-state', text: 'No visits of this type in the last 30 days.' })); return; }
+      if((aiCrawlers.platView || 'daily') === 'daily'){
+        // Day-by-day grid: one row per platform, one column per day. Cell
+        // shade = that day's visits (relative to the busiest cell shown).
+        var perDay = {}, gMax = 1;
+        daily.forEach(function(d, di){
+          Object.keys(d.counts || {}).forEach(function(k){
+            if(f !== 'all' && aiTypeOf(k) !== f) return;
+            var name = aiPlatform(aiLabelFor(k)); perDay[name] = perDay[name] || {};
+            perDay[name][di] = (perDay[name][di] || 0) + d.counts[k];
+            if(perDay[name][di] > gMax) gMax = perDay[name][di];
+          });
+        });
+        var hc = f === 'all' ? '#1F7A5C' : AI_TYPES[f].hex, N = daily.length;
+        var grid = el('div', { class: 'ai-hm', style: 'grid-template-columns:84px repeat(' + N + ', minmax(13px, 1fr)) 38px;--hc:' + hc + ';' });
+        grid.appendChild(el('div', { class: 'hm-h', text: '' }));
+        daily.forEach(function(d, di){
+          var dn = Number(d.date.slice(8));
+          grid.appendChild(el('div', { class: 'hm-h' + (dn === 1 ? ' is-mark' : ''), title: shortDate(d.date), text: String(dn) }));
+        });
+        grid.appendChild(el('div', { class: 'hm-h', text: 'Total' }));
+        list.slice(0, 12).forEach(function(p){
+          grid.appendChild(el('div', { class: 'hm-name', title: p.name, text: p.name }));
+          daily.forEach(function(d, di){
+            var n = (perDay[p.name] && perDay[p.name][di]) || 0, r = n / gMax;
+            var c = el('div', { class: 'hm-c' + (n ? ' has' : '') + (r > 0.55 ? ' hi' : ''), title: p.name + ' · ' + shortDate(d.date) + ': ' + n + ' visit' + (n === 1 ? '' : 's'), text: n ? String(n) : '' });
+            if(n) c.style.setProperty('--a', String(0.25 + 0.75 * r));
+            grid.appendChild(c);
+          });
+          grid.appendChild(el('div', { class: 'hm-t', text: fmt(p.count) }));
+        });
+        plat30.appendChild(el('div', { class: 'ai-hm-cap', text: shortDate(daily[0].date) + ' – ' + shortDate(daily[N - 1].date) + ' · each square is one day (number = visits); the bold header is the 1st of a month' }));
+        plat30.appendChild(el('div', { class: 'ai-hm-scroll' }, [ grid ]));
+        return;
+      }
       var wrap = el('div', { class: 'ai-bars' }), max = list[0].count;
       list.slice(0, 12).forEach(function(p, i){
         var track = el('div', { class: 'ai-bar-track seg' });
