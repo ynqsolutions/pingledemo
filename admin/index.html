@@ -2600,7 +2600,7 @@
     ]);
 
     var platCard = el('div', { class: 'card' });
-    platCard.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'By platform' }), el('p', { text: 'Bar color = the type most of its visits were.' }) ]) ]));
+    platCard.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'By platform · all time' }), el('p', { text: 'Every visit since logging began, not just the last 30 days. Bar color = the type most of its visits were.' }) ]) ]));
     if(!platforms.length){
       platCard.appendChild(el('div', { class: 'empty-state', text: 'No platforms yet.' }));
     } else {
