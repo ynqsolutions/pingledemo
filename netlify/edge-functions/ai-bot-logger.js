@@ -82,7 +82,14 @@ export default async (req, context) => {
     return out;
   }
 
-  if(match){
+  if(!match) return context.next();
+
+  // Fetch the page first so junk addresses (spam links that resolve to the
+  // site's 404 page) can be skipped instead of cluttering the log.
+  const response = await context.next();
+  if(response.status === 404) return response;
+
+  {
     // The Referer header only ever matters for the "live lookup" agents
     // (ChatGPT-User, Perplexity-User, Claude-Web/User, OAI-SearchBot) -
     // those are triggered by an actual person's question right now, and
@@ -105,7 +112,7 @@ export default async (req, context) => {
     else await pending;
   }
 
-  return context.next();
+  return response;
 };
 
 async function recordHit(match, pathname, userAgent, referer){
