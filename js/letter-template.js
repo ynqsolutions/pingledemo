@@ -59,8 +59,33 @@
     return div.innerHTML;
   }
 
+  // Prints from a hidden iframe holding only the letter, with its own
+  // fixed page styles, so the result never depends on the site's layout,
+  // window width, banners or widgets (printing the live page let Chrome
+  // shrink everything to fit whatever was overflowing). Same look as the
+  // .doc download: Times New Roman 12pt, 1.5 line-height, 1in margins plus
+  // 0.75in extra at the top for letterhead.
   function doPrint(){
-    window.print();
+    const lines = getLetterText().split('\n').map(line => escapeHtml(line) || '&nbsp;');
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(document.title)}</title>
+<style>
+@page{ size:letter; margin:1in; }
+html,body{ margin:0; padding:0; background:#fff; }
+body{ padding-top:0.75in; font-family:"Times New Roman",Times,serif; font-size:12pt; line-height:1.5; color:#000; }
+p{ margin:0; white-space:pre-wrap; }
+</style></head><body>${lines.map(l => '<p>' + l + '</p>').join('')}</body></html>`;
+    const frame = document.createElement('iframe');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+    document.body.appendChild(frame);
+    const doc = frame.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+    const cleanup = () => setTimeout(() => frame.remove(), 500);
+    frame.contentWindow.addEventListener('afterprint', cleanup);
+    setTimeout(() => {
+      try { frame.contentWindow.focus(); frame.contentWindow.print(); }
+      catch (e) { frame.remove(); window.print(); }
+    }, 100);
   }
 
   const copyBtn = document.getElementById('tplCopyBtn');
