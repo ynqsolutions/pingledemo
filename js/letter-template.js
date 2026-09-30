@@ -201,9 +201,25 @@ p:first-child{ padding-top:0.75in; }
       if(ok) done();
       else alert('Could not copy automatically. Select the letter text on the page and copy it manually instead.');
     };
-    if(navigator.clipboard && window.isSecureContext){
-      navigator.clipboard.writeText(text).then(done).catch(legacy);
-    } else legacy();
+    // Selection + execCommand first: it runs synchronously inside the tap
+    // and copies exactly what a manual select-and-copy would, which is the
+    // most dependable path on iOS Safari. The async clipboard API is only
+    // the backup.
+    const viaSelection = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px;';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      ta.remove();
+      return ok;
+    };
+    if(viaSelection()) done();
+    else if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done).catch(legacy);
+    else legacy();
   }
 
   function doDownload(){
