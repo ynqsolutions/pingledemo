@@ -11,7 +11,8 @@ import { getStore } from '@netlify/blobs';
 
 const KEY = '208b14e897239cad329157064d621867';
 const HOST = 'www.pinglelaw.com';
-const COOLDOWN_MS = 30 * 60 * 1000; // no more than one submission per 30 minutes
+const COOLDOWN_MS = 30 * 60 * 1000;  // whole-site submission: at most one per 30 minutes
+const TARGETED_COOLDOWN_MS = 5 * 60 * 1000; // a specific list of pages: at most one per 5 minutes
 
 async function verifyUser(req){
   const auth = req.headers.get('authorization');
@@ -38,8 +39,14 @@ export default async (req) => {
 
   if(req.method !== 'POST') return Response.json({ last, cooldownMinutes: COOLDOWN_MS / 60000 }, { headers: { 'cache-control': 'no-store' } });
 
-  if(last && last.ok && last.time && Date.now() - new Date(last.time).getTime() < COOLDOWN_MS){
-    const wait = Math.ceil((COOLDOWN_MS - (Date.now() - new Date(last.time).getTime())) / 60000);
+  // Optional body { urls: [...] } sends just those pages (used by the admin's
+  // "Mark updated & notify" button); no body sends the whole sitemap.
+  let only = null;
+  try { const b = await req.json(); if(b && Array.isArray(b.urls)) only = b.urls.map(String); } catch (e) { /* no body */ }
+  const cooldown = only ? TARGETED_COOLDOWN_MS : COOLDOWN_MS;
+
+  if(last && last.ok && last.time && Date.now() - new Date(last.time).getTime() < cooldown){
+    const wait = Math.ceil((cooldown - (Date.now() - new Date(last.time).getTime())) / 60000);
     return Response.json({ error: 'A submission was sent recently. Try again in about ' + wait + ' minute' + (wait === 1 ? '' : 's') + '.', last }, { status: 429 });
   }
 
@@ -49,10 +56,16 @@ export default async (req) => {
     const keyCheck = await fetch(keyLocation, { cache: 'no-store' });
     if(!keyCheck.ok || (await keyCheck.text()).trim() !== KEY) return Response.json({ error: 'The IndexNow key file is not live yet (' + keyLocation + '). Wait for the latest deploy to finish and try again.' }, { status: 503 });
 
-    const sm = await fetch('https://' + HOST + '/sitemap.xml', { cache: 'no-store' });
-    if(!sm.ok) return Response.json({ error: 'Could not read sitemap.xml (' + sm.status + ').' }, { status: 502 });
-    const urls = [...(await sm.text()).matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map(m => m[1]).filter(u => new URL(u).hostname === HOST).slice(0, 10000);
-    if(!urls.length) return Response.json({ error: 'The sitemap listed no URLs.' }, { status: 502 });
+    let urls;
+    if(only){
+      urls = only.filter(u => { try { return new URL(u).hostname === HOST; } catch (e) { return false; } }).slice(0, 10000);
+      if(!urls.length) return Response.json({ error: 'None of the pages given belong to ' + HOST + '.' }, { status: 400 });
+    } else {
+      const sm = await fetch('https://' + HOST + '/sitemap.xml', { cache: 'no-store' });
+      if(!sm.ok) return Response.json({ error: 'Could not read sitemap.xml (' + sm.status + ').' }, { status: 502 });
+      urls = [...(await sm.text()).matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map(m => m[1]).filter(u => new URL(u).hostname === HOST).slice(0, 10000);
+      if(!urls.length) return Response.json({ error: 'The sitemap listed no URLs.' }, { status: 502 });
+    }
 
     const res = await fetch('https://api.indexnow.org/indexnow', {
       method: 'POST',

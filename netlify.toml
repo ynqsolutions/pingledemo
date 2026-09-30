@@ -15,11 +15,14 @@
   #    Netlify build can't write back to git, so this build-time run alone
   #    can't make the archive persist between deploys). See
   #    generate_rss_page.py for the feed list and keyword filter.
-  # 4. Regenerates sitemap.xml from whatever .html pages currently exist in
+  # 4. Adds a visible "Last updated" line + dateModified metadata to every
+  #    indexable page from content/page-dates.json (edited in the admin under
+  #    AI Visibility > Page dates). See generate_page_dates.py.
+  # 5. Regenerates sitemap.xml from whatever .html pages currently exist in
   #    the repo (including the just-generated posts/rss page), so it always
   #    reflects reality without hand-editing. See generate_sitemap.py for
   #    the rules (noindex pages excluded, etc).
-  command = "python3 generate_blog_posts.py && python3 generate_cms_sections.py && python3 generate_rss_page.py && python3 generate_sitemap.py"
+  command = "python3 generate_blog_posts.py && python3 generate_cms_sections.py && python3 generate_rss_page.py && python3 generate_page_dates.py && python3 generate_sitemap.py"
 
 # ---------------------------------------------------------------------------
 # Security headers (applied to every route). Netlify serves this site from

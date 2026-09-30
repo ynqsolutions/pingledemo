@@ -8,11 +8,13 @@ exist, no manual editing required.
 Rules:
 - Any page with <meta name="robots" content="noindex..."> is excluded
   (matches the noindex convention already used for legal/utility pages).
-- <lastmod> is the file's own last-modified date on disk.
+- <lastmod> is the page's real last-updated date from content/page-dates.json
+  (falls back to the file's modified date on disk).
 - Priority/changefreq are assigned by a simple heuristic based on the
   page's role (homepage > main nav > city/practice-area pages > blog posts).
 """
 import glob
+import json
 import os
 import re
 import sys
@@ -71,7 +73,19 @@ def url_path(filename: str) -> str:
     return f"/{filename}"
 
 
+def load_page_dates() -> dict:
+    """Real 'last updated' dates (content/page-dates.json, edited from the admin)."""
+    try:
+        with open("content/page-dates.json", "r", encoding="utf-8") as f:
+            pages = json.load(f).get("pages", {})
+            return pages if isinstance(pages, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
 def build_sitemap() -> str:
+    page_dates = load_page_dates()
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     entries = []
     for filepath in sorted(glob.glob("*.html")):
         filename = os.path.basename(filepath)
@@ -85,8 +99,13 @@ def build_sitemap() -> str:
             continue
 
         priority, changefreq = classify(filename)
-        mtime = os.path.getmtime(filepath)
-        lastmod = datetime.fromtimestamp(mtime, tz=timezone.utc).strftime("%Y-%m-%d")
+        if filename == "rss.html" or filename.startswith("rss-page-"):
+            lastmod = today  # rebuilt daily from live feeds
+        elif filename in page_dates:
+            lastmod = page_dates[filename]
+        else:
+            mtime = os.path.getmtime(filepath)
+            lastmod = datetime.fromtimestamp(mtime, tz=timezone.utc).strftime("%Y-%m-%d")
 
         entries.append(
             "  <url>\n"

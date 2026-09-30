@@ -6036,3 +6036,15 @@ p.article-disclaimer{
   .calc-ot-stats{ grid-template-columns:1fr; }
   .calc-day-row{ grid-template-columns:36px 1fr 46px; gap:10px; }
 }
+
+/* ===== "Last updated" line added at build time by generate_page_dates.py ===== */
+.page-updated{
+  margin:0;
+  padding:18px 24px 22px;
+  text-align:center;
+  font-size:13px;
+  color:var(--ink-soft);
+  background:var(--paper);
+  border-top:1px solid var(--paper-line);
+}
+@media print{ .page-updated{ display:none !important; } }

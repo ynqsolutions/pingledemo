@@ -538,6 +538,14 @@
 
   /* Live activity: scroll inside the card past 15 entries */
   .in-status{ margin:0; padding:10px 14px; border-radius:var(--r-inner); background:var(--field); font-size:13px; color:var(--muted); } .in-status.is-ok{ background:var(--accent-50); color:var(--accent); font-weight:600; } .in-status.is-bad{ background:#FDECEC; color:#B42318; font-weight:600; }
+  .pd-search{ font:inherit; font-size:13px; padding:7px 12px; border:1.5px solid var(--line); border-radius:999px; background:var(--card); color:var(--ink); min-width:240px; flex:1; max-width:340px; }
+  .pd-selinfo{ font-size:12.5px; color:var(--muted); font-weight:600; }
+  .pd-list{ max-height:300px; overflow-y:auto; border:1px solid var(--line); border-radius:var(--r-inner); margin-top:2px; }
+  .pd-row{ display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:1px solid var(--line); cursor:pointer; font-size:13px; }
+  .pd-row:hover{ background:var(--field); } .pd-row:last-child{ border-bottom:none; }
+  .pd-row input{ accent-color:var(--accent); }
+  .pd-file{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; }
+  .pd-date{ color:var(--muted); font-size:12px; white-space:nowrap; font-variant-numeric:tabular-nums; }
   .in-note{ margin:10px 0 0; font-size:12px; color:var(--soft); }
   .ai-feed-filter{ gap:10px; margin-bottom:12px; }
   .ai-feed-date{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); font-weight:600; }
@@ -2942,6 +2950,102 @@
     inCard.appendChild(inStatus);
     inCard.appendChild(el('p', { class: 'in-note', text: 'Use it after publishing or editing pages. It can be sent once every 30 minutes; it asks search engines to look, but doesn’t guarantee indexing.' }));
     root.appendChild(inCard);
+
+    // ---- Page dates: each page shows a real "Last updated" date (and sends it
+    // to search engines). Pick the pages you changed, and one click records
+    // today's date, waits for the site to redeploy, then tells Bing about just
+    // those pages. ----
+    var pdCard = el('div', { class: 'card', style: 'margin-top:20px;' });
+    var pd = { pages: null, sha: null, urls: null, sel: {}, filter: '', busy: false };
+    var pdList = el('div', { class: 'pd-list' }), pdMsg = el('p', { class: 'in-status', text: 'Loading pages…' });
+    var pdSearch = el('input', { type: 'search', placeholder: 'Filter pages (e.g. about, overtime, -es)', 'aria-label': 'Filter pages', class: 'pd-search' });
+    var pdBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Mark updated & notify search engines' });
+    var pdSelInfo = el('span', { class: 'pd-selinfo' });
+    function pdSelected(){ return Object.keys(pd.sel).filter(function(k){ return pd.sel[k]; }); }
+    function pdFiltered(){
+      var q = pd.filter.trim().toLowerCase();
+      return Object.keys(pd.pages).filter(function(f){ return (!pd.urls || pd.urls[f]) && (!q || f.toLowerCase().indexOf(q) !== -1); })
+        .sort(function(a, b){ return pd.pages[a] < pd.pages[b] ? 1 : pd.pages[a] > pd.pages[b] ? -1 : a < b ? -1 : 1; });
+    }
+    function pdRender(){
+      pdList.innerHTML = '';
+      if(!pd.pages){ return; }
+      var rows = pdFiltered();
+      rows.slice(0, 300).forEach(function(f){
+        var cb = el('input', { type: 'checkbox', checked: !!pd.sel[f], onchange: function(e){ pd.sel[f] = e.target.checked; pdRender(); } });
+        pdList.appendChild(el('label', { class: 'pd-row' }, [ cb, el('span', { class: 'pd-file', text: f }), el('span', { class: 'pd-date', text: shortDate(pd.pages[f]) + ', ' + pd.pages[f].slice(0, 4) }) ]));
+      });
+      if(!rows.length) pdList.appendChild(el('div', { class: 'empty-state', text: 'No pages match.' }));
+      if(rows.length > 300) pdList.appendChild(el('div', { class: 'ai-feed-hint', text: 'Showing 300 of ' + rows.length + ' - narrow the filter to see the rest.' }));
+      var n = pdSelected().length;
+      pdSelInfo.textContent = n ? n + ' page' + (n === 1 ? '' : 's') + ' selected' : 'Nothing selected';
+      pdBtn.disabled = pd.busy || !n;
+    }
+    pdSearch.addEventListener('input', function(){ pd.filter = pdSearch.value; pdRender(); });
+    function pdSay(text, kind){ pdMsg.className = 'in-status' + (kind ? ' is-' + kind : ''); pdMsg.textContent = text; }
+    function pdLoad(){
+      return Promise.all([
+        repoGetFile('content/page-dates.json'),
+        fetch('/sitemap.xml', { cache: 'no-store' }).then(function(r){ return r.ok ? r.text() : ''; }).catch(function(){ return ''; })
+      ]).then(function(res){
+        var file = res[0];
+        if(!file) throw new Error('content/page-dates.json was not found in the repository.');
+        pd.sha = file.sha; pd.pages = (JSON.parse(b64ToUtf8(file.content)).pages) || {};
+        var locs = {}; String(res[1]).replace(/<loc>\s*([^<\s]+)\s*<\/loc>/g, function(_, u){ var m = u.match(/\/([^\/]*)$/); locs[(m && m[1]) || 'index.html' || ''] = 1; if(u.replace(/\/$/, '').split('/').length <= 3) locs['index.html'] = 1; return ''; });
+        pd.urls = Object.keys(locs).length > 20 ? locs : null;
+        pdSay('Tick the pages you edited, then press the button. ' + Object.keys(pd.pages).length + ' pages have dates.');
+        pdRender();
+      }).catch(function(e){ pdSay(e.message || 'Could not load page dates.', 'bad'); });
+    }
+    pdBtn.addEventListener('click', function(){
+      var picked = pdSelected(); if(!picked.length || pd.busy) return;
+      var today = isoDay(new Date());
+      pd.busy = true; pdBtn.disabled = true; pdBtn.textContent = 'Working…';
+      pdSay('Step 1 of 3: recording today’s date on ' + picked.length + ' page' + (picked.length === 1 ? '' : 's') + '…');
+      repoGetFile('content/page-dates.json').then(function(file){
+        var pages = JSON.parse(b64ToUtf8(file.content)).pages || {};
+        picked.forEach(function(f){ pages[f] = today; });
+        var sorted = {}; Object.keys(pages).sort().forEach(function(k){ sorted[k] = pages[k]; });
+        return repoPutFile('content/page-dates.json', utf8ToB64(JSON.stringify({ pages: sorted }, null, 1) + '\n'), 'Mark ' + picked.length + ' page(s) updated via admin dashboard', file.sha);
+      }).then(function(){
+        picked.forEach(function(f){ pd.pages[f] = today; });
+        pdRender();
+        pdSay('Step 2 of 3: saved. Waiting for the site to redeploy (usually 1-2 minutes)…');
+        var probe = picked[0], tries = 0;
+        return new Promise(function(resolve){
+          (function poll(){
+            fetch('/content/page-dates.json?t=' + Date.now(), { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }).then(function(j){
+              if(j && j.pages && j.pages[probe] === today) return resolve(true);
+              if(++tries > 40) return resolve(false);
+              setTimeout(poll, 6000);
+            });
+          })();
+        });
+      }).then(function(live){
+        if(!live){ pdSay('Saved, but the site hasn’t finished redeploying yet. Give it a few minutes, then use “Notify Bing now” above.', 'bad'); return null; }
+        pdSay('Step 3 of 3: the site is live. Notifying search engines…');
+        var urls = picked.map(function(f){ return 'https://www.pinglelaw.com/' + (f === 'index.html' ? '' : f); });
+        return user_jwt().then(function(token){ return fetch('/.netlify/functions/indexnow', { method: 'POST', cache: 'no-store', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ urls: urls }) }); })
+          .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(b){ if(!r.ok) throw Object.assign(new Error(b.error || (b.last && b.last.message) || ('Request failed (' + r.status + ')')), { body: b }); return b; }); })
+          .then(function(b){ inShow(b.last); pdSay('✓ Done. ' + picked.length + ' page' + (picked.length === 1 ? '' : 's') + ' dated ' + today + ' and search engines notified.', 'ok'); toast('Dates updated and search engines notified.'); pd.sel = {}; pdRender(); });
+      }).catch(function(e){ pdSay(e.message || 'Something went wrong.', 'bad'); toast(e.message || 'Something went wrong.', true); })
+        .then(function(){ pd.busy = false; pdBtn.textContent = 'Mark updated & notify search engines'; pdRender(); });
+    });
+    function user_jwt(){ var u = currentUser(); return u ? u.jwt() : Promise.reject(new Error('Sign in first.')); }
+    pdCard.appendChild(el('div', { class: 'ai-card-head' }, [
+      el('div', {}, [ el('h2', { text: 'Page dates' }),
+        el('p', { text: 'Every page shows a “Last updated” date and sends it to search engines and AI tools, which use it to judge freshness. Tick the pages you edited; one click records today’s date, waits for the site to redeploy, then tells Bing about just those pages.' }) ])
+    ]));
+    pdCard.appendChild(el('div', { class: 'ai-views' }, [ pdSearch, el('span', { class: 'sp' }), pdSelInfo,
+      el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Select shown', onclick: function(){ pdFiltered().slice(0, 300).forEach(function(f){ pd.sel[f] = true; }); pdRender(); } }),
+      el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Clear', onclick: function(){ pd.sel = {}; pdRender(); } }) ]));
+    pdCard.appendChild(pdList);
+    pdCard.appendChild(el('div', { style: 'display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;' }, [ pdBtn ]));
+    pdCard.appendChild(pdMsg);
+    pdCard.appendChild(el('p', { class: 'in-note', text: 'Only tick pages whose content really changed; the date is a claim to search engines. Blog posts added in the admin use their own post date until you mark them here.' }));
+    root.appendChild(pdCard);
+    pdBtn.disabled = true;
+    pdLoad();
   }
 
   // ---- Routing (hash) ----
