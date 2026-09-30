@@ -537,6 +537,8 @@
   @media (prefers-reduced-motion: reduce){ .ex-backdrop, .ex-modal{ animation:none; } }
 
   /* Live activity: scroll inside the card past 15 entries */
+  .in-status{ margin:0; padding:10px 14px; border-radius:var(--r-inner); background:var(--field); font-size:13px; color:var(--muted); } .in-status.is-ok{ background:var(--accent-50); color:var(--accent); font-weight:600; } .in-status.is-bad{ background:#FDECEC; color:#B42318; font-weight:600; }
+  .in-note{ margin:10px 0 0; font-size:12px; color:var(--soft); }
   .ai-feed-filter{ gap:10px; margin-bottom:12px; }
   .ai-feed-date{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); font-weight:600; }
   .ai-feed-date input{ font:inherit; font-size:13px; padding:6px 8px; border:1.5px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); }
@@ -2908,6 +2910,38 @@
     }
     renderFeed();
     root.appendChild(el('div', { class: 'ai-grid2', style: 'margin-top:20px;' }, [ pagesCard, feedCard ]));
+
+    // ---- Tell search engines (IndexNow): one button that sends every page in
+    // the sitemap to Bing and other IndexNow engines, so new or changed pages
+    // get re-read promptly. Bing's index also feeds ChatGPT search / Copilot. ----
+    var inCard = el('div', { class: 'card', style: 'margin-top:20px;' });
+    var inStatus = el('p', { class: 'in-status', text: 'Checking the last submission…' });
+    var inBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Notify Bing now' });
+    function inShow(last){
+      if(!last){ inStatus.className = 'in-status'; inStatus.textContent = 'Nothing has been sent yet.'; return; }
+      inStatus.className = 'in-status ' + (last.ok ? 'is-ok' : 'is-bad');
+      inStatus.textContent = (last.ok ? '✓ ' : '✕ ') + 'Last sent ' + relTime(last.time) + ' (' + new Date(last.time).toLocaleString() + ') · ' + fmt(last.count) + ' pages · ' + last.message;
+    }
+    function inCall(method){
+      var user = currentUser(); if(!user) return Promise.reject(new Error('Sign in first.'));
+      return user.jwt().then(function(token){ return fetch('/.netlify/functions/indexnow', { method: method, cache: 'no-store', headers: { Authorization: 'Bearer ' + token } }); })
+        .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(b){ if(!r.ok) throw Object.assign(new Error(b.error || (b.last && b.last.message) || ('Request failed (' + r.status + ')')), { body: b }); return b; }); });
+    }
+    inCall('GET').then(function(b){ inShow(b.last); }).catch(function(e){ inStatus.className = 'in-status is-bad'; inStatus.textContent = e.message; });
+    inBtn.addEventListener('click', function(){
+      inBtn.disabled = true; inBtn.textContent = 'Sending…';
+      inCall('POST').then(function(b){ inShow(b.last); toast('Search engines notified (' + fmt(b.last.count) + ' pages).'); })
+        .catch(function(e){ if(e.body && e.body.last) inShow(e.body.last); else { inStatus.className = 'in-status is-bad'; inStatus.textContent = e.message; } toast(e.message, true); })
+        .then(function(){ inBtn.disabled = false; inBtn.textContent = 'Notify Bing now'; });
+    });
+    inCard.appendChild(el('div', { class: 'ai-card-head' }, [
+      el('div', {}, [ el('h2', { text: 'Tell search engines about updates' }),
+        el('p', { text: 'Sends every page in your sitemap to Bing and other IndexNow search engines so new or changed pages are re-read quickly. Bing’s index also feeds ChatGPT search and Copilot. Google isn’t part of IndexNow.' }) ]),
+      inBtn
+    ]));
+    inCard.appendChild(inStatus);
+    inCard.appendChild(el('p', { class: 'in-note', text: 'Use it after publishing or editing pages. It can be sent once every 30 minutes; it asks search engines to look, but doesn’t guarantee indexing.' }));
+    root.appendChild(inCard);
   }
 
   // ---- Routing (hash) ----
