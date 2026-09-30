@@ -495,6 +495,13 @@
   /* Dashboard hero: quick actions + live site status */
   .vhero.is-dash{ grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); align-items:stretch; }
   .vhero.is-dash h1{ font-size:26px; margin-bottom:0; }
+  .rem-card{ margin:0 0 20px; border-left:4px solid #B38A3C; }
+  .rem-card h2 small{ display:inline-block; margin-left:8px; font-size:11.5px; background:#B38A3C; color:#fff; border-radius:999px; padding:1px 8px; vertical-align:3px; }
+  .rem-list{ display:flex; flex-direction:column; gap:10px; }
+  .rem{ display:flex; align-items:center; gap:14px; padding:12px 14px; border-radius:var(--r-inner); background:#FBF6EC; }
+  .rem-ico{ flex:none; width:26px; height:26px; border-radius:50%; background:#B38A3C; color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:14px; }
+  .rem-body{ flex:1; min-width:0; } .rem-body b{ font-size:14px; } .rem-body p{ margin:2px 0 0; font-size:12.5px; color:var(--muted); }
+  @media (max-width:600px){ .rem{ flex-wrap:wrap; } .rem .btn{ margin-left:40px; } }
   .dash-hero{ grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) !important; align-items:center; }
   .dash-sub{ margin:6px 0 0; color:rgba(255,255,255,.72); font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .dash-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
@@ -891,6 +898,7 @@
             <div class="stat-sub">Settlement tiles on the Results page</div>
           </a>
         </div>
+        <div id="ovReminders"></div>
         <div class="card" style="margin:0;">
           <div class="ai-card-head"><div><h2 style="margin:0;">Recent activity</h2><p>Latest content changes saved to the site.</p></div></div>
           <div class="act-feed" id="ovActivity"><div class="loading" style="padding:12px;">Loading…</div></div>
@@ -1227,7 +1235,48 @@
     chart: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'
   };
+
+  // ---- Reminders: nudge when something hasn't been updated in 14+ days ----
+  var REMIND_DAYS = 14;
+  function daysSince(iso){ return iso ? Math.floor((Date.now() - new Date(String(iso).length === 10 ? iso + 'T12:00:00' : iso).getTime()) / 86400000) : null; }
+  function renderReminders(){
+    var host = $('#ovReminders'); if(!host) return;
+    host.innerHTML = '';
+    var items = [];
+    function add(age, title, text, href, cta){ if(age != null && age >= REMIND_DAYS) items.push({ age: age, title: title, text: text, href: href, cta: cta }); }
+    if(overview.pageDates){
+      var dates = overview.pageDates, all = Object.keys(dates), blogs = all.filter(function(f){ return /^blog-/.test(f); });
+      var newest = function(list){ return list.reduce(function(m, f){ return dates[f] > m ? dates[f] : m; }, ''); };
+      var nb = newest(blogs), np = newest(all.filter(function(f){ return !/^blog-/.test(f); }));
+      add(daysSince(nb), 'No new blog post in ' + daysSince(nb) + ' days', 'Fresh articles are one of the strongest signals for search engines and AI tools. Last post: ' + shortDate(nb) + '.', '#blog/new', 'Write a post');
+      add(daysSince(np), 'Site pages last updated ' + daysSince(np) + ' days ago', 'Review a key page (home, practice areas, FAQ), refresh it, and mark it updated so search engines see the new date.', '#search-updates', 'Mark pages updated');
+    }
+    if(overview.lastChange) add(daysSince(overview.lastChange.when), 'No admin changes in ' + daysSince(overview.lastChange.when) + ' days', 'Consider refreshing the banner or adding a recent result.', '#banner', 'Update the banner');
+    if(overview.indexnowLast !== undefined){
+      var ia = overview.indexnowLast && overview.indexnowLast.ok ? daysSince(overview.indexnowLast.time) : 999;
+      add(ia, ia === 999 ? 'Bing hasn’t been notified yet' : 'Bing last notified ' + ia + ' days ago', 'Send your pages to Bing (feeds ChatGPT search and Copilot) so recent changes are picked up.', '#search-updates', 'Notify Bing');
+    }
+    if(!items.length) return;
+    items.sort(function(a, b){ return b.age - a.age; });
+    host.appendChild(el('div', { class: 'card rem-card' }, [
+      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { style: 'margin:0;' }, [ 'Reminders', el('small', { text: items.length + '' }) ]), el('p', { text: 'Things that haven’t been updated in ' + REMIND_DAYS + '+ days.' }) ]) ]),
+      el('div', { class: 'rem-list' }, items.map(function(it){
+        return el('div', { class: 'rem' }, [
+          el('span', { class: 'rem-ico', text: '!' }),
+          el('div', { class: 'rem-body' }, [ el('b', { text: it.title }), el('p', { text: it.text }) ]),
+          el('a', { class: 'btn btn-ghost btn-sm', href: it.href, text: it.cta })
+        ]);
+      }))
+    ]));
+  }
+  function loadReminders(){
+    fetch('/content/page-dates.json', { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ overview.pageDates = d && d.pages ? d.pages : null; renderReminders(); }).catch(function(){});
+    var u = currentUser(); if(!u) return;
+    u.jwt().then(function(t){ return fetch('/.netlify/functions/indexnow', { cache: 'no-store', headers: { Authorization: 'Bearer ' + t } }); })
+      .then(function(r){ return r.ok ? r.json() : null; }).then(function(b){ if(b){ overview.indexnowLast = b.last || null; renderReminders(); } }).catch(function(){});
+  }
   function renderOverviewHero(){
+    renderReminders();
     var host = $('#overviewHero'); if(!host) return;
     host.innerHTML = '';
     var h = new Date().getHours(), hello = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
@@ -3042,7 +3091,7 @@
       route.enterTimer = setTimeout(function(){ document.querySelectorAll('.view.is-entering').forEach(function(v){ v.classList.remove('is-entering'); }); }, 1600);
     }
     document.body.setAttribute('data-view', key);
-    if(key === 'overview'){ loadOverviewActivity(); loadOverviewAi(); }
+    if(key === 'overview'){ loadOverviewActivity(); loadOverviewAi(); loadReminders(); }
     document.querySelectorAll('#nav a').forEach(function(a){ a.classList.toggle('is-current', a.getAttribute('data-view') === key); });
     $('#crumbCurrent').textContent = VIEW_TITLES[key];
     searchInput.value = '';
