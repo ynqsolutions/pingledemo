@@ -538,6 +538,8 @@
 
   /* Live activity: scroll inside the card past 15 entries */
   .in-status{ margin:0; padding:10px 14px; border-radius:var(--r-inner); background:var(--field); font-size:13px; color:var(--muted); } .in-status.is-ok{ background:var(--accent-50); color:var(--accent); font-weight:600; } .in-status.is-bad{ background:#FDECEC; color:#B42318; font-weight:600; }
+  .pd-datelabel{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--muted); font-weight:600; }
+  .pd-date-in{ font:inherit; font-size:13px; padding:6px 8px; border:1.5px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); }
   .pd-search{ font:inherit; font-size:13px; padding:7px 12px; border:1.5px solid var(--line); border-radius:999px; background:var(--card); color:var(--ink); min-width:240px; flex:1; max-width:340px; }
   .pd-selinfo{ font-size:12.5px; color:var(--muted); font-weight:600; }
   .pd-list{ max-height:300px; overflow-y:auto; border:1px solid var(--line); border-radius:var(--r-inner); margin-top:2px; }
@@ -794,6 +796,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h.01M16 16h.01"/></svg>
         AI Visibility
       </a>
+      <a href="#search-updates" data-view="search-updates">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/><path d="M12 8v4l3 2"/></svg>
+        Search Updates
+      </a>
     </nav>
     <div class="sidebar-foot">
       <a href="/" target="_blank" rel="noopener">
@@ -929,6 +935,7 @@
       <section class="view" data-view="team" data-editor="team"></section>
       <section class="view" data-view="blog" id="blogView"></section>
       <section class="view" data-view="ai-crawlers" id="aiCrawlersView"></section>
+      <section class="view" data-view="search-updates" id="searchUpdatesView"></section>
 
     </div>
   </div>
@@ -1260,7 +1267,7 @@
       { href: '#settlements', ico: 'dollar', color: '#c98500', label: 'Add a result', hint: 'New settlement tile' },
       { href: '#team', ico: 'users', color: '#3987e5', label: 'Edit the team', hint: 'Photos, titles, and bios' },
       { href: '#ai-crawlers', ico: 'chart', color: '#9085e9', label: 'AI Visibility', hint: 'Traffic from AI + report' },
-      { href: '/', ico: 'globe', color: '#199e70', label: 'View live site', hint: 'Opens pinglelaw.com', external: true }
+      { href: '#search-updates', ico: 'globe', color: '#199e70', label: 'Search updates', hint: 'Notify Bing + page dates' }
     ];
     var grid = el('div', { class: 'qa-grid' });
     actions.forEach(function(a, i){
@@ -2630,6 +2637,147 @@
     });
   }
 
+  // ---- Search Updates page: tell search engines about changes ----
+  function renderSearchUpdates(){
+    var root = $('#searchUpdatesView'); if(!root || root.getAttribute('data-ready')) return;
+    root.setAttribute('data-ready', '1'); root.innerHTML = ''; root.classList.add('ai-root');
+    root.appendChild(el('div', { class: 'page-head' }, [
+      el('div', {}, [
+        el('h1', { text: 'Search Updates' }),
+        el('p', { text: 'Keep search engines and AI tools up to date: notify Bing about changes and set each page’s “Last updated” date.' })
+      ])
+    ]));
+    // ---- Tell search engines (IndexNow): one button that sends every page in
+    // the sitemap to Bing and other IndexNow engines, so new or changed pages
+    // get re-read promptly. Bing's index also feeds ChatGPT search / Copilot. ----
+    var inCard = el('div', { class: 'card' });
+    var inStatus = el('p', { class: 'in-status', text: 'Checking the last submission…' });
+    var inBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Notify Bing now' });
+    function inShow(last){
+      if(!last){ inStatus.className = 'in-status'; inStatus.textContent = 'Nothing has been sent yet.'; return; }
+      inStatus.className = 'in-status ' + (last.ok ? 'is-ok' : 'is-bad');
+      inStatus.textContent = (last.ok ? '✓ ' : '✕ ') + 'Last sent ' + relTime(last.time) + ' (' + new Date(last.time).toLocaleString() + ') · ' + fmt(last.count) + ' pages · ' + last.message;
+    }
+    function inCall(method){
+      var user = currentUser(); if(!user) return Promise.reject(new Error('Sign in first.'));
+      return user.jwt().then(function(token){ return fetch('/.netlify/functions/indexnow', { method: method, cache: 'no-store', headers: { Authorization: 'Bearer ' + token } }); })
+        .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(b){ if(!r.ok) throw Object.assign(new Error(b.error || (b.last && b.last.message) || ('Request failed (' + r.status + ')')), { body: b }); return b; }); });
+    }
+    inCall('GET').then(function(b){ inShow(b.last); }).catch(function(e){ inStatus.className = 'in-status is-bad'; inStatus.textContent = e.message; });
+    inBtn.addEventListener('click', function(){
+      inBtn.disabled = true; inBtn.textContent = 'Sending…';
+      inCall('POST').then(function(b){ inShow(b.last); toast('Search engines notified (' + fmt(b.last.count) + ' pages).'); })
+        .catch(function(e){ if(e.body && e.body.last) inShow(e.body.last); else { inStatus.className = 'in-status is-bad'; inStatus.textContent = e.message; } toast(e.message, true); })
+        .then(function(){ inBtn.disabled = false; inBtn.textContent = 'Notify Bing now'; });
+    });
+    inCard.appendChild(el('div', { class: 'ai-card-head' }, [
+      el('div', {}, [ el('h2', { text: 'Tell search engines about updates' }),
+        el('p', { text: 'Sends every page in your sitemap to Bing and other IndexNow search engines so new or changed pages are re-read quickly. Bing’s index also feeds ChatGPT search and Copilot. Google isn’t part of IndexNow.' }) ]),
+      inBtn
+    ]));
+    inCard.appendChild(inStatus);
+    inCard.appendChild(el('p', { class: 'in-note', text: 'Use it after publishing or editing pages. It can be sent once every 30 minutes; it asks search engines to look, but doesn’t guarantee indexing.' }));
+    root.appendChild(inCard);
+
+    // ---- Page dates: each page shows a real "Last updated" date (and sends it
+    // to search engines). Pick the pages you changed, and one click records
+    // today's date, waits for the site to redeploy, then tells Bing about just
+    // those pages. ----
+    var pdCard = el('div', { class: 'card', style: 'margin-top:20px;' });
+    var pd = { pages: null, sha: null, urls: null, sel: {}, filter: '', busy: false };
+    var pdList = el('div', { class: 'pd-list' }), pdMsg = el('p', { class: 'in-status', text: 'Loading pages…' });
+    var pdSearch = el('input', { type: 'search', placeholder: 'Filter pages (e.g. about, overtime, -es)', 'aria-label': 'Filter pages', class: 'pd-search' });
+    var pdBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Mark updated & notify search engines' });
+    var pdDate = el('input', { type: 'date', class: 'pd-date-in', value: isoDay(new Date()), max: isoDay(new Date()), 'aria-label': 'Date to record' });
+    var pdSelInfo = el('span', { class: 'pd-selinfo' });
+    function pdSelected(){ return Object.keys(pd.sel).filter(function(k){ return pd.sel[k]; }); }
+    function pdFiltered(){
+      var q = pd.filter.trim().toLowerCase();
+      return Object.keys(pd.pages).filter(function(f){ return (!pd.urls || pd.urls[f]) && (!q || f.toLowerCase().indexOf(q) !== -1); })
+        .sort(function(a, b){ return pd.pages[a] < pd.pages[b] ? 1 : pd.pages[a] > pd.pages[b] ? -1 : a < b ? -1 : 1; });
+    }
+    function pdRender(){
+      pdList.innerHTML = '';
+      if(!pd.pages){ return; }
+      var rows = pdFiltered();
+      rows.slice(0, 300).forEach(function(f){
+        var cb = el('input', { type: 'checkbox', checked: !!pd.sel[f], onchange: function(e){ pd.sel[f] = e.target.checked; pdRender(); } });
+        pdList.appendChild(el('label', { class: 'pd-row' }, [ cb, el('span', { class: 'pd-file', text: f }), el('span', { class: 'pd-date', text: shortDate(pd.pages[f]) + ', ' + pd.pages[f].slice(0, 4) }) ]));
+      });
+      if(!rows.length) pdList.appendChild(el('div', { class: 'empty-state', text: 'No pages match.' }));
+      if(rows.length > 300) pdList.appendChild(el('div', { class: 'ai-feed-hint', text: 'Showing 300 of ' + rows.length + ' - narrow the filter to see the rest.' }));
+      var n = pdSelected().length;
+      pdSelInfo.textContent = n ? n + ' page' + (n === 1 ? '' : 's') + ' selected' : 'Nothing selected';
+      pdBtn.disabled = pd.busy || !n;
+    }
+    pdSearch.addEventListener('input', function(){ pd.filter = pdSearch.value; pdRender(); });
+    function pdSay(text, kind){ pdMsg.className = 'in-status' + (kind ? ' is-' + kind : ''); pdMsg.textContent = text; }
+    function pdLoad(){
+      return Promise.all([
+        repoGetFile('content/page-dates.json'),
+        fetch('/sitemap.xml', { cache: 'no-store' }).then(function(r){ return r.ok ? r.text() : ''; }).catch(function(){ return ''; })
+      ]).then(function(res){
+        var file = res[0];
+        if(!file) throw new Error('content/page-dates.json was not found in the repository.');
+        pd.sha = file.sha; pd.pages = (JSON.parse(b64ToUtf8(file.content)).pages) || {};
+        var locs = {}; String(res[1]).replace(/<loc>\s*([^<\s]+)\s*<\/loc>/g, function(_, u){ var m = u.match(/\/([^\/]*)$/); locs[(m && m[1]) || 'index.html' || ''] = 1; if(u.replace(/\/$/, '').split('/').length <= 3) locs['index.html'] = 1; return ''; });
+        pd.urls = Object.keys(locs).length > 20 ? locs : null;
+        pdSay('Tick the pages you edited, then press the button. ' + Object.keys(pd.pages).length + ' pages have dates.');
+        pdRender();
+      }).catch(function(e){ pdSay(e.message || 'Could not load page dates.', 'bad'); });
+    }
+    pdBtn.addEventListener('click', function(){
+      var picked = pdSelected(); if(!picked.length || pd.busy) return;
+      var today = pdDate.value || isoDay(new Date());
+      pd.busy = true; pdBtn.disabled = true; pdBtn.textContent = 'Working…';
+      pdSay('Step 1 of 3: recording ' + today + ' on ' + picked.length + ' page' + (picked.length === 1 ? '' : 's') + '…');
+      repoGetFile('content/page-dates.json').then(function(file){
+        var pages = JSON.parse(b64ToUtf8(file.content)).pages || {};
+        picked.forEach(function(f){ pages[f] = today; });
+        var sorted = {}; Object.keys(pages).sort().forEach(function(k){ sorted[k] = pages[k]; });
+        return repoPutFile('content/page-dates.json', utf8ToB64(JSON.stringify({ pages: sorted }, null, 1) + '\n'), 'Mark ' + picked.length + ' page(s) updated via admin dashboard', file.sha);
+      }).then(function(){
+        picked.forEach(function(f){ pd.pages[f] = today; });
+        pdRender();
+        pdSay('Step 2 of 3: saved. Waiting for the site to redeploy (usually 1-2 minutes)…');
+        var probe = picked[0], tries = 0;
+        return new Promise(function(resolve){
+          (function poll(){
+            fetch('/content/page-dates.json?t=' + Date.now(), { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }).then(function(j){
+              if(j && j.pages && j.pages[probe] === today) return resolve(true);
+              if(++tries > 40) return resolve(false);
+              setTimeout(poll, 6000);
+            });
+          })();
+        });
+      }).then(function(live){
+        if(!live){ pdSay('Saved, but the site hasn’t finished redeploying yet. Give it a few minutes, then use “Notify Bing now” above.', 'bad'); return null; }
+        pdSay('Step 3 of 3: the site is live. Notifying search engines…');
+        var urls = picked.map(function(f){ return 'https://www.pinglelaw.com/' + (f === 'index.html' ? '' : f); });
+        return user_jwt().then(function(token){ return fetch('/.netlify/functions/indexnow', { method: 'POST', cache: 'no-store', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ urls: urls }) }); })
+          .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(b){ if(!r.ok) throw Object.assign(new Error(b.error || (b.last && b.last.message) || ('Request failed (' + r.status + ')')), { body: b }); return b; }); })
+          .then(function(b){ inShow(b.last); pdSay('✓ Done. ' + picked.length + ' page' + (picked.length === 1 ? '' : 's') + ' dated ' + today + ' and search engines notified.', 'ok'); toast('Dates updated and search engines notified.'); pd.sel = {}; pdRender(); });
+      }).catch(function(e){ pdSay(e.message || 'Something went wrong.', 'bad'); toast(e.message || 'Something went wrong.', true); })
+        .then(function(){ pd.busy = false; pdBtn.textContent = 'Mark updated & notify search engines'; pdRender(); });
+    });
+    function user_jwt(){ var u = currentUser(); return u ? u.jwt() : Promise.reject(new Error('Sign in first.')); }
+    pdCard.appendChild(el('div', { class: 'ai-card-head' }, [
+      el('div', {}, [ el('h2', { text: 'Page dates' }),
+        el('p', { text: 'Every page shows a “Last updated” date and sends it to search engines and AI tools, which use it to judge freshness. Tick the pages you edited; one click records the date below (today by default), waits for the site to redeploy, then tells Bing about just those pages.' }) ])
+    ]));
+    pdCard.appendChild(el('div', { class: 'ai-views' }, [ pdSearch, el('span', { class: 'sp' }), pdSelInfo,
+      el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Select shown', onclick: function(){ pdFiltered().slice(0, 300).forEach(function(f){ pd.sel[f] = true; }); pdRender(); } }),
+      el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Clear', onclick: function(){ pd.sel = {}; pdRender(); } }) ]));
+    pdCard.appendChild(pdList);
+    pdCard.appendChild(el('div', { style: 'display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;' }, [ el('label', { class: 'pd-datelabel' }, [ 'Date to record ', pdDate ]), pdBtn ]));
+    pdCard.appendChild(pdMsg);
+    pdCard.appendChild(el('p', { class: 'in-note', text: 'Only tick pages whose content really changed; the date is a claim to search engines. Blog posts added in the admin use their own post date until you mark them here.' }));
+    pdCard.style.marginTop = '20px';
+    root.appendChild(pdCard);
+    pdBtn.disabled = true;
+    pdLoad();
+  }
+
   function renderAiCrawlers(){
     var root = aiCrawlers.root; root.innerHTML = ''; root.classList.add('ai-root');
     root.appendChild(el('div', { class: 'page-head' }, [
@@ -2919,137 +3067,10 @@
     renderFeed();
     root.appendChild(el('div', { class: 'ai-grid2', style: 'margin-top:20px;' }, [ pagesCard, feedCard ]));
 
-    // ---- Tell search engines (IndexNow): one button that sends every page in
-    // the sitemap to Bing and other IndexNow engines, so new or changed pages
-    // get re-read promptly. Bing's index also feeds ChatGPT search / Copilot. ----
-    var inCard = el('div', { class: 'card', style: 'margin-top:20px;' });
-    var inStatus = el('p', { class: 'in-status', text: 'Checking the last submission…' });
-    var inBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Notify Bing now' });
-    function inShow(last){
-      if(!last){ inStatus.className = 'in-status'; inStatus.textContent = 'Nothing has been sent yet.'; return; }
-      inStatus.className = 'in-status ' + (last.ok ? 'is-ok' : 'is-bad');
-      inStatus.textContent = (last.ok ? '✓ ' : '✕ ') + 'Last sent ' + relTime(last.time) + ' (' + new Date(last.time).toLocaleString() + ') · ' + fmt(last.count) + ' pages · ' + last.message;
-    }
-    function inCall(method){
-      var user = currentUser(); if(!user) return Promise.reject(new Error('Sign in first.'));
-      return user.jwt().then(function(token){ return fetch('/.netlify/functions/indexnow', { method: method, cache: 'no-store', headers: { Authorization: 'Bearer ' + token } }); })
-        .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(b){ if(!r.ok) throw Object.assign(new Error(b.error || (b.last && b.last.message) || ('Request failed (' + r.status + ')')), { body: b }); return b; }); });
-    }
-    inCall('GET').then(function(b){ inShow(b.last); }).catch(function(e){ inStatus.className = 'in-status is-bad'; inStatus.textContent = e.message; });
-    inBtn.addEventListener('click', function(){
-      inBtn.disabled = true; inBtn.textContent = 'Sending…';
-      inCall('POST').then(function(b){ inShow(b.last); toast('Search engines notified (' + fmt(b.last.count) + ' pages).'); })
-        .catch(function(e){ if(e.body && e.body.last) inShow(e.body.last); else { inStatus.className = 'in-status is-bad'; inStatus.textContent = e.message; } toast(e.message, true); })
-        .then(function(){ inBtn.disabled = false; inBtn.textContent = 'Notify Bing now'; });
-    });
-    inCard.appendChild(el('div', { class: 'ai-card-head' }, [
-      el('div', {}, [ el('h2', { text: 'Tell search engines about updates' }),
-        el('p', { text: 'Sends every page in your sitemap to Bing and other IndexNow search engines so new or changed pages are re-read quickly. Bing’s index also feeds ChatGPT search and Copilot. Google isn’t part of IndexNow.' }) ]),
-      inBtn
-    ]));
-    inCard.appendChild(inStatus);
-    inCard.appendChild(el('p', { class: 'in-note', text: 'Use it after publishing or editing pages. It can be sent once every 30 minutes; it asks search engines to look, but doesn’t guarantee indexing.' }));
-    root.appendChild(inCard);
-
-    // ---- Page dates: each page shows a real "Last updated" date (and sends it
-    // to search engines). Pick the pages you changed, and one click records
-    // today's date, waits for the site to redeploy, then tells Bing about just
-    // those pages. ----
-    var pdCard = el('div', { class: 'card', style: 'margin-top:20px;' });
-    var pd = { pages: null, sha: null, urls: null, sel: {}, filter: '', busy: false };
-    var pdList = el('div', { class: 'pd-list' }), pdMsg = el('p', { class: 'in-status', text: 'Loading pages…' });
-    var pdSearch = el('input', { type: 'search', placeholder: 'Filter pages (e.g. about, overtime, -es)', 'aria-label': 'Filter pages', class: 'pd-search' });
-    var pdBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Mark updated & notify search engines' });
-    var pdSelInfo = el('span', { class: 'pd-selinfo' });
-    function pdSelected(){ return Object.keys(pd.sel).filter(function(k){ return pd.sel[k]; }); }
-    function pdFiltered(){
-      var q = pd.filter.trim().toLowerCase();
-      return Object.keys(pd.pages).filter(function(f){ return (!pd.urls || pd.urls[f]) && (!q || f.toLowerCase().indexOf(q) !== -1); })
-        .sort(function(a, b){ return pd.pages[a] < pd.pages[b] ? 1 : pd.pages[a] > pd.pages[b] ? -1 : a < b ? -1 : 1; });
-    }
-    function pdRender(){
-      pdList.innerHTML = '';
-      if(!pd.pages){ return; }
-      var rows = pdFiltered();
-      rows.slice(0, 300).forEach(function(f){
-        var cb = el('input', { type: 'checkbox', checked: !!pd.sel[f], onchange: function(e){ pd.sel[f] = e.target.checked; pdRender(); } });
-        pdList.appendChild(el('label', { class: 'pd-row' }, [ cb, el('span', { class: 'pd-file', text: f }), el('span', { class: 'pd-date', text: shortDate(pd.pages[f]) + ', ' + pd.pages[f].slice(0, 4) }) ]));
-      });
-      if(!rows.length) pdList.appendChild(el('div', { class: 'empty-state', text: 'No pages match.' }));
-      if(rows.length > 300) pdList.appendChild(el('div', { class: 'ai-feed-hint', text: 'Showing 300 of ' + rows.length + ' - narrow the filter to see the rest.' }));
-      var n = pdSelected().length;
-      pdSelInfo.textContent = n ? n + ' page' + (n === 1 ? '' : 's') + ' selected' : 'Nothing selected';
-      pdBtn.disabled = pd.busy || !n;
-    }
-    pdSearch.addEventListener('input', function(){ pd.filter = pdSearch.value; pdRender(); });
-    function pdSay(text, kind){ pdMsg.className = 'in-status' + (kind ? ' is-' + kind : ''); pdMsg.textContent = text; }
-    function pdLoad(){
-      return Promise.all([
-        repoGetFile('content/page-dates.json'),
-        fetch('/sitemap.xml', { cache: 'no-store' }).then(function(r){ return r.ok ? r.text() : ''; }).catch(function(){ return ''; })
-      ]).then(function(res){
-        var file = res[0];
-        if(!file) throw new Error('content/page-dates.json was not found in the repository.');
-        pd.sha = file.sha; pd.pages = (JSON.parse(b64ToUtf8(file.content)).pages) || {};
-        var locs = {}; String(res[1]).replace(/<loc>\s*([^<\s]+)\s*<\/loc>/g, function(_, u){ var m = u.match(/\/([^\/]*)$/); locs[(m && m[1]) || 'index.html' || ''] = 1; if(u.replace(/\/$/, '').split('/').length <= 3) locs['index.html'] = 1; return ''; });
-        pd.urls = Object.keys(locs).length > 20 ? locs : null;
-        pdSay('Tick the pages you edited, then press the button. ' + Object.keys(pd.pages).length + ' pages have dates.');
-        pdRender();
-      }).catch(function(e){ pdSay(e.message || 'Could not load page dates.', 'bad'); });
-    }
-    pdBtn.addEventListener('click', function(){
-      var picked = pdSelected(); if(!picked.length || pd.busy) return;
-      var today = isoDay(new Date());
-      pd.busy = true; pdBtn.disabled = true; pdBtn.textContent = 'Working…';
-      pdSay('Step 1 of 3: recording today’s date on ' + picked.length + ' page' + (picked.length === 1 ? '' : 's') + '…');
-      repoGetFile('content/page-dates.json').then(function(file){
-        var pages = JSON.parse(b64ToUtf8(file.content)).pages || {};
-        picked.forEach(function(f){ pages[f] = today; });
-        var sorted = {}; Object.keys(pages).sort().forEach(function(k){ sorted[k] = pages[k]; });
-        return repoPutFile('content/page-dates.json', utf8ToB64(JSON.stringify({ pages: sorted }, null, 1) + '\n'), 'Mark ' + picked.length + ' page(s) updated via admin dashboard', file.sha);
-      }).then(function(){
-        picked.forEach(function(f){ pd.pages[f] = today; });
-        pdRender();
-        pdSay('Step 2 of 3: saved. Waiting for the site to redeploy (usually 1-2 minutes)…');
-        var probe = picked[0], tries = 0;
-        return new Promise(function(resolve){
-          (function poll(){
-            fetch('/content/page-dates.json?t=' + Date.now(), { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }).then(function(j){
-              if(j && j.pages && j.pages[probe] === today) return resolve(true);
-              if(++tries > 40) return resolve(false);
-              setTimeout(poll, 6000);
-            });
-          })();
-        });
-      }).then(function(live){
-        if(!live){ pdSay('Saved, but the site hasn’t finished redeploying yet. Give it a few minutes, then use “Notify Bing now” above.', 'bad'); return null; }
-        pdSay('Step 3 of 3: the site is live. Notifying search engines…');
-        var urls = picked.map(function(f){ return 'https://www.pinglelaw.com/' + (f === 'index.html' ? '' : f); });
-        return user_jwt().then(function(token){ return fetch('/.netlify/functions/indexnow', { method: 'POST', cache: 'no-store', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify({ urls: urls }) }); })
-          .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(b){ if(!r.ok) throw Object.assign(new Error(b.error || (b.last && b.last.message) || ('Request failed (' + r.status + ')')), { body: b }); return b; }); })
-          .then(function(b){ inShow(b.last); pdSay('✓ Done. ' + picked.length + ' page' + (picked.length === 1 ? '' : 's') + ' dated ' + today + ' and search engines notified.', 'ok'); toast('Dates updated and search engines notified.'); pd.sel = {}; pdRender(); });
-      }).catch(function(e){ pdSay(e.message || 'Something went wrong.', 'bad'); toast(e.message || 'Something went wrong.', true); })
-        .then(function(){ pd.busy = false; pdBtn.textContent = 'Mark updated & notify search engines'; pdRender(); });
-    });
-    function user_jwt(){ var u = currentUser(); return u ? u.jwt() : Promise.reject(new Error('Sign in first.')); }
-    pdCard.appendChild(el('div', { class: 'ai-card-head' }, [
-      el('div', {}, [ el('h2', { text: 'Page dates' }),
-        el('p', { text: 'Every page shows a “Last updated” date and sends it to search engines and AI tools, which use it to judge freshness. Tick the pages you edited; one click records today’s date, waits for the site to redeploy, then tells Bing about just those pages.' }) ])
-    ]));
-    pdCard.appendChild(el('div', { class: 'ai-views' }, [ pdSearch, el('span', { class: 'sp' }), pdSelInfo,
-      el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Select shown', onclick: function(){ pdFiltered().slice(0, 300).forEach(function(f){ pd.sel[f] = true; }); pdRender(); } }),
-      el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Clear', onclick: function(){ pd.sel = {}; pdRender(); } }) ]));
-    pdCard.appendChild(pdList);
-    pdCard.appendChild(el('div', { style: 'display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;' }, [ pdBtn ]));
-    pdCard.appendChild(pdMsg);
-    pdCard.appendChild(el('p', { class: 'in-note', text: 'Only tick pages whose content really changed; the date is a claim to search engines. Blog posts added in the admin use their own post date until you mark them here.' }));
-    root.appendChild(pdCard);
-    pdBtn.disabled = true;
-    pdLoad();
   }
 
   // ---- Routing (hash) ----
-  var VIEW_TITLES = { overview: 'Dashboard', banner: 'Announcement Banner', settlements: 'Settlements', team: 'Legal Team', blog: 'Blog Posts', 'ai-crawlers': 'AI Visibility' };
+  var VIEW_TITLES = { overview: 'Dashboard', banner: 'Announcement Banner', settlements: 'Settlements', team: 'Legal Team', blog: 'Blog Posts', 'ai-crawlers': 'AI Visibility', 'search-updates': 'Search Updates' };
   var currentView = null, currentHash = null;
   function route(){
     var raw = (location.hash || '#overview').slice(1), parts = raw.split('/'), key = parts[0], sub = parts.slice(1).join('/');
@@ -3091,6 +3112,7 @@
       }
     }
     if(key === 'ai-crawlers' && !aiCrawlers.loaded) loadAiCrawlers();
+    if(key === 'search-updates') renderSearchUpdates();
     setMenu(false); window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', route);
