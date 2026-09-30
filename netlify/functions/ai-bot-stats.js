@@ -55,10 +55,16 @@ const LABELS = {
 
 function addDaysIso(iso, n){ const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 function parseKey(key){
+  // Parsed from both ends: the store may hand back the page part with its
+  // "%2F" escapes already turned into real slashes, which adds extra
+  // segments in the middle - so the fixed fields are taken from the ends and
+  // whatever is between them is the page.
   const p = key.split('/');
   if(p.length < 6 || p[0] !== 'h') return null;
-  let path; try { path = decodeURIComponent(p[4]); } catch (e) { path = p[4]; }
-  return { key, date: p[1], hour: p[2], bot: p[3], path, ms: Number(p[5].split('-')[0]) || 0 };
+  const uniq = p[p.length - 1];
+  const raw = p.slice(4, -1).join('/');
+  let path; try { path = decodeURIComponent(raw); } catch (e) { path = raw; }
+  return { key, date: p[1], hour: p[2], bot: p[3], path: path || '/', ms: Number(uniq.split('-')[0]) || 0 };
 }
 async function listKeys(store, prefix){
   const out = [];
