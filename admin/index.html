@@ -17,7 +17,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   /* ---- Admin dashboard ----
      Edits the announcement banner, settlement tiles, legal team, and
@@ -771,6 +771,117 @@
     .photo{ grid-template-columns:1fr; }
     .page-head h1{ font-size:24px; }
   }
+
+  /* =====================================================================
+     Theme v2 - warm off-white canvas, "bezel" panels (a soft outer ring
+     around a crisp inner card), monospaced numbers, thin-line charts, and
+     people-style lists with initials avatars + pill badges. Overrides the
+     earlier look site-wide in the admin.
+     ===================================================================== */
+  :root{
+    --bg:#F4F4F1; --card:#FBFBF9; --line:#E4E4DF; --line-strong:#D6D6D0;
+    --field:#F1F1EE; --field-hover:#EAEAE6;
+    --ring:#EDEDE9; --mono:'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --r-card:16px; --r-inner:12px;
+    --shadow:0 0 0 1px var(--line), 0 0 0 6px var(--ring), 0 0 0 7px #E6E6E1, 0 24px 40px -34px rgba(17,24,39,.35);
+  }
+  body{ background:var(--bg); }
+  .sidebar{ background:var(--bg); border-right:1px solid var(--line); }
+  .topbar{ background:rgba(244,244,241,.86); backdrop-filter:saturate(1.2) blur(10px); border-bottom:1px solid var(--line); }
+  .nav a.is-current{ background:var(--card); box-shadow:0 0 0 1px var(--line), 0 1px 2px rgba(17,24,39,.05); }
+  .nav a:hover{ background:var(--field-hover); }
+  .main-inner, .content{ }
+
+  /* bezel panels: outer ring + inner card */
+  .card, .item, .stat, .ai-tile, .tile{ background:var(--card) !important; border:none !important; border-radius:var(--r-card) !important; box-shadow:var(--shadow) !important; }
+  .card{ margin-bottom:26px; }
+  .stat::before, .ai-tile::before, .tile::before, .stat::after, .ai-tile::after, .tile::after{ display:none !important; }
+  .stat:hover, .ai-tile:hover, .tile:hover{ transform:translateY(-2px); }
+  .stat-num, .ai-tile-num, .ai-hero-num, .vhero-chip b, .ai-bar-val, .hm-t, .qs-row div, .m-num{ font-family:var(--mono) !important; font-weight:400 !important; letter-spacing:-.02em !important; }
+  .stat-top .ico, .tile-head .ico{ background:var(--field) !important; color:var(--ink) !important; box-shadow:0 0 0 1px var(--line) !important; }
+  .ai-tiles, .stats{ gap:22px; }
+
+  /* heroes: light */
+  .vhero, .ai-hero{ background:var(--card) !important; color:var(--ink) !important; box-shadow:var(--shadow); border-radius:var(--r-card); }
+  .vhero::after{ display:none; }
+  .vhero h1{ color:var(--ink) !important; }
+  .vhero-kicker, .ai-hero-kicker{ color:var(--muted) !important; }
+  .vhero-sub, .ai-hero-sub, .ai-split-legend, .dash-sub{ color:var(--muted) !important; }
+  .ai-split-legend b{ color:var(--ink) !important; }
+  .ai-split{ background:var(--field) !important; }
+  .vhero-chip{ background:var(--field) !important; border-color:var(--line) !important; }
+  .vhero-chip span{ color:var(--muted) !important; }
+  .vhero .btn-ghost{ background:var(--card) !important; border-color:var(--line) !important; color:var(--ink) !important; }
+  .vhero .btn-primary{ background:var(--accent) !important; }
+  .vhero-art, .ai-radar{ filter:invert(1) hue-rotate(180deg) saturate(1.2); opacity:.9; }
+  .dash-btn{ background:var(--card) !important; border-color:var(--line) !important; color:var(--ink) !important; box-shadow:0 1px 2px rgba(17,24,39,.05); }
+  .dash-btn:hover{ background:var(--field) !important; }
+  .dash-btn:first-child{ background:#111827 !important; color:#fff !important; border-color:#111827 !important; }
+
+  /* generic bezel wrapper used on the dashboard */
+  .bezel{ border-radius:20px; padding:6px; background:var(--ring); box-shadow:0 0 0 1px #E6E6E1, 0 24px 40px -34px rgba(17,24,39,.35); margin-bottom:26px; }
+  .bezel > *{ background:var(--card); border-radius:15px; box-shadow:0 0 0 1px var(--line); }
+  .bz-in{ padding:22px 24px; height:100%; }
+  .bz-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+  .bz-head h2{ margin:0; font-size:17px; font-weight:500; letter-spacing:-.01em; }
+  .bz-head span{ font-size:12.5px; color:var(--muted); }
+
+  /* metrics row */
+  .dash-metrics{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); }
+  .metric{ display:block; padding:22px 24px 20px; color:inherit; text-decoration:none; border-left:1px solid var(--line); transition:background .15s ease; }
+  .metric:first-child{ border-left:none; border-radius:15px 0 0 15px; } .metric:last-child{ border-radius:0 15px 15px 0; }
+  a.metric:hover{ background:#fff; }
+  .m-label{ font-size:13.5px; color:#3f4652; }
+  .m-num{ font-size:34px; line-height:1.1; margin:10px 0 14px; color:#1f2430; }
+  .meter{ display:flex; gap:2px; height:12px; }
+  .meter .mb{ flex:1; border-radius:1.5px; background:#E4E4DF; }
+  .meter .mb.l1{ background:#bfe3cf; } .meter .mb.l2{ background:#7fc7a1; } .meter .mb.l3{ background:#34a36f; } .meter .mb.l4{ background:#1F7A5C; }
+  .m-rule{ height:12px; border-radius:2px; background:repeating-linear-gradient(90deg, #E4E4DF 0 calc(3.57% - 2px), transparent 0 3.57%); }
+  .delta{ display:flex; align-items:center; gap:6px; margin-top:10px; font-family:var(--mono); font-size:12.5px; color:var(--muted); }
+  .delta .d-ico{ display:inline-grid; place-items:center; width:15px; height:15px; border-radius:50%; font-size:9px; border:1.5px solid currentColor; }
+  .delta.up{ color:#1F7A5C; } .delta.down{ color:#b45309; }
+  .m-sub{ margin-top:10px; font-size:12.5px; color:var(--muted); }
+
+  /* chart + live panel */
+  .dash-row{ display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); gap:26px; align-items:stretch; }
+  .dash-row > .bezel{ margin-bottom:26px; }
+  .trend2-wrap{ position:relative; }
+  svg.trend2{ width:100%; height:auto; display:block; overflow:visible; }
+  svg.trend2 .gl{ stroke:#ECECE8; } svg.trend2 .tick{ stroke:#9CA3AF; }
+  svg.trend2 .ax{ font-size:10.5px; fill:#6B7280; font-family:var(--mono); }
+  svg.trend2 .ln{ stroke-dasharray:1; stroke-dashoffset:1; animation:lnDraw 1.4s cubic-bezier(.2,.8,.2,1) forwards; }
+  svg.trend2 .cross{ stroke:#9CA3AF; stroke-dasharray:3 3; }
+  @keyframes lnDraw{ to{ stroke-dashoffset:0; } }
+  .tip2{ position:absolute; top:0; transform:translateX(-50%); background:#111827; color:#fff; border-radius:10px; padding:8px 10px; font-size:12px; pointer-events:none; white-space:nowrap; box-shadow:0 10px 24px -12px rgba(0,0,0,.5); }
+  .tip2 > b{ display:block; margin-bottom:3px; font-family:var(--mono); font-weight:500; }
+  .tip2 div b{ font-family:var(--mono); }
+  .legend2{ display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:12px; font-size:13px; color:#3f4652; }
+  .legend2 i{ display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:7px; vertical-align:-1px; }
+  .live-panel{ display:flex; flex-direction:column; padding:0 !important; overflow:hidden; }
+  .live-head{ display:flex; align-items:center; gap:10px; padding:16px 20px; font-weight:500; font-size:15px; border-bottom:1px solid var(--line); background:var(--ring); }
+  .live-head .ai-live-dot{ width:10px; height:10px; background:#6fcf7f; }
+  .live-list{ flex:1; max-height:360px; overflow-y:auto; padding:0 20px; -webkit-mask-image:linear-gradient(#000 85%, transparent); mask-image:linear-gradient(#000 85%, transparent); }
+  .live-foot{ display:block; text-align:center; padding:13px 16px; border-top:1px solid var(--line); background:var(--ring); font-size:13.5px; color:#3f4652; }
+  .live-foot b{ font-family:var(--mono); font-weight:500; color:var(--ink); }
+
+  /* people-style list */
+  .people{ display:flex; flex-direction:column; }
+  .person{ display:flex; align-items:center; gap:14px; padding:13px 0; border-bottom:1px solid var(--line); animation:aiRise .4s cubic-bezier(.2,.8,.2,1) both; }
+  .person:last-child{ border-bottom:none; }
+  .avatar{ flex:none; width:40px; height:40px; border-radius:50%; display:grid; place-items:center; background:var(--field); box-shadow:inset 0 0 0 1px var(--line), 0 1px 2px rgba(17,24,39,.06); font-size:12.5px; font-weight:500; color:#3f4652; letter-spacing:.02em; }
+  .p-main{ flex:1; min-width:0; }
+  .p-main b{ display:block; font-weight:500; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .p-main span{ display:block; font-size:12.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .badge{ flex:none; font-size:12px; font-weight:500; padding:4px 10px; border-radius:7px; white-space:nowrap; }
+  .badge.b-blue{ background:#E3EEFD; color:#1f5fbf; }
+  .dash-note{ margin:14px 0 0; font-size:12.5px; color:var(--soft); }
+
+  .rem-card{ border-left:none !important; }
+  .dash-banner{ box-shadow:0 0 0 1px rgba(0,0,0,.06), 0 18px 40px -26px rgba(179,138,60,.9) !important; }
+
+  @media (max-width:1180px){ .dash-metrics{ grid-template-columns:repeat(2, minmax(0,1fr)); } .metric:nth-child(3){ border-left:none; } .metric:nth-child(n+3){ border-top:1px solid var(--line); } .dash-row{ grid-template-columns:minmax(0,1fr); } }
+  @media (max-width:560px){ .dash-metrics{ grid-template-columns:minmax(0,1fr); } .metric{ border-left:none; border-top:1px solid var(--line); } .metric:first-child{ border-top:none; } .m-num{ font-size:30px; } }
+  @media (prefers-reduced-motion: reduce){ svg.trend2 .ln{ animation:none; stroke-dashoffset:0; } .person{ animation:none; } }
 </style>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
@@ -876,34 +987,17 @@
       <!-- ================= OVERVIEW ================= -->
       <section class="view" data-view="overview">
         <div id="overviewHero"></div>
-        <div class="stats">
-          <a class="stat stat-link" href="#ai-crawlers">
-            <div class="stat-top">AI visits · 7 days<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg></span></div>
-            <div class="stat-num" id="statAi">—</div>
-            <div class="stat-sub" id="statAiSub">Crawler visits across all AI platforms</div>
-          </a>
-          <div class="stat">
-            <div class="stat-top">Consultation requests<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span></div>
-            <div class="stat-num" id="statConsults">—</div>
-            <div class="stat-sub">Total, shown on the site</div>
-          </div>
-          <a class="stat stat-link" href="#blog">
-            <div class="stat-top">Published articles<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span></div>
-            <div class="stat-num" id="statArticles">—</div>
-            <div class="stat-sub">Blog pages currently live</div>
-          </a>
-          <a class="stat stat-link" href="#settlements">
-            <div class="stat-top">Results shown<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span></div>
-            <div class="stat-num" id="statSettlements">—</div>
-            <div class="stat-sub">Settlement tiles on the Results page</div>
-          </a>
-        </div>
         <div id="ovReminders"></div>
-        <div class="card" style="margin:0;">
-          <div class="ai-card-head"><div><h2 style="margin:0;">Recent activity</h2><p>Latest content changes saved to the site.</p></div></div>
-          <div class="act-feed" id="ovActivity"><div class="loading" style="padding:12px;">Loading…</div></div>
-          <p class="dash-note">Changes saved here go live on pinglelaw.com within a couple of minutes, once the site rebuilds.</p>
+        <div class="bezel"><div class="dash-metrics" id="ovMetrics"></div></div>
+        <div class="dash-row">
+          <div class="bezel"><div class="bz-in" id="ovTrend"></div></div>
+          <div class="bezel live-bezel"><div class="bz-in live-panel" id="ovLive"></div></div>
         </div>
+        <div class="bezel"><div class="bz-in">
+          <div class="bz-head"><h2>Recent changes</h2><span>Saved to the site from this dashboard</span></div>
+          <div class="people" id="ovActivity"><div class="loading" style="padding:12px;">Loading…</div></div>
+          <p class="dash-note">Changes go live on pinglelaw.com within a couple of minutes, once the site rebuilds.</p>
+        </div></div>
       </section>
 
       <!-- ================= EDITORS (rendered by script) ================= -->
@@ -1334,8 +1428,13 @@
       commits.slice(0, 6).forEach(function(c, i){
         var msg = (c.commit && c.commit.message || '').split('\n')[0].replace(/ via admin dashboard$/, '');
         var when = c.commit && c.commit.author && c.commit.author.date;
-        var fresh = when && (Date.now() - new Date(when).getTime()) < 86400000;
-        var item = el('div', { class: 'act-item' + (fresh ? ' is-fresh' : '') }, [ el('b', { text: msg, title: msg }), el('span', { text: when ? relTime(when) : '' }) ]);
+        var who = (c.commit && c.commit.author && c.commit.author.name) || 'Editor';
+        var kind = /^upload/i.test(msg) ? 'Uploaded' : /^(remove|delete)/i.test(msg) ? 'Removed' : /publish/i.test(msg) ? 'Published' : 'Saved';
+        var item = el('div', { class: 'person' }, [
+          el('span', { class: 'avatar', text: initials(who) }),
+          el('div', { class: 'p-main' }, [ el('b', { text: msg, title: msg }), el('span', { text: who + (when ? ' · ' + relTime(when) : '') }) ]),
+          el('span', { class: 'badge b-blue' }, [ '✓ ', kind ])
+        ]);
         item.style.animationDelay = (i * 0.06) + 's';
         host.appendChild(item);
       });
@@ -1344,35 +1443,142 @@
       host.innerHTML = ''; host.appendChild(el('div', { class: 'pop-empty', text: 'Couldn’t load recent changes.' }));
     });
   }
+  function initials(name){
+    var w = String(name || '').replace(/[^A-Za-z0-9 ]/g, ' ').trim().split(/\s+/).filter(Boolean);
+    return ((w[0] || '?')[0] + (w[1] ? w[1][0] : (w[0] || '').slice(1, 2))).toUpperCase();
+  }
+  function sumCounts(days){ return days.reduce(function(s, d){ return s + Object.keys(d.counts || {}).reduce(function(t, k){ return t + d.counts[k]; }, 0); }, 0); }
+  function sumType(days, type){ return days.reduce(function(s, d){ return s + Object.keys(d.counts || {}).reduce(function(t, k){ return t + (aiTypeOf(k) === type ? d.counts[k] : 0); }, 0); }, 0); }
+  // A row of small blocks, one per day (oldest -> newest). Shade = that day's
+  // count relative to the busiest day shown (one hue, light -> dark).
+  function dashMeter(values, label){
+    var max = Math.max.apply(null, values.concat([1]));
+    return el('div', { class: 'meter', role: 'img', 'aria-label': label }, values.map(function(v, i){
+      var lvl = v ? Math.min(4, 1 + Math.floor(v / max * 3.999)) : 0;
+      return el('span', { class: 'mb l' + lvl, title: v + ' on ' + shortDate(isoDay(addLocalDays(new Date(), -(values.length - 1 - i)))) });
+    }));
+  }
+  function dashDelta(cur, prev){
+    if(!prev && !cur) return el('div', { class: 'delta flat', text: 'No activity yet' });
+    var pct = prev ? Math.round((cur - prev) / prev * 100) : null, up = cur >= prev;
+    return el('div', { class: 'delta ' + (cur > prev ? 'up' : cur < prev ? 'down' : 'flat') }, [
+      el('span', { class: 'd-ico', text: cur > prev ? '✓' : cur < prev ? '↓' : '·' }),
+      (pct == null ? 'new' : (pct > 0 ? '+' : '') + pct + '%') + ' vs. prior 7 days'
+    ]);
+  }
+  function renderDashMetrics(){
+    var host = $('#ovMetrics'); if(!host) return;
+    host.innerHTML = '';
+    var d = overview.aiDaily, signed = !!currentUser();
+    function metric(label, value, extra, href){
+      var num = el('div', { class: 'm-num' }, [ value == null ? '—' : fmt(value) ]);
+      return el(href ? 'a' : 'div', { class: 'metric', href: href || null }, [ el('div', { class: 'm-label', text: label }), num ].concat(extra || []));
+    }
+    if(d){
+      var last7 = d.slice(-7), prev7 = d.slice(-14, -7), per = d.slice(-28).map(function(x){ return sumCounts([x]); }), perLive = d.slice(-28).map(function(x){ return sumType([x], 'live'); });
+      host.appendChild(metric('AI visits · 7 days', sumCounts(last7), [ dashMeter(per, 'AI visits per day, last 28 days'), dashDelta(sumCounts(last7), sumCounts(prev7)) ], '#ai-crawlers'));
+      host.appendChild(metric('Live lookups · 7 days', sumType(last7, 'live'), [ dashMeter(perLive, 'Live lookups per day, last 28 days'), dashDelta(sumType(last7, 'live'), sumType(prev7, 'live')) ], '#ai-crawlers'));
+    } else {
+      host.appendChild(metric('AI visits · 7 days', null, [ el('div', { class: 'm-sub', text: signed ? 'Loading…' : 'Sign in to see' }) ]));
+      host.appendChild(metric('Live lookups · 7 days', null, [ el('div', { class: 'm-sub', text: signed ? 'Loading…' : 'Sign in to see' }) ]));
+    }
+    host.appendChild(metric('Consultation requests', overview.consults, [ el('div', { class: 'm-rule' }), el('div', { class: 'm-sub', text: 'Total, shown on the site' }) ]));
+    host.appendChild(metric('Published articles', overview.articles, [ el('div', { class: 'm-rule' }), el('div', { class: 'm-sub', text: 'Blog pages currently live' }) ], '#blog'));
+  }
+  // Thin lines, one per visit type, with a hover crosshair + tooltip.
+  function renderDashTrend(){
+    var host = $('#ovTrend'); if(!host) return;
+    host.innerHTML = '';
+    host.appendChild(el('div', { class: 'bz-head' }, [ el('h2', { text: 'AI visits · last 30 days' }), el('span', { text: 'Per day, by visit type' }) ]));
+    var d = overview.aiDaily;
+    if(!d){ host.appendChild(el('div', { class: 'empty-state', text: currentUser() ? 'Loading…' : 'Sign in to see AI activity.' })); return; }
+    var days = d.slice(-30).map(function(x){ var t = aiDayTypes(x.counts); t.date = x.date; return t; });
+    var W = 640, H = 220, L = 40, R = 10, T = 12, B = 26, pw = W - L - R, ph = H - T - B, N = days.length;
+    var max = niceMax(days.reduce(function(m, x){ return Math.max(m, x.training, x.search, x.live); }, 1));
+    var X = function(i){ return L + (N === 1 ? pw / 2 : i * pw / (N - 1)); }, Y = function(v){ return T + ph - v / max * ph; };
+    var svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'trend2', role: 'img', 'aria-label': 'AI visits per day by type, last 30 days' });
+    [0, 0.5, 1].forEach(function(f){
+      svg.appendChild(svgEl('line', { x1: L, x2: W - R, y1: Y(max * f), y2: Y(max * f), class: 'gl' }));
+      var t = svgEl('text', { x: L - 8, y: Y(max * f) + 4, 'text-anchor': 'end', class: 'ax' }); t.textContent = Math.round(max * f); svg.appendChild(t);
+    });
+    for(var i = 0; i < N; i += Math.max(1, Math.round(N / 6))){
+      svg.appendChild(svgEl('line', { x1: X(i), x2: X(i), y1: T + ph, y2: T + ph + 5, class: 'tick' }));
+      var tx = svgEl('text', { x: X(i), y: H - 6, 'text-anchor': 'middle', class: 'ax' }); tx.textContent = shortDate(days[i].date); svg.appendChild(tx);
+    }
+    AI_TYPE_ORDER.forEach(function(k){
+      svg.appendChild(svgEl('path', { d: days.map(function(x, i){ return (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(x[k]).toFixed(1); }).join(''), fill: 'none', stroke: AI_TYPES[k].hex, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', class: 'ln', pathLength: 1 }));
+    });
+    var cross = svgEl('line', { y1: T, y2: T + ph, class: 'cross', visibility: 'hidden' }); svg.appendChild(cross);
+    var dots = AI_TYPE_ORDER.map(function(k){ var c = svgEl('circle', { r: 4, fill: AI_TYPES[k].hex, stroke: '#fff', 'stroke-width': 2, visibility: 'hidden' }); svg.appendChild(c); return c; });
+    var hit = svgEl('rect', { x: L, y: T, width: pw, height: ph, fill: 'transparent' }); svg.appendChild(hit);
+    var wrap = el('div', { class: 'trend2-wrap' }, [ svg ]);
+    var tip = el('div', { class: 'tip2', hidden: true }); wrap.appendChild(tip);
+    function show(evt){
+      var r = svg.getBoundingClientRect(), x = (evt.clientX - r.left) / r.width * W, i = Math.max(0, Math.min(N - 1, Math.round((x - L) / pw * (N - 1)))), day = days[i];
+      cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); cross.setAttribute('visibility', 'visible');
+      AI_TYPE_ORDER.forEach(function(k, j){ dots[j].setAttribute('cx', X(i)); dots[j].setAttribute('cy', Y(day[k])); dots[j].setAttribute('visibility', 'visible'); });
+      tip.hidden = false; tip.innerHTML = '';
+      tip.appendChild(el('b', { text: shortDate(day.date) }));
+      AI_TYPE_ORDER.forEach(function(k){ tip.appendChild(el('div', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[k].hex }), AI_TYPES[k].label + ' ', el('b', { text: String(day[k]) }) ])); });
+      var px = X(i) / W * r.width; tip.style.left = Math.min(Math.max(px, 70), r.width - 70) + 'px';
+    }
+    function hide(){ cross.setAttribute('visibility', 'hidden'); dots.forEach(function(c){ c.setAttribute('visibility', 'hidden'); }); tip.hidden = true; }
+    hit.addEventListener('mousemove', show); hit.addEventListener('mouseleave', hide);
+    host.appendChild(wrap);
+    host.appendChild(el('div', { class: 'legend2' }, AI_TYPE_ORDER.map(function(k){ return el('span', {}, [ el('i', { style: 'background:' + AI_TYPES[k].hex }), AI_TYPES[k].label ]); })));
+  }
+  function niceMax(v){ var p = Math.pow(10, Math.floor(Math.log10(Math.max(v, 1)))), m = v / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p; }
+  function renderDashLive(){
+    var host = $('#ovLive'); if(!host) return;
+    host.innerHTML = '';
+    host.appendChild(el('div', { class: 'live-head' }, [ el('span', { class: 'ai-live-dot' }), 'Live AI activity' ]));
+    var list = el('div', { class: 'people live-list' });
+    var recent = overview.aiRecent;
+    if(!recent){ list.appendChild(el('div', { class: 'empty-state', text: currentUser() ? 'Loading…' : 'Sign in to see AI activity.' })); }
+    else if(!recent.length){ list.appendChild(el('div', { class: 'empty-state', text: 'No AI visits yet.' })); }
+    else recent.slice(0, 12).forEach(function(r, i){
+      var t = aiTypeOf(r.bot), name = aiPlatform(r.label);
+      var row = el('div', { class: 'person' }, [
+        el('span', { class: 'avatar', text: initials(name) }),
+        el('div', { class: 'p-main' }, [ el('b', { text: name }), el('span', { text: r.path, title: r.path }) ]),
+        el('span', { class: 'badge', style: 'background:color-mix(in srgb,' + AI_TYPES[t].hex + ' 14%, #fff);color:color-mix(in srgb,' + AI_TYPES[t].hex + ' 70%, #111827);' }, [ AI_TYPES[t].label ])
+      ]);
+      row.style.animationDelay = (i * 0.05) + 's';
+      list.appendChild(row);
+    });
+    host.appendChild(list);
+    var wk = overview.aiDaily ? sumCounts(overview.aiDaily.slice(-7)) : null;
+    host.appendChild(el('a', { class: 'live-foot', href: '#ai-crawlers' }, wk == null ? [ 'Open AI Visibility →' ] : [ el('b', { text: fmt(wk) }), ' AI visits this week →' ]));
+  }
   function loadOverviewAi(){
     var user = currentUser(); if(!user || overview.aiLoaded) return;
     overview.aiLoaded = true;
+    var from = isoDay(addLocalDays(new Date(), -29)), to = isoDay(new Date());
     user.jwt().then(function(token){
-      return fetch(aiStatsUrl(isoDay(addLocalDays(new Date(), -6)), isoDay(new Date())), { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } });
+      return fetch(aiStatsUrl(from, to), { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } });
     }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(function(d){
-        overview.ai7 = aiLocalDaily(d, isoDay(addLocalDays(new Date(), -6)), isoDay(new Date())).reduce(function(s, day){
-          return s + Object.keys(day.counts || {}).reduce(function(t, k){ return t + day.counts[k]; }, 0);
-        }, 0);
-        var n = $('#statAi'); if(n) vCount(n, overview.ai7);
-        renderOverviewHero();
-      }).catch(function(){ overview.aiLoaded = false; var n = $('#statAi'); if(n) n.textContent = currentUser() ? '—' : 'Sign in'; });
+        overview.aiDaily = aiLocalDaily(d, from, to);
+        overview.aiRecent = d.recent || [];
+        overview.ai7 = sumCounts(overview.aiDaily.slice(-7));
+        renderDashMetrics(); renderDashTrend(); renderDashLive(); renderOverviewHero();
+      }).catch(function(){ overview.aiLoaded = false; });
   }
   (function stats(){
     function setNum(id, n){ var node = $('#' + id); if(node) vCount(node, n); }
     function getJSON(url){ return fetch(url, { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
-    renderOverviewHero();
+    renderOverviewHero(); renderDashMetrics(); renderDashTrend(); renderDashLive();
     getJSON('/.netlify/functions/consult-count').then(function(d){
-      overview.consults = d.count; setNum('statConsults', d.count); renderOverviewHero();
+      overview.consults = d.count; renderDashMetrics(); renderOverviewHero();
     }).catch(function(){});
     getJSON('/content/settlements.json').then(function(d){
-      overview.settlements = d.items || []; setNum('statSettlements', overview.settlements.length);
+      overview.settlements = d.items || [];
     }).catch(function(){ var h = $('#ovResults'); if(h){ h.innerHTML = ''; h.appendChild(el('div', { class: 'empty-state', text: 'Couldn’t load results.' })); } });
     getJSON('/content/announcement.json').then(function(d){
       var first = (d.messages_en || [])[0]; overview.banner = first && first.message ? first.message : null; renderOverviewHero();
     }).catch(function(){});
     fetch('/sitemap.xml', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text(); })
-      .then(function(xml){ setNum('statArticles', (xml.match(/<loc>[^<]*\/blog-[^<]*<\/loc>/g) || []).length); }).catch(function(){});
+      .then(function(xml){ overview.articles = (xml.match(/<loc>[^<]*\/blog-[^<]*<\/loc>/g) || []).length; renderDashMetrics(); }).catch(function(){});
   })();
 
   // ---- Topbar: menu drawer, search, bell, user menu ----
