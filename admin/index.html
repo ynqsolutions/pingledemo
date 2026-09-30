@@ -3505,16 +3505,22 @@
       var oldestDay = dayList[0] || '', newestDay = dayList[dayList.length - 1] || '';
       var fFrom = aiCrawlers.feedFrom || '', fTo = aiCrawlers.feedTo || '';
       if(fFrom && fTo && fFrom > fTo){ var sw = fFrom; fFrom = fTo; fTo = sw; }
-      var filtered = !!(fFrom || fTo);
-      var list = filtered ? all.filter(function(r){ var d = isoDay(new Date(r.time)); return (!fFrom || d >= fFrom) && (!fTo || d <= fTo); }) : all;
+      var fType = aiCrawlers.feedType || '';
+      var filtered = !!(fFrom || fTo || fType);
+      var list = filtered ? all.filter(function(r){ var d = isoDay(new Date(r.time)); return (!fFrom || d >= fFrom) && (!fTo || d <= fTo) && (!fType || aiTypeOf(r.bot) === fType); }) : all;
       var single = filtered && fFrom && fFrom === fTo;
       function dateIn(label, val, key){
         var inp = el('input', { type: 'date', value: val, min: oldestDay, max: newestDay, 'aria-label': label, onchange: function(e){ aiCrawlers[key] = e.target.value; renderFeed(); } });
         return el('label', { class: 'ai-feed-date' }, [ label, inp ]);
       }
       var filterRow = all.length ? el('div', { class: 'ai-views ai-feed-filter' }, [
+        (function(){
+          var sel = el('select', { class: 'pl-type', 'aria-label': 'Filter by visit type', onchange: function(e){ aiCrawlers.feedType = e.target.value; renderFeed(); } },
+            [ ['', 'All types'], ['live', 'Live lookup'], ['search', 'AI Search'], ['training', 'Training'] ].map(function(o){ return el('option', { value: o[0], text: o[1] }); }));
+          sel.value = fType; return sel;
+        })(),
         dateIn('From', fFrom, 'feedFrom'), dateIn('To', fTo, 'feedTo'),
-        filtered ? el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Clear', onclick: function(){ aiCrawlers.feedFrom = ''; aiCrawlers.feedTo = ''; renderFeed(); } }) : null,
+        filtered ? el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Clear', onclick: function(){ aiCrawlers.feedFrom = ''; aiCrawlers.feedTo = ''; aiCrawlers.feedType = ''; renderFeed(); } }) : null,
         el('span', { class: 'sp' }),
         el('span', { class: 'ai-feed-range', text: 'Logged: ' + shortDate(oldestDay) + ' – ' + shortDate(newestDay) })
       ]) : null;
@@ -3525,7 +3531,7 @@
       if(filterRow) feedCard.appendChild(filterRow);
       var pick = single;
       if(!list.length){
-        feedCard.appendChild(el('div', { class: 'empty-state', text: filtered ? 'No logged visits in that date range.' : 'Nothing yet.' }));
+        feedCard.appendChild(el('div', { class: 'empty-state', text: filtered ? 'No logged visits match these filters.' : 'Nothing yet.' }));
         return;
       }
       var feed = el('div', { class: 'ai-feed' });
