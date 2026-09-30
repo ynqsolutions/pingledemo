@@ -1059,6 +1059,39 @@
     .item.is-compact .g-grid .photo{ grid-template-columns:64px minmax(0,1fr) !important; }
     .item.is-compact .g-grid .photo-preview{ width:64px !important; height:64px !important; }
   }
+
+  /* ---- Platforms card: controls + fixed-name heatmap ---- */
+  .pl-controls{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
+  .pl-row2{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .seg button{ white-space:nowrap; }
+  .pl-type{ height:36px; border:1px solid var(--line-strong); border-radius:10px; padding:0 34px 0 12px; font:inherit; font-size:13.5px; color:var(--ink); background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 10px center / 15px; appearance:none; cursor:pointer; }
+  .hm2{ display:flex; --cw:34px; --rh:32px; }
+  .hm2-left{ flex:none; width:150px; padding-right:10px; border-right:1px solid var(--line); }
+  .hm2-lh, .hm2-lr{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .hm2-lh{ height:24px; font-size:11px; color:var(--soft); text-transform:uppercase; letter-spacing:.06em; }
+  .hm2-lr{ height:var(--rh); margin-top:4px; }
+  .hm2-name{ font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .hm2-lr b{ font-size:13px; font-variant-numeric:tabular-nums; }
+  .hm2-scroll{ flex:1; min-width:0; overflow-x:auto; padding:0 2px 6px 10px; -webkit-overflow-scrolling:touch; }
+  .hm2-grid{ display:grid; column-gap:4px; row-gap:4px; grid-auto-rows:var(--rh); }
+  .hm2-grid .hm2-h{ height:24px; align-self:start; font-size:11px; color:var(--soft); text-align:center; white-space:nowrap; font-variant-numeric:tabular-nums; line-height:24px; }
+  .hm2-grid .hm2-h.is-mark{ color:var(--ink); font-weight:600; font-size:10.5px; }
+  .hm2-grid > .hm2-h{ grid-row:1; }
+  .hm2-c{ border-radius:6px; background:var(--field); display:grid; place-items:center; font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--soft); }
+  .hm2-c.has{ background:color-mix(in srgb, var(--hc) calc(var(--a) * 100%), var(--field)); color:var(--ink); }
+  .hm2-c.hi{ color:#fff; }
+  .hm2-grid{ grid-template-rows:24px; }
+  @media (max-width:900px){
+    .pl-controls{ flex-direction:column; align-items:stretch; }
+    .pl-controls > .seg{ display:flex; width:100%; } .pl-controls > .seg button{ flex:1; padding:7px 4px; }
+    .pl-row2{ justify-content:space-between; } .pl-row2 .seg{ flex:1; display:flex; } .pl-row2 .seg button{ flex:1; }
+    .pl-type{ flex:1; min-width:0; }
+    .hm2{ --cw:36px; --rh:34px; }
+    .hm2-left{ width:112px; }
+    .hm2-name{ font-size:13px; }
+  }
+  /* page headers: no forced height when stacked on phones */
+  @media (max-width:900px){ .vhead > div:first-child{ flex:none !important; } }
 </style>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
@@ -3347,11 +3380,20 @@
           el('p', { text: fmt(total) + ' visit' + (total === 1 ? '' : 's') + (f === 'all' ? ' across all types' : ' of type ' + AI_TYPES[f].label)
             + (per === 'all' ? ', every visit since logging began.' : ', by platform' + (pv === 'daily' ? ' and day' : '') + (per === 'custom' && pd.length ? ' · ' + shortDate(pd[0].date) + ' – ' + shortDate(pd[pd.length - 1].date) : '') + '. Days follow this device’s time zone.') }) ])
       ]));
-      var controls = el('div', { class: 'ai-views' }, [
-        chipGroup('Period', [ ['7', 'Last 7 days'], ['30', 'Last 30 days'], ['all', 'All time'], ['custom', 'Custom'] ], per, function(v){ aiCrawlers.platPeriod = v; }),
-        per !== 'all' ? chipGroup('Layout', [ ['daily', 'Day by day'], ['total', 'Totals'] ], pv, function(v){ aiCrawlers.platView = v; }) : null,
-        el('span', { class: 'sp' }),
-        chipGroup('Filter by crawler type', [ ['all', 'All'], ['search', 'AI Search'], ['live', 'Live lookup'], ['training', 'Training'] ], f, function(v){ aiCrawlers.platFilter = v; })
+      function segGroup(label, items, cur, set){
+        return el('div', { class: 'seg', role: 'group', 'aria-label': label }, items.map(function(c){
+          return el('button', { type: 'button', class: cur === c[0] ? 'is-on' : '', 'aria-pressed': cur === c[0] ? 'true' : 'false', text: c[1], onclick: function(){ set(c[0]); renderPlat30(); } });
+        }));
+      }
+      var typeSel = el('select', { class: 'pl-type', 'aria-label': 'Crawler type', onchange: function(e){ aiCrawlers.platFilter = e.target.value; renderPlat30(); } },
+        [ ['all', 'All types'], ['search', 'AI Search'], ['live', 'Live lookup'], ['training', 'Training'] ].map(function(o){ return el('option', { value: o[0], text: o[1] }); }));
+      typeSel.value = f;
+      var controls = el('div', { class: 'pl-controls' }, [
+        segGroup('Period', [ ['7', '7 days'], ['30', '30 days'], ['all', 'All time'], ['custom', 'Custom'] ], per, function(v){ aiCrawlers.platPeriod = v; }),
+        el('div', { class: 'pl-row2' }, [
+          per !== 'all' ? segGroup('Layout', [ ['daily', 'Day by day'], ['total', 'Totals'] ], pv, function(v){ aiCrawlers.platView = v; }) : null,
+          typeSel
+        ])
       ]);
       plat30.appendChild(controls);
       if(per === 'custom'){
@@ -3386,26 +3428,27 @@
             if(perDay[name][di] > gMax) gMax = perDay[name][di];
           });
         });
-        var hc = f === 'all' ? '#1F7A5C' : AI_TYPES[f].hex, N = pd.length;
-        var grid = el('div', { class: 'ai-hm', style: 'grid-template-columns:84px repeat(' + N + ', minmax(13px, 1fr)) 38px;--hc:' + hc + ';' });
-        grid.appendChild(el('div', { class: 'hm-h', text: '' }));
-        pd.forEach(function(d){
-          var dn = Number(d.date.slice(8));
-          grid.appendChild(el('div', { class: 'hm-h' + (dn === 1 ? ' is-mark' : ''), title: shortDate(d.date), text: String(dn) }));
+        // Names + totals stay fixed on the left; the day columns scroll,
+        // newest day first.
+        var hc = f === 'all' ? '#1F7A5C' : AI_TYPES[f].hex, N = pd.length, order = pd.map(function(_, i){ return N - 1 - i; });
+        var rowsP = list.slice(0, 12);
+        var left = el('div', { class: 'hm2-left' }, [ el('div', { class: 'hm2-lh' }, [ el('span', { text: 'Platform' }), el('span', { text: 'Total' }) ]) ]);
+        rowsP.forEach(function(p){ left.appendChild(el('div', { class: 'hm2-lr' }, [ el('span', { class: 'hm2-name', title: p.name, text: p.name }), el('b', { text: fmt(p.count) }) ])); });
+        var g = el('div', { class: 'hm2-grid', style: 'grid-template-columns:repeat(' + N + ', var(--cw));--hc:' + hc + ';' });
+        order.forEach(function(di, j){
+          var d = pd[di].date, dn = Number(d.slice(8));
+          g.appendChild(el('div', { class: 'hm2-h' + (dn === 1 || j === 0 ? ' is-mark' : ''), title: shortDate(d), text: (dn === 1 || j === 0) ? shortDate(d) : String(dn) }));
         });
-        grid.appendChild(el('div', { class: 'hm-h', text: 'Total' }));
-        list.slice(0, 12).forEach(function(p){
-          grid.appendChild(el('div', { class: 'hm-name', title: p.name, text: p.name }));
-          pd.forEach(function(d, di){
+        rowsP.forEach(function(p){
+          order.forEach(function(di){
             var n = (perDay[p.name] && perDay[p.name][di]) || 0, r = n / gMax;
-            var c = el('div', { class: 'hm-c' + (n ? ' has' : '') + (r > 0.55 ? ' hi' : ''), title: p.name + ' · ' + shortDate(d.date) + ': ' + n + ' visit' + (n === 1 ? '' : 's'), text: n ? String(n) : '' });
-            if(n) c.style.setProperty('--a', String(0.25 + 0.75 * r));
-            grid.appendChild(c);
+            var c = el('div', { class: 'hm2-c' + (n ? ' has' : '') + (r > 0.55 ? ' hi' : ''), title: p.name + ' · ' + shortDate(pd[di].date) + ': ' + n + ' visit' + (n === 1 ? '' : 's'), text: n ? String(n) : '' });
+            if(n) c.style.setProperty('--a', String(0.22 + 0.78 * r));
+            g.appendChild(c);
           });
-          grid.appendChild(el('div', { class: 'hm-t', text: fmt(p.count) }));
         });
-        plat30.appendChild(el('div', { class: 'ai-hm-cap', text: shortDate(pd[0].date) + ' – ' + shortDate(pd[N - 1].date) + ' · each square is one day (number = visits); the bold header is the 1st of a month' }));
-        plat30.appendChild(el('div', { class: 'ai-hm-scroll' }, [ grid ]));
+        plat30.appendChild(el('div', { class: 'ai-hm-cap', text: 'Newest day first · ' + shortDate(pd[N - 1].date) + ' back to ' + shortDate(pd[0].date) + ' · number = visits that day' }));
+        plat30.appendChild(el('div', { class: 'hm2' }, [ left, el('div', { class: 'hm2-scroll' }, [ g ]) ]));
         return;
       }
       var wrap = el('div', { class: 'ai-bars' }), max = list[0].count;
