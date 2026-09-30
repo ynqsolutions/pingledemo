@@ -495,6 +495,11 @@
   /* Dashboard hero: quick actions + live site status */
   .vhero.is-dash{ grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); align-items:stretch; }
   .vhero.is-dash h1{ font-size:26px; margin-bottom:0; }
+  .vhead{ margin-bottom:24px; flex-wrap:wrap; }
+  .vhead > div:first-child{ flex:1 1 360px; min-width:0; }
+  .vh-counts{ display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:10px; font-size:13px; color:var(--muted); }
+  .vh-count b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
+  .vh-link{ color:var(--accent); font-weight:600; }
   .rem-card{ margin:0 0 20px; border-left:4px solid #B38A3C; }
   .rem-card h2 small{ display:inline-block; margin-left:8px; font-size:11.5px; background:#B38A3C; color:#fff; border-radius:999px; padding:1px 8px; vertical-align:3px; }
   .rem-list{ display:flex; flex-direction:column; gap:10px; }
@@ -1131,24 +1136,20 @@
     if(isEntering()) aiCountUp(node, value, 900); else node.textContent = fmt(value);
   }
   function viewHero(o){
-    var chips = el('div', { class: 'vhero-chips' });
+    // Plain page header (title, one-line description, small counts, actions).
+    var chips = el('div', { class: 'vh-counts' });
     (o.chips || []).forEach(function(c){
       var b = el('b', { text: typeof c.value === 'number' ? '0' : c.value });
-      chips.appendChild(el('div', { class: 'vhero-chip' }, [ b, el('span', { text: c.label }) ]));
+      chips.appendChild(el('span', { class: 'vh-count' }, [ b, ' ' + c.label.toLowerCase() ]));
       if(c.id) b.id = c.id;
       vCount(b, c.value);
     });
-    return el('div', { class: 'vhero' }, [
-      el('div', { style: 'position:relative;z-index:1;min-width:0;' }, [
-        el('span', { class: 'vhero-kicker' }, [ el('span', { class: 'ai-live-dot' }), o.kicker || 'Pingle Law' ]),
-        el('h1', { text: o.title }),
-        el('p', { class: 'vhero-sub', text: o.sub || '' }),
-        chips,
-        (o.actions && o.actions.length) ? el('div', { class: 'vhero-actions' }, o.actions) : null
-      ]),
-      o.art ? el('div', { class: 'vhero-art', 'aria-hidden': 'true' }, [ o.art ]) : null
+    return el('div', { class: 'page-head vhead' }, [
+      el('div', {}, [ el('h1', { text: o.title }), o.sub ? el('p', { text: o.sub }) : null, (o.chips && o.chips.length) ? chips : null ]),
+      (o.actions && o.actions.length) ? el('div', { class: 'page-head-actions' }, o.actions) : null
     ]);
   }
+
   function parseAmount(a){
     var m = String(a || '').replace(/[, ]/g, '').match(/\$?([\d.]+)\s*([KkMmBb]?)/);
     if(!m) return 0;
@@ -1281,29 +1282,21 @@
     host.innerHTML = '';
     var h = new Date().getHours(), hello = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
     var user = currentUser(), name = user && user.user_metadata && user.user_metadata.full_name ? String(user.user_metadata.full_name).split(' ')[0] : '';
-    var actions = [
-      { href: '#blog/new', ico: 'plus', label: 'Write a blog post' },
-      { href: '#banner', ico: 'megaphone', label: 'Update the banner' },
-      { href: '#search-updates', ico: 'globe', label: 'Mark pages updated' }
-    ];
-    var btns = el('div', { class: 'dash-actions' }, actions.map(function(a){
-      return el('a', { class: 'dash-btn', href: a.href }, [ icon(QA_ICONS[a.ico], '2'), a.label ]);
-    }));
     var last = overview.lastChange;
-    host.appendChild(el('div', { class: 'vhero is-dash dash-hero' }, [
-      el('div', { style: 'position:relative;z-index:1;min-width:0;' }, [
-        el('span', { class: 'vhero-kicker' }, [ el('span', { class: 'ai-live-dot' }), 'Dashboard' ]),
-        el('h1', { text: hello + (name ? ', ' + name : '') + '.' }),
-        el('p', { class: 'dash-sub', text: last ? 'Last change ' + relTime(last.when) + ': ' + last.msg : 'Here’s what’s happening on pinglelaw.com.' }),
-        btns
+    host.appendChild(el('div', { class: 'page-head vhead' }, [
+      el('div', {}, [
+        el('h1', { text: hello + (name ? ', ' + name : '') }),
+        el('p', { text: last ? 'Last change ' + relTime(last.when) + ': ' + last.msg : 'Here’s what’s happening on pinglelaw.com.' }),
+        overview.banner ? el('div', { class: 'vh-counts' }, [ el('span', { class: 'vh-count' }, [ el('span', { class: 'ai-live-dot', style: 'display:inline-block;margin-right:6px;' }), 'Live banner: ', el('b', { text: overview.banner }), ' · ', el('a', { href: '#banner', class: 'vh-link', text: 'Edit' }) ]) ]) : null
       ]),
-      el('a', { class: 'dash-banner', href: '#banner', title: 'Edit the banner' }, [
-        el('span', { class: 'dash-banner-lb' }, [ el('span', { class: 'ai-live-dot' }), 'Live banner' ]),
-        el('span', { class: 'dash-banner-msg', text: overview.banner || '—' }),
-        el('span', { class: 'dash-banner-edit', text: 'Edit →' })
+      el('div', { class: 'page-head-actions' }, [
+        el('a', { class: 'btn btn-ghost', href: '#search-updates', text: 'Mark pages updated' }),
+        el('a', { class: 'btn btn-ghost', href: '#banner', text: 'Update the banner' }),
+        el('a', { class: 'btn btn-primary', href: '#blog/new', text: 'Write a blog post' })
       ])
     ]));
   }
+
 
   function renderOverviewResults(){
     var host = $('#ovResults'); if(!host) return;
