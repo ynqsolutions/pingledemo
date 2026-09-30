@@ -5771,13 +5771,19 @@ p.article-disclaimer{
   transition:border-color .15s ease;
 }
 .tpl-modal-cancel:hover{ border-color:var(--navy-950); color:var(--navy-950); }
-.tpl-modal-continue{ flex:1.4; }
+.tpl-modal-continue{ flex:1.4; min-width:0; }
 
 @media (max-width:900px){
   .tpl-generator-grid{ grid-template-columns:1fr; }
   .tpl-side{ position:static; }
-  .tpl-actions{ flex-direction:row; flex-wrap:wrap; }
-  .tpl-action-btn{ flex:1; min-width:120px; }
+  .tpl-actions{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; }
+  .tpl-action-btn{ min-width:0; padding:12px 8px; gap:6px; }
+}
+@media (max-width:480px){
+  .tpl-actions{ grid-template-columns:1fr; }
+  .tpl-modal-card{ padding:26px 22px; }
+  .tpl-modal-actions{ flex-direction:column-reverse; }
+  .tpl-modal-actions > *{ width:100%; flex:none; }
 }
 @media (max-width:560px){
   .tpl-paper{ padding:44px 24px 44px 56px; }
@@ -5797,8 +5803,9 @@ p.article-disclaimer{
      letter onto page 1 while leaving several trailing blank pages
      behind it — display:none removes that height outright so the
      printed/exported letter is a single page. */
-  .site-header, .mobile-nav, .mobile-sticky-cta, footer,
-  main > section:not(#generator),
+  body > *:not(main),
+  .promo-banner, .back-to-top,
+  main > *:not(#generator),
   #generator .calc-card-head,
   #generator .tpl-side,
   #generator .tool-disclaimer,
@@ -5806,7 +5813,9 @@ p.article-disclaimer{
   .glossary-popup{
     display:none !important;
   }
-  #generator{ border:none !important; padding:0 !important; margin:0 !important; }
+  html, body{ background:#fff !important; width:auto !important; min-width:0 !important; max-width:none !important; overflow:visible !important; margin:0 !important; padding:0 !important; }
+  main{ display:block !important; margin:0 !important; padding:0 !important; }
+  #generator{ border:none !important; padding:0 !important; margin:0 !important; background:#fff !important; min-height:0 !important; }
   #generator .wrap, #generator .calc-card, #generator .tpl-generator-grid{
     display:block !important; max-width:none !important; margin:0 !important; padding:0 !important;
   }
@@ -5823,9 +5832,10 @@ p.article-disclaimer{
     padding:1.75in 1in 1in 1in !important;
     min-height:0 !important;
     font-size:12pt !important;
+    width:auto !important; box-sizing:border-box !important;
   }
   .tpl-paper, .tpl-letter, .letter-field{ font-family:"Times New Roman", Times, serif !important; color:#000 !important; }
-  .tpl-letter p{ line-height:1.5 !important; margin:0 !important; }
+  .tpl-letter p{ font-size:12pt !important; line-height:1.5 !important; margin:0 !important; }
   .letter-field{
     border-bottom:none !important;
     font-style:normal !important;
