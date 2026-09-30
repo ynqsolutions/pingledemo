@@ -5790,6 +5790,22 @@ p.article-disclaimer{
      red margin rule (they forced an off-center, left-heavy layout). */
   .tpl-paper{ padding:40px 22px; }
   .tpl-paper-wrap::before, .tpl-paper-hole{ display:none; }
+  /* Tap-to-edit on phones: iOS zooms the page when a field under 16px is
+     focused, so the paper text is 16px; fields get a bigger tap target,
+     text selection stays enabled, and the ruled lines follow the new
+     line height. */
+  .tpl-paper{ font-size:16px; background-image:repeating-linear-gradient(#FBFAF6 0, #FBFAF6 31px, rgba(216,207,182,0.4) 31px, rgba(216,207,182,0.4) 32px); }
+  .tpl-letter p{ line-height:32px; }
+  .letter-field{
+    font-size:16px;
+    padding:5px 4px;
+    min-width:72px; min-height:22px;
+    line-height:22px;
+    touch-action:manipulation;
+    -webkit-user-select:text; user-select:text;
+    -webkit-tap-highlight-color:transparent;
+    scroll-margin:140px 0;
+  }
 }
 
 @media print{
