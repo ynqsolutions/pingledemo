@@ -450,11 +450,11 @@
   .ai-chip{ appearance:none; border:1.5px solid var(--line); background:var(--card); color:var(--muted); font:inherit; font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:999px; cursor:pointer; transition:background .15s ease, color .15s ease, border-color .15s ease; }
   .ai-chip:hover{ border-color:var(--accent); color:var(--ink); }
   .ai-chip[aria-pressed="true"]{ background:var(--ink); border-color:var(--ink); color:var(--card); }
-  .ai-bar-track.seg{ display:flex; gap:2px; background:var(--field); }
-  .ai-bar-track.seg .ai-bar-fill{ border-radius:0; flex:none; }
-  .ai-bar-track.seg .ai-bar-fill:first-child{ border-radius:999px 0 0 999px; }
-  .ai-bar-track.seg .ai-bar-fill:last-child{ border-radius:0 999px 999px 0; }
-  .ai-bar-track.seg .ai-bar-fill:only-child{ border-radius:999px; }
+  .ai-bar-track.segbar{ display:flex; gap:2px; background:var(--field); }
+  .ai-bar-track.segbar .ai-bar-fill{ border-radius:0; flex:none; }
+  .ai-bar-track.segbar .ai-bar-fill:first-child{ border-radius:999px 0 0 999px; }
+  .ai-bar-track.segbar .ai-bar-fill:last-child{ border-radius:0 999px 999px 0; }
+  .ai-bar-track.segbar .ai-bar-fill:only-child{ border-radius:999px; }
   .ai-bar-meta{ grid-column:1 / -1; font-size:11.5px; color:var(--soft); }
 
   .ai-feed{ position:relative; display:flex; flex-direction:column; }
@@ -1092,6 +1092,22 @@
   }
   /* page headers: no forced height when stacked on phones */
   @media (max-width:900px){ .vhead > div:first-child{ flex:none !important; } }
+
+  /* ---- Live activity: filters + day-grouped feed ---- */
+  .feed-filters{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:12px; }
+  .feed-clear{ border:none; background:none; color:var(--accent); font:inherit; font-size:13px; font-weight:600; cursor:pointer; padding:6px 4px; }
+  .feed-range{ display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; padding:12px; margin-bottom:12px; background:var(--field); border:1px solid var(--line); border-radius:10px; }
+  .feed-date{ display:flex; flex-direction:column; gap:4px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); flex:1; min-width:130px; }
+  .feed-date input{ height:36px; border:1px solid var(--line-strong); border-radius:8px; padding:0 10px; font:inherit; font-size:13.5px; text-transform:none; letter-spacing:0; color:var(--ink); background:#fff; }
+  .feed-date input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-100); }
+  .feed-dash{ color:var(--soft); padding-bottom:9px; }
+  .feed-day{ position:relative; display:flex; align-items:baseline; gap:8px; margin:16px 0 8px -2px; padding:6px 10px; background:var(--field); border-radius:8px; font-size:12.5px; z-index:1; }
+  .feed-day:first-child{ margin-top:2px; }
+  .feed-day b{ font-weight:600; color:var(--ink); }
+  .feed-day span{ color:var(--muted); }
+  .feed-day em{ margin-left:auto; font-style:normal; color:var(--soft); font-size:12px; font-variant-numeric:tabular-nums; }
+  .feed-time{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+  @media (max-width:560px){ .feed-filters .pl-type{ flex:1; } .feed-range{ align-items:stretch; } .feed-dash{ display:none; } }
 </style>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
@@ -3453,7 +3469,7 @@
       }
       var wrap = el('div', { class: 'ai-bars' }), max = list[0].count;
       list.slice(0, 12).forEach(function(p, i){
-        var track = el('div', { class: 'ai-bar-track seg' });
+        var track = el('div', { class: 'ai-bar-track segbar' });
         AI_TYPE_ORDER.forEach(function(k){
           if(!p.types[k]) return;
           var seg = el('div', { class: 'ai-bar-fill', title: AI_TYPES[k].label + ': ' + p.types[k], style: 'width:' + (p.types[k] / max * 100) + '%;background:' + AI_TYPES[k].hex });
@@ -3499,65 +3515,72 @@
     var feedCard = el('div', { class: 'card' });
     function renderFeed(){
       feedCard.innerHTML = '';
-      var all = aiCrawlers.recent || [], dayCounts = {}, dayList = [];
-      all.forEach(function(r){ var d = isoDay(new Date(r.time)); if(!dayCounts[d]){ dayCounts[d] = 0; dayList.push(d); } dayCounts[d]++; });
+      var all = aiCrawlers.recent || [], dayList = [];
+      all.forEach(function(r){ var d = isoDay(new Date(r.time)); if(dayList.indexOf(d) === -1) dayList.push(d); });
       dayList.sort();
       var oldestDay = dayList[0] || '', newestDay = dayList[dayList.length - 1] || '';
-      var fFrom = aiCrawlers.feedFrom || '', fTo = aiCrawlers.feedTo || '';
-      if(fFrom && fTo && fFrom > fTo){ var sw = fFrom; fFrom = fTo; fTo = sw; }
-      var fType = aiCrawlers.feedType || '';
-      var filtered = !!(fFrom || fTo || fType);
-      var list = filtered ? all.filter(function(r){ var d = isoDay(new Date(r.time)); return (!fFrom || d >= fFrom) && (!fTo || d <= fTo) && (!fType || aiTypeOf(r.bot) === fType); }) : all;
-      var single = filtered && fFrom && fFrom === fTo;
-      function dateIn(label, val, key){
-        var inp = el('input', { type: 'date', value: val, min: oldestDay, max: newestDay, 'aria-label': label, onchange: function(e){ aiCrawlers[key] = e.target.value; renderFeed(); } });
-        return el('label', { class: 'ai-feed-date' }, [ label, inp ]);
-      }
-      var filterRow = all.length ? el('div', { class: 'ai-views ai-feed-filter' }, [
-        (function(){
-          var sel = el('select', { class: 'pl-type', 'aria-label': 'Filter by visit type', onchange: function(e){ aiCrawlers.feedType = e.target.value; renderFeed(); } },
-            [ ['', 'All types'], ['live', 'Live lookup'], ['search', 'AI Search'], ['training', 'Training'] ].map(function(o){ return el('option', { value: o[0], text: o[1] }); }));
-          sel.value = fType; return sel;
-        })(),
-        dateIn('From', fFrom, 'feedFrom'), dateIn('To', fTo, 'feedTo'),
-        filtered ? el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Clear', onclick: function(){ aiCrawlers.feedFrom = ''; aiCrawlers.feedTo = ''; aiCrawlers.feedType = ''; renderFeed(); } }) : null,
-        el('span', { class: 'sp' }),
-        el('span', { class: 'ai-feed-range', text: 'Logged: ' + shortDate(oldestDay) + ' – ' + shortDate(newestDay) })
-      ]) : null;
+      var today = isoDay(new Date()), yest = isoDay(addLocalDays(new Date(), -1));
+      // Date filter: a preset (all / today / yesterday / last 7 days) or a custom range.
+      var fDate = aiCrawlers.feedDate || 'all', fType = aiCrawlers.feedType || '';
+      var fFrom = '', fTo = '';
+      if(fDate === 'today'){ fFrom = fTo = today; }
+      else if(fDate === 'yesterday'){ fFrom = fTo = yest; }
+      else if(fDate === '7'){ fFrom = isoDay(addLocalDays(new Date(), -6)); fTo = today; }
+      else if(fDate === 'custom'){ fFrom = aiCrawlers.feedFrom || ''; fTo = aiCrawlers.feedTo || ''; if(fFrom && fTo && fFrom > fTo){ var sw = fFrom; fFrom = fTo; fTo = sw; } }
+      var filtered = fDate !== 'all' || !!fType;
+      var list = all.filter(function(r){ var d = isoDay(new Date(r.time)); return (!fFrom || d >= fFrom) && (!fTo || d <= fTo) && (!fType || aiTypeOf(r.bot) === fType); });
+      function mkSel(label, opts, val, on){ var sel = el('select', { class: 'pl-type', 'aria-label': label, onchange: function(e){ on(e.target.value); renderFeed(); } }, opts.map(function(o){ return el('option', { value: o[0], text: o[1] }); })); sel.value = val; return sel; }
       feedCard.appendChild(el('div', { class: 'ai-card-head' }, [
         el('div', {}, [ el('h2', {}, [ 'Live activity', el('small', { text: filtered ? list.length + ' of ' + all.length : all.length + ' recorded' }) ]),
-          el('p', { text: 'A referer only ever appears on live lookups - training crawls have no question behind them.' }) ])
+          el('p', { text: all.length ? 'Itemized visits from ' + shortDate(oldestDay) + ' to ' + shortDate(newestDay) + '. A referer only appears on live lookups.' : 'A referer only appears on live lookups.' }) ])
       ]));
-      if(filterRow) feedCard.appendChild(filterRow);
-      var pick = single;
+      if(all.length){
+        feedCard.appendChild(el('div', { class: 'feed-filters' }, [
+          mkSel('Filter by visit type', [ ['', 'All types'], ['live', 'Live lookup'], ['search', 'AI Search'], ['training', 'Training'] ], fType, function(v){ aiCrawlers.feedType = v; }),
+          mkSel('Filter by date', [ ['all', 'All dates'], ['today', 'Today'], ['yesterday', 'Yesterday'], ['7', 'Last 7 days'], ['custom', 'Custom range…'] ], fDate, function(v){ aiCrawlers.feedDate = v; }),
+          filtered ? el('button', { type: 'button', class: 'feed-clear', text: 'Clear', onclick: function(){ aiCrawlers.feedDate = 'all'; aiCrawlers.feedType = ''; aiCrawlers.feedFrom = ''; aiCrawlers.feedTo = ''; renderFeed(); } }) : null
+        ]));
+        if(fDate === 'custom'){
+          var dIn = function(label, key, val){ return el('label', { class: 'feed-date' }, [ el('span', { text: label }), el('input', { type: 'date', value: val, min: oldestDay, max: newestDay, onchange: function(e){ aiCrawlers[key] = e.target.value; renderFeed(); } }) ]); };
+          feedCard.appendChild(el('div', { class: 'feed-range' }, [ dIn('From', 'feedFrom', aiCrawlers.feedFrom || oldestDay), el('span', { class: 'feed-dash', text: '→' }), dIn('To', 'feedTo', aiCrawlers.feedTo || newestDay) ]));
+        }
+      }
       if(!list.length){
         feedCard.appendChild(el('div', { class: 'empty-state', text: filtered ? 'No logged visits match these filters.' : 'Nothing yet.' }));
         return;
       }
-      var feed = el('div', { class: 'ai-feed' });
+      // Grouped by day (newest first), each visit shows its time of day.
+      var feed = el('div', { class: 'ai-feed' }), lastDay = null, shown = 0, cutNode = null;
       list.forEach(function(r, i){
-        var type = aiTypeOf(r.bot), fresh = (Date.now() - new Date(r.time).getTime()) < 3600000;
+        var dt = new Date(r.time), d = isoDay(dt);
+        if(d !== lastDay){
+          lastDay = d;
+          var cnt = list.filter(function(x){ return isoDay(new Date(x.time)) === d; }).length;
+          feed.appendChild(el('div', { class: 'feed-day' }, [
+            el('b', { text: d === today ? 'Today' : d === yest ? 'Yesterday' : dt.toLocaleDateString(undefined, { weekday: 'long' }) }),
+            el('span', { text: dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) }),
+            el('em', { text: cnt + ' visit' + (cnt === 1 ? '' : 's') })
+          ]));
+        }
+        var type = aiTypeOf(r.bot), fresh = (Date.now() - dt.getTime()) < 3600000;
         var item = el('div', { class: 'ai-feed-item' }, [
           el('span', { class: 'ai-feed-dot' + (fresh ? ' is-fresh' : ''), style: 'background:' + AI_TYPES[type].hex }),
-          el('div', { class: 'ai-feed-top' }, [ el('b', { text: aiPlatform(r.label) }), el('span', { text: pick ? new Date(r.time).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : filtered ? new Date(r.time).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : relTime(r.time) }) ]),
+          el('div', { class: 'ai-feed-top' }, [ el('b', { text: aiPlatform(r.label) }), el('span', { class: 'feed-time', title: dt.toLocaleString(), text: dt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) + (fresh ? ' · ' + relTime(r.time) : '') }) ]),
           el('div', { class: 'ai-feed-path', text: r.path }),
           el('span', { class: 'ai-type', text: AI_TYPES[type].label + ' · ' + r.bot }),
           r.referer ? el('div', { class: 'ai-ref', text: 'from ' + r.referer }) : null
         ]);
         item.style.animationDelay = Math.min(i * 0.04, 0.6) + 's';
         feed.appendChild(item);
+        if(++shown === 15) cutNode = item;
       });
-      // Show the first 15 in full; anything past that scrolls inside the
-      // card. The line/timeline lives on the inner .ai-feed so it keeps
-      // running the full length while the outer box scrolls.
       var scroller = el('div', { class: 'ai-feed-scroll' }, [ feed ]);
       feedCard.appendChild(scroller);
       if(list.length > 15){
         var hint = el('div', { class: 'ai-feed-hint', text: 'Scroll for ' + (list.length - 15) + ' more' });
         feedCard.appendChild(hint);
         requestAnimationFrame(function(){
-          var cut = feed.children[14];
-          if(cut){ scroller.style.maxHeight = (cut.offsetTop + cut.offsetHeight + 4) + 'px'; scroller.classList.add('is-scroll'); }
+          if(cutNode){ scroller.style.maxHeight = (cutNode.offsetTop + cutNode.offsetHeight + 4) + 'px'; scroller.classList.add('is-scroll'); }
         });
         scroller.addEventListener('scroll', function(){
           hint.classList.toggle('is-done', scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 4);
