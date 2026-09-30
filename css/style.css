@@ -5804,7 +5804,6 @@ p.article-disclaimer{
     touch-action:manipulation;
     -webkit-user-select:text; user-select:text;
     -webkit-tap-highlight-color:transparent;
-    scroll-margin:140px 0;
   }
 }
 

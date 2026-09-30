@@ -16,11 +16,23 @@
   fields.forEach(field => {
     syncFilledState(field);
 
-    // Clear the placeholder text outright as soon as the field is clicked,
-    // rather than making the visitor select and delete it first.
+    // Select the placeholder on focus instead of deleting it: typing still
+    // replaces it, but the field keeps its width, so the text around it
+    // doesn't reflow (which made the letter jump on phones when tapped).
     field.addEventListener('focus', () => {
       if(field.textContent === field.dataset.placeholder){
-        field.textContent = '';
+        // Deferred: the browser places its own caret right after focus
+        // (iOS does it after the tap), which would undo an instant select.
+        const selectAll = () => {
+          if(document.activeElement !== field || field.textContent !== field.dataset.placeholder) return;
+          const range = document.createRange();
+          range.selectNodeContents(field);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        };
+        setTimeout(selectAll, 0);
+        setTimeout(selectAll, 60);
       }
     });
 
