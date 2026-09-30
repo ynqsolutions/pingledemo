@@ -435,6 +435,7 @@
   .ai-bar-fill{ height:100%; border-radius:999px; transform-origin:left; animation:aiGrowX .9s cubic-bezier(.2,.8,.2,1) both; }
   .ai-views{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:14px; }
   .ai-views .sp{ flex:1; }
+  .ai-custom{ gap:8px; } .ai-custom label{ font-size:12.5px; color:var(--muted); font-weight:600; } .ai-custom input[type=date]{ font:inherit; font-size:13px; padding:6px 8px; border:1.5px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); }
   .ai-hm-cap{ font-size:12px; color:var(--muted); margin:-2px 0 8px; }
   .ai-hm-scroll{ overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; }
   .ai-hm{ display:grid; gap:3px; align-items:center; min-width:540px; }
@@ -2705,15 +2706,6 @@
     root.appendChild(tiles);
 
     // ---- Trend chart + platforms ----
-    var trendCard = el('div', { class: 'card' }, [
-      el('div', { class: 'ai-card-head' }, [
-        el('div', {}, [ el('h2', { text: 'Last 30 days' }), el('p', { text: 'Hits per day, stacked by crawler type. Hover a day for the breakdown.' }) ]),
-        aiLegend()
-      ]),
-      daily.length ? aiTrendChart(daily) : el('div', { class: 'empty-state', text: 'Daily history appears here once the next deploy is live.' })
-    ]);
-
-    root.appendChild(trendCard);
 
     // ---- Platforms: one card, switchable between the last 30 days (day by
     // day or totals) and all time, filtered by crawler type. 30-day figures
@@ -2723,6 +2715,10 @@
       plat30.innerHTML = '';
       var f = aiCrawlers.platFilter || 'all', per = aiCrawlers.platPeriod || '30', map = {}, total = 0;
       var pv = per === 'all' ? 'total' : (aiCrawlers.platView || 'daily');
+      // The days this card is looking at: the last 7 or 30 days from the page's
+      // own data, or a custom range fetched on demand.
+      var pd = per === '7' ? daily.slice(-7) : per === 'custom' ? ((aiCrawlers.custom && aiCrawlers.custom.daily) || []) : daily;
+      if(pv === 'daily' && pd.length > 45) pv = 'total'; // too many columns for a readable grid
       function tally(name, type, n){
         var p = map[name] || (map[name] = { name: name, count: 0, types: {} });
         p.count += n; p.types[type] = (p.types[type] || 0) + n; total += n;
@@ -2730,7 +2726,7 @@
       if(per === 'all'){
         rows.forEach(function(r){ if(f === 'all' || r.type === f) tally(aiPlatform(r.label), r.type, r.count); });
       } else {
-        daily.forEach(function(d){
+        pd.forEach(function(d){
           Object.keys(d.counts || {}).forEach(function(k){ var t = aiTypeOf(k); if(f === 'all' || t === f) tally(aiPlatform(aiLabelFor(k)), t, d.counts[k]); });
         });
       }
@@ -2741,22 +2737,42 @@
         }));
       }
       plat30.appendChild(el('div', { class: 'ai-card-head' }, [
-        el('div', {}, [ el('h2', { text: 'Platforms · ' + (per === 'all' ? 'all time' : 'last 30 days') }),
+        el('div', {}, [ el('h2', { text: 'Platforms' }),
           el('p', { text: fmt(total) + ' visit' + (total === 1 ? '' : 's') + (f === 'all' ? ' across all types' : ' of type ' + AI_TYPES[f].label)
-            + (per === 'all' ? ', every visit since logging began.' : ', by platform' + (pv === 'daily' ? ' and day' : '') + '. Days follow this device’s time zone.') }) ])
+            + (per === 'all' ? ', every visit since logging began.' : ', by platform' + (pv === 'daily' ? ' and day' : '') + (per === 'custom' && pd.length ? ' · ' + shortDate(pd[0].date) + ' – ' + shortDate(pd[pd.length - 1].date) : '') + '. Days follow this device’s time zone.') }) ])
       ]));
       var controls = el('div', { class: 'ai-views' }, [
-        chipGroup('Period', [ ['30', 'Last 30 days'], ['all', 'All time'] ], per, function(v){ aiCrawlers.platPeriod = v; }),
-        per === '30' ? chipGroup('Layout', [ ['daily', 'Day by day'], ['total', 'Totals'] ], pv, function(v){ aiCrawlers.platView = v; }) : null,
+        chipGroup('Period', [ ['7', 'Last 7 days'], ['30', 'Last 30 days'], ['all', 'All time'], ['custom', 'Custom'] ], per, function(v){ aiCrawlers.platPeriod = v; }),
+        per !== 'all' ? chipGroup('Layout', [ ['daily', 'Day by day'], ['total', 'Totals'] ], pv, function(v){ aiCrawlers.platView = v; }) : null,
         el('span', { class: 'sp' }),
         chipGroup('Filter by crawler type', [ ['all', 'All'], ['search', 'AI Search'], ['live', 'Live lookup'], ['training', 'Training'] ], f, function(v){ aiCrawlers.platFilter = v; })
       ]);
       plat30.appendChild(controls);
-      if(!list.length){ plat30.appendChild(el('div', { class: 'empty-state', text: 'No visits of this type ' + (per === 'all' ? 'yet.' : 'in the last 30 days.') })); return; }
+      if(per === 'custom'){
+        var cu = aiCrawlers.custom || {}, todayIso = isoDay(new Date());
+        var fromIn = el('input', { type: 'date', value: cu.from || isoDay(addLocalDays(new Date(), -13)), max: todayIso, 'aria-label': 'From' });
+        var toIn = el('input', { type: 'date', value: cu.to || todayIso, max: todayIso, 'aria-label': 'To' });
+        var cerr = el('span', { class: 'field-error', style: 'margin-left:8px;' , text: cu.error || '' });
+        var apply = el('button', { type: 'button', class: 'btn btn-primary btn-sm', text: cu.busy ? 'Loading…' : 'Apply', onclick: function(){
+          var a = fromIn.value, b = toIn.value;
+          if(!a || !b){ aiCrawlers.custom = Object.assign({}, cu, { error: 'Pick both dates.' }); renderPlat30(); return; }
+          if(a > b){ var t = a; a = b; b = t; }
+          if((new Date(b) - new Date(a)) / 86400000 > 365){ aiCrawlers.custom = Object.assign({}, cu, { from: a, to: b, error: 'Choose a range of one year or less.' }); renderPlat30(); return; }
+          var user = currentUser(); if(!user) return;
+          aiCrawlers.custom = { from: a, to: b, daily: cu.daily || [], busy: true, error: '' }; renderPlat30();
+          user.jwt().then(function(token){ return fetch(aiStatsUrl(a, b), { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } }); })
+            .then(function(r){ if(!r.ok) throw new Error('Request failed (' + r.status + ')'); return r.json(); })
+            .then(function(d){ aiCrawlers.custom = { from: a, to: b, daily: aiLocalDaily(d, a, b), busy: false, error: '' }; renderPlat30(); })
+            .catch(function(e){ aiCrawlers.custom = { from: a, to: b, daily: [], busy: false, error: e.message || 'Could not load that range.' }; renderPlat30(); });
+        } });
+        if(cu.busy) apply.disabled = true;
+        plat30.appendChild(el('div', { class: 'ai-views ai-custom' }, [ el('label', { text: 'From' }), fromIn, el('label', { text: 'To' }), toIn, apply, cerr ]));
+      }
+      if(!list.length){ plat30.appendChild(el('div', { class: 'empty-state', text: per === 'custom' && !(aiCrawlers.custom && aiCrawlers.custom.daily && aiCrawlers.custom.daily.length) ? 'Pick a date range and press Apply.' : 'No visits of this type ' + (per === 'all' ? 'yet.' : 'in this period.') })); return; }
       if(pv === 'daily'){
         // One row per platform, one column per day; shade = that day's visits.
         var perDay = {}, gMax = 1;
-        daily.forEach(function(d, di){
+        pd.forEach(function(d, di){
           Object.keys(d.counts || {}).forEach(function(k){
             if(f !== 'all' && aiTypeOf(k) !== f) return;
             var name = aiPlatform(aiLabelFor(k)); perDay[name] = perDay[name] || {};
@@ -2764,17 +2780,17 @@
             if(perDay[name][di] > gMax) gMax = perDay[name][di];
           });
         });
-        var hc = f === 'all' ? '#1F7A5C' : AI_TYPES[f].hex, N = daily.length;
+        var hc = f === 'all' ? '#1F7A5C' : AI_TYPES[f].hex, N = pd.length;
         var grid = el('div', { class: 'ai-hm', style: 'grid-template-columns:84px repeat(' + N + ', minmax(13px, 1fr)) 38px;--hc:' + hc + ';' });
         grid.appendChild(el('div', { class: 'hm-h', text: '' }));
-        daily.forEach(function(d){
+        pd.forEach(function(d){
           var dn = Number(d.date.slice(8));
           grid.appendChild(el('div', { class: 'hm-h' + (dn === 1 ? ' is-mark' : ''), title: shortDate(d.date), text: String(dn) }));
         });
         grid.appendChild(el('div', { class: 'hm-h', text: 'Total' }));
         list.slice(0, 12).forEach(function(p){
           grid.appendChild(el('div', { class: 'hm-name', title: p.name, text: p.name }));
-          daily.forEach(function(d, di){
+          pd.forEach(function(d, di){
             var n = (perDay[p.name] && perDay[p.name][di]) || 0, r = n / gMax;
             var c = el('div', { class: 'hm-c' + (n ? ' has' : '') + (r > 0.55 ? ' hi' : ''), title: p.name + ' · ' + shortDate(d.date) + ': ' + n + ' visit' + (n === 1 ? '' : 's'), text: n ? String(n) : '' });
             if(n) c.style.setProperty('--a', String(0.25 + 0.75 * r));
@@ -2782,7 +2798,7 @@
           });
           grid.appendChild(el('div', { class: 'hm-t', text: fmt(p.count) }));
         });
-        plat30.appendChild(el('div', { class: 'ai-hm-cap', text: shortDate(daily[0].date) + ' – ' + shortDate(daily[N - 1].date) + ' · each square is one day (number = visits); the bold header is the 1st of a month' }));
+        plat30.appendChild(el('div', { class: 'ai-hm-cap', text: shortDate(pd[0].date) + ' – ' + shortDate(pd[N - 1].date) + ' · each square is one day (number = visits); the bold header is the 1st of a month' }));
         plat30.appendChild(el('div', { class: 'ai-hm-scroll' }, [ grid ]));
         return;
       }
