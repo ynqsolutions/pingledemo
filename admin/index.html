@@ -2459,6 +2459,23 @@
         '<td class="mono">' + (r.referer ? esc(r.referer) : '<span class="mute">&mdash;</span>') + '</td></tr>';
     }).join('');
 
+    // ---- key: what each visit type means + who is behind the common crawlers ----
+    var KEY_EXAMPLES = {
+      training: [ ['GPTBot', 'OpenAI', 'ChatGPT'], ['ClaudeBot', 'Anthropic', 'Claude'], ['Google-Extended', 'Google', 'Gemini'], ['Meta-ExternalAgent', 'Meta', 'Meta AI'], ['Applebot-Extended', 'Apple', 'Apple Intelligence'], ['Bytespider', 'ByteDance', 'Doubao / TikTok'], ['CCBot', 'Common Crawl', 'many AI models'] ],
+      search: [ ['OAI-SearchBot', 'OpenAI', 'ChatGPT search'], ['PerplexityBot', 'Perplexity', 'Perplexity'], ['Bingbot', 'Microsoft', 'Bing, Copilot'], ['DuckAssistBot', 'DuckDuckGo', 'Duck.ai'], ['YouBot', 'You.com', 'You.com'] ],
+      live: [ ['ChatGPT-User', 'OpenAI', 'ChatGPT'], ['Claude-User / Claude-Web', 'Anthropic', 'Claude'], ['Perplexity-User', 'Perplexity', 'Perplexity'] ]
+    };
+    var KEY_TEXT = {
+      training: 'Collects pages on a schedule to help train AI models. No one asked a question; it can influence what future models know.',
+      search: 'Saves pages so AI search tools can find and cite the site in their answers. This is how you get listed.',
+      live: 'A person asked an AI something right now and it opened a page on your site to answer. The strongest signal of real interest.'
+    };
+    var keyHtml = '<section class="first key"><h2>How to read this report</h2><p class="sub">Every visit is one of three types, based on which crawler made it.</p><div class="keys">' +
+      AI_TYPE_ORDER.map(function(k){
+        return '<div class="kc" style="--c:' + AI_TYPES[k].hex + '"><div class="kt">' + esc(AI_TYPES[k].label) + '</div><p>' + esc(KEY_TEXT[k]) + '</p><ul>' +
+          KEY_EXAMPLES[k].map(function(e){ return '<li><b>' + esc(e[0]) + '</b><span>' + esc(e[1]) + (e[2] !== e[1] ? ' &middot; ' + esc(e[2]) : '') + '</span></li>'; }).join('') + '</ul></div>';
+      }).join('') + '</div><p class="note">Platform names in this report are the company that runs the crawler; the product it powers is shown after the dot.</p></section>';
+
     var css = '@page{size:letter;margin:14mm 13mm 16mm;} @page :first{margin:0;}' +
       '*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
       'html,body{margin:0;padding:0;}' +
@@ -2483,7 +2500,8 @@
       // body pages
       '.doc{max-width:7.4in;margin:0 auto;}' +
       'section{margin-top:24px;}' +
-      'section.first{margin-top:0;} section.newpage{break-before:page;margin-top:0;}' +
+      '.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;} .kc{border:1px solid #E5E7EB;border-top:4px solid var(--c);border-radius:12px;padding:12px 13px;break-inside:avoid;} .kt{font-family:Georgia,serif;font-size:15px;font-weight:700;margin-bottom:5px;} .kc p{margin:0 0 8px;font-size:10.5px;line-height:1.5;color:#4B5563;} .kc ul{list-style:none;margin:0;padding:0;border-top:1px solid #EEF0F3;} .kc li{display:flex;flex-direction:column;padding:4px 0;border-bottom:1px solid #F3F4F6;font-size:10px;line-height:1.3;} .kc li b{font-weight:700;color:#111827;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;} .kc li span{color:#6B7280;}' +
+      'section.first{margin-top:0;} ' +
       'h2{font-family:Georgia,serif;font-size:21px;margin:0 0 3px;display:flex;align-items:center;gap:12px;color:#0A0F27;}' +
       'h2:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#B38A3C,rgba(179,138,60,0));}' +
       '.sub{color:#6B7280;margin:0 0 12px;font-size:11.5px;}' +
@@ -2519,14 +2537,15 @@
         '<div class="gen">Generated ' + esc(new Date().toLocaleString()) + ' &middot; times in ' + esc(tzName()) + '</div>' +
       '</div></div>' +
       '<div class="doc">' +
-      '<section class="first"><h2>Platforms</h2><p class="sub">Which AI platforms visited between ' + esc(shortDate(from)) + ' and ' + esc(shortDate(to)) + ', and why.</p>' +
+      keyHtml +
+      '<section><h2>Platforms</h2><p class="sub">Which AI platforms visited between ' + esc(shortDate(from)) + ' and ' + esc(shortDate(to)) + ', and why.</p>' +
         '<div class="card"><div class="legend">' + AI_TYPE_ORDER.map(function(k){ return '<span>' + keyDot(k) + '<b>' + AI_TYPES[k].label + '</b> &middot; ' + n0(byType[k]) + ' (' + pctOf(byType[k], total) + '%)</span>'; }).join('') + '</div>' + platformBars(plats, total, 12) + '</div>' +
         '<div class="card">' + (heatGrid() || '<p class="empty">No visits in this period.</p>') + '</div></section>' +
       '<section><h2>Most-read pages</h2><p class="sub">Pages AI crawlers and assistants read during these dates' + (pageRows.length ? ' &middot; ' + n0(pageRows.length) + ' distinct URL' + (pageRows.length === 1 ? '' : 's') + '.' : '.') + '</p><div class="card">' +
         (pageRows.length ? pageRows.slice(0, 15).map(function(p, i){ return '<div class="pgbar"><div class="rk">' + (i + 1) + '</div><div class="p">' + esc(p.path) + '</div><b>' + n0(p.count) + '</b><div class="t"><span style="width:' + (p.count / pageRows[0].count * 100).toFixed(1) + '%"></span></div></div>'; }).join('') : '<p class="empty">No page-level detail for these dates.</p>') +
         (pagesGap ? '<p class="note">Page-level detail starts on ' + esc(longDate(data.pagesSince)) + '; visits before then are counted under Platforms but not broken down by page. Pages are counted by UTC day.</p>' : '<p class="note">Pages are counted by UTC day.</p>') +
       '</div></section>' +
-      '<section class="newpage"><h2>Live activity</h2><p class="sub">Individual visits, newest first' + (actCapped ? ' &middot; the newest ' + (data.recent || []).length + ' are itemized here; the rest are counted above but not listed' : '') + '.</p>' +
+      '<section><h2>Live activity</h2><p class="sub">Individual visits, newest first' + (actCapped ? ' &middot; the newest ' + (data.recent || []).length + ' are itemized here; the rest are counted above but not listed' : '') + '.</p>' +
         '<table class="log"><thead><tr><th>When</th><th>Platform</th><th>Type</th><th>Page</th><th>Referer</th></tr></thead><tbody>' + (actRows || '<tr><td colspan="5" class="empty">No individually logged visits in these dates.</td></tr>') + '</tbody></table></section>' +
       '<div class="foot">Visits are counted by user-agent from known AI crawlers and agents. Days follow the time zone of the device that made this report (' + esc(tzName()) + ').</div>' +
       '</div></body></html>';
