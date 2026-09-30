@@ -5786,9 +5786,10 @@ p.article-disclaimer{
   .tpl-modal-actions > *{ width:100%; flex:none; }
 }
 @media (max-width:560px){
-  .tpl-paper{ padding:44px 24px 44px 56px; }
-  .tpl-paper-wrap::before{ left:32px; }
-  .tpl-paper-hole{ left:16px; }
+  /* Symmetric on phones: equal left/right padding, no binder holes or
+     red margin rule (they forced an off-center, left-heavy layout). */
+  .tpl-paper{ padding:40px 22px; }
+  .tpl-paper-wrap::before, .tpl-paper-hole{ display:none; }
 }
 
 @media print{
