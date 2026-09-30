@@ -17,7 +17,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
   /* ---- Admin dashboard ----
      Edits the announcement banner, settlement tiles, legal team, and
@@ -905,6 +905,70 @@
   @media (max-width:900px){ .shell{ margin:0; border-radius:0; min-height:100vh; } .main{ margin:0; border-radius:0; } .topbar{ border-radius:0; } .sidebar{ top:0; height:100vh; } .content{ padding:24px 18px 48px; } .tbl-search input{ width:100%; } .tbl-search{ flex:1; } }
   @media (max-width:560px){ .kpi-grid{ grid-template-columns:1fr; } .kpi{ border-right:none; border-bottom:1px solid var(--line) !important; } .kpi:last-child{ border-bottom:none !important; } }
   @media (prefers-reduced-motion: reduce){ svg.lc .ln{ animation:none; stroke-dashoffset:0; } }
+
+  /* ---- Sidebar: dark green with a faint grid, geometric icons, square
+     edges, orange accent bar on the current page ---- */
+  .sidebar{ background-color:#17231E !important; background-image:linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size:28px 28px; color:#A9B8B0; font-family:'DM Sans', 'Inter', sans-serif; padding:22px 0 !important; }
+  .brand{ padding:0 22px 22px !important; }
+  .brand-name{ color:#F2F5F3; font-weight:600; letter-spacing:.01em; }
+  .brand-name span{ color:#6F8279; letter-spacing:.14em; }
+  .brand-mark{ border-radius:4px !important; box-shadow:0 0 0 1px rgba(255,255,255,.12); }
+  .nav{ gap:0 !important; }
+  .nav-label{ color:#5F7169 !important; font-family:var(--mono); font-size:10.5px !important; letter-spacing:.16em; text-transform:uppercase; padding:20px 26px 8px !important; font-weight:500 !important; }
+  .nav a{ position:relative; border-radius:0 !important; border:none !important; padding:12px 26px !important; margin:0 14px 0 0; color:#A9B8B0 !important; font-size:15px !important; font-weight:400 !important; letter-spacing:.005em; box-shadow:none !important; background:transparent !important; gap:16px !important; transition:color .15s ease, background .15s ease; }
+  .nav a svg{ width:19px !important; height:19px !important; color:#C7D2CC !important; }
+  .nav a:hover{ color:#EEF3F0 !important; background:linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,0)) !important; }
+  .nav a.is-current{ color:#FFFFFF !important; font-weight:500 !important; background:linear-gradient(90deg, rgba(232,112,64,.22), rgba(232,112,64,.06) 70%, rgba(232,112,64,0)) !important; }
+  .nav a.is-current::before{ content:""; position:absolute; left:0; top:6px; bottom:6px; width:3px; background:#E8703F; }
+  .nav a.is-current svg{ color:#FFFFFF !important; }
+  .nav-badge{ margin-left:auto; min-width:22px; height:22px; padding:0 6px; border-radius:50%; background:#E8703F; color:#fff; font-size:11.5px; font-weight:600; display:grid; place-items:center; box-shadow:0 0 0 5px rgba(232,112,64,.18); font-family:var(--mono); }
+  .sidebar-foot{ border-top:1px solid rgba(255,255,255,.08) !important; margin:0 0 0; padding:12px 0 0 !important; }
+  .sidebar-foot a, .sidebar-foot button{ border-radius:0 !important; color:#A9B8B0 !important; padding:11px 26px !important; font-family:'DM Sans', sans-serif; gap:16px !important; }
+  .sidebar-foot a:hover, .sidebar-foot button:hover{ background:rgba(255,255,255,.05) !important; color:#fff !important; }
+  .sidebar-foot svg{ color:#C7D2CC; }
+
+  /* ---- Settlement / team rows: grouped form + live preview ---- */
+  [data-editor="settlements"] .grid-rail, [data-editor="team"] .grid-rail{ grid-template-columns:minmax(0,1fr); }
+  [data-editor="settlements"] .grid-rail > aside, [data-editor="team"] .grid-rail > aside{ display:none !important; }
+  .shell{ grid-template-columns:268px 1fr !important; }
+  .item.is-compact{ border-radius:8px !important; }
+  .item.is-compact.is-open{ border-color:#CBD3DE !important; box-shadow:0 18px 40px -28px rgba(16,24,40,.35) !important; }
+  .item.is-compact.is-open .c-head, .item.is-team.is-open .c-head{ background:#FAFBFC !important; border-bottom:1px solid var(--line) !important; border-radius:8px 8px 0 0 !important; }
+  .c-head:hover, .item.is-team .c-head:hover{ background:#FAFBFC !important; }
+  .item.is-compact .item-body.is-grouped{ grid-template-columns:minmax(0,1fr) 280px !important; gap:0 !important; padding:0 !important; }
+  .g-form{ padding:6px 24px 22px; border-right:1px solid var(--line); min-width:0; }
+  .g-sec{ padding:18px 0 4px; border-bottom:1px dashed var(--line); }
+  .g-sec:last-child{ border-bottom:none; }
+  .g-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+  .g-num{ font-family:var(--mono); font-size:11px; color:#E8703F; letter-spacing:.06em; }
+  .g-head b{ font-size:14px; font-weight:600; letter-spacing:.01em; text-transform:uppercase; font-family:'DM Sans', sans-serif; }
+  .g-head > span:last-child{ font-size:12.5px; color:var(--muted); }
+  .g-grid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px 14px; }
+  .g-grid .field:has(textarea), .g-grid .field:has(.photo){ grid-column:1 / -1; }
+  .item.is-compact .g-grid .field input[type="text"], .item.is-compact .g-grid .field input[type="email"], .item.is-compact .g-grid .field select, .item.is-compact .g-grid .field textarea{ background:#fff; border:1px solid var(--line-strong); border-radius:6px; }
+  .item.is-compact .g-grid .field input:focus, .item.is-compact .g-grid .field select:focus, .item.is-compact .g-grid .field textarea:focus{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-100); }
+  .item.is-compact .g-grid .field label{ font-size:12px; font-weight:500; color:#4B5563; letter-spacing:.02em; }
+  .item.is-compact .g-grid .photo{ grid-template-columns:84px minmax(0,1fr) !important; }
+  .item.is-compact .g-grid .photo-preview{ width:84px !important; height:84px !important; border-radius:6px; }
+  .g-side{ padding:22px 20px; background:#FAFBFC; border-radius:0 0 8px 0; }
+  .pv-label{ font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+  .pv{ position:sticky; top:90px; }
+  .pv-tile{ position:relative; height:190px; border-radius:6px; overflow:hidden; background:linear-gradient(160deg,#101735,#0A0F27); color:#fff; box-shadow:0 14px 30px -18px rgba(10,15,39,.7); }
+  .pv-cut{ position:absolute; right:-10px; bottom:0; width:62%; height:100%; background:center bottom/contain no-repeat; opacity:.9; }
+  .pv-tile-txt{ position:absolute; left:16px; bottom:16px; right:40%; }
+  .pv-amt{ font-family:Georgia, 'Times New Roman', serif; font-size:30px; font-weight:700; color:#D9B56A; line-height:1; }
+  .pv-class{ font-size:13px; font-weight:600; margin-top:8px; }
+  .pv-meta{ font-size:11px; color:#AAB3CF; margin-top:3px; }
+  .pv-back{ margin-top:12px; padding:12px 14px; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  .pv-back span{ display:block; font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--soft); margin-bottom:5px; }
+  .pv-back p{ margin:0; font-size:12.5px; color:#3B4250; line-height:1.5; display:-webkit-box; -webkit-line-clamp:6; -webkit-box-orient:vertical; overflow:hidden; }
+  .pv-pola{ background:#fff; padding:10px 10px 14px; border:1px solid var(--line); box-shadow:0 14px 30px -20px rgba(16,24,40,.45); transform:rotate(-1.5deg); text-align:center; }
+  .pv-pola-img{ aspect-ratio:1 / 1.05; background:#EEF0F3 center top/cover no-repeat; margin-bottom:10px; }
+  .pv-pola b{ display:block; font-family:Georgia, serif; font-size:16px; }
+  .pv-pola span{ display:block; font-size:12px; color:var(--muted); margin-top:2px; }
+  .pv-pola small{ display:block; font-size:11px; color:var(--accent); margin-top:4px; }
+  @media (max-width:1100px){ .item.is-compact .item-body.is-grouped{ grid-template-columns:minmax(0,1fr) !important; } .g-form{ border-right:none; } .g-side{ border-top:1px solid var(--line); border-radius:0 0 8px 8px; } .pv{ position:static; max-width:300px; } }
+  @media (max-width:600px){ .g-grid{ grid-template-columns:minmax(0,1fr); } .g-form{ padding:4px 16px 18px; } }
 </style>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
@@ -929,39 +993,39 @@
     </div>
     <nav class="nav" aria-label="Admin" id="nav">
       <a href="#overview" data-view="overview">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><path d="M4 11.2 12 4.5l8 6.7V20H4z"/><path d="M10 20v-5h4v5"/></svg>
         Dashboard
       </a>
       <div class="nav-label">Content</div>
       <a href="#banner" data-view="banner">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 13z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><path d="M4 9.5h4l9-4.5v14l-9-4.5H4z"/><path d="M8 14.5V19"/></svg>
         Announcement Banner
       </a>
       <a href="#settlements" data-view="settlements">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><rect x="4" y="4" width="16" height="16"/><path d="M8 4v16M12 4v16M16 4v16M4 8h16M4 12h16M4 16h16"/></svg>
         Settlements
       </a>
       <a href="#team" data-view="team">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><rect x="8.5" y="3.5" width="7" height="7"/><path d="M4.5 20.5V17l3.5-3h8l3.5 3v3.5"/></svg>
         Legal Team
       </a>
       <a href="#blog" data-view="blog">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><rect x="4.5" y="3.5" width="15" height="17"/><path d="M4.5 8h15M4.5 11.5h15M4.5 15h15"/></svg>
         Blog Posts
       </a>
       <div class="nav-label">Insights</div>
       <a href="#ai-crawlers" data-view="ai-crawlers">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h.01M16 16h.01"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><circle cx="12" cy="12" r="8"/><path d="M12 4v8h8"/></svg>
         AI Visibility
       </a>
       <a href="#search-updates" data-view="search-updates">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/><path d="M12 8v4l3 2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 3.5 20.5 12 12 20.5 3.5 12z"/><path d="M12 8v4h4"/></svg>
         Search Updates
       </a>
     </nav>
     <div class="sidebar-foot">
       <a href="/" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><rect x="3.5" y="5.5" width="17" height="13"/><path d="M3.5 9h17M14 13.5l2 2-2 2"/></svg>
         View Live Site
       </a>
     </div>
@@ -1089,6 +1153,12 @@
         { name: 'description', label: 'Description', type: 'textarea', required: true, span: 2, hint: 'Shown when the tile is flipped.' }
       ],
       order: ['amount', 'classification', 'occupation', 'photo', 'location', 'description'],
+      groups: [
+        { title: 'Case', note: 'What the front of the tile says.', fields: ['amount', 'classification', 'occupation', 'location'] },
+        { title: 'Photo', note: 'Attorney cutout shown behind the amount.', fields: ['photo'] },
+        { title: 'Back of tile', note: 'Revealed when a visitor flips the tile.', fields: ['description'] }
+      ],
+      preview: 'settlement',
       // Compact list: each tile is a one-line row (thumb, amount, type,
       // location/occupation) that expands in place to edit.
       compact: {
@@ -1113,6 +1183,12 @@
         { name: 'bio', label: 'Bio', type: 'textarea', required: false, span: 2, hint: 'Leave blank to hide the flip-to-read-bio card.' }
       ],
       order: ['name', 'title', 'email', 'photo', 'bio'],
+      groups: [
+        { title: 'Person', note: 'Name and role as shown on the About page.', fields: ['name', 'title', 'email'] },
+        { title: 'Photo', note: 'The polaroid-style portrait.', fields: ['photo'] },
+        { title: 'Bio', note: 'Attorneys only - shown when the card flips.', fields: ['bio'] }
+      ],
+      preview: 'team',
       compact: {
         amount: function(it){ return it.name || 'New member'; },
         title: function(it){ return it.title || ''; },
@@ -1377,6 +1453,8 @@
       var ia = overview.indexnowLast && overview.indexnowLast.ok ? daysSince(overview.indexnowLast.time) : 999;
       add(ia, ia === 999 ? 'Bing hasn’t been notified yet' : 'Bing last notified ' + ia + ' days ago', 'Send your pages to Bing (feeds ChatGPT search and Copilot) so recent changes are picked up.', '#search-updates', 'Notify Bing');
     }
+    var navDash = document.querySelector('#nav a[data-view="overview"]');
+    if(navDash){ var nb = navDash.querySelector('.nav-badge'); if(items.length){ if(!nb){ nb = el('span', { class: 'nav-badge' }); navDash.appendChild(nb); } nb.textContent = items.length; nb.title = items.length + ' reminder' + (items.length === 1 ? '' : 's'); } else if(nb) nb.remove(); }
     if(!items.length) return;
     items.sort(function(a, b){ return b.age - a.age; });
     host.appendChild(el('div', { class: 'card rem-card' }, [
@@ -1958,7 +2036,7 @@
     // fields change - the banner editor uses it for "Links to ...".
     var note = def.note ? el('div', { class: 'item-note', text: def.note(item) }) : null;
     if(note) card.appendChild(note);
-    var body = el('div', { class: 'item-body' });
+    var body = el('div', { class: 'item-body' }), fieldNodes = {}, updatePreview = null;
     def.fields.forEach(function(f){
       var errKey = list.key + ':' + i + ':' + f.name, err = ed.errors[errKey];
       var field = el('div', { class: 'field' + (f.span === 2 ? ' span-2' : '') + (err ? ' is-invalid' : '') });
@@ -1968,6 +2046,7 @@
         if(ed.errors[errKey]){ delete ed.errors[errKey]; field.classList.remove('is-invalid'); var e = field.querySelector('.field-error'); if(e) e.remove(); }
         summary.textContent = def.summary(item) || 'New ' + def.noun; summary.classList.toggle('is-empty', !def.summary(item));
         if(note) note.textContent = def.note(item);
+        if(updatePreview) setTimeout(updatePreview, 0);
         if(refreshCompact){
           refreshCompact();
           if(f.type === 'photo') setTimeout(function(){ var pv = body.querySelector('.photo-preview'); if(pv && pv.style.backgroundImage) cThumb.style.backgroundImage = pv.style.backgroundImage; }, 0);
@@ -1987,9 +2066,54 @@
       field.appendChild(control);
       if(err) field.appendChild(el('div', { class: 'field-error', text: err })); else if(f.hint) field.appendChild(el('div', { class: 'field-hint', text: f.hint }));
       body.appendChild(field);
+      fieldNodes[f.name] = field;
     });
+    if(compact && def.groups){
+      // Grouped, step-by-step form on the left; a live preview of how the
+      // card looks on the site on the right.
+      body.classList.add('is-grouped');
+      var form = el('div', { class: 'g-form' });
+      def.groups.forEach(function(g, gi){
+        var grid = el('div', { class: 'g-grid' });
+        g.fields.forEach(function(n){ if(fieldNodes[n]) grid.appendChild(fieldNodes[n]); });
+        form.appendChild(el('section', { class: 'g-sec' }, [
+          el('div', { class: 'g-head' }, [ el('span', { class: 'g-num', text: String(gi + 1).padStart(2, '0') }), el('b', { text: g.title }), el('span', { text: g.note }) ]),
+          grid
+        ]));
+      });
+      var pv = el('div', { class: 'pv' });
+      updatePreview = function(){ renderCardPreview(pv, def.preview, item, body); };
+      updatePreview();
+      body.appendChild(form);
+      body.appendChild(el('aside', { class: 'g-side' }, [ el('div', { class: 'pv-label', text: 'Live preview' }), pv ]));
+    }
     card.appendChild(body);
     return card;
+  }
+
+  function renderCardPreview(host, kind, item, body){
+    host.innerHTML = '';
+    var pvImg = body.querySelector('.photo-preview'), bg = pvImg && pvImg.style.backgroundImage ? pvImg.style.backgroundImage : (item.photo ? 'url("' + previewSrc(item.photo) + '")' : '');
+    if(kind === 'settlement'){
+      var tile = el('div', { class: 'pv-tile' }, [
+        el('div', { class: 'pv-cut', style: bg ? 'background-image:' + bg : '' }),
+        el('div', { class: 'pv-tile-txt' }, [
+          el('div', { class: 'pv-amt', text: item.amount || '$0' }),
+          el('div', { class: 'pv-class', text: item.classification || 'Classification' }),
+          el('div', { class: 'pv-meta', text: [item.location, item.occupation].filter(Boolean).join(' · ') || 'Location' })
+        ])
+      ]);
+      host.appendChild(tile);
+      host.appendChild(el('div', { class: 'pv-back' }, [ el('span', { text: 'Back of tile' }), el('p', { text: item.description || 'Description appears here when the tile is flipped.' }) ]));
+    } else {
+      host.appendChild(el('div', { class: 'pv-pola' }, [
+        el('div', { class: 'pv-pola-img', style: bg ? 'background-image:' + bg : '' }),
+        el('b', { text: item.name || 'Name' }),
+        el('span', { text: item.title || 'Title' }),
+        item.email ? el('small', { text: item.email }) : null
+      ]));
+      host.appendChild(el('div', { class: 'pv-back' }, [ el('span', { text: item.bio ? 'Bio card' : 'No bio card' }), el('p', { text: item.bio ? item.bio : 'Staff without a bio show only the photo card.' }) ]));
+    }
   }
 
   function renderPhoto(readOnly, f, value, onChange){
