@@ -49,7 +49,7 @@
     // paragraph, which breaks any attempt to control exactly how many
     // blank lines appear between two lines (needed since some gaps in
     // this letter intentionally have more than others).
-    const lines = [...letter.children].map(p => p.textContent.replace(/ /g, '').trim());
+    const lines = [...letter.children].map(p => p.textContent.replace(/[\u00A0\u200B-\u200D\uFEFF]/g, ' ').replace(/^ +| +$/g, ''));
     return lines.join('\n').replace(/^\n+|\n+$/g, '');
   }
 
@@ -180,14 +180,30 @@ p:first-child{ padding-top:0.75in; }
 
   const copyBtn = document.getElementById('tplCopyBtn');
   function doCopy(){
-    const text = getLetterText();
-    navigator.clipboard.writeText(text).then(() => {
+    const text = getLetterText().normalize('NFC');
+    const done = () => {
       const original = copyBtn.textContent;
       copyBtn.textContent = 'Copied!';
       setTimeout(() => { copyBtn.textContent = original; }, 1800);
-    }).catch(() => {
-      alert('Could not copy automatically. Select the letter text on the page and copy it manually instead.');
-    });
+    };
+    // Fallback for phones/browsers where the async clipboard API is missing
+    // or refuses: select plain text in a throwaway textarea and copy it.
+    const legacy = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px;';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      ta.remove();
+      if(ok) done();
+      else alert('Could not copy automatically. Select the letter text on the page and copy it manually instead.');
+    };
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(done).catch(legacy);
+    } else legacy();
   }
 
   function doDownload(){
@@ -203,7 +219,7 @@ p:first-child{ padding-top:0.75in; }
 div.WordSection1{ page:WordSection1; }
 body{ margin:0; font-family:'Times New Roman',Times,serif; font-size:12pt; }
 </style></head><body><div class="WordSection1">${lines.map(para).join('')}</div></body></html>`;
-    const blob = new Blob(['﻿', html], { type: 'application/msword' });
+    const blob = new Blob(['\uFEFF', html], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
