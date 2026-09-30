@@ -53,6 +53,11 @@ const LABELS = {
   'cohere-ai': 'Cohere', 'DuckAssistBot': 'DuckDuckGo (AI Assist)', 'Bingbot': 'Microsoft Bing (feeds Copilot)'
 };
 
+// Individual visits are kept (compactly, inside each day's rollup) for this many
+// days, capped per day. Only bots whose referer means something have it stored.
+const KEEP_ITEM_DAYS = 90, MAX_ITEMS_PER_DAY = 3000, MAX_FEED = 600;
+const REFERER_BOTS = new Set(['ChatGPT-User', 'Claude-Web', 'Claude-User', 'Perplexity-User', 'OAI-SearchBot', 'anthropic-ai']);
+
 function addDaysIso(iso, n){ const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 function parseKey(key){
   // Parsed from both ends: the store may hand back the page part with its
@@ -119,9 +124,26 @@ async function gatherData(store, url){
     newDays.set(d, agg);
     if(d >= liveFrom){ parsed.forEach(h => liveHits.push(h)); return; }
     try {
+      // Keep the day's individual visits, newest first, in a compact form:
+      // [ms, bot, page, referer]. ~60-100 bytes each.
+      const sorted = parsed.slice().sort((x, y) => y.ms - x.ms).slice(0, MAX_ITEMS_PER_DAY);
+      const refs = {};
+      await inChunks(sorted.filter(h => REFERER_BOTS.has(h.bot)), 25, async h => {
+        const v = await Promise.resolve().then(() => store.get(h.key, { type: 'json' })).catch(() => null);
+        if(v && v.referer) refs[h.key] = v.referer;
+      });
+      agg.items = sorted.map(h => [h.ms, h.bot, h.path, refs[h.key] || '']);
       await store.setJSON('rollup/' + d, agg);
       await inChunks(keys, 25, k => store.delete(k));
     } catch (e) { /* stays raw; counted again next time, never lost */ }
+  }));
+  // Keep storage bounded: drop itemized visits older than KEEP_ITEM_DAYS (the
+  // counts in the same rollup stay forever).
+  const pruneBefore = addDaysIso(today, -KEEP_ITEM_DAYS);
+  const stale = [...newDays.keys()].filter(d => d < pruneBefore && newDays.get(d).items).slice(0, 10);
+  await Promise.all(stale.map(async d => {
+    const doc = newDays.get(d); delete doc.items;
+    try { await store.setJSON('rollup/' + d, doc); } catch (e) {}
   }));
 
   // ---- all-time totals + pages: frozen baseline + new-format days ----
@@ -182,14 +204,25 @@ async function gatherData(store, url){
     if(Object.keys(hr).length) hours[d] = hr;
   });
 
-  // ---- recent feed: newest raw records first, then the old capped feed ----
-  liveHits.sort((a, b) => b.ms - a.ms);
-  const fresh = await Promise.all(liveHits.slice(0, 100).map(async h => {
-    const v = await Promise.resolve().then(() => store.get(h.key, { type: 'json' })).catch(() => null);
-    return { bot: h.bot, label: (v && v.label) || LABELS[h.bot] || h.bot, path: (v && v.path) || h.path, referer: (v && v.referer) || null, time: new Date(h.ms).toISOString() };
-  }));
-  const legacyRecent = (await store.get('recent', { type: 'json' })) || [];
-  const recent = fresh.concat(legacyRecent).slice(0, 200);
+  // ---- activity feed: every itemized visit in the requested window,
+  // newest first (raw records from the last two days + the itemized visits
+  // kept in older rollups), then the pre-change capped feed. ----
+  const inWindow = new Set(days);
+  const cand = [];
+  liveHits.forEach(h => { if(inWindow.has(h.date)) cand.push({ ms: h.ms, bot: h.bot, path: h.path, key: h.key }); });
+  newDays.forEach((agg, d) => {
+    if(!inWindow.has(d) || !agg.items) return;
+    agg.items.forEach(it => cand.push({ ms: it[0], bot: it[1], path: it[2], referer: it[3] || null }));
+  });
+  cand.sort((a, b) => b.ms - a.ms);
+  const top = cand.slice(0, MAX_FEED);
+  await inChunks(top.filter(c => c.key && REFERER_BOTS.has(c.bot)).slice(0, 100), 25, async c => {
+    const v = await Promise.resolve().then(() => store.get(c.key, { type: 'json' })).catch(() => null);
+    if(v && v.referer) c.referer = v.referer;
+  });
+  const fresh = top.map(c => ({ bot: c.bot, label: LABELS[c.bot] || c.bot, path: c.path, referer: c.referer || null, time: new Date(c.ms).toISOString() }));
+  const legacyRecent = ((await store.get('recent', { type: 'json' })) || []).filter(r => inWindow.has(String(r.time || '').slice(0, 10)));
+  const recent = fresh.concat(legacyRecent).slice(0, MAX_FEED);
 
   return { totals, recent, daily, pages, hours };
 }

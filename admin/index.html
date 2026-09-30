@@ -2469,7 +2469,7 @@
     }
     var act = (data.recent || []).filter(function(r){ var d = isoDay(new Date(r.time)); return d >= from && d <= to; });
     var oldest = (data.recent || []).length ? isoDay(new Date(data.recent[data.recent.length - 1].time)) : null;
-    var actCapped = (data.recent || []).length >= 200 && oldest && oldest > from;
+    var actCapped = (data.recent || []).length >= 600 && oldest && oldest > from;
     var actRows = act.map(function(r){
       var t = aiTypeOf(r.bot);
       return '<tr><td class="nw">' + esc(new Date(r.time).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) + '</td>' +
@@ -2554,7 +2554,7 @@
       '<section><h2>Most-read pages</h2><p class="sub">All-time AI crawler hits per page &middot; ' + n0(pageRows.length) + ' distinct URL' + (pageRows.length === 1 ? '' : 's') + ' read.</p><div class="card">' +
         (pageRows.length ? pageRows.slice(0, 15).map(function(p){ return '<div class="pgbar"><div class="p">' + esc(p.path) + '</div><b>' + n0(p.count) + '</b><div class="t"><span style="width:' + (p.count / pageRows[0].count * 100).toFixed(1) + '%"></span></div></div>'; }).join('') : '<p class="empty">No page tallies yet.</p>') +
       '</div></section>' +
-      '<section><h2>Live activity</h2><p class="sub">Individual visits in this period, newest first' + (actCapped ? '. The log itemizes only the most recent ' + (data.recent || []).length + ' visits overall, so earlier visits in this period are counted above but not listed here.' : '.') + '</p>' +
+      '<section><h2>Live activity</h2><p class="sub">Individual visits in this period, newest first' + (actCapped ? '. Only the newest ' + (data.recent || []).length + ' visits in this period are itemized here; the rest are counted in the totals above but not listed.' : '.') + '</p>' +
         '<table class="log"><thead><tr><th>When</th><th>Platform</th><th>Type</th><th>Page</th><th>Referer</th></tr></thead><tbody>' + (actRows || '<tr><td colspan="5" class="empty">No individually logged visits in this period.</td></tr>') + '</tbody></table></section>' +
       '<div class="foot"><span>Counted by user-agent from known AI crawlers and agents. Days follow the time zone of the device that made this report (' + esc(tzName()) + ').</span><span>Generated ' + esc(new Date().toLocaleString()) + '</span></div>' +
       '</div></body></html>';
