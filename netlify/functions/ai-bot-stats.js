@@ -224,7 +224,22 @@ async function gatherData(store, url){
   const legacyRecent = ((await store.get('recent', { type: 'json' })) || []).filter(r => inWindow.has(String(r.time || '').slice(0, 10)));
   const recent = fresh.concat(legacyRecent).slice(0, MAX_FEED);
 
-  return { totals, recent, daily, pages, hours };
+  // Per-day page tallies for the window (top pages only, to keep the payload
+  // small on long ranges) - lets the report show "most-read pages" for the
+  // chosen dates. Pages are counted by UTC day. Visits from before the
+  // one-record-per-hit change were only ever tallied all-time, so
+  // `pagesSince` says where per-day page data starts.
+  const perDayLimit = days.length > 92 ? 30 : 200;
+  const pagesDaily = {};
+  days.forEach(d => {
+    const nd = newDays.get(d);
+    if(!nd || !nd.pages) return;
+    const top = Object.entries(nd.pages).sort((a, b) => b[1] - a[1]).slice(0, perDayLimit);
+    if(top.length) pagesDaily[d] = Object.fromEntries(top);
+  });
+  const pagesSince = [...newDays.keys()].sort()[0] || null;
+
+  return { totals, recent, daily, pages, hours, pagesDaily, pagesSince };
 }
 
 export default async (req) => {
