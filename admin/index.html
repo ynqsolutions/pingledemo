@@ -529,11 +529,6 @@
   .ex-presets button:hover{ border-color:var(--line-strong); }
   .ex-presets button.is-on{ border-color:var(--accent); background:var(--accent-50); color:var(--accent-700); }
   .ex-dates{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
-  .ex-formats{ display:flex; flex-direction:column; gap:8px; margin-bottom:6px; }
-  .ex-fmt{ display:flex; gap:12px; align-items:flex-start; border:1.5px solid var(--line); border-radius:var(--r-inner); padding:12px 14px; cursor:pointer; transition:border-color .15s ease, background .15s ease; }
-  .ex-fmt:has(input:checked){ border-color:var(--accent); background:var(--accent-50); }
-  .ex-fmt input{ margin-top:3px; accent-color:var(--accent); }
-  .ex-fmt b{ display:block; font-size:14px; } .ex-fmt small{ display:block; color:var(--muted); font-size:12.5px; margin-top:2px; }
   .ex-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:12px; }
   @keyframes exFade{ from{ opacity:0; } }
   @keyframes exPop{ from{ opacity:0; transform:translateY(12px) scale(.98); } }
@@ -1247,7 +1242,7 @@
       { href: '#banner', ico: 'megaphone', color: '#B38A3C', label: 'Update the banner', hint: 'Message shown on every page' },
       { href: '#settlements', ico: 'dollar', color: '#c98500', label: 'Add a result', hint: 'New settlement tile' },
       { href: '#team', ico: 'users', color: '#3987e5', label: 'Edit the team', hint: 'Photos, titles, and bios' },
-      { href: '#ai-crawlers', ico: 'chart', color: '#9085e9', label: 'AI Visibility', hint: 'Traffic from AI + export' },
+      { href: '#ai-crawlers', ico: 'chart', color: '#9085e9', label: 'AI Visibility', hint: 'Traffic from AI + report' },
       { href: '/', ico: 'globe', color: '#199e70', label: 'View live site', hint: 'Opens pinglelaw.com', external: true }
     ];
     var grid = el('div', { class: 'qa-grid' });
@@ -2310,7 +2305,7 @@
     return lg;
   }
 
-  // ---- AI Visibility export: pick a period, download a CSV or open a
+  // ---- AI Visibility report: pick a period and open a
   // printable report (Save as PDF from the print dialog). Pulls the chosen
   // range from the same gated endpoint via ?from=&to=. Days are calendar
   // days in this device's own time zone. ----
@@ -2352,89 +2347,213 @@
     var t = aiCrawlers.totals && aiCrawlers.totals[needle];
     return t && t.label ? t.label : needle;
   }
-  function buildExportRows(daily){
-    var rows = [];
-    daily.forEach(function(d){
+  // ---- The printable report: everything the AI Visibility page shows, laid
+  // out as a designed multi-section document (header, headline numbers,
+  // visit types, daily trend, platforms as bars and as a day-by-day grid,
+  // all-time platform totals, most-read pages, live activity). Opens in its
+  // own window and goes straight to the print dialog (Save as PDF). ----
+  function niceCeil(v){
+    var p = Math.pow(10, Math.floor(Math.log10(Math.max(v, 1)))), m = v / p;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p;
+  }
+  function writeReport(w, daily, from, to, data){
+    data = data || {};
+    function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function n0(n){ return Number(n || 0).toLocaleString(); }
+    function longDate(iso){ return new Date(iso + 'T12:00:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }); }
+    function keyDot(k){ return '<i class="dot" style="background:' + AI_TYPES[k].hex + '"></i>'; }
+
+    // ---- numbers for the chosen period ----
+    var days = daily.map(function(d){ var t = aiDayTypes(d.counts); t.date = d.date; t.total = t.training + t.search + t.live; return t; });
+    var N = days.length, total = 0, byType = { training: 0, search: 0, live: 0 };
+    days.forEach(function(d){ total += d.total; AI_TYPE_ORDER.forEach(function(k){ byType[k] += d[k]; }); });
+    var byPlat = {};
+    daily.forEach(function(d, di){
       Object.keys(d.counts || {}).forEach(function(k){
-        var n = d.counts[k]; if(!n) return;
-        rows.push({ date: d.date, platform: aiPlatform(aiLabelFor(k)), bot: k, type: AI_TYPES[aiTypeOf(k)].label, hits: n });
+        var c = d.counts[k]; if(!c) return;
+        var name = aiPlatform(aiLabelFor(k)), t = aiTypeOf(k);
+        var p = byPlat[name] || (byPlat[name] = { name: name, count: 0, types: {}, perDay: [] });
+        p.count += c; p.types[t] = (p.types[t] || 0) + c; p.perDay[di] = (p.perDay[di] || 0) + c;
       });
     });
-    rows.sort(function(a, b){ return a.date < b.date ? -1 : a.date > b.date ? 1 : b.hits - a.hits; });
-    return rows;
-  }
-  function csvCell(v){ v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
-  function downloadCsv(daily, from, to){
-    var rows = buildExportRows(daily);
-    var lines = [ [ 'Date', 'Platform', 'Bot', 'Visit type', 'Hits' ].join(',') ];
-    rows.forEach(function(r){ lines.push([ r.date, r.platform, r.bot, r.type, r.hits ].map(csvCell).join(',')); });
-    var blob = new Blob([ '﻿' + lines.join('\r\n') + '\r\n' ], { type: 'text/csv;charset=utf-8' });
-    var url = URL.createObjectURL(blob);
-    var a = el('a', { href: url, download: 'pingle-law-ai-visibility_' + from + '_to_' + to + '.csv' });
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
-    return rows.length;
-  }
-  function writeReport(w, daily, from, to, recent){
-    var rows = buildExportRows(daily);
-    var byType = { training: 0, search: 0, live: 0 }, byPlat = {}, total = 0;
-    rows.forEach(function(r){
-      var t = aiTypeOf(r.bot); byType[t] += r.hits; total += r.hits;
-      var p = byPlat[r.platform] || (byPlat[r.platform] = { hits: 0, types: {} });
-      p.hits += r.hits; p.types[r.type] = (p.types[r.type] || 0) + r.hits;
+    var plats = Object.keys(byPlat).map(function(k){ return byPlat[k]; }).sort(function(a, b){ return b.count - a.count; });
+    var busiest = days.reduce(function(b, d){ return d.total > 0 && (!b || d.total > b.total) ? d : b; }, null);
+    var avg = N ? total / N : 0;
+    var last7 = days.slice(-7).reduce(function(s, d){ return s + d.total; }, 0);
+    var prev7 = days.slice(-14, -7).reduce(function(s, d){ return s + d.total; }, 0);
+    var haveCompare = N >= 14;
+
+    // ---- all-time snapshot (same figures as the admin's "all time" view) ----
+    var totalsRows = Object.keys(data.totals || {}).map(function(k){ return Object.assign({ needle: k, type: aiTypeOf(k) }, data.totals[k]); });
+    var allHits = totalsRows.reduce(function(s, r){ return s + r.count; }, 0);
+    var atMap = {};
+    totalsRows.forEach(function(r){
+      var name = aiPlatform(r.label), p = atMap[name] || (atMap[name] = { name: name, count: 0, types: {} });
+      p.count += r.count; p.types[r.type] = (p.types[r.type] || 0) + r.count;
     });
-    var days = daily.map(function(d){ var t = aiDayTypes(d.counts); t.date = d.date; t.total = t.training + t.search + t.live; return t; });
-    var busiest = days.reduce(function(b, d){ return !b || d.total > b.total ? d : b; }, null);
-    function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-    function pct(n){ return total ? Math.round(n / total * 100) + '%' : '0%'; }
-    var platRows = Object.keys(byPlat).sort(function(a, b){ return byPlat[b].hits - byPlat[a].hits; }).map(function(k){
-      var p = byPlat[k];
-      return '<tr><td>' + esc(k) + '</td><td>' + esc(Object.keys(p.types).map(function(t){ return p.types[t] + ' ' + t.toLowerCase(); }).join(', ')) + '</td><td class="n">' + p.hits.toLocaleString() + '</td><td class="n">' + pct(p.hits) + '</td></tr>';
-    }).join('') || '<tr><td colspan="4" class="empty">No AI visits in this period.</td></tr>';
-    var dayRows = days.slice().reverse().map(function(d){
-      return '<tr><td>' + d.date + '</td><td class="n">' + d.training + '</td><td class="n">' + d.search + '</td><td class="n">' + d.live + '</td><td class="n"><b>' + d.total + '</b></td></tr>';
-    }).join('');
-    var act = (recent || []).filter(function(r){ var d = String(r.time || '').slice(0, 10); return d >= from && d <= to; });
-    var oldestRecorded = (recent || []).length ? String(recent[recent.length - 1].time || '').slice(0, 10) : null;
-    var actCapped = (recent || []).length >= 200 && oldestRecorded && oldestRecorded > from;
+    var atList = Object.keys(atMap).map(function(k){ return atMap[k]; }).sort(function(a, b){ return b.count - a.count; });
+    var lastSeen = totalsRows.reduce(function(m, r){ return r.lastSeen && (!m || r.lastSeen > m) ? r.lastSeen : m; }, null);
+    var pageRows = Object.keys(data.pages || {}).map(function(k){ return { path: k, count: data.pages[k] }; }).sort(function(a, b){ return b.count - a.count; });
+
+    // ---- pieces ----
+    function splitBar(counts, sum){
+      if(!sum) return '<div class="split"><span style="flex:1;background:#E5E7EB"></span></div>';
+      return '<div class="split">' + AI_TYPE_ORDER.filter(function(k){ return counts[k]; }).map(function(k){
+        return '<span style="flex:' + counts[k] + ' 1 0;background:' + AI_TYPES[k].hex + '"></span>';
+      }).join('') + '</div>';
+    }
+    function pctOf(n, sum){ return sum ? Math.round(n / sum * 100) : 0; }
+    function trendSvg(){
+      if(!N || !total) return '<p class="empty">No AI visits in this period.</p>';
+      var W = 740, H = 210, L = 38, R = 8, T = 12, B = 26, pw = W - L - R, ph = H - T - B;
+      var max = niceCeil(days.reduce(function(m, d){ return Math.max(m, d.total); }, 1));
+      var slot = pw / N, bw = Math.max(1.2, Math.min(28, slot * 0.7)), o = '<svg class="trend" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Daily AI visits, stacked by type">';
+      [0, 0.5, 1].forEach(function(f){
+        var y = T + ph - f * ph;
+        o += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="#E5E7EB" stroke-width="1"/>';
+        o += '<text x="' + (L - 6) + '" y="' + (y + 3.5) + '" text-anchor="end" font-size="10" fill="#6B7280">' + Math.round(max * f) + '</text>';
+      });
+      days.forEach(function(d, i){
+        var x = L + i * slot + (slot - bw) / 2, y = T + ph;
+        ['training', 'search', 'live'].forEach(function(k){
+          if(!d[k]) return;
+          var h = d[k] / max * ph; y -= h;
+          o += '<rect x="' + x.toFixed(2) + '" y="' + y.toFixed(2) + '" width="' + bw.toFixed(2) + '" height="' + Math.max(0.8, h - 0.8).toFixed(2) + '" rx="' + Math.min(2, bw / 2).toFixed(1) + '" fill="' + AI_TYPES[k].hex + '"/>';
+        });
+      });
+      var labels = Math.min(N, 8);
+      for(var i = 0; i < labels; i++){
+        var di = labels === 1 ? 0 : Math.round(i * (N - 1) / (labels - 1));
+        o += '<text x="' + (L + di * slot + slot / 2).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="10" fill="#6B7280">' + esc(shortDate(days[di].date)) + '</text>';
+      }
+      return o + '</svg>';
+    }
+    function platformBars(list, sum, cap){
+      if(!list.length) return '<p class="empty">No visits.</p>';
+      var max = list[0].count;
+      return '<div class="bars">' + list.slice(0, cap).map(function(p){
+        var segs = AI_TYPE_ORDER.filter(function(k){ return p.types[k]; }).map(function(k){
+          return '<span style="width:' + (p.types[k] / max * 100).toFixed(2) + '%;background:' + AI_TYPES[k].hex + '"></span>';
+        }).join('');
+        var meta = AI_TYPE_ORDER.filter(function(k){ return p.types[k]; }).map(function(k){ return n0(p.types[k]) + ' ' + AI_TYPES[k].label.toLowerCase(); }).join(' · ');
+        return '<div class="bar"><div class="bn"><b>' + esc(p.name) + '</b><small>' + pctOf(p.count, sum) + '%</small></div><div class="bv">' + n0(p.count) + '</div><div class="bt">' + segs + '</div><div class="bm">' + esc(meta) + '</div></div>';
+      }).join('') + '</div>';
+    }
+    function heatGrid(){
+      if(!plats.length) return '';
+      var size = N <= 45 ? 1 : 7, cols = [];
+      for(var i = 0; i < N; i += size) cols.push({ from: i, to: Math.min(N, i + size) });
+      var gMax = 1, cells = plats.slice(0, 12).map(function(p){
+        return cols.map(function(c){ var s = 0; for(var i = c.from; i < c.to; i++) s += p.perDay[i] || 0; if(s > gMax) gMax = s; return s; });
+      });
+      var showNum = cols.length <= 31;
+      var head = '<tr><th class="hn"></th>' + cols.map(function(c){
+        var d = days[c.from].date, lbl = size === 1 ? String(Number(d.slice(8))) : '';
+        return '<th class="hd' + (size === 1 && Number(d.slice(8)) === 1 ? ' m' : '') + '">' + lbl + '</th>';
+      }).join('') + '<th class="ht">Total</th></tr>';
+      var body = plats.slice(0, 12).map(function(p, ri){
+        return '<tr><td class="hn">' + esc(p.name) + '</td>' + cells[ri].map(function(s){
+          var a = s ? (0.2 + 0.8 * s / gMax).toFixed(2) : 0;
+          return '<td class="hc" style="' + (s ? 'background:rgba(31,122,92,' + a + ');color:' + (s / gMax > 0.55 ? '#fff' : '#0f3d2f') : '') + '">' + (s && showNum ? s : '') + '</td>';
+        }).join('') + '<td class="ht">' + n0(p.count) + '</td></tr>';
+      }).join('');
+      var cap = shortDate(days[0].date) + ' – ' + shortDate(days[N - 1].date) + (size === 7 ? ' · each column is one week' : ' · each square is one day') + ' · darker = more visits';
+      return '<p class="cap">' + esc(cap) + '</p><table class="heat">' + head + body + '</table>';
+    }
+    var act = (data.recent || []).filter(function(r){ var d = isoDay(new Date(r.time)); return d >= from && d <= to; });
+    var oldest = (data.recent || []).length ? isoDay(new Date(data.recent[data.recent.length - 1].time)) : null;
+    var actCapped = (data.recent || []).length >= 200 && oldest && oldest > from;
     var actRows = act.map(function(r){
       var t = aiTypeOf(r.bot);
-      return '<tr><td style="white-space:nowrap">' + esc(new Date(r.time).toLocaleString()) + '</td><td>' + esc(aiPlatform(r.label)) + '<br><span class="mute">' + esc(r.bot) + '</span></td><td><span class="key" style="background:' + AI_TYPES[t].hex + '"></span>' + AI_TYPES[t].label + '</td><td class="mono">' + esc(r.path) + '</td><td class="mono">' + (r.referer ? esc(r.referer) : '<span class="mute">&mdash;</span>') + '</td></tr>';
-    }).join('') || '<tr><td colspan="5" class="empty">No individually logged visits in this period.</td></tr>';
-    var typeRows = AI_TYPE_ORDER.map(function(k){
-      return '<tr><td><span class="key" style="background:' + AI_TYPES[k].hex + '"></span>' + AI_TYPES[k].label + '</td><td>' + esc(AI_TYPES[k].note) + '</td><td class="n">' + byType[k].toLocaleString() + '</td><td class="n">' + pct(byType[k]) + '</td></tr>';
+      return '<tr><td class="nw">' + esc(new Date(r.time).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) + '</td>' +
+        '<td><b>' + esc(aiPlatform(r.label)) + '</b><br><span class="mute">' + esc(r.bot) + '</span></td>' +
+        '<td class="nw">' + keyDot(t) + esc(AI_TYPES[t].label) + '</td><td class="mono">' + esc(r.path) + '</td>' +
+        '<td class="mono">' + (r.referer ? esc(r.referer) : '<span class="mute">&mdash;</span>') + '</td></tr>';
     }).join('');
-    var html = '<!doctype html><html><head><meta charset="utf-8"><title>AI Visibility Report ' + from + ' to ' + to + ' - Pingle Law</title><style>' +
-      'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;color:#111827;margin:0;padding:40px;}' +
-      'h1{font-size:24px;margin:0 0 4px;} .sub{color:#6B7280;margin:0 0 28px;font-size:14px;}' +
-      '.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}' +
-      '.c{border:1px solid #E5E7EB;border-radius:12px;padding:14px 16px;} .c b{display:block;font-size:24px;} .c span{color:#6B7280;font-size:12px;text-transform:uppercase;letter-spacing:.04em;}' +
-      'h2{font-size:15px;margin:26px 0 10px;} table{width:100%;border-collapse:collapse;font-size:13px;}' +
-      'th,td{text-align:left;padding:7px 8px;border-bottom:1px solid #E5E7EB;vertical-align:top;} th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#6B7280;}' +
-      '.n{text-align:right;font-variant-numeric:tabular-nums;} .empty{color:#9CA3AF;text-align:center;}' +
-      '.key{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:-1px;}' +
-      '.foot{margin-top:28px;color:#9CA3AF;font-size:11.5px;} tr{break-inside:avoid;}' +
-      '.note{color:#6B7280;font-size:12.5px;margin:-4px 0 10px;} .mute{color:#9CA3AF;font-size:11.5px;} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;word-break:break-all;}' +
-      '@media print{body{padding:0;} @page{margin:16mm;}}' +
-      '</style></head><body>' +
-      '<h1>AI Visibility Report</h1>' +
-      '<p class="sub">Pingle Law &middot; ' + from + ' to ' + to + ' &middot; generated ' + esc(new Date().toLocaleString()) + '</p>' +
-      '<div class="cards">' +
-        '<div class="c"><b>' + total.toLocaleString() + '</b><span>AI visits</span></div>' +
-        '<div class="c"><b>' + byType.live.toLocaleString() + '</b><span>Live lookups</span></div>' +
-        '<div class="c"><b>' + Object.keys(byPlat).length + '</b><span>Platforms</span></div>' +
-        '<div class="c"><b>' + (busiest && busiest.total ? busiest.date : '&mdash;') + '</b><span>Busiest day' + (busiest && busiest.total ? ' (' + busiest.total + ')' : '') + '</span></div>' +
+
+    var css = '@page{size:letter;margin:12mm 12mm 14mm;}' +
+      '*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+      'body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;color:#111827;font-size:12px;line-height:1.45;background:#fff;}' +
+      '.wrap{max-width:780px;margin:0 auto;padding:0 4px;}' +
+      '.cover{background:linear-gradient(135deg,#0A0F27 0%,#18224f 100%);color:#fff;border-radius:16px;padding:26px 28px 24px;position:relative;overflow:hidden;margin-bottom:16px;}' +
+      '.cover:after{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;border:1px solid rgba(179,138,60,.55);box-shadow:0 0 0 30px rgba(179,138,60,.08),0 0 0 62px rgba(179,138,60,.05);}' +
+      '.kick{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#D9B56A;font-weight:700;}' +
+      '.cover h1{font-family:Georgia,"Times New Roman",serif;font-size:31px;line-height:1.1;margin:8px 0 6px;font-weight:700;}' +
+      '.cover p{margin:0;color:#B9C0DC;font-size:12.5px;}' +
+      '.big{display:flex;align-items:flex-end;gap:16px;margin-top:20px;position:relative;z-index:1;}' +
+      '.big .num{font-family:Georgia,serif;font-size:56px;line-height:1;font-weight:700;letter-spacing:-.02em;}' +
+      '.big .lbl{padding-bottom:8px;color:#B9C0DC;font-size:12px;}' +
+      '.cover .split{margin-top:16px;position:relative;z-index:1;}' +
+      '.split{display:flex;gap:3px;height:11px;border-radius:999px;overflow:hidden;}' +
+      '.split span{display:block;}' +
+      '.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:11.5px;position:relative;z-index:1;}' +
+      '.legend b{font-weight:700;}' +
+      '.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:-1px;}' +
+      '.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px;}' +
+      '.tile{border:1px solid #E5E7EB;border-radius:12px;padding:12px 14px;border-top:3px solid var(--c);break-inside:avoid;}' +
+      '.tile b{display:block;font-family:Georgia,serif;font-size:24px;line-height:1.1;}' +
+      '.tile span{display:block;color:#6B7280;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;margin-top:5px;font-weight:600;}' +
+      '.tile small{display:block;color:#6B7280;font-size:11px;margin-top:3px;}' +
+      'section{margin-top:22px;break-inside:auto;}' +
+      'h2{font-family:Georgia,serif;font-size:17px;margin:0 0 3px;display:flex;align-items:center;gap:10px;}' +
+      'h2:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#B38A3C,rgba(179,138,60,0));}' +
+      '.sub{color:#6B7280;margin:0 0 10px;font-size:11.5px;}' +
+      '.types{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}' +
+      '.ty{border:1px solid #E5E7EB;border-radius:12px;padding:12px 14px;break-inside:avoid;}' +
+      '.ty .t{font-weight:700;font-size:12.5px;} .ty .v{font-family:Georgia,serif;font-size:22px;margin:4px 0 2px;} .ty .v small{font-family:inherit;font-size:12px;color:#6B7280;margin-left:6px;font-weight:600;} .ty p{margin:0;color:#6B7280;font-size:11px;}' +
+      '.card{border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;break-inside:avoid;}' +
+      'svg.trend{width:100%;height:auto;display:block;}' +
+      '.bars{display:flex;flex-direction:column;gap:11px;}' +
+      '.bar{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;break-inside:avoid;}' +
+      '.bn b{font-size:12.5px;} .bn small{color:#6B7280;margin-left:7px;font-weight:600;font-size:11px;} .bv{font-weight:700;font-variant-numeric:tabular-nums;font-size:12.5px;}' +
+      '.bt{grid-column:1/-1;display:flex;gap:2px;height:8px;background:#F3F4F6;border-radius:999px;overflow:hidden;} .bt span{display:block;height:100%;}' +
+      '.bm{grid-column:1/-1;color:#9CA3AF;font-size:10.5px;}' +
+      '.cap{color:#6B7280;font-size:10.5px;margin:0 0 6px;}' +
+      'table{width:100%;border-collapse:collapse;}' +
+      'table.heat{table-layout:fixed;border-spacing:0;} .heat th,.heat td{padding:0;} .hn{width:92px;font-size:11.5px;font-weight:600;padding-right:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}' +
+      '.hd{font-size:8.5px;color:#9CA3AF;text-align:center;font-weight:500;height:14px;} .hd.m{color:#111827;font-weight:800;}' +
+      '.ht{width:42px;text-align:right;font-weight:700;font-size:11.5px;padding-left:6px !important;font-variant-numeric:tabular-nums;}' +
+      '.hc{height:20px;background:#F3F4F6;border:1.5px solid #fff;text-align:center;font-size:9px;font-weight:700;border-radius:4px;}' +
+      '.log th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#6B7280;padding:6px 8px;border-bottom:1.5px solid #E5E7EB;} .log td{padding:6px 8px;border-bottom:1px solid #F0F1F4;vertical-align:top;font-size:11px;}' +
+      '.log thead{display:table-header-group;} .log tr{break-inside:avoid;}' +
+      '.nw{white-space:nowrap;} .mute{color:#9CA3AF;font-size:10px;} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;word-break:break-all;}' +
+      '.empty{color:#9CA3AF;text-align:center;padding:14px;margin:0;}' +
+      '.pgbar{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin-bottom:9px;break-inside:avoid;} .pgbar .p{font-family:ui-monospace,Menlo,monospace;font-size:11px;word-break:break-all;} .pgbar .t{height:7px;border-radius:999px;background:#F3F4F6;grid-column:1/-1;overflow:hidden;} .pgbar .t span{display:block;height:100%;background:#1F7A5C;border-radius:999px;}' +
+      '.foot{margin-top:26px;padding-top:10px;border-top:1px solid #E5E7EB;color:#9CA3AF;font-size:10.5px;display:flex;justify-content:space-between;gap:16px;}' +
+      '@media screen{body{background:#EEF0F4;padding:24px;} .wrap{background:#fff;padding:24px;border-radius:12px;box-shadow:0 10px 40px -20px rgba(10,15,39,.3);}}';
+
+    var tile = function(c, val, lbl, sub){ return '<div class="tile" style="--c:' + c + '"><b>' + val + '</b><span>' + lbl + '</span>' + (sub ? '<small>' + sub + '</small>' : '') + '</div>'; };
+    var delta = last7 - prev7;
+    var html = '<!doctype html><html><head><meta charset="utf-8"><title>AI Visibility Report ' + from + ' to ' + to + ' - Pingle Law</title><style>' + css + '</style></head><body><div class="wrap">' +
+      '<div class="cover"><div class="kick">Pingle Law &middot; Monitoring</div><h1>AI Visibility Report</h1>' +
+        '<p>' + esc(longDate(from)) + ' &ndash; ' + esc(longDate(to)) + ' &middot; ' + N + ' day' + (N === 1 ? '' : 's') + '</p>' +
+        '<div class="big"><div class="num">' + n0(total) + '</div><div class="lbl">AI crawler visits in this period<br>from ' + plats.length + ' platform' + (plats.length === 1 ? '' : 's') + (lastSeen ? ' &middot; last visit ' + esc(new Date(lastSeen).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '') + '</div></div>' +
+        splitBar(byType, total) +
+        '<div class="legend">' + AI_TYPE_ORDER.map(function(k){ return '<span>' + keyDot(k) + AI_TYPES[k].label + ' <b>' + pctOf(byType[k], total) + '%</b></span>'; }).join('') + '</div>' +
       '</div>' +
-      '<h2>By visit type</h2><table><tr><th>Type</th><th>What it means</th><th class="n">Visits</th><th class="n">Share</th></tr>' + typeRows + '</table>' +
-      '<h2>By platform</h2><table><tr><th>Platform</th><th>Breakdown</th><th class="n">Visits</th><th class="n">Share</th></tr>' + platRows + '</table>' +
-      '<h2>Daily</h2><table><tr><th>Date</th><th class="n">Training</th><th class="n">AI Search</th><th class="n">Live lookup</th><th class="n">Total</th></tr>' + dayRows + '</table>' +
-      '<h2>Live activity</h2><p class="note">Individual visits in this period, newest first' + (actCapped ? '. The log itemizes only the most recent ' + (recent || []).length + ' visits overall, so earlier visits in this period are counted above but not listed here.' : '.') + '</p>' +
-      '<table><tr><th>When</th><th>Platform</th><th>Visit type</th><th>Page</th><th>Referer</th></tr>' + actRows + '</table>' +
-      '<p class="foot">Visits are counted by user-agent from known AI crawlers and agents. Days are calendar days in the time zone of the device that made this report (' + tzName() + '). Use your browser’s print dialog to save this as a PDF.</p>' +
-      '</body></html>';
+      '<div class="tiles">' +
+        tile('#1F7A5C', n0(haveCompare ? last7 : total), haveCompare ? 'Last 7 days of period' : 'Visits in period', haveCompare ? (delta > 0 ? '&#9650; ' : delta < 0 ? '&#9660; ' : '') + (prev7 ? Math.abs(Math.round(delta / prev7 * 100)) + '% vs. ' + n0(prev7) + ' the 7 days before' : (delta > 0 ? 'new activity' : 'no change')) : 'Daily average ' + (Math.round(avg * 10) / 10)) +
+        tile(AI_TYPES.live.hex, n0(byType.live), 'Live lookups', 'Real people asking an AI') +
+        tile('#B38A3C', busiest ? n0(busiest.total) : '&mdash;', 'Busiest day', busiest ? esc(shortDate(busiest.date)) : 'No visits') +
+        tile('#4a3aa7', String(plats.length), 'Platforms', plats.length ? 'Top: ' + esc(plats[0].name) : 'None yet') +
+      '</div>' +
+      '<section><h2>Visit types</h2><p class="sub">Why each crawler visited.</p><div class="types">' + AI_TYPE_ORDER.map(function(k){
+        return '<div class="ty"><div class="t">' + keyDot(k) + AI_TYPES[k].label + '</div><div class="v">' + n0(byType[k]) + '<small>' + pctOf(byType[k], total) + '%</small></div><p>' + esc(AI_TYPES[k].note) + '</p></div>';
+      }).join('') + '</div></section>' +
+      '<section><h2>Daily visits</h2><p class="sub">Hits per day, stacked by visit type.</p><div class="card">' + trendSvg() + '<div class="legend" style="margin-top:6px">' + AI_TYPE_ORDER.map(function(k){ return '<span>' + keyDot(k) + AI_TYPES[k].label + '</span>'; }).join('') + '</div></div></section>' +
+      '<section><h2>Platforms in this period</h2><p class="sub">Visits by platform, split by visit type.</p><div class="card">' + platformBars(plats, total, 12) + '</div></section>' +
+      '<section><h2>Platforms, day by day</h2><div class="card">' + (heatGrid() || '<p class="empty">No visits in this period.</p>') + '</div></section>' +
+      '<section><h2>Platforms, all time</h2><p class="sub">' + n0(allHits) + ' visits since logging began.</p><div class="card">' + platformBars(atList, allHits, 12) + '</div></section>' +
+      '<section><h2>Most-read pages</h2><p class="sub">All-time AI crawler hits per page &middot; ' + n0(pageRows.length) + ' distinct URL' + (pageRows.length === 1 ? '' : 's') + ' read.</p><div class="card">' +
+        (pageRows.length ? pageRows.slice(0, 15).map(function(p){ return '<div class="pgbar"><div class="p">' + esc(p.path) + '</div><b>' + n0(p.count) + '</b><div class="t"><span style="width:' + (p.count / pageRows[0].count * 100).toFixed(1) + '%"></span></div></div>'; }).join('') : '<p class="empty">No page tallies yet.</p>') +
+      '</div></section>' +
+      '<section><h2>Live activity</h2><p class="sub">Individual visits in this period, newest first' + (actCapped ? '. The log itemizes only the most recent ' + (data.recent || []).length + ' visits overall, so earlier visits in this period are counted above but not listed here.' : '.') + '</p>' +
+        '<table class="log"><thead><tr><th>When</th><th>Platform</th><th>Type</th><th>Page</th><th>Referer</th></tr></thead><tbody>' + (actRows || '<tr><td colspan="5" class="empty">No individually logged visits in this period.</td></tr>') + '</tbody></table></section>' +
+      '<div class="foot"><span>Counted by user-agent from known AI crawlers and agents. Days follow the time zone of the device that made this report (' + esc(tzName()) + ').</span><span>Generated ' + esc(new Date().toLocaleString()) + '</span></div>' +
+      '</div></body></html>';
     w.document.open(); w.document.write(html); w.document.close();
-    w.focus(); setTimeout(function(){ try { w.print(); } catch(e){} }, 350);
-    return rows.length;
+    w.focus(); setTimeout(function(){ try { w.print(); } catch(e){} }, 600);
+    return total;
   }
   function openAiExport(){
     var presets = exportPresets(), sel = presets[1];
@@ -2449,26 +2568,20 @@
     presets.forEach(function(p){ chips.appendChild(el('button', { type: 'button', 'data-id': p.id, onclick: function(){ applyPreset(p); } }, [ p.label ])); });
     function markCustom(){ sel = null; chips.querySelectorAll('button').forEach(function(b){ b.classList.remove('is-on'); }); }
     fromIn.addEventListener('input', markCustom); toIn.addEventListener('input', markCustom);
-    var fmtCsv = el('input', { type: 'radio', name: 'exFmt', value: 'csv', checked: true }), fmtPdf = el('input', { type: 'radio', name: 'exFmt', value: 'pdf' });
-    var err = el('div', { class: 'field-error', style: 'min-height:16px;' });
-    var go = el('button', { type: 'button', class: 'btn btn-primary' }, [ 'Download' ]);
+        var err = el('div', { class: 'field-error', style: 'min-height:16px;' });
+    var go = el('button', { type: 'button', class: 'btn btn-primary' }, [ 'Create report' ]);
     var backdrop = el('div', { class: 'ex-backdrop' });
     function close(){ backdrop.remove(); document.removeEventListener('keydown', onKey); }
     function onKey(e){ if(e.key === 'Escape') close(); }
     var modal = el('div', { class: 'ex-modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'exTitle' }, [
       el('div', { class: 'ex-head' }, [
-        el('div', {}, [ el('h2', { id: 'exTitle', text: 'Export AI visibility data' }), el('p', { text: 'Choose a period and a format.' }) ]),
+        el('div', {}, [ el('h2', { id: 'exTitle', text: 'AI visibility report' }), el('p', { text: 'Choose a period. The report opens ready to print or save as a PDF.' }) ]),
         el('button', { type: 'button', class: 'ex-x', 'aria-label': 'Close', onclick: close }, [ '×' ])
       ]),
       el('label', { class: 'ex-label', text: 'Period' }), chips,
       el('div', { class: 'ex-dates' }, [
         el('div', { class: 'field' }, [ el('label', { text: 'From' }), fromIn ]),
         el('div', { class: 'field' }, [ el('label', { text: 'To' }), toIn ])
-      ]),
-      el('label', { class: 'ex-label', text: 'Format' }),
-      el('div', { class: 'ex-formats' }, [
-        el('label', { class: 'ex-fmt' }, [ fmtCsv, el('span', {}, [ el('b', { text: 'Spreadsheet (CSV)' }), el('small', { text: 'Every day × bot with hit counts - opens in Excel or Google Sheets.' }) ]) ]),
-        el('label', { class: 'ex-fmt' }, [ fmtPdf, el('span', {}, [ el('b', { text: 'Printable report (PDF)' }), el('small', { text: 'Summary, breakdowns, and daily table - save as PDF from the print dialog.' }) ]) ])
       ]),
       err,
       el('div', { class: 'ex-actions' }, [ el('button', { type: 'button', class: 'btn btn-ghost', onclick: close }, [ 'Cancel' ]), go ])
@@ -2485,27 +2598,26 @@
       if(from > to){ var t = from; from = to; to = t; }
       if((new Date(to) - new Date(from)) / 86400000 > 365){ err.textContent = 'Please choose a period of one year or less.'; return; }
       var user = currentUser();
-      if(!user){ err.textContent = 'Sign in to export.'; return; }
-      var asPdf = fmtPdf.checked;
+      if(!user){ err.textContent = 'Sign in to create a report.'; return; }
       // The report window has to open synchronously inside the click, or
       // pop-up blockers stop it; it fills in once the data arrives.
-      var w = asPdf ? window.open('', '_blank') : null;
-      if(asPdf && !w){ err.textContent = 'Your browser blocked the report window - allow pop-ups for this site and try again.'; return; }
-      if(w){ w.document.write('<p style="font-family:sans-serif;padding:40px;color:#6B7280">Preparing report…</p>'); }
+      var w = window.open('', '_blank');
+      if(!w){ err.textContent = 'Your browser blocked the report window - allow pop-ups for this site and try again.'; return; }
+      w.document.write('<p style="font-family:sans-serif;padding:40px;color:#6B7280">Preparing report…</p>');
       go.disabled = true; go.textContent = 'Preparing…';
       user.jwt().then(function(token){
         return fetch(aiStatsUrl(from, to), { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } });
-      }).then(function(r){ if(!r.ok) throw new Error(r.status === 401 ? 'Sign in to export.' : 'Request failed (' + r.status + ')'); return r.json(); })
+      }).then(function(r){ if(!r.ok) throw new Error(r.status === 401 ? 'Sign in to create a report.' : 'Request failed (' + r.status + ')'); return r.json(); })
         .then(function(data){
           var daily = aiLocalDaily(data, from, to);
-          var n = asPdf ? writeReport(w, daily, from, to, data.recent || []) : downloadCsv(daily, from, to);
+          var n = writeReport(w, daily, from, to, data);
           close();
-          toast(n ? (asPdf ? 'Report ready - use Save as PDF in the print dialog.' : 'CSV downloaded (' + n + ' rows).') : 'No AI visits in that period - the export is empty.');
+          toast(n ? 'Report ready - use Save as PDF in the print dialog.' : 'Report created - there were no AI visits in that period.');
         })
         .catch(function(e){
           if(w) w.close();
-          go.disabled = false; go.textContent = 'Download';
-          err.textContent = e.message || 'Export failed.';
+          go.disabled = false; go.textContent = 'Create report';
+          err.textContent = e.message || 'Could not create the report.';
         });
     });
   }
@@ -2519,7 +2631,7 @@
       ]),
       el('div', { class: 'page-head-actions' }, [
         el('button', { type: 'button', class: 'btn btn-ghost', onclick: function(){ aiCrawlers.loaded = false; loadAiCrawlers(); } }, [ 'Refresh' ]),
-        el('button', { type: 'button', class: 'btn btn-primary', onclick: openAiExport }, [ icon('<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>', '2'), 'Export' ])
+        el('button', { type: 'button', class: 'btn btn-primary', onclick: openAiExport }, [ icon('<path d="M6 9V3h12v6"/><path d="M6 18H4v-7h16v7h-2"/><path d="M6 14h12v7H6z"/>', '2'), 'Report' ])
       ])
     ]));
     if(aiCrawlers.busy && !Object.keys(aiCrawlers.totals).length){ root.appendChild(el('div', { class: 'loading', text: 'Loading…' })); return; }
