@@ -433,6 +433,15 @@
   .ai-bar-val{ font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; }
   .ai-bar-track{ grid-column:1 / -1; height:8px; border-radius:999px; background:var(--field); overflow:hidden; }
   .ai-bar-fill{ height:100%; border-radius:999px; transform-origin:left; animation:aiGrowX .9s cubic-bezier(.2,.8,.2,1) both; }
+  .ai-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .ai-chip{ appearance:none; border:1.5px solid var(--line); background:var(--card); color:var(--muted); font:inherit; font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:999px; cursor:pointer; transition:background .15s ease, color .15s ease, border-color .15s ease; }
+  .ai-chip:hover{ border-color:var(--accent); color:var(--ink); }
+  .ai-chip[aria-pressed="true"]{ background:var(--ink); border-color:var(--ink); color:var(--card); }
+  .ai-bar-track.seg{ display:flex; gap:2px; background:var(--field); }
+  .ai-bar-track.seg .ai-bar-fill{ border-radius:0; flex:none; }
+  .ai-bar-track.seg .ai-bar-fill:first-child{ border-radius:999px 0 0 999px; }
+  .ai-bar-track.seg .ai-bar-fill:last-child{ border-radius:0 999px 999px 0; }
+  .ai-bar-track.seg .ai-bar-fill:only-child{ border-radius:999px; }
   .ai-bar-meta{ grid-column:1 / -1; font-size:11.5px; color:var(--soft); }
 
   .ai-feed{ position:relative; display:flex; flex-direction:column; }
@@ -2599,6 +2608,51 @@
       platCard.appendChild(bars);
     }
     root.appendChild(el('div', { class: 'ai-grid2' }, [ trendCard, platCard ]));
+
+    // ---- Last 30 days by platform (from the per-day counts, so it follows
+    // the device's time zone), with a filter by crawler type ----
+    var plat30 = el('div', { class: 'card' });
+    function renderPlat30(){
+      plat30.innerHTML = '';
+      var f = aiCrawlers.platFilter || 'all', map = {}, total = 0;
+      daily.forEach(function(d){
+        Object.keys(d.counts || {}).forEach(function(k){
+          var t = aiTypeOf(k); if(f !== 'all' && t !== f) return;
+          var name = aiPlatform(aiLabelFor(k)), p = map[name] || (map[name] = { name: name, count: 0, types: {} });
+          p.count += d.counts[k]; p.types[t] = (p.types[t] || 0) + d.counts[k]; total += d.counts[k];
+        });
+      });
+      var list = Object.keys(map).map(function(k){ return map[k]; }).sort(function(a, b){ return b.count - a.count; });
+      var chips = el('div', { class: 'ai-chips', role: 'group', 'aria-label': 'Filter by crawler type' }, [ ['all', 'All'], ['search', 'AI Search'], ['live', 'Live lookup'], ['training', 'Training'] ].map(function(c){
+        return el('button', { type: 'button', class: 'ai-chip', 'aria-pressed': f === c[0] ? 'true' : 'false', text: c[1], onclick: function(){ aiCrawlers.platFilter = c[0]; renderPlat30(); } });
+      }));
+      plat30.appendChild(el('div', { class: 'ai-card-head' }, [
+        el('div', {}, [ el('h2', { text: 'Platforms · last 30 days' }), el('p', { text: fmt(total) + ' visit' + (total === 1 ? '' : 's') + (f === 'all' ? ' across all types' : ' of type ' + AI_TYPES[f].label) + ', by platform. Days follow this device’s time zone.' }) ]),
+        chips
+      ]));
+      if(!list.length){ plat30.appendChild(el('div', { class: 'empty-state', text: 'No visits of this type in the last 30 days.' })); return; }
+      var wrap = el('div', { class: 'ai-bars' }), max = list[0].count;
+      list.slice(0, 12).forEach(function(p, i){
+        var track = el('div', { class: 'ai-bar-track seg' });
+        AI_TYPE_ORDER.forEach(function(k){
+          if(!p.types[k]) return;
+          var seg = el('div', { class: 'ai-bar-fill', title: AI_TYPES[k].label + ': ' + p.types[k], style: 'width:' + (p.types[k] / max * 100) + '%;background:' + AI_TYPES[k].hex });
+          seg.style.animationDelay = (0.1 + i * 0.06) + 's';
+          track.appendChild(seg);
+        });
+        var row = el('div', { class: 'ai-bar-row' }, [
+          el('div', { class: 'ai-bar-name' }, [ p.name, el('small', { text: Math.round(p.count / total * 100) + '%' }) ]),
+          el('div', { class: 'ai-bar-val', text: fmt(p.count) }),
+          track,
+          el('div', { class: 'ai-bar-meta', text: AI_TYPE_ORDER.filter(function(k){ return p.types[k]; }).map(function(k){ return fmt(p.types[k]) + ' ' + AI_TYPES[k].label.toLowerCase(); }).join(' · ') })
+        ]);
+        row.style.animationDelay = (i * 0.05) + 's';
+        wrap.appendChild(row);
+      });
+      plat30.appendChild(wrap);
+    }
+    renderPlat30();
+    root.appendChild(plat30);
 
     // ---- Top pages + live feed ----
     var pageRows = Object.keys(aiCrawlers.pages).map(function(k){ return { path: k, count: aiCrawlers.pages[k] }; }).sort(function(a, b){ return b.count - a.count; });
