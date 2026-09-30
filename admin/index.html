@@ -2514,9 +2514,8 @@
       '<div class="cover"><div class="rings"></div><div class="in">' +
         '<div class="brand">Pingle Law</div>' +
         '<h1>AI Visibility Report</h1>' +
-        '<p class="range">' + esc(longDate(from)) + (from === to ? '' : ' &ndash; ' + esc(longDate(to))) + '<small>' + N + ' day' + (N === 1 ? '' : 's') + ' &middot; pinglelaw.com</small></p>' +
+        '<p class="range">' + esc(longDate(from)) + (from === to ? '' : ' &ndash; ' + esc(longDate(to))) + '</p>' +
         '<div class="sumcard"><div class="lb">Summary</div>' + summary.map(function(t){ return '<p>' + t + '</p>'; }).join('') + '</div>' +
-        '<div class="inside"><span>Platforms</span><span>Most-read pages</span><span>Live activity</span></div>' +
         '<div class="gen">Generated ' + esc(new Date().toLocaleString()) + ' &middot; times in ' + esc(tzName()) + '</div>' +
       '</div></div>' +
       '<div class="doc">' +
