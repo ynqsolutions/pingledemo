@@ -101,8 +101,18 @@ p{ margin:0; white-space:pre-wrap; }
   }
 
   function doDownload(){
+    // Same page setup as Print: Word ignores <body> margins in HTML, so the
+    // 1in margins go in a named @page section, with 0.75in extra at the top
+    // (letterhead) on the first paragraph.
     const lines = getLetterText().split('\n').map(line => escapeHtml(line) || '&nbsp;');
-    const html = `<html><head><meta charset="utf-8"></head><body style="font-family:'Times New Roman',Times,serif; font-size:12pt; line-height:1.5; margin:1.75in 1in 1in 1in;">${lines.join('<br>')}</body></html>`;
+    const para = (l, i) => '<p style="margin:0;font-family:\'Times New Roman\',Times,serif;font-size:12pt;line-height:150%;' + (i === 0 ? 'margin-top:0.75in;' : '') + '">' + l + '</p>';
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8">
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<style>
+@page WordSection1{ size:8.5in 11in; margin:1in 1in 1in 1in; mso-header-margin:0.5in; mso-footer-margin:0.5in; }
+div.WordSection1{ page:WordSection1; }
+body{ margin:0; font-family:'Times New Roman',Times,serif; font-size:12pt; }
+</style></head><body><div class="WordSection1">${lines.map(para).join('')}</div></body></html>`;
     const blob = new Blob(['﻿', html], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
