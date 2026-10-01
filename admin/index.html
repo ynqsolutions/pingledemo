@@ -3324,30 +3324,32 @@
     var last7 = dayTotals.slice(-7).reduce(function(s, v){ return s + v; }, 0);
     var prev7 = dayTotals.slice(-14, -7).reduce(function(s, v){ return s + v; }, 0);
 
-    // ---- Hero ----
+    // ---- Hero: today's activity (this device's calendar day) ----
+    var todayRec = daily.length ? daily[daily.length - 1] : { counts: {} };
+    var tType = aiDayTypes(todayRec.counts), todayTotal = tType.training + tType.search + tType.live;
+    var todayPlats = {}; Object.keys(todayRec.counts || {}).forEach(function(k){ if(todayRec.counts[k]) todayPlats[aiPlatform(aiLabelFor(k))] = 1; });
+    var nTodayPlats = Object.keys(todayPlats).length;
     var heroNum = el('div', { class: 'ai-hero-num', text: '0' });
-    var split = el('div', { class: 'ai-split', role: 'img', 'aria-label': AI_TYPE_ORDER.map(function(k){ return AI_TYPES[k].label + ' ' + byType[k]; }).join(', ') });
+    var split = el('div', { class: 'ai-split', role: 'img', 'aria-label': AI_TYPE_ORDER.map(function(k){ return AI_TYPES[k].label + ' ' + tType[k]; }).join(', ') });
     var splitLegend = el('div', { class: 'ai-split-legend' });
     AI_TYPE_ORDER.forEach(function(k, i){
-      if(totalHits && byType[k]){
-        var seg = el('span', { style: 'background:' + AI_TYPES[k].hex + ';flex:' + byType[k] + ' 1 0' });
+      if(todayTotal && tType[k]){
+        var seg = el('span', { style: 'background:' + AI_TYPES[k].hex + ';flex:' + tType[k] + ' 1 0' });
         seg.style.animationDelay = (0.15 + i * 0.12) + 's'; split.appendChild(seg);
       }
-      var pct = totalHits ? Math.round(byType[k] / totalHits * 100) : 0;
+      var pct = todayTotal ? Math.round(tType[k] / todayTotal * 100) : 0;
       splitLegend.appendChild(el('span', { title: AI_TYPES[k].note }, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[k].hex }), AI_TYPES[k].label + ' ', el('b', { text: pct + '%' }) ]));
     });
     root.appendChild(el('div', { class: 'ai-hero' }, [
       el('div', {}, [
-        el('span', { class: 'ai-hero-kicker' }, [ el('span', { class: 'ai-live-dot' }), 'Monitoring' ]),
+        el('span', { class: 'ai-hero-kicker' }, [ el('span', { class: 'ai-live-dot' }), 'Monitoring · Today' ]),
         heroNum,
-        el('div', { class: 'ai-hero-sub', text: totalHits
-          ? 'AI crawler visits from ' + platforms.length + ' platform' + (platforms.length === 1 ? '' : 's') + '. Last one ' + relTime(lastSeen) + '.'
-          : 'No AI crawler visits yet. Crawl frequency varies a lot by platform - check back after the site has been live a while.' }),
+        el('div', { class: 'ai-hero-sub', text: todayTotal ? 'AI crawler visits today from ' + nTodayPlats + ' platform' + (nTodayPlats === 1 ? '' : 's') + '. Last one ' + relTime(lastSeen) + '. ' + fmt(totalHits) + ' all time.' : 'No AI crawler visits yet today. ' + (totalHits ? fmt(totalHits) + ' all time; last one ' + relTime(lastSeen) + '.' : '') }),
         split, splitLegend
       ]),
       aiRadar(platforms)
     ]));
-    aiCountUp(heroNum, totalHits, 1200);
+    aiCountUp(heroNum, todayTotal, 1200);
 
     // ---- Tiles ----
     function tile(label, value, sub, extra){
@@ -3361,7 +3363,7 @@
     var diff = last7 - prev7;
     t7.num.appendChild(el('span', { class: 'ai-delta ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat'), text: (diff > 0 ? '▲ ' : diff < 0 ? '▼ ' : '') + (prev7 ? Math.abs(Math.round(diff / prev7 * 100)) + '%' : (diff > 0 ? 'new' : '0%')) }));
     tiles.appendChild(t7.node);
-    tiles.appendChild(tile(el('span', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES.live.hex }), 'Live lookups' ]), byType.live, 'Real people asking an AI right now (all time)', dayLive.length ? aiSpark(dayLive.slice(-14), AI_TYPES.live.hex) : null).node);
+    tiles.appendChild(tile(el('span', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES.live.hex }), 'Live lookups · 7 days' ]), dayLive.slice(-7).reduce(function(a, b){ return a + b; }, 0), 'Real people asking an AI, last 7 days', dayLive.length ? aiSpark(dayLive.slice(-14), AI_TYPES.live.hex) : null).node);
     var busiest = null;
     daily.forEach(function(d, i){ if(dayTotals[i] > 0 && (!busiest || dayTotals[i] > busiest.n)) busiest = { n: dayTotals[i], date: d.date }; });
     tiles.appendChild(tile('Busiest day', busiest ? busiest.n : 0, busiest ? shortDate(busiest.date) + ' · last 30 days' : 'No visits in the last 30 days').node);
