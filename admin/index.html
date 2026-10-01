@@ -3158,10 +3158,6 @@
       '<section><h2>Platforms</h2><p class="sub">Which AI platforms visited between ' + esc(shortDate(from)) + ' and ' + esc(shortDate(to)) + ', and why.</p>' +
         '<div class="card"><div class="legend">' + AI_TYPE_ORDER.map(function(k){ return '<span>' + keyDot(k) + '<b>' + AI_TYPES[k].label + '</b> &middot; ' + n0(byType[k]) + ' (' + pctOf(byType[k], total) + '%)</span>'; }).join('') + '</div>' + platformBars(plats, total, 12) + '</div>' +
         '<div class="card">' + (heatGrid() || '<p class="empty">No visits in this period.</p>') + '</div></section>' +
-      '<section><h2>Most-read pages</h2><p class="sub">Pages AI crawlers and assistants read during these dates' + (pageRows.length ? ' &middot; ' + n0(pageRows.length) + ' distinct URL' + (pageRows.length === 1 ? '' : 's') + '.' : '.') + '</p><div class="card">' +
-        (pageRows.length ? pageRows.slice(0, 15).map(function(p, i){ return '<div class="pgbar"><div class="rk">' + (i + 1) + '</div><div class="p">' + esc(p.path) + '</div><b>' + n0(p.count) + '</b><div class="t"><span style="width:' + (p.count / pageRows[0].count * 100).toFixed(1) + '%"></span></div></div>'; }).join('') : '<p class="empty">No page-level detail for these dates.</p>') +
-        (pagesGap ? '<p class="note">Page-level detail starts on ' + esc(longDate(data.pagesSince)) + '; visits before then are counted under Platforms but not broken down by page. Pages are counted by UTC day.</p>' : '<p class="note">Pages are counted by UTC day.</p>') +
-      '</div></section>' +
       (function(){
         var ins = buildInsights(data.recent, daily, from, to);
         function lst(items, empty, fmtFn){ return items.length ? '<ol class="il">' + items.slice(0, 6).map(fmtFn).join('') + '</ol>' : '<p class="empty">' + empty + '</p>'; }
@@ -3178,6 +3174,10 @@
           '<div class="ic acts"><div class="ih" style="--c:#1F7A5C">Recommended next steps</div><ol>' + ins.actions.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ol></div>' +
         '</section>';
       })() +
+      '<section><h2>Most-read pages</h2><p class="sub">Pages AI crawlers and assistants read during these dates' + (pageRows.length ? ' &middot; ' + n0(pageRows.length) + ' distinct URL' + (pageRows.length === 1 ? '' : 's') + '.' : '.') + '</p><div class="card">' +
+        (pageRows.length ? pageRows.slice(0, 15).map(function(p, i){ return '<div class="pgbar"><div class="rk">' + (i + 1) + '</div><div class="p">' + esc(p.path) + '</div><b>' + n0(p.count) + '</b><div class="t"><span style="width:' + (p.count / pageRows[0].count * 100).toFixed(1) + '%"></span></div></div>'; }).join('') : '<p class="empty">No page-level detail for these dates.</p>') +
+        (pagesGap ? '<p class="note">Page-level detail starts on ' + esc(longDate(data.pagesSince)) + '; visits before then are counted under Platforms but not broken down by page. Pages are counted by UTC day.</p>' : '<p class="note">Pages are counted by UTC day.</p>') +
+      '</div></section>' +
       '<div class="foot">Visits are counted by user-agent from known AI crawlers and agents. Days follow the time zone of the device that made this report (' + esc(tzName()) + ').</div>' +
       '</div></body></html>';
     w.document.open(); w.document.write(html); w.document.close();
