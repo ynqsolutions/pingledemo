@@ -3432,9 +3432,22 @@
     var prev7 = dayTotals.slice(-14, -7).reduce(function(s, v){ return s + v; }, 0);
 
     // ---- Hero: today's activity (this device's calendar day) ----
-    var todayRec = daily.length ? daily[daily.length - 1] : { counts: {} };
-    var tType = aiDayTypes(todayRec.counts), todayTotal = tType.training + tType.search + tType.live;
-    var todayPlats = {}; Object.keys(todayRec.counts || {}).forEach(function(k){ if(todayRec.counts[k]) todayPlats[aiPlatform(aiLabelFor(k))] = 1; });
+    // Counted from the same itemized visits Live activity lists, so the two
+    // always agree. (The per-day totals can differ on the day the logging
+    // format changed: visits from the previous evening were filed under the
+    // UTC date and land on "today".) Falls back to per-day totals only if
+    // today has more visits than the itemized feed holds.
+    var todayIso = isoDay(new Date()), rec = aiCrawlers.recent || [];
+    var feedCoversToday = rec.length < 600 || (rec.length && isoDay(new Date(rec[rec.length - 1].time)) < todayIso);
+    var todayRec = daily.length ? daily[daily.length - 1] : { counts: {} }, tType, todayPlats = {};
+    if(feedCoversToday){
+      tType = { training: 0, search: 0, live: 0 };
+      rec.forEach(function(r){ if(isoDay(new Date(r.time)) === todayIso){ tType[aiTypeOf(r.bot)]++; todayPlats[aiPlatform(r.label)] = 1; } });
+    } else {
+      tType = aiDayTypes(todayRec.counts);
+      Object.keys(todayRec.counts || {}).forEach(function(k){ if(todayRec.counts[k]) todayPlats[aiPlatform(aiLabelFor(k))] = 1; });
+    }
+    var todayTotal = tType.training + tType.search + tType.live;
     var nTodayPlats = Object.keys(todayPlats).length;
     var heroNum = el('div', { class: 'ai-hero-num', text: '0' });
     var split = el('div', { class: 'ai-split', role: 'img', 'aria-label': AI_TYPE_ORDER.map(function(k){ return AI_TYPES[k].label + ' ' + tType[k]; }).join(', ') });
