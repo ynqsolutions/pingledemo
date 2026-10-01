@@ -2953,27 +2953,34 @@
     var WD = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
     var topDay = live.length ? WD[wk.indexOf(Math.max.apply(null, wk))] : null;
     var topBand = live.length ? Object.keys(bands).sort(function(a, b){ return bands[b] - bands[a]; })[0] : null;
+    var pc = function(n){ return live.length ? Math.round(n / live.length * 100) : 0; };
     var days = (daily || []).filter(function(d){ return d.date >= from && d.date <= to; });
     var half = Math.floor(days.length / 2), first = days.slice(0, half), second = days.slice(half);
     var sumT = function(ds, t){ return ds.reduce(function(s, d){ return s + Object.keys(d.counts || {}).reduce(function(a, k){ return a + (aiTypeOf(k) === t ? d.counts[k] : 0); }, 0); }, 0); };
-    var trend = function(t){ var a = sumT(first, t), b = sumT(second, t); return { early: a, late: b, pct: a ? Math.round((b - a) / a * 100) : (b ? null : 0) }; };
-    var ins = { from: from, to: to, liveCount: live.length, searchCount: search.length, livePages: livePages, liveBy: liveBy, searchPages: searchPages, searchBy: searchBy, refs: refs, when: { week: wk, bands: bands, topDay: topDay, topBand: topBand },
+    var rng = function(ds){ return ds.length ? (ds[0].date === ds[ds.length - 1].date ? shortDate(ds[0].date) : shortDate(ds[0].date) + '–' + shortDate(ds[ds.length - 1].date)) : ''; };
+    var trend = function(t){ var a = sumT(first, t), b = sumT(second, t); return { early: a, late: b, pct: a ? Math.round((b - a) / a * 100) : (b ? null : 0), r1: rng(first), r2: rng(second), ok: first.length > 0 && second.length > 0 }; };
+    var ins = { from: from, to: to, liveCount: live.length, searchCount: search.length, livePages: livePages, liveBy: liveBy, searchPages: searchPages, searchBy: searchBy, refs: refs, when: { week: wk, bands: bands, topDay: topDay, topBand: topBand, pct: pc, topDayPct: live.length ? pc(Math.max.apply(null, wk)) : 0, topBandPct: live.length ? pc(bands[topBand]) : 0 },
       liveTrend: trend('live'), searchTrend: trend('search'), absent: MAIN_ASSISTANTS.filter(function(a){ return !liveBy.some(function(x){ return x.key === a; }); }), capped: (recent || []).length >= 600, actions: [] };
     var A = ins.actions;
     if(livePages.length) A.push('Refresh and mark updated: ' + livePages.slice(0, 3).map(function(x){ return pageName(x.key); }).join(', ') + ' — these are the pages AI is using to answer real questions. Make sure each links clearly to the Free Case Review.');
     else A.push('No live lookups yet in this period. Focus on getting indexed: keep pages fresh, press Notify Bing after updates, and add short question-and-answer sections to key pages.');
     if(livePages.length) A.push('Write 1–2 new posts on topics close to: ' + livePages.slice(0, 2).map(function(x){ return pageName(x.key); }).join(' and ') + '.');
-    if(live.length >= 5) A.push('Most live lookups come on ' + topDay + 's, ' + topBand.toLowerCase() + '. Make sure calls and contact forms are answered quickly then, and consider weighting Google Ads toward those times.');
-    if(ins.searchTrend.pct != null && ins.searchTrend.pct <= -25) A.push('AI Search crawling dropped ' + Math.abs(ins.searchTrend.pct) + '% in the second half of the period. Publish or refresh something and notify Bing.');
+    if(live.length >= 5) A.push('Most live lookups come on ' + topDay + 's (' + pc(Math.max.apply(null, wk)) + '%) and in the ' + topBand.toLowerCase().replace(/ \(.*\)/, '') + ' (' + pc(bands[topBand]) + '%). Make sure calls and contact forms are answered quickly then, and consider weighting Google Ads toward those times.');
+    if(ins.searchTrend.pct != null && ins.searchTrend.pct <= -25) A.push('AI Search crawling dropped ' + Math.abs(ins.searchTrend.pct) + '% (' + ins.searchTrend.r2 + ' compared with ' + ins.searchTrend.r1 + '). Publish or refresh something and notify Bing.');
     if(liveBy.length && ins.absent.length) A.push('No live lookups from ' + ins.absent.join(', ') + '. Try asking those assistants about California employment lawyers to see who they recommend.');
     A.push('Add “AI assistant (ChatGPT, etc.)” to the intake “How did you hear about us?” question to tie these visits to real leads.');
     return ins;
   }
   function trendText(t, label){
-    if(!t.early && !t.late) return 'No ' + label + ' in this period.';
-    if(t.pct == null) return label.charAt(0).toUpperCase() + label.slice(1) + ' started in the second half of the period (' + t.late + ').';
-    return label.charAt(0).toUpperCase() + label.slice(1) + ' ' + (t.pct > 0 ? 'up ' + t.pct + '%' : t.pct < 0 ? 'down ' + Math.abs(t.pct) + '%' : 'flat') + ' (' + t.early + ' → ' + t.late + ', first half vs. second half).';
+    // e.g. "Live lookups: 7 during Sep 16–30, up 40% from 5 during Sep 1–15."
+    var L = label.charAt(0).toUpperCase() + label.slice(1);
+    if(!t.ok) return L + ': not enough days in this period to compare.';
+    if(!t.early && !t.late) return L + ': none during ' + t.r1 + ' or ' + t.r2 + '.';
+    if(!t.early) return L + ': ' + t.late + ' during ' + t.r2 + ', up from none during ' + t.r1 + '.';
+    var how = t.pct > 0 ? 'up ' + t.pct + '%' : t.pct < 0 ? 'down ' + Math.abs(t.pct) + '%' : 'the same as';
+    return L + ': ' + t.late + ' during ' + t.r2 + ', ' + how + (t.pct === 0 ? ' ' : ' from ') + t.early + ' during ' + t.r1 + '.';
   }
+
 
   function writeReport(w, daily, from, to, data){
     data = data || {};
@@ -2982,6 +2989,7 @@
     function longDate(iso){ return new Date(iso + 'T12:00:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }); }
     function keyDot(k){ return '<i class="dot" style="background:' + AI_TYPES[k].hex + '"></i>'; }
     function pctOf(n, sum){ return sum ? Math.round(n / sum * 100) : 0; }
+    function tint(hex, a){ var n = parseInt(hex.slice(1), 16); return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')'; }
 
     // ---- numbers for the chosen dates ----
     var days = daily.map(function(d){ var t = aiDayTypes(d.counts); t.date = d.date; t.total = t.training + t.search + t.live; return t; });
@@ -3019,19 +3027,18 @@
     var span = from === to ? 'On ' + longDate(from) : 'Between ' + longDate(from) + ' and ' + longDate(to);
     var summary = [];
     if(!total){
-      summary.push(span + ', no AI crawler visits were recorded on pinglelaw.com.');
+      summary.push('No AI crawler visits were recorded in this period.');
     } else {
-      summary.push(span + ', AI crawlers and assistants visited pinglelaw.com <b>' + n0(total) + ' time' + (total === 1 ? '' : 's') + '</b> across <b>' + plats.length + ' platform' + (plats.length === 1 ? '' : 's') + '</b>.');
-      var top = plats.slice(0, 3).map(function(p){ return esc(p.name) + ' (' + n0(p.count) + ')'; });
-      summary.push((plats[0] ? '<b>' + esc(plats[0].name) + '</b> was the most active, with ' + n0(plats[0].count) + ' visit' + (plats[0].count === 1 ? '' : 's') + ' (' + pctOf(plats[0].count, total) + '% of the total)' : '') + (plats.length > 1 ? ', followed by ' + joinList(top.slice(1)) : '') + '.');
-      summary.push(byType.live ? '<b>' + n0(byType.live) + '</b> of these ' + (byType.live === 1 ? 'was a live lookup' : 'were live lookups') + ' - a person asked an AI a question and it opened a page on the site to answer.' : 'None were live lookups; the activity was crawlers indexing the site or collecting training data.');
-      if(byType.search) summary.push(n0(byType.search) + ' ' + (byType.search === 1 ? 'was' : 'were') + ' AI-search crawls that keep the site available to AI search tools.');
-      if(busiest && N > 1) summary.push('Activity peaked on <b>' + esc(longDate(busiest.date)) + '</b> with ' + n0(busiest.total) + ' visit' + (busiest.total === 1 ? '' : 's') + '.');
-      if(N >= 14){
-        var dl = last7 - prev7;
-        summary.push('In the final 7 days of the period there were ' + n0(last7) + ' visits, ' + (prev7 ? (dl === 0 ? 'unchanged from' : Math.abs(Math.round(dl / prev7 * 100)) + '% ' + (dl > 0 ? 'up from' : 'down from')) + ' the ' + n0(prev7) + ' in the 7 days before.' : 'compared with none in the 7 days before.'));
-      }
-      if(pageRows.length) summary.push('The most-read page was <b>' + esc(pageRows[0].path) + '</b> (' + n0(pageRows[0].count) + ' read' + (pageRows[0].count === 1 ? '' : 's') + ')' + (pageRows.length > 1 ? ', ahead of ' + joinList(pageRows.slice(1, 3).map(function(p){ return esc(p.path); })) : '') + '.');
+      summary.push('<b>' + esc(plats[0].name) + '</b> was the most active platform (' + pctOf(plats[0].count, total) + '% of visits)' + (busiest && N > 1 ? '. Busiest day: <b>' + esc(shortDate(busiest.date)) + '</b> (' + n0(busiest.total) + ')' : '') + (pageRows.length ? '. Most-read page: <b>' + esc(pageName(pageRows[0].path)) + '</b>' : '') + '.');
+    }
+    var coverStats = [ [ n0(total), 'AI visits' ], [ n0(byType.live), 'Live lookups' ], [ n0(byType.search), 'AI Search crawls' ], [ String(plats.length), 'Platforms' ] ];
+    function coverSpark(){
+      if(N < 2 || !total) return '';
+      var W = 520, H = 90, max = Math.max.apply(null, days.map(function(d){ return d.total; }).concat([1]));
+      var pts = days.map(function(d, i){ return [ (i / (N - 1) * W).toFixed(1), (H - 6 - d.total / max * (H - 16)).toFixed(1) ]; });
+      var line = pts.map(function(p, i){ return (i ? 'L' : 'M') + p[0] + ',' + p[1]; }).join('');
+      var last = pts[pts.length - 1];
+      return '<svg class="spark" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none"><path d="' + line + 'L' + W + ',' + H + 'L0,' + H + 'Z" fill="rgba(179,138,60,.09)"/><path d="' + line + '" fill="none" stroke="#B38A3C" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><circle cx="' + last[0] + '" cy="' + last[1] + '" r="4" fill="#0A0F27"/></svg>';
     }
 
     // ---- pieces ----
@@ -3088,7 +3095,7 @@
     };
     var keyHtml = '<section class="first key"><h2>How to read this report</h2><p class="sub">Every visit is one of three types, based on which crawler made it.</p><div class="keys">' +
       AI_TYPE_ORDER.map(function(k){
-        return '<div class="kc" style="--c:' + AI_TYPES[k].hex + '"><div class="kt">' + esc(AI_TYPES[k].label) + '</div><p>' + esc(KEY_TEXT[k]) + '</p><ul>' +
+        return '<div class="kc" style="--c:' + AI_TYPES[k].hex + ';--t:' + tint(AI_TYPES[k].hex, .13) + ';--f:' + AI_TYPES[k].hex + '"><div class="kt">' + esc(AI_TYPES[k].label) + '</div><p>' + esc(KEY_TEXT[k]) + '</p><ul>' +
           KEY_EXAMPLES[k].map(function(e){ return '<li><b>' + esc(e[0]) + '</b><span>' + esc(e[1]) + (e[2] !== e[1] ? ' &middot; ' + esc(e[2]) : '') + '</span></li>'; }).join('') + '</ul></div>';
       }).join('') + '</div><p class="note">Platform names in this report are the company that runs the crawler; the product it powers is shown after the dot.</p></section>';
 
@@ -3097,31 +3104,29 @@
       'html,body{margin:0;padding:0;}' +
       'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;color:#111827;font-size:12px;line-height:1.45;background:#fff;}' +
       // cover: one full letter page, edge to edge
-      '.cover{width:8.5in;height:11in;position:relative;overflow:hidden;color:#fff;page-break-after:always;break-after:page;' +
-        'background:radial-gradient(ellipse at 85% 8%,rgba(179,138,60,.28) 0,rgba(179,138,60,0) 42%),linear-gradient(160deg,#0A0F27 0%,#131b45 55%,#0A0F27 100%);}' +
-      '.cover .rings{position:absolute;right:-2.6in;bottom:-2.6in;width:7.4in;height:7.4in;border-radius:50%;border:1px solid rgba(217,181,106,.5);box-shadow:0 0 0 .55in rgba(217,181,106,.06),0 0 0 1.1in rgba(217,181,106,.05),0 0 0 1.65in rgba(217,181,106,.04);}' +
-      '.cover .rings:after{content:"";position:absolute;left:50%;top:50%;width:11px;height:11px;margin:-5px 0 0 -5px;border-radius:50%;background:#D9B56A;box-shadow:0 0 0 8px rgba(217,181,106,.18);}' +
-      '.cover .in{position:relative;z-index:1;padding:.95in .85in .7in;height:100%;display:flex;flex-direction:column;}' +
-      '.brand{font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:#D9B56A;font-weight:700;}' +
-      '.brand:after{content:"";display:block;width:54px;height:2px;background:#D9B56A;margin-top:14px;}' +
-      '.cover h1{font-family:Georgia,"Times New Roman",serif;font-size:58px;line-height:1.02;margin:1.15in 0 14px;font-weight:700;letter-spacing:-.01em;max-width:5.6in;}' +
-      '.cover .range{font-size:17px;color:#D9DEF2;margin:0;}' +
-      '.cover .range small{display:block;font-size:12.5px;color:#8E97BC;margin-top:5px;letter-spacing:.02em;}' +
-      '.sumcard{margin-top:auto;max-width:6.1in;background:rgba(10,15,39,.78);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:22px 26px 20px;}' +
-      '.sumcard .lb{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#D9B56A;font-weight:700;margin-bottom:10px;}' +
-      '.sumcard p{margin:0 0 9px;font-size:13.2px;line-height:1.6;color:#E6E9F7;} .sumcard p:last-child{margin-bottom:0;} .sumcard b{color:#fff;font-weight:700;}' +
-      '.inside{display:flex;gap:22px;margin-top:22px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8E97BC;font-weight:600;}' +
-      '.inside span:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#D9B56A;margin-right:8px;vertical-align:1px;}' +
-      '.gen{margin-top:20px;font-size:10.5px;color:#7480AA;}' +
+      '.cover{width:8.5in;height:10.98in;position:relative;overflow:hidden;background:#FBFAF7;color:#0A0F27;page-break-after:always;break-after:page;}' +
+      '.cover .in{height:100%;padding:1in .9in .8in;display:flex;flex-direction:column;}' +
+      '.brand{display:flex;align-items:center;gap:12px;font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:#0A0F27;font-weight:700;}' +
+      '.brand:after{content:"";flex:none;width:44px;height:2px;background:#B38A3C;}' +
+      '.cover h1{font-family:Georgia,"Times New Roman",serif;font-size:46px;line-height:1.05;margin:1.3in 0 10px;font-weight:700;letter-spacing:-.01em;color:#0A0F27;}' +
+      '.cover .range{font-size:16px;color:#4B5563;margin:0;}' +
+      '.cover .spark{display:block;width:100%;height:1.1in;margin:.55in 0 .1in;}' +
+      '.cover .spark-l{font-size:10.5px;color:#9CA3AF;letter-spacing:.06em;text-transform:uppercase;margin:0 0 .35in;}' +
+      '.cstats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #E5E1D6;border-bottom:1px solid #E5E1D6;}' +
+      '.cstats div{padding:16px 0 14px;} .cstats div + div{padding-left:18px;border-left:1px solid #E5E1D6;}' +
+      '.cstats b{display:block;font-family:Georgia,serif;font-size:28px;font-weight:700;color:#0A0F27;line-height:1.1;}' +
+      '.cstats span{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#6B7280;margin-top:4px;}' +
+      '.csum{margin:18px 0 0;font-size:13.5px;line-height:1.6;color:#374151;max-width:6.2in;} .csum b{color:#0A0F27;}' +
+      '.gen{margin-top:auto;font-size:10.5px;color:#9CA3AF;}' +
       // body pages
       '.doc{max-width:7.4in;margin:0 auto;}' +
       'section{margin-top:24px;}' +
-      '.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;} .kc{border:1px solid #E5E7EB;border-top:4px solid var(--c);border-radius:12px;padding:12px 13px;break-inside:avoid;} .kt{font-family:Georgia,serif;font-size:15px;font-weight:700;margin-bottom:5px;} .kc p{margin:0 0 8px;font-size:10.5px;line-height:1.5;color:#4B5563;} .kc ul{list-style:none;margin:0;padding:0;border-top:1px solid #EEF0F3;} .kc li{display:flex;flex-direction:column;padding:4px 0;border-bottom:1px solid #F3F4F6;font-size:10px;line-height:1.3;} .kc li b{font-weight:700;color:#111827;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;} .kc li span{color:#6B7280;}' +
+      '.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;} .kc{border:1px solid #E5E7EB;border-radius:12px;padding:12px 13px;break-inside:avoid;background:#fff;} .kt{display:inline-flex;align-items:center;gap:7px;padding:4px 11px 4px 9px;border-radius:999px;background:var(--t);color:var(--f);font-size:12px;font-weight:700;margin-bottom:8px;} .kt:before{content:\"\";width:8px;height:8px;border-radius:50%;background:var(--c);} .kc p{margin:0 0 8px;font-size:10.5px;line-height:1.5;color:#4B5563;} .kc ul{list-style:none;margin:0;padding:0;border-top:1px solid #EEF0F3;} .kc li{display:flex;flex-direction:column;padding:4px 0;border-bottom:1px solid #F3F4F6;font-size:10px;line-height:1.3;} .kc li b{font-weight:700;color:#111827;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;} .kc li span{color:#6B7280;}' +
       'section.first{margin-top:0;} ' +
       'h2{font-family:Georgia,serif;font-size:21px;margin:0 0 3px;display:flex;align-items:center;gap:12px;color:#0A0F27;}' +
       'h2:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#B38A3C,rgba(179,138,60,0));}' +
       '.sub{color:#6B7280;margin:0 0 12px;font-size:11.5px;}' +
-      '.card{border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;} .card + .card{margin-top:12px;}' +
+      '.card{border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;break-inside:auto;} .card + .card{margin-top:12px;} h2{break-after:avoid;} .sub{break-after:avoid;}' +
       '.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:-1px;}' +
       '.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:11px;color:#4B5563;margin-bottom:12px;}' +
       '.bars{display:flex;flex-direction:column;gap:11px;}' +
@@ -3141,16 +3146,19 @@
       '.log thead{display:table-header-group;} .log tr{break-inside:avoid;}' +
       '.nw{white-space:nowrap;} .mute{color:#9CA3AF;font-size:10px;} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;word-break:break-all;}' +
       '.empty{color:#9CA3AF;text-align:center;padding:14px;margin:0;}' +
-      '.igrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;} .ic{border:1px solid #E5E7EB;border-radius:12px;padding:13px 15px;break-inside:avoid;} .ic.trend,.ic.acts{margin-top:12px;} .ih{font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;} .ih:before{content:"";width:9px;height:9px;border-radius:3px;background:var(--c);} .id{margin:3px 0 8px;color:#6B7280;font-size:10.5px;} .il{margin:0;padding:0 0 0 16px;font-size:11.5px;} .il li{padding:4px 0;border-bottom:1px solid #F3F4F6;} .il li:last-child{border-bottom:none;} .il li{display:list-item;} .il li span{display:inline-block;max-width:80%;} .il li small{display:block;color:#9CA3AF;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;word-break:break-all;} .il li b{float:right;font-variant-numeric:tabular-nums;} .il.plain{list-style:none;padding:0;} .ok{color:#1F7A5C;font-size:12px;margin:4px 0 0;} .ic.trend p{margin:5px 0 0;font-size:11.5px;} .ic.acts ol{margin:8px 0 0;padding-left:18px;font-size:11.5px;line-height:1.55;} .ic.acts li{margin-bottom:5px;}' +
+      '.igrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;} .ic{border:1px solid #E5E7EB;border-radius:12px;padding:13px 15px;break-inside:avoid;} .ic.trend,.ic.acts{margin-top:12px;} .ih{font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;} .ih:before{content:"";width:9px;height:9px;border-radius:3px;background:var(--c);} .id{margin:3px 0 8px;color:#6B7280;font-size:10.5px;} .il{margin:0;padding:0;list-style:none;counter-reset:i;font-size:11.5px;} .il li{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #F3F4F6;} .il li:last-child{border-bottom:none;} .il:not(.plain) li:before{counter-increment:i;content:counter(i);flex:none;width:16px;color:#B38A3C;font-weight:700;font-family:Georgia,serif;} .il li span{flex:1;min-width:0;} .il li small{display:block;color:#9CA3AF;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;word-break:break-all;} .il li b{flex:none;font-variant-numeric:tabular-nums;} .ok{color:#1F7A5C;font-size:12px;margin:4px 0 0;} .ic.trend p{margin:5px 0 0;font-size:11.5px;} .ic.acts ol{margin:8px 0 0;padding-left:18px;font-size:11.5px;line-height:1.55;} .ic.acts li{margin-bottom:5px;}' +
       '.foot{margin-top:26px;padding-top:10px;border-top:1px solid #E5E7EB;color:#9CA3AF;font-size:10.5px;}' +
-      '@media screen{body{background:#EEF0F4;padding:24px 0;} .cover{margin:0 auto 24px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.5);} .doc{background:#fff;padding:32px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.3);}}';
+      '@media screen{body{background:#EEF0F4;padding:24px 0;} .cover{margin:0 auto 24px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.25);} .doc{background:#fff;padding:32px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.3);}}' +
+      '@media screen and (max-width:860px){body{padding:0;} .cover{width:100%;height:auto;min-height:100vh;border-radius:0;} .cover .in{padding:44px 22px 30px;} .cover h1{font-size:34px;margin-top:40px;} .cstats{grid-template-columns:1fr 1fr;} .cstats div:nth-child(3){padding-left:0;border-left:none;} .cstats div:nth-child(n+3){border-top:1px solid #E5E1D6;} .gen{margin-top:30px;} .doc{border-radius:0;padding:22px 16px;} .keys,.igrid{grid-template-columns:1fr;} .heat-wrap{overflow-x:auto;}}';
 
-    var html = '<!doctype html><html><head><meta charset="utf-8"><title>AI Visibility Report ' + from + ' to ' + to + ' - Pingle Law</title><style>' + css + '</style></head><body>' +
-      '<div class="cover"><div class="rings"></div><div class="in">' +
+    var html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AI Visibility Report ' + from + ' to ' + to + ' - Pingle Law</title><style>' + css + '</style></head><body>' +
+      '<div class="cover"><div class="in">' +
         '<div class="brand">Pingle Law</div>' +
         '<h1>AI Visibility Report</h1>' +
         '<p class="range">' + esc(longDate(from)) + (from === to ? '' : ' &ndash; ' + esc(longDate(to))) + '</p>' +
-        '<div class="sumcard"><div class="lb">Summary</div>' + summary.map(function(t){ return '<p>' + t + '</p>'; }).join('') + '</div>' +
+        coverSpark() + (N >= 2 && total ? '<p class="spark-l">AI visits per day</p>' : '<div style="height:.9in"></div>') +
+        '<div class="cstats">' + coverStats.map(function(c){ return '<div><b>' + c[0] + '</b><span>' + c[1] + '</span></div>'; }).join('') + '</div>' +
+        '<p class="csum">' + summary.join(' ') + '</p>' +
         '<div class="gen">Generated ' + esc(new Date().toLocaleString()) + ' &middot; times in ' + esc(tzName()) + '</div>' +
       '</div></div>' +
       '<div class="doc">' +
@@ -3168,7 +3176,7 @@
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Pages answering real questions</div><p class="id">AI opened these to answer someone. Your highest-value pages.</p>' + lst(ins.livePages, 'No live lookups in these dates.', pg) + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Assistants sending people</div><p class="id">Where you’re being recommended.</p>' + lst(ins.liveBy, 'None yet.', who) + (ins.refs.length ? '<p class="id" style="margin-top:8px">Referring sites seen: ' + ins.refs.map(function(r){ return esc(r.key) + ' (' + r.n + ')'; }).join(', ') + '</p>' : '') + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.search.hex + '">What AI Search is indexing</div><p class="id">Pages AI search tools saved so they can cite them.</p>' + lst(ins.searchPages, 'No AI Search visits in these dates.', pg) + '</div>' +
-            '<div class="ic"><div class="ih" style="--c:#4a3aa7">When people ask</div><p class="id">' + (ins.liveCount ? 'Most live lookups: ' + esc(ins.when.topDay) + ', ' + esc(ins.when.topBand.toLowerCase()) + '.' + (ins.liveCount < 10 ? ' Early read - only ' + ins.liveCount + ' lookups.' : '') : 'No live lookups in these dates.') + '</p>' + (ins.liveCount ? '<ol class="il plain">' + Object.keys(ins.when.bands).map(function(k){ return '<li><span>' + esc(k) + '</span><b>' + ins.when.bands[k] + '</b></li>'; }).join('') + '<li><span>By day: ' + [1,2,3,4,5,6,0].map(function(d){ return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d] + ' ' + ins.when.week[d]; }).join(' · ') + '</span></li></ol>' : '') + '</div>' +
+            '<div class="ic"><div class="ih" style="--c:#4a3aa7">When people ask</div><p class="id">' + (ins.liveCount ? 'Share of ' + ins.liveCount + ' live lookups. Busiest: ' + esc(ins.when.topDay) + ' (' + ins.when.topDayPct + '%) and ' + esc(ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase()) + ' (' + ins.when.topBandPct + '%).' + (ins.liveCount < 10 ? ' Early read.' : '') : 'No live lookups in these dates.') + '</p>' + (ins.liveCount ? '<ol class="il plain">' + Object.keys(ins.when.bands).map(function(k){ return '<li><span>' + esc(k) + '</span><b>' + ins.when.pct(ins.when.bands[k]) + '%</b></li>'; }).join('') + '<li><span>By day: ' + [1,2,3,4,5,6,0].map(function(d){ return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][[1,2,3,4,5,6,0].indexOf(d)] + ' ' + ins.when.pct(ins.when.week[d]) + '%'; }).join(' · ') + '</span></li></ol>' : '') + '</div>' +
           '</div>' +
           '<div class="ic trend"><div class="ih" style="--c:#4a3aa7">Trend</div><p>' + esc(trendText(ins.liveTrend, 'live lookups')) + '</p><p>' + esc(trendText(ins.searchTrend, 'AI Search crawling')) + '</p></div>' +
           '<div class="ic acts"><div class="ih" style="--c:#1F7A5C">Recommended next steps</div><ol>' + ins.actions.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ol></div>' +
@@ -3624,13 +3632,13 @@
       var b = el('div', { class: 'in-box' });
       b.appendChild(el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#4a3aa7' }), 'When people ask' ]));
       if(!ins.liveCount){ b.appendChild(el('p', { class: 'in-d', text: 'Timing of live lookups - when real people ask an AI about topics on your site.' })); b.appendChild(el('p', { class: 'in-empty', text: 'No live lookups yet.' })); return b; }
-      b.appendChild(el('p', { class: 'in-d', text: 'Most live lookups: ' + ins.when.topDay + ', ' + ins.when.topBand.toLowerCase() + '.' + (ins.liveCount < 10 ? ' Early read - only ' + ins.liveCount + ' lookups so far.' : '') }));
+      b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + '. Busiest: ' + ins.when.topDay + ' (' + ins.when.topDayPct + '%) and ' + ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase() + ' (' + ins.when.topBandPct + '%).' + (ins.liveCount < 10 ? ' Early read.' : '') }));
       var max = Math.max.apply(null, ins.when.week.concat([1])), order = [1, 2, 3, 4, 5, 6, 0], lab = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S' ];
       b.appendChild(el('div', { class: 'wk' }, order.map(function(d){ var n = ins.when.week[d];
-        return el('div', { class: 'wk-col', title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n }, [ el('b', { text: n ? String(n) : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
+        return el('div', { class: 'wk-col', title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n + ' (' + ins.when.pct(n) + '%)' }, [ el('b', { text: n ? ins.when.pct(n) + '%' : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
       var bm = Math.max.apply(null, Object.keys(ins.when.bands).map(function(k){ return ins.when.bands[k]; }).concat([1]));
       b.appendChild(el('div', { class: 'in-list', style: 'margin-top:12px;' }, Object.keys(ins.when.bands).map(function(k){ var n = ins.when.bands[k];
-        return el('div', { class: 'in-row' }, [ el('span', { class: 'in-name', text: k }), el('b', { text: String(n) }), el('i', {}, [ el('span', { style: 'width:' + (n ? Math.max(6, n / bm * 100) : 0) + '%;background:#4a3aa7' }) ]) ]); })));
+        return el('div', { class: 'in-row' }, [ el('span', { class: 'in-name', text: k }), el('b', { text: ins.when.pct(n) + '%' }), el('i', {}, [ el('span', { style: 'width:' + (n ? Math.max(6, n / bm * 100) : 0) + '%;background:#4a3aa7' }) ]) ]); })));
       return b;
     }
     var insHost = null;
