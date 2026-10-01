@@ -1185,6 +1185,18 @@
     .ex-actions .btn{ justify-content:center; }
     .dt-row small{ white-space:normal; }
   }
+
+  .ai-pop{ position:fixed; z-index:80; width:244px; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 18px 40px -16px rgba(16,24,40,.35); padding:12px 14px; animation:exPop .16s ease both; }
+  .ai-pop-h{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px; }
+  .ai-pop-x{ border:none; background:none; font-size:18px; line-height:1; color:var(--muted); cursor:pointer; padding:0 2px; }
+  .ai-pop-total{ font-size:12.5px; color:var(--muted); margin-top:4px; } .ai-pop-total b{ font-size:18px; color:var(--ink); font-weight:600; margin-right:2px; }
+  .ai-pop-bar{ display:flex; gap:2px; height:7px; border-radius:999px; overflow:hidden; background:var(--field); margin:10px 0 8px; }
+  .ai-pop-row{ display:grid; grid-template-columns:16px 1fr auto 40px; align-items:center; font-size:13px; padding:3px 0; }
+  .ai-pop-row b{ font-variant-numeric:tabular-nums; } .ai-pop-row em{ font-style:normal; color:var(--muted); text-align:right; font-size:12px; }
+  .ai-pop-row.is-zero{ opacity:.45; }
+  .ex-dates .field input[type="date"]{ height:44px; line-height:44px; padding-top:0; padding-bottom:0; display:flex; align-items:center; }
+  .ex-dates .field input[type="date"]::-webkit-date-and-time-value{ text-align:left; line-height:44px; margin:0; }
+  .ex-dates .field input[type="date"]::-webkit-datetime-edit{ padding:0; line-height:44px; }
 </style>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
@@ -3432,37 +3444,30 @@
     pdLoad();
   }
 
-  // ---- Detail sheet for AI Visibility: opened by clicking a heatmap square
-  // or a "When people ask" bar. Shows a type/crawler breakdown plus the
-  // individual logged visits behind the number. ----
-  function openAiDetail(title, sub, counts, visits){
-    var back = el('div', { class: 'ex-backdrop' });
-    function close(){ back.remove(); document.removeEventListener('keydown', onKey); }
-    function onKey(e){ if(e.key === 'Escape') close(); }
-    var total = Object.keys(counts).reduce(function(s, k){ return s + counts[k]; }, 0);
-    var byType = { training: 0, search: 0, live: 0 }; Object.keys(counts).forEach(function(k){ byType[aiTypeOf(k)] += counts[k]; });
-    var body = [];
-    if(total){
-      body.push(el('div', { class: 'dt-types' }, AI_TYPE_ORDER.filter(function(k){ return byType[k]; }).map(function(k){
-        return el('div', { class: 'dt-type' }, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[k].hex }), el('span', { text: AI_TYPES[k].label }), el('b', { text: byType[k] + ' · ' + Math.round(byType[k] / total * 100) + '%' }) ]);
-      })));
-      body.push(el('div', { class: 'dt-h', text: 'By crawler' }));
-      body.push(el('div', { class: 'dt-list' }, Object.keys(counts).sort(function(a, b){ return counts[b] - counts[a]; }).map(function(k){
-        return el('div', { class: 'dt-row' }, [ el('span', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[aiTypeOf(k)].hex }), k, el('small', { text: aiPlatform(aiLabelFor(k)) }) ]), el('b', { text: String(counts[k]) }) ]);
-      })));
-    }
-    body.push(el('div', { class: 'dt-h', text: 'Visits' + (visits.length ? ' (' + visits.length + ')' : '') }));
-    body.push(visits.length ? el('div', { class: 'dt-list dt-visits' }, visits.slice(0, 200).map(function(r){
-      var t = aiTypeOf(r.bot), dt = new Date(r.time);
-      return el('div', { class: 'dt-row' }, [ el('span', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[t].hex }), r.path, el('small', { text: aiPlatform(r.label) + ' · ' + r.bot + (r.referer ? ' · from ' + r.referer : '') }) ]), el('em', { text: dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ', ' + dt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) }) ]);
-    })) : el('p', { class: 'in-empty', text: 'No individually logged visits for this selection.' }));
-    var modal = el('div', { class: 'ex-modal dt-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': title }, [
-      el('div', { class: 'ex-head' }, [ el('div', {}, [ el('h2', { text: title }), el('p', { text: sub }) ]), el('button', { type: 'button', class: 'ex-x', 'aria-label': 'Close', onclick: close }, [ '×' ]) ])
-    ].concat(body));
-    back.appendChild(modal);
-    back.addEventListener('mousedown', function(e){ if(e.target === back) close(); });
-    document.addEventListener('keydown', onKey);
-    document.body.appendChild(back);
+  // ---- Small floating pop-up for AI Visibility: click a heatmap square or a
+  // "When people ask" bar to see the AI Search / Live lookup / Training split. ----
+  var aiPopEl = null;
+  function closeAiPop(){ if(aiPopEl){ aiPopEl.remove(); aiPopEl = null; document.removeEventListener('mousedown', aiPopOutside, true); document.removeEventListener('keydown', aiPopKey); window.removeEventListener('scroll', closeAiPop, true); } }
+  function aiPopOutside(e){ if(aiPopEl && !aiPopEl.contains(e.target) && !e.target.closest('.is-click')) closeAiPop(); }
+  function aiPopKey(e){ if(e.key === 'Escape') closeAiPop(); }
+  function openAiPop(anchor, title, types, note){
+    closeAiPop();
+    var total = types.training + types.search + types.live;
+    var order = [ 'search', 'live', 'training' ];
+    aiPopEl = el('div', { class: 'ai-pop', role: 'dialog', 'aria-label': title }, [
+      el('div', { class: 'ai-pop-h' }, [ el('b', { text: title }), el('button', { type: 'button', class: 'ai-pop-x', 'aria-label': 'Close', text: '×', onclick: closeAiPop }) ]),
+      el('div', { class: 'ai-pop-total' }, [ el('b', { text: fmt(total) }), ' visit' + (total === 1 ? '' : 's') + (note ? ' · ' + note : '') ]),
+      el('div', { class: 'ai-pop-bar' }, order.filter(function(k){ return types[k]; }).map(function(k){ return el('span', { style: 'flex:' + types[k] + ' 1 0;background:' + AI_TYPES[k].hex }); })),
+      el('div', { class: 'ai-pop-rows' }, order.map(function(k){
+        return el('div', { class: 'ai-pop-row' + (types[k] ? '' : ' is-zero') }, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[k].hex }), el('span', { text: AI_TYPES[k].label }), el('b', { text: fmt(types[k]) }), el('em', { text: total ? Math.round(types[k] / total * 100) + '%' : '0%' }) ]);
+      }))
+    ]);
+    document.body.appendChild(aiPopEl);
+    var r = anchor.getBoundingClientRect(), pw = aiPopEl.offsetWidth, ph = aiPopEl.offsetHeight;
+    var left = Math.min(Math.max(8, r.left + r.width / 2 - pw / 2), window.innerWidth - pw - 8);
+    var top = r.top - ph - 10; if(top < 8) top = r.bottom + 10;
+    aiPopEl.style.left = left + 'px'; aiPopEl.style.top = top + 'px';
+    setTimeout(function(){ document.addEventListener('mousedown', aiPopOutside, true); document.addEventListener('keydown', aiPopKey); window.addEventListener('scroll', closeAiPop, true); }, 0);
   }
   function renderAiCrawlers(){
     var root = aiCrawlers.root; root.innerHTML = ''; root.classList.add('ai-root');
@@ -3665,12 +3670,11 @@
             if(n){
               c.classList.add('is-click'); c.setAttribute('role', 'button'); c.setAttribute('tabindex', '0');
               var openIt = function(){
-                var day = pd[di], cnt = {};
-                Object.keys(day.counts || {}).forEach(function(k){ if(aiPlatform(aiLabelFor(k)) === p.name && (f === 'all' || aiTypeOf(k) === f)) cnt[k] = day.counts[k]; });
-                var vis = (aiCrawlers.recent || []).filter(function(v){ return aiPlatform(v.label) === p.name && isoDay(new Date(v.time)) === day.date && (f === 'all' || aiTypeOf(v.bot) === f); });
-                openAiDetail(p.name + ' · ' + new Date(day.date + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }), n + ' visit' + (n === 1 ? '' : 's') + (f === 'all' ? '' : ' of type ' + AI_TYPES[f].label) + ' this day.', cnt, vis);
+                var day = pd[di], t = { training: 0, search: 0, live: 0 };
+                Object.keys(day.counts || {}).forEach(function(k){ if(aiPlatform(aiLabelFor(k)) === p.name) t[aiTypeOf(k)] += day.counts[k]; });
+                openAiPop(c, p.name + ' · ' + new Date(day.date + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }), t);
               };
-              c.addEventListener('click', openIt);
+              c.addEventListener('click', function(e){ e.stopPropagation(); openIt(); });
               c.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openIt(); } });
             }
             g.appendChild(c);
@@ -3710,19 +3714,18 @@
       b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + '. Busiest: ' + ins.when.topDay + ' (' + ins.when.topDayPct + '%) and ' + ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase() + ' (' + ins.when.topBandPct + '%).' + (ins.liveCount < 10 ? ' Early read.' : '') }));
       var max = Math.max.apply(null, ins.when.week.concat([1])), order = [1, 2, 3, 4, 5, 6, 0], lab = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S' ];
       b.appendChild(el('div', { class: 'wk' }, order.map(function(d){ var n = ins.when.week[d];
-        return el('div', { class: 'wk-col' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(){ whenDetail('day', d, ins); } : null, title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n + ' (' + ins.when.pct(n) + '%)' }, [ el('b', { text: n ? ins.when.pct(n) + '%' : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
+        return el('div', { class: 'wk-col' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(e){ e.stopPropagation(); whenDetail('day', d, ins, e.currentTarget); } : null, title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n + ' (' + ins.when.pct(n) + '%)' }, [ el('b', { text: n ? ins.when.pct(n) + '%' : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
       var bm = Math.max.apply(null, Object.keys(ins.when.bands).map(function(k){ return ins.when.bands[k]; }).concat([1]));
       b.appendChild(el('div', { class: 'in-list', style: 'margin-top:12px;' }, Object.keys(ins.when.bands).map(function(k){ var n = ins.when.bands[k];
-        return el('div', { class: 'in-row' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(){ whenDetail('band', k, ins); } : null }, [ el('span', { class: 'in-name', text: k }), el('b', { text: ins.when.pct(n) + '%' }), el('i', {}, [ el('span', { style: 'width:' + (n ? Math.max(6, n / bm * 100) : 0) + '%;background:#4a3aa7' }) ]) ]); })));
+        return el('div', { class: 'in-row' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(e){ e.stopPropagation(); whenDetail('band', k, ins, e.currentTarget); } : null }, [ el('span', { class: 'in-name', text: k }), el('b', { text: ins.when.pct(n) + '%' }), el('i', {}, [ el('span', { style: 'width:' + (n ? Math.max(6, n / bm * 100) : 0) + '%;background:#4a3aa7' }) ]) ]); })));
       return b;
     }
-    function whenDetail(kind, key, ins){
+    function whenDetail(kind, key, ins, anchor){
       var WD = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
       var bandOf = function(h){ return h >= 6 && h < 12 ? 'Morning (6am–12pm)' : h >= 12 && h < 17 ? 'Afternoon (12–5pm)' : h >= 17 && h < 22 ? 'Evening (5–10pm)' : 'Overnight (10pm–6am)'; };
-      var from = isoDay(addLocalDays(new Date(), -29)), to = isoDay(new Date());
-      var vis = (aiCrawlers.recent || []).filter(function(r){ var dt = new Date(r.time), d = isoDay(dt); return aiTypeOf(r.bot) === 'live' && d >= from && d <= to && (kind === 'day' ? dt.getDay() === key : bandOf(dt.getHours()) === key); });
-      var cnt = {}; vis.forEach(function(r){ cnt[r.bot] = (cnt[r.bot] || 0) + 1; });
-      openAiDetail('Live lookups · ' + (kind === 'day' ? WD[key] + 's' : key), vis.length + ' of ' + ins.liveCount + ' live lookups in the last 30 days (' + Math.round(vis.length / Math.max(1, ins.liveCount) * 100) + '%).', cnt, vis);
+      var from = isoDay(addLocalDays(new Date(), -29)), to = isoDay(new Date()), t = { training: 0, search: 0, live: 0 };
+      (aiCrawlers.recent || []).forEach(function(r){ var dt = new Date(r.time), d = isoDay(dt); if(d >= from && d <= to && (kind === 'day' ? dt.getDay() === key : bandOf(dt.getHours()) === key)) t[aiTypeOf(r.bot)]++; });
+      openAiPop(anchor, (kind === 'day' ? WD[key] + 's' : key) + ' · last 30 days', t);
     }
     var insHost = null;
     function renderInsightsNow(){ var old = insHost; renderInsights(); if(old && old.parentNode){ old.parentNode.replaceChild(insHost, old); } }
@@ -3900,7 +3903,7 @@
     }
     if(key === 'ai-crawlers' && !aiCrawlers.loaded) loadAiCrawlers();
     if(key === 'search-updates') renderSearchUpdates();
-    setMenu(false); window.scrollTo(0, 0);
+    closeAiPop(); setMenu(false); window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', route);
   route();
