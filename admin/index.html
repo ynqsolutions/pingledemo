@@ -3098,26 +3098,35 @@
       }).join('') + '</div>';
     }
     function heatGrid(){
+      // Readable in print: one column per week (or per month for long
+      // periods), newest first, with the visit count in every cell.
       if(!plats.length) return '';
-      var size = N <= 45 ? 1 : 7, cols = [];
-      for(var i = 0; i < N; i += size) cols.push({ from: i, to: Math.min(N, i + size) });
-      var gMax = 1, cells = plats.slice(0, 12).map(function(p){
+      var cols = [], monthly = N > 62;
+      if(monthly){
+        var cur = null;
+        days.forEach(function(d, i){ var m = d.date.slice(0, 7); if(!cur || cur.m !== m){ cur = { m: m, from: i, to: i + 1 }; cols.push(cur); } else cur.to = i + 1; });
+      } else {
+        for(var i = 0; i < N; i += 7) cols.push({ from: i, to: Math.min(N, i + 7) });
+      }
+      cols.reverse();
+      var label = function(c){
+        if(monthly) return new Date(days[c.from].date + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+        var a = shortDate(days[c.from].date), b = shortDate(days[c.to - 1].date);
+        return a === b ? a : a + ' – ' + b.replace(/^[A-Za-z]+ /, a.split(' ')[0] === b.split(' ')[0] ? '' : b.split(' ')[0] + ' ');
+      };
+      var gMax = 1, rows = plats.slice(0, 12).map(function(p){
         return cols.map(function(c){ var s = 0; for(var i = c.from; i < c.to; i++) s += p.perDay[i] || 0; if(s > gMax) gMax = s; return s; });
       });
-      var showNum = cols.length <= 31;
-      var head = '<tr><th class="hn"></th>' + cols.map(function(c){
-        var d = days[c.from].date, lbl = size === 1 ? String(Number(d.slice(8))) : '';
-        return '<th class="hd' + (size === 1 && Number(d.slice(8)) === 1 ? ' m' : '') + '">' + lbl + '</th>';
-      }).join('') + '<th class="ht">Total</th></tr>';
+      var head = '<tr><th class="hn">Platform</th>' + cols.map(function(c){ return '<th class="hw">' + esc(label(c)) + '</th>'; }).join('') + '<th class="ht">Total</th></tr>';
       var body = plats.slice(0, 12).map(function(p, ri){
-        return '<tr><td class="hn">' + esc(p.name) + '</td>' + cells[ri].map(function(s){
-          var a = s ? (0.2 + 0.8 * s / gMax).toFixed(2) : 0;
-          return '<td class="hc" style="' + (s ? 'background:rgba(31,122,92,' + a + ');color:' + (s / gMax > 0.55 ? '#fff' : '#0f3d2f') : '') + '">' + (s && showNum ? s : '') + '</td>';
+        return '<tr><td class="hn">' + esc(p.name) + '</td>' + rows[ri].map(function(v){
+          var a = v ? (0.12 + 0.6 * v / gMax).toFixed(2) : 0;
+          return '<td class="hv" style="' + (v ? 'background:rgba(31,122,92,' + a + ');' + (v / gMax > 0.6 ? 'color:#fff;' : '') : '') + '">' + (v ? n0(v) : '&mdash;') + '</td>';
         }).join('') + '<td class="ht">' + n0(p.count) + '</td></tr>';
       }).join('');
-      var cap = shortDate(days[0].date) + ' – ' + shortDate(days[N - 1].date) + (size === 7 ? ' · each column is one week' : ' · each square is one day') + ' · darker = more visits';
-      return '<p class="cap">' + esc(cap) + '</p><table class="heat">' + head + body + '</table>';
+      return '<p class="cap">' + esc((monthly ? 'By month' : 'By week') + ', newest first · number = visits · darker = more') + '</p><table class="heat2">' + head + body + '</table>';
     }
+
     var actRows = act.map(function(r){
       var t = aiTypeOf(r.bot);
       return '<tr><td class="nw">' + esc(new Date(r.time).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) + '</td>' +
@@ -3143,13 +3152,13 @@
           KEY_EXAMPLES[k].map(function(e){ return '<li><b>' + esc(e[0]) + '</b><span>' + esc(e[1]) + (e[2] !== e[1] ? ' &middot; ' + esc(e[2]) : '') + '</span></li>'; }).join('') + '</ul></div>';
       }).join('') + '</div><p class="note">Platform names in this report are the company that runs the crawler; the product it powers is shown after the dot.</p></section>';
 
-    var css = '@page{size:letter;margin:14mm 13mm 16mm;} @page :first{margin:0;}' +
+    var css = '@page{size:letter;margin:14mm 13mm 16mm;}' +
       '*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
       'html,body{margin:0;padding:0;}' +
       'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;color:#111827;font-size:12px;line-height:1.45;background:#fff;}' +
       // cover: one full letter page, edge to edge
-      '.cover{width:8.5in;height:10.98in;position:relative;overflow:hidden;background:#FBFAF7;color:#0A0F27;page-break-after:always;break-after:page;}' +
-      '.cover .in{height:100%;padding:1in .9in .8in;display:flex;flex-direction:column;}' +
+      '.cover{width:100%;height:9.4in;position:relative;overflow:hidden;background:#fff;color:#0A0F27;page-break-after:always;break-after:page;}' +
+      '.cover .in{height:100%;padding:.9in .8in .3in;display:flex;flex-direction:column;}' +
       '.brand{display:flex;align-items:center;gap:12px;font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:#0A0F27;font-weight:700;}' +
       '.brand:after{content:"";flex:none;width:44px;height:2px;background:#B38A3C;}' +
       '.cover h1{font-family:Georgia,"Times New Roman",serif;font-size:46px;line-height:1.05;margin:1.3in 0 10px;font-weight:700;letter-spacing:-.01em;color:#0A0F27;}' +
@@ -3180,6 +3189,7 @@
       '.bm{grid-column:1/-1;color:#9CA3AF;font-size:10.5px;}' +
       '.cap{color:#6B7280;font-size:10.5px;margin:0 0 6px;}' +
       'table{width:100%;border-collapse:collapse;}' +
+      'table.heat2{width:100%;border-collapse:separate;border-spacing:3px;font-size:11.5px;break-inside:avoid;} .heat2 th{font-size:10px;font-weight:600;color:#6B7280;text-align:center;padding:4px 2px;white-space:nowrap;} .heat2 th.hn{text-align:left;} .heat2 td.hn{font-weight:600;white-space:nowrap;padding-right:8px;} .heat2 td.hv{text-align:center;background:#F3F4F6;border-radius:5px;padding:7px 4px;font-weight:600;font-variant-numeric:tabular-nums;color:#0f3d2f;} .heat2 .ht{text-align:right;font-weight:700;padding-left:8px;white-space:nowrap;}' +
       'table.heat{table-layout:fixed;border-spacing:0;} .heat th,.heat td{padding:0;} .hn{width:92px;font-size:11.5px;font-weight:600;padding-right:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}' +
       '.hd{font-size:8.5px;color:#9CA3AF;text-align:center;font-weight:500;height:14px;} .hd.m{color:#111827;font-weight:800;}' +
       '.ht{width:42px;text-align:right;font-weight:700;font-size:11.5px;padding-left:6px !important;font-variant-numeric:tabular-nums;}' +
