@@ -1117,6 +1117,12 @@
   .topbar{ border-radius:0 !important; }
 
   /* ---- AI Visibility: Insights card ---- */
+  .in-h-row{ justify-content:space-between; gap:10px; }
+  .in-edit{ border:none; background:none; color:var(--accent); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; padding:2px 0; }
+  .in-tag.is-edit{ display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid #F0D9B5; }
+  .in-tag.is-edit button{ border:none; background:none; color:#9A5B0B; font-size:15px; line-height:1; cursor:pointer; padding:0; }
+  .in-editrow{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px; }
+  .in-editrow .pl-type{ flex:1; min-width:180px; }
   .ins-card{ margin-bottom:20px; }
   .in-grid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; }
   .in-box{ border:1px solid var(--line); border-radius:10px; padding:14px 16px; min-width:0; }
@@ -2912,6 +2918,11 @@
   // findings and next steps. Shared by the admin card and the PDF report. ----
   var KEY_PAGES = [ ['/', 'Home'], ['/practice-areas.html', 'Practice areas'], ['/faq.html', 'FAQ'], ['/case-review.html', 'Free case review'], ['/about.html', 'About'], ['/results-and-testimonials.html', 'Results & testimonials'], ['/contact.html', 'Contact'] ];
   var MAIN_ASSISTANTS = [ 'OpenAI', 'Anthropic', 'Perplexity' ];
+  // The key-page list is editable from the Insights card and lives in
+  // content/key-pages.json (shared by everyone who uses the admin).
+  fetch('/content/key-pages.json', { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    if(d && Array.isArray(d.pages) && d.pages.length){ KEY_PAGES = d.pages.map(function(p){ return [ p.path, p.label ]; }); if(aiCrawlers.loaded && !aiCrawlers.busy) renderAiCrawlers(); }
+  }).catch(function(){});
   function pageName(path){
     var p = String(path || '/').split('?')[0];
     if(p === '/' || p === '/index.html') return 'Home';
@@ -3154,7 +3165,7 @@
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Pages answering real questions</div><p class="id">AI opened these to answer someone. Your highest-value pages.</p>' + lst(ins.livePages, 'No live lookups in these dates.', pg) + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Assistants sending people</div><p class="id">Where you’re being recommended.</p>' + lst(ins.liveBy, 'None yet.', who) + (ins.refs.length ? '<p class="id" style="margin-top:8px">Referring sites seen: ' + ins.refs.map(function(r){ return esc(r.key) + ' (' + r.n + ')'; }).join(', ') + '</p>' : '') + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.search.hex + '">What AI Search is indexing</div><p class="id">Pages AI search tools saved so they can cite them.</p>' + lst(ins.searchPages, 'No AI Search visits in these dates.', pg) + '</div>' +
-            '<div class="ic"><div class="ih" style="--c:#B38A3C">Key pages not indexed</div><p class="id">Important pages AI Search didn’t visit in these dates.</p>' + (ins.missing.length ? '<ul class="il plain">' + ins.missing.map(function(m){ return '<li><span>' + esc(m[1]) + '<small>' + esc(m[0]) + '</small></span></li>'; }).join('') + '</ul>' : '<p class="ok">All key pages were crawled. ✓</p>') + '</div>' +
+            '<div class="ic"><div class="ih" style="--c:#B38A3C">Key pages not crawled by AI Search</div><p class="id">Key pages no AI Search bot requested in these dates. A page crawled earlier may still be indexed.</p>' + (ins.missing.length ? '<ul class="il plain">' + ins.missing.map(function(m){ return '<li><span>' + esc(m[1]) + '<small>' + esc(m[0]) + '</small></span></li>'; }).join('') + '</ul>' : '<p class="ok">All key pages were crawled. ✓</p>') + '</div>' +
           '</div>' +
           '<div class="ic trend"><div class="ih" style="--c:#4a3aa7">Trend</div><p>' + esc(trendText(ins.liveTrend, 'live lookups')) + '</p><p>' + esc(trendText(ins.searchTrend, 'AI Search crawling')) + '</p></div>' +
           '<div class="ic acts"><div class="ih" style="--c:#1F7A5C">Recommended next steps</div><ol>' + ins.actions.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ol></div>' +
@@ -3589,6 +3600,39 @@
     renderPlat30();
     root.appendChild(plat30);
     // ---- Insights card: what live lookups + AI Search mean, last 30 days ----
+    var keyEdit = null; // working copy while editing the key-page list
+    function keyBox(ins){
+      var b = el('div', { class: 'in-box' });
+      var head = el('div', { class: 'in-h in-h-row' }, [ el('span', {}, [ el('span', { class: 'ai-key', style: 'background:#B38A3C' }), 'Key pages not crawled by AI Search' ]),
+        keyEdit ? null : el('button', { type: 'button', class: 'in-edit', text: 'Edit list', onclick: function(){ keyEdit = KEY_PAGES.map(function(k){ return k.slice(); }); renderInsightsNow(); } }) ]);
+      b.appendChild(head);
+      if(!keyEdit){
+        b.appendChild(el('p', { class: 'in-d', text: 'Key pages no AI Search bot requested in these dates. A page crawled earlier may still be indexed - Bing Webmaster Tools confirms it.' }));
+        b.appendChild(ins.missing.length ? el('div', { class: 'in-tags' }, ins.missing.map(function(m){ return el('span', { class: 'in-tag', title: m[0], text: m[1] }); })) : el('p', { class: 'in-ok', text: '✓ All ' + KEY_PAGES.length + ' key pages were crawled.' }));
+        return b;
+      }
+      b.appendChild(el('p', { class: 'in-d', text: 'Choose which pages count as key. Saved to the site so everyone sees the same list.' }));
+      b.appendChild(el('div', { class: 'in-tags' }, keyEdit.map(function(k, i){ return el('span', { class: 'in-tag is-edit', title: k[0] }, [ k[1], el('button', { type: 'button', 'aria-label': 'Remove ' + k[1], text: '×', onclick: function(){ keyEdit.splice(i, 1); renderInsightsNow(); } }) ]); })));
+      var sel = el('select', { class: 'pl-type', 'aria-label': 'Add a page' }, [ el('option', { value: '', text: 'Add a page…' }) ]);
+      fetch('/sitemap.xml', { cache: 'no-store' }).then(function(r){ return r.ok ? r.text() : ''; }).then(function(x){
+        var have = {}; keyEdit.forEach(function(k){ have[k[0]] = 1; });
+        (x.match(/<loc>[^<]+<\/loc>/g) || []).map(function(l){ return l.replace(/<\/?loc>/g, '').replace(/^https?:\/\/[^\/]+/, '') || '/'; }).filter(function(pth){ return !have[pth]; }).sort().forEach(function(pth){ sel.appendChild(el('option', { value: pth, text: pageName(pth) + '  (' + pth + ')' })); });
+      });
+      sel.addEventListener('change', function(){ if(sel.value){ keyEdit.push([ sel.value, pageName(sel.value) ]); renderInsightsNow(); } });
+      var msg = el('span', { class: 'in-d', style: 'margin:0;' });
+      var save = el('button', { type: 'button', class: 'btn btn-primary btn-sm', text: 'Save list', onclick: function(){
+        if(!keyEdit.length){ msg.textContent = 'Keep at least one page.'; return; }
+        save.disabled = true; save.textContent = 'Saving…';
+        var body = JSON.stringify({ pages: keyEdit.map(function(k){ return { path: k[0], label: k[1] }; }) }, null, 1) + '\n';
+        repoGetFile('content/key-pages.json').then(function(f){ return repoPutFile('content/key-pages.json', utf8ToB64(body), 'Update AI Insights key pages via admin dashboard', f ? f.sha : undefined); })
+          .then(function(){ KEY_PAGES = keyEdit; keyEdit = null; toast('Key pages saved.'); renderInsightsNow(); })
+          .catch(function(e){ save.disabled = false; save.textContent = 'Save list'; msg.textContent = e.message || 'Could not save.'; });
+      } });
+      b.appendChild(el('div', { class: 'in-editrow' }, [ sel, save, el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Cancel', onclick: function(){ keyEdit = null; renderInsightsNow(); } }), msg ]));
+      return b;
+    }
+    var insHost = null;
+    function renderInsightsNow(){ var old = insHost; renderInsights(); if(old && old.parentNode){ old.parentNode.replaceChild(insHost, old); } }
     var renderInsights = function(){
       var to = isoDay(new Date()), from = isoDay(addLocalDays(new Date(), -29));
       var ins = buildInsights(aiCrawlers.recent, aiCrawlers.daily, from, to);
@@ -3602,21 +3646,20 @@
       var pages = function(arr){ return arr.map(function(x){ return { key: x.key, n: x.n, sub: x.key }; }); };
       var who = function(arr){ return arr.map(function(x){ return { key: x.key, n: x.n, label: x.key }; }); };
       function box(color, title, desc, body){ return el('div', { class: 'in-box' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:' + color }), title ]), el('p', { class: 'in-d', text: desc }), body ]); }
-      var card = el('div', { class: 'card ins-card' });
+      var card = el('div', { class: 'card ins-card' }); insHost = card;
       card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Insights · last 30 days' }),
         el('p', { text: ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' }) ]) ]));
       card.appendChild(el('div', { class: 'in-grid' }, [
         box(AI_TYPES.live.hex, 'Pages answering real questions', 'AI opened these to answer someone - your highest-value pages.', lst(pages(ins.livePages), 'No live lookups yet.')),
         box(AI_TYPES.live.hex, 'Assistants sending people', 'Where you’re being recommended.' + (ins.refs.length ? ' Referring sites: ' + ins.refs.map(function(r){ return r.key; }).join(', ') + '.' : ''), lst(who(ins.liveBy), 'None yet.')),
         box(AI_TYPES.search.hex, 'What AI Search is indexing', 'Pages saved so AI tools can cite them.', lst(pages(ins.searchPages), 'No AI Search visits yet.')),
-        box('#B38A3C', 'Key pages not indexed', 'Important pages AI Search hasn’t visited.', ins.missing.length ? el('div', { class: 'in-tags' }, ins.missing.map(function(m){ return el('span', { class: 'in-tag', text: m[1] }); })) : el('p', { class: 'in-ok', text: '✓ All key pages were crawled.' }))
+        keyBox(ins)
       ]));
       card.appendChild(el('div', { class: 'in-trend' }, [ el('span', { text: trendText(ins.liveTrend, 'live lookups') }), el('span', { text: trendText(ins.searchTrend, 'AI Search crawling') }) ]));
       card.appendChild(el('div', { class: 'in-acts' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#1F7A5C' }), 'Recommended next steps' ]),
         el('ol', {}, ins.actions.map(function(t){ return el('li', { text: t }); })) ]));
-      root.appendChild(card);
     };
-    renderInsights();
+    renderInsights(); root.appendChild(insHost);
 
     // ---- Top pages + live feed ----
     var pageRows = Object.keys(aiCrawlers.pages).map(function(k){ return { path: k, count: aiCrawlers.pages[k] }; }).sort(function(a, b){ return b.count - a.count; });
