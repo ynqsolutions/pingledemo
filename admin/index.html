@@ -1134,9 +1134,11 @@
   .in-tag{ font-size:12.5px; padding:4px 10px; border-radius:7px; background:#FEF3E2; color:#9A5B0B; }
   .in-ok{ margin:0; font-size:13px; color:#1B7A51; font-weight:500; }
   .in-trend{ display:flex; flex-direction:column; gap:4px; margin-top:14px; padding:12px 14px; background:var(--field); border-radius:10px; font-size:13px; color:#3B4250; }
-  .in-acts{ margin-top:14px; padding:14px 16px; border:1px solid var(--line); border-left:3px solid #1F7A5C; border-radius:10px; }
-  .in-acts ol{ margin:8px 0 0; padding-left:20px; font-size:13.5px; line-height:1.55; }
-  .in-acts li{ margin-bottom:6px; }
+  .in-acts{ margin-top:14px; padding:16px 18px; border-radius:12px; background:linear-gradient(180deg, #F2F8F5, #FAFCFB); border:1px solid #D7EBE1; }
+  .in-acts .in-h{ color:#155E47; }
+  .in-acts ol{ list-style:none; counter-reset:step; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .in-acts li{ counter-increment:step; position:relative; padding:10px 12px 10px 44px; background:#fff; border:1px solid #E3EFE8; border-radius:9px; font-size:13.5px; line-height:1.5; color:#24302B; }
+  .in-acts li::before{ content:counter(step); position:absolute; left:12px; top:10px; width:22px; height:22px; border-radius:50%; background:#1F7A5C; color:#fff; font-size:12px; font-weight:600; display:grid; place-items:center; font-family:var(--mono); }
   @media (max-width:760px){ .in-grid{ grid-template-columns:minmax(0,1fr); } }
 </style>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
@@ -3456,34 +3458,6 @@
     tiles.appendChild(tile('Busiest day', busiest ? busiest.n : 0, busiest ? shortDate(busiest.date) + ' · last 30 days' : 'No visits in the last 30 days').node);
     root.appendChild(tiles);
 
-    // ---- Insights card: what live lookups + AI Search mean, last 30 days ----
-    (function(){
-      var to = isoDay(new Date()), from = isoDay(addLocalDays(new Date(), -29));
-      var ins = buildInsights(aiCrawlers.recent, aiCrawlers.daily, from, to);
-      function lst(items, empty){
-        if(!items.length) return el('p', { class: 'in-empty', text: empty });
-        var max = items[0].n;
-        return el('div', { class: 'in-list' }, items.slice(0, 5).map(function(x){
-          return el('div', { class: 'in-row' }, [ el('span', { class: 'in-name', title: x.key }, [ x.label || pageName(x.key), x.sub ? el('small', { text: x.sub }) : null ]), el('b', { text: String(x.n) }), el('i', {}, [ el('span', { style: 'width:' + Math.max(6, x.n / max * 100) + '%' }) ]) ]);
-        }));
-      }
-      var pages = function(arr){ return arr.map(function(x){ return { key: x.key, n: x.n, sub: x.key }; }); };
-      var who = function(arr){ return arr.map(function(x){ return { key: x.key, n: x.n, label: x.key }; }); };
-      function box(color, title, desc, body){ return el('div', { class: 'in-box' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:' + color }), title ]), el('p', { class: 'in-d', text: desc }), body ]); }
-      var card = el('div', { class: 'card ins-card' });
-      card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Insights · last 30 days' }),
-        el('p', { text: ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' }) ]) ]));
-      card.appendChild(el('div', { class: 'in-grid' }, [
-        box(AI_TYPES.live.hex, 'Pages answering real questions', 'AI opened these to answer someone - your highest-value pages.', lst(pages(ins.livePages), 'No live lookups yet.')),
-        box(AI_TYPES.live.hex, 'Assistants sending people', 'Where you’re being recommended.' + (ins.refs.length ? ' Referring sites: ' + ins.refs.map(function(r){ return r.key; }).join(', ') + '.' : ''), lst(who(ins.liveBy), 'None yet.')),
-        box(AI_TYPES.search.hex, 'What AI Search is indexing', 'Pages saved so AI tools can cite them.', lst(pages(ins.searchPages), 'No AI Search visits yet.')),
-        box('#B38A3C', 'Key pages not indexed', 'Important pages AI Search hasn’t visited.', ins.missing.length ? el('div', { class: 'in-tags' }, ins.missing.map(function(m){ return el('span', { class: 'in-tag', text: m[1] }); })) : el('p', { class: 'in-ok', text: '✓ All key pages were crawled.' }))
-      ]));
-      card.appendChild(el('div', { class: 'in-trend' }, [ el('span', { text: trendText(ins.liveTrend, 'live lookups') }), el('span', { text: trendText(ins.searchTrend, 'AI Search crawling') }) ]));
-      card.appendChild(el('div', { class: 'in-acts' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#1F7A5C' }), 'Recommended next steps' ]),
-        el('ol', {}, ins.actions.map(function(t){ return el('li', { text: t }); })) ]));
-      root.appendChild(card);
-    })();
 
     // ---- Trend chart + platforms ----
 
@@ -3614,6 +3588,35 @@
     }
     renderPlat30();
     root.appendChild(plat30);
+    // ---- Insights card: what live lookups + AI Search mean, last 30 days ----
+    var renderInsights = function(){
+      var to = isoDay(new Date()), from = isoDay(addLocalDays(new Date(), -29));
+      var ins = buildInsights(aiCrawlers.recent, aiCrawlers.daily, from, to);
+      function lst(items, empty){
+        if(!items.length) return el('p', { class: 'in-empty', text: empty });
+        var max = items[0].n;
+        return el('div', { class: 'in-list' }, items.slice(0, 5).map(function(x){
+          return el('div', { class: 'in-row' }, [ el('span', { class: 'in-name', title: x.key }, [ x.label || pageName(x.key), x.sub ? el('small', { text: x.sub }) : null ]), el('b', { text: String(x.n) }), el('i', {}, [ el('span', { style: 'width:' + Math.max(6, x.n / max * 100) + '%' }) ]) ]);
+        }));
+      }
+      var pages = function(arr){ return arr.map(function(x){ return { key: x.key, n: x.n, sub: x.key }; }); };
+      var who = function(arr){ return arr.map(function(x){ return { key: x.key, n: x.n, label: x.key }; }); };
+      function box(color, title, desc, body){ return el('div', { class: 'in-box' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:' + color }), title ]), el('p', { class: 'in-d', text: desc }), body ]); }
+      var card = el('div', { class: 'card ins-card' });
+      card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Insights · last 30 days' }),
+        el('p', { text: ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' }) ]) ]));
+      card.appendChild(el('div', { class: 'in-grid' }, [
+        box(AI_TYPES.live.hex, 'Pages answering real questions', 'AI opened these to answer someone - your highest-value pages.', lst(pages(ins.livePages), 'No live lookups yet.')),
+        box(AI_TYPES.live.hex, 'Assistants sending people', 'Where you’re being recommended.' + (ins.refs.length ? ' Referring sites: ' + ins.refs.map(function(r){ return r.key; }).join(', ') + '.' : ''), lst(who(ins.liveBy), 'None yet.')),
+        box(AI_TYPES.search.hex, 'What AI Search is indexing', 'Pages saved so AI tools can cite them.', lst(pages(ins.searchPages), 'No AI Search visits yet.')),
+        box('#B38A3C', 'Key pages not indexed', 'Important pages AI Search hasn’t visited.', ins.missing.length ? el('div', { class: 'in-tags' }, ins.missing.map(function(m){ return el('span', { class: 'in-tag', text: m[1] }); })) : el('p', { class: 'in-ok', text: '✓ All key pages were crawled.' }))
+      ]));
+      card.appendChild(el('div', { class: 'in-trend' }, [ el('span', { text: trendText(ins.liveTrend, 'live lookups') }), el('span', { text: trendText(ins.searchTrend, 'AI Search crawling') }) ]));
+      card.appendChild(el('div', { class: 'in-acts' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#1F7A5C' }), 'Recommended next steps' ]),
+        el('ol', {}, ins.actions.map(function(t){ return el('li', { text: t }); })) ]));
+      root.appendChild(card);
+    };
+    renderInsights();
 
     // ---- Top pages + live feed ----
     var pageRows = Object.keys(aiCrawlers.pages).map(function(k){ return { path: k, count: aiCrawlers.pages[k] }; }).sort(function(a, b){ return b.count - a.count; });
