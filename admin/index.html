@@ -1153,6 +1153,38 @@
   .in-acts li{ counter-increment:step; position:relative; padding:10px 12px 10px 44px; background:#fff; border:1px solid #E3EFE8; border-radius:9px; font-size:13.5px; line-height:1.5; color:#24302B; }
   .in-acts li::before{ content:counter(step); position:absolute; left:12px; top:10px; width:22px; height:22px; border-radius:50%; background:#1F7A5C; color:#fff; font-size:12px; font-weight:600; display:grid; place-items:center; font-family:var(--mono); }
   @media (max-width:760px){ .in-grid{ grid-template-columns:minmax(0,1fr); } }
+
+  /* ---- Clickable detail + report dialog on phones ---- */
+  .is-click{ cursor:pointer; }
+  .hm2-c.is-click:hover{ outline:2px solid var(--ink); outline-offset:1px; }
+  .wk-col.is-click:hover i span, .in-row.is-click:hover i span{ filter:brightness(1.15); }
+  .in-row.is-click{ border-radius:6px; padding:2px 4px; margin:0 -4px; } .in-row.is-click:hover{ background:var(--field); }
+  .dt-modal{ max-width:560px; }
+  .dt-types{ display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 4px; }
+  .dt-type{ display:flex; align-items:center; gap:2px; padding:6px 10px; border:1px solid var(--line); border-radius:8px; font-size:13px; }
+  .dt-type b{ margin-left:8px; font-variant-numeric:tabular-nums; }
+  .dt-h{ margin:16px 0 6px; font-size:11.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .dt-list{ display:flex; flex-direction:column; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .dt-visits{ max-height:320px; overflow-y:auto; }
+  .dt-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 12px; border-bottom:1px solid var(--line); font-size:13px; }
+  .dt-row:last-child{ border-bottom:none; }
+  .dt-row > span{ min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  .dt-row small{ display:block; margin-left:16px; font-size:11.5px; color:var(--soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .dt-row b{ font-variant-numeric:tabular-nums; }
+  .dt-row em{ flex:none; font-style:normal; font-size:12px; color:var(--muted); white-space:nowrap; }
+  .ex-dates .field input{ width:100%; min-width:0; max-width:100%; box-sizing:border-box; display:block; -webkit-appearance:none; appearance:none; text-align:left; }
+  .ex-dates .field{ min-width:0; }
+  @media (max-width:560px){
+    .ex-backdrop{ padding:12px; align-items:flex-end; }
+    .ex-modal{ padding:20px 18px; max-height:calc(100vh - 24px); }
+    .ex-presets{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .ex-presets button{ width:100%; text-align:center; padding:9px 8px; }
+    .ex-dates{ grid-template-columns:1fr 1fr !important; gap:10px; }
+    .ex-dates .field input{ height:44px; padding:0 10px; font-size:15px; }
+    .ex-actions{ display:grid; grid-template-columns:1fr 1.4fr; }
+    .ex-actions .btn{ justify-content:center; }
+    .dt-row small{ white-space:normal; }
+  }
 </style>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
@@ -3400,6 +3432,38 @@
     pdLoad();
   }
 
+  // ---- Detail sheet for AI Visibility: opened by clicking a heatmap square
+  // or a "When people ask" bar. Shows a type/crawler breakdown plus the
+  // individual logged visits behind the number. ----
+  function openAiDetail(title, sub, counts, visits){
+    var back = el('div', { class: 'ex-backdrop' });
+    function close(){ back.remove(); document.removeEventListener('keydown', onKey); }
+    function onKey(e){ if(e.key === 'Escape') close(); }
+    var total = Object.keys(counts).reduce(function(s, k){ return s + counts[k]; }, 0);
+    var byType = { training: 0, search: 0, live: 0 }; Object.keys(counts).forEach(function(k){ byType[aiTypeOf(k)] += counts[k]; });
+    var body = [];
+    if(total){
+      body.push(el('div', { class: 'dt-types' }, AI_TYPE_ORDER.filter(function(k){ return byType[k]; }).map(function(k){
+        return el('div', { class: 'dt-type' }, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[k].hex }), el('span', { text: AI_TYPES[k].label }), el('b', { text: byType[k] + ' · ' + Math.round(byType[k] / total * 100) + '%' }) ]);
+      })));
+      body.push(el('div', { class: 'dt-h', text: 'By crawler' }));
+      body.push(el('div', { class: 'dt-list' }, Object.keys(counts).sort(function(a, b){ return counts[b] - counts[a]; }).map(function(k){
+        return el('div', { class: 'dt-row' }, [ el('span', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[aiTypeOf(k)].hex }), k, el('small', { text: aiPlatform(aiLabelFor(k)) }) ]), el('b', { text: String(counts[k]) }) ]);
+      })));
+    }
+    body.push(el('div', { class: 'dt-h', text: 'Visits' + (visits.length ? ' (' + visits.length + ')' : '') }));
+    body.push(visits.length ? el('div', { class: 'dt-list dt-visits' }, visits.slice(0, 200).map(function(r){
+      var t = aiTypeOf(r.bot), dt = new Date(r.time);
+      return el('div', { class: 'dt-row' }, [ el('span', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES[t].hex }), r.path, el('small', { text: aiPlatform(r.label) + ' · ' + r.bot + (r.referer ? ' · from ' + r.referer : '') }) ]), el('em', { text: dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ', ' + dt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) }) ]);
+    })) : el('p', { class: 'in-empty', text: 'No individually logged visits for this selection.' }));
+    var modal = el('div', { class: 'ex-modal dt-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': title }, [
+      el('div', { class: 'ex-head' }, [ el('div', {}, [ el('h2', { text: title }), el('p', { text: sub }) ]), el('button', { type: 'button', class: 'ex-x', 'aria-label': 'Close', onclick: close }, [ '×' ]) ])
+    ].concat(body));
+    back.appendChild(modal);
+    back.addEventListener('mousedown', function(e){ if(e.target === back) close(); });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(back);
+  }
   function renderAiCrawlers(){
     var root = aiCrawlers.root; root.innerHTML = ''; root.classList.add('ai-root');
     root.appendChild(el('div', { class: 'page-head' }, [
@@ -3598,6 +3662,17 @@
             var n = (perDay[p.name] && perDay[p.name][di]) || 0, r = n / gMax;
             var c = el('div', { class: 'hm2-c' + (n ? ' has' : '') + (r > 0.55 ? ' hi' : ''), title: p.name + ' · ' + shortDate(pd[di].date) + ': ' + n + ' visit' + (n === 1 ? '' : 's'), text: n ? String(n) : '' });
             if(n) c.style.setProperty('--a', String(0.22 + 0.78 * r));
+            if(n){
+              c.classList.add('is-click'); c.setAttribute('role', 'button'); c.setAttribute('tabindex', '0');
+              var openIt = function(){
+                var day = pd[di], cnt = {};
+                Object.keys(day.counts || {}).forEach(function(k){ if(aiPlatform(aiLabelFor(k)) === p.name && (f === 'all' || aiTypeOf(k) === f)) cnt[k] = day.counts[k]; });
+                var vis = (aiCrawlers.recent || []).filter(function(v){ return aiPlatform(v.label) === p.name && isoDay(new Date(v.time)) === day.date && (f === 'all' || aiTypeOf(v.bot) === f); });
+                openAiDetail(p.name + ' · ' + new Date(day.date + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }), n + ' visit' + (n === 1 ? '' : 's') + (f === 'all' ? '' : ' of type ' + AI_TYPES[f].label) + ' this day.', cnt, vis);
+              };
+              c.addEventListener('click', openIt);
+              c.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openIt(); } });
+            }
             g.appendChild(c);
           });
         });
@@ -3635,11 +3710,19 @@
       b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + '. Busiest: ' + ins.when.topDay + ' (' + ins.when.topDayPct + '%) and ' + ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase() + ' (' + ins.when.topBandPct + '%).' + (ins.liveCount < 10 ? ' Early read.' : '') }));
       var max = Math.max.apply(null, ins.when.week.concat([1])), order = [1, 2, 3, 4, 5, 6, 0], lab = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S' ];
       b.appendChild(el('div', { class: 'wk' }, order.map(function(d){ var n = ins.when.week[d];
-        return el('div', { class: 'wk-col', title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n + ' (' + ins.when.pct(n) + '%)' }, [ el('b', { text: n ? ins.when.pct(n) + '%' : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
+        return el('div', { class: 'wk-col' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(){ whenDetail('day', d, ins); } : null, title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n + ' (' + ins.when.pct(n) + '%)' }, [ el('b', { text: n ? ins.when.pct(n) + '%' : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
       var bm = Math.max.apply(null, Object.keys(ins.when.bands).map(function(k){ return ins.when.bands[k]; }).concat([1]));
       b.appendChild(el('div', { class: 'in-list', style: 'margin-top:12px;' }, Object.keys(ins.when.bands).map(function(k){ var n = ins.when.bands[k];
-        return el('div', { class: 'in-row' }, [ el('span', { class: 'in-name', text: k }), el('b', { text: ins.when.pct(n) + '%' }), el('i', {}, [ el('span', { style: 'width:' + (n ? Math.max(6, n / bm * 100) : 0) + '%;background:#4a3aa7' }) ]) ]); })));
+        return el('div', { class: 'in-row' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(){ whenDetail('band', k, ins); } : null }, [ el('span', { class: 'in-name', text: k }), el('b', { text: ins.when.pct(n) + '%' }), el('i', {}, [ el('span', { style: 'width:' + (n ? Math.max(6, n / bm * 100) : 0) + '%;background:#4a3aa7' }) ]) ]); })));
       return b;
+    }
+    function whenDetail(kind, key, ins){
+      var WD = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
+      var bandOf = function(h){ return h >= 6 && h < 12 ? 'Morning (6am–12pm)' : h >= 12 && h < 17 ? 'Afternoon (12–5pm)' : h >= 17 && h < 22 ? 'Evening (5–10pm)' : 'Overnight (10pm–6am)'; };
+      var from = isoDay(addLocalDays(new Date(), -29)), to = isoDay(new Date());
+      var vis = (aiCrawlers.recent || []).filter(function(r){ var dt = new Date(r.time), d = isoDay(dt); return aiTypeOf(r.bot) === 'live' && d >= from && d <= to && (kind === 'day' ? dt.getDay() === key : bandOf(dt.getHours()) === key); });
+      var cnt = {}; vis.forEach(function(r){ cnt[r.bot] = (cnt[r.bot] || 0) + 1; });
+      openAiDetail('Live lookups · ' + (kind === 'day' ? WD[key] + 's' : key), vis.length + ' of ' + ins.liveCount + ' live lookups in the last 30 days (' + Math.round(vis.length / Math.max(1, ins.liveCount) * 100) + '%).', cnt, vis);
     }
     var insHost = null;
     function renderInsightsNow(){ var old = insHost; renderInsights(); if(old && old.parentNode){ old.parentNode.replaceChild(insHost, old); } }
