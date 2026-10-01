@@ -1139,7 +1139,12 @@
   .in-tags{ display:flex; flex-wrap:wrap; gap:6px; }
   .in-tag{ font-size:12.5px; padding:4px 10px; border-radius:7px; background:#FEF3E2; color:#9A5B0B; text-decoration:none; }
   a.in-tag:hover{ background:#FCE6C4; }
-  .in-tags.is-all{ max-height:260px; overflow-y:auto; }
+  .wk{ display:flex; gap:8px; align-items:flex-end; height:110px; }
+  .wk-col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; }
+  .wk-col b{ font-size:11.5px; font-variant-numeric:tabular-nums; min-height:14px; }
+  .wk-col i{ flex:1; width:100%; max-width:30px; background:var(--field); border-radius:5px; display:flex; align-items:flex-end; overflow:hidden; }
+  .wk-col i span{ display:block; width:100%; background:#4a3aa7; border-radius:5px; }
+  .wk-col em{ font-style:normal; font-size:11.5px; color:var(--muted); }
   .in-ok{ margin:0; font-size:13px; color:#1B7A51; font-weight:500; }
   .in-trend{ display:flex; flex-direction:column; gap:4px; margin-top:14px; padding:12px 14px; background:var(--field); border-radius:10px; font-size:13px; color:#3B4250; }
   .in-acts{ margin-top:14px; padding:16px 18px; border-radius:12px; background:linear-gradient(180deg, #F2F8F5, #FAFCFB); border:1px solid #D7EBE1; }
@@ -2920,23 +2925,7 @@
   // findings and next steps. Shared by the admin card and the PDF report. ----
   var KEY_PAGES = [ ['/', 'Home'], ['/practice-areas.html', 'Practice areas'], ['/faq.html', 'FAQ'], ['/case-review.html', 'Free case review'], ['/about.html', 'About'], ['/results-and-testimonials.html', 'Results & testimonials'], ['/contact.html', 'Contact'] ];
   var MAIN_ASSISTANTS = [ 'OpenAI', 'Anthropic', 'Perplexity' ];
-  // Every page in the sitemap, so Insights can list the pages AI Search
-  // didn't request. Loaded once.
-  var SITE_PATHS = null;
-  fetch('/sitemap.xml', { cache: 'no-store' }).then(function(r){ return r.ok ? r.text() : ''; }).then(function(x){
-    var list = (x.match(/<loc>[^<]+<\/loc>/g) || []).map(function(l){ return l.replace(/<\/?loc>/g, '').replace(/^https?:\/\/[^\/]+/, '') || '/'; });
-    if(list.length){ SITE_PATHS = list; if(aiCrawlers.loaded && !aiCrawlers.busy) renderAiCrawlers(); }
-  }).catch(function(){});
-  var MAIN_PAGES = { '/': 1, '/practice-areas.html': 1, '/faq.html': 1, '/case-review.html': 1, '/about.html': 1, '/results-and-testimonials.html': 1, '/contact.html': 1, '/resources.html': 1, '/schedule-consultation.html': 1 };
-  function pageRank(p){
-    var es = /-es\.html$/.test(p) ? 10 : 0;
-    if(p === '/') return 0 + es;
-    if(MAIN_PAGES[p]) return 1 + es;
-    if(/(fountain-valley|beverly-hills|san-bernardino|san-diego|san-francisco|sacramento|california)/.test(p)) return 2 + es;
-    if(/calculator|letter|template|note/.test(p)) return 3 + es;
-    if(/^\/blog-/.test(p)) return 4 + es;
-    return 3 + es;
-  }
+
   function pageName(path){
     var p = String(path || '/').split('?')[0];
     if(p === '/' || p === '/index.html') return 'Home';
@@ -2958,22 +2947,23 @@
     var searchPages = tally(search, function(r){ return norm(r.path); });
     var searchBy = tally(search, function(r){ return aiPlatform(r.label); });
     var refs = tally(live.filter(function(r){ return r.referer; }), function(r){ try { return new URL(r.referer).hostname.replace(/^www\./, ''); } catch(e){ return r.referer; } });
-    var crawled = {}; search.forEach(function(r){ crawled[norm(r.path)] = 1; });
-    var allPaths = SITE_PATHS || KEY_PAGES.map(function(k){ return k[0]; });
-    var missing = allPaths.map(norm).filter(function(pth, i, arr){ return arr.indexOf(pth) === i && !crawled[pth]; })
-      .sort(function(a, b){ return pageRank(a) - pageRank(b) || (a < b ? -1 : 1); }).map(function(pth){ return [ pth, pageName(pth) ]; });
-    var totalPages = allPaths.length;
+    // When people ask: live lookups by weekday and time of day (this device's clock).
+    var wk = [0, 0, 0, 0, 0, 0, 0], bands = { 'Morning (6am–12pm)': 0, 'Afternoon (12–5pm)': 0, 'Evening (5–10pm)': 0, 'Overnight (10pm–6am)': 0 };
+    live.forEach(function(r){ var d = new Date(r.time), h = d.getHours(); wk[d.getDay()]++; bands[h >= 6 && h < 12 ? 'Morning (6am–12pm)' : h >= 12 && h < 17 ? 'Afternoon (12–5pm)' : h >= 17 && h < 22 ? 'Evening (5–10pm)' : 'Overnight (10pm–6am)']++; });
+    var WD = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
+    var topDay = live.length ? WD[wk.indexOf(Math.max.apply(null, wk))] : null;
+    var topBand = live.length ? Object.keys(bands).sort(function(a, b){ return bands[b] - bands[a]; })[0] : null;
     var days = (daily || []).filter(function(d){ return d.date >= from && d.date <= to; });
     var half = Math.floor(days.length / 2), first = days.slice(0, half), second = days.slice(half);
     var sumT = function(ds, t){ return ds.reduce(function(s, d){ return s + Object.keys(d.counts || {}).reduce(function(a, k){ return a + (aiTypeOf(k) === t ? d.counts[k] : 0); }, 0); }, 0); };
     var trend = function(t){ var a = sumT(first, t), b = sumT(second, t); return { early: a, late: b, pct: a ? Math.round((b - a) / a * 100) : (b ? null : 0) }; };
-    var ins = { from: from, to: to, liveCount: live.length, searchCount: search.length, livePages: livePages, liveBy: liveBy, searchPages: searchPages, searchBy: searchBy, refs: refs, missing: missing,
-      totalPages: totalPages, liveTrend: trend('live'), searchTrend: trend('search'), absent: MAIN_ASSISTANTS.filter(function(a){ return !liveBy.some(function(x){ return x.key === a; }); }), capped: (recent || []).length >= 600, actions: [] };
+    var ins = { from: from, to: to, liveCount: live.length, searchCount: search.length, livePages: livePages, liveBy: liveBy, searchPages: searchPages, searchBy: searchBy, refs: refs, when: { week: wk, bands: bands, topDay: topDay, topBand: topBand },
+      liveTrend: trend('live'), searchTrend: trend('search'), absent: MAIN_ASSISTANTS.filter(function(a){ return !liveBy.some(function(x){ return x.key === a; }); }), capped: (recent || []).length >= 600, actions: [] };
     var A = ins.actions;
     if(livePages.length) A.push('Refresh and mark updated: ' + livePages.slice(0, 3).map(function(x){ return pageName(x.key); }).join(', ') + ' — these are the pages AI is using to answer real questions. Make sure each links clearly to the Free Case Review.');
     else A.push('No live lookups yet in this period. Focus on getting indexed: keep pages fresh, press Notify Bing after updates, and add short question-and-answer sections to key pages.');
     if(livePages.length) A.push('Write 1–2 new posts on topics close to: ' + livePages.slice(0, 2).map(function(x){ return pageName(x.key); }).join(' and ') + '.');
-    if(missing.length) A.push('AI Search didn’t request ' + missing.length + ' of ' + totalPages + ' site pages in this period, including ' + missing.slice(0, 3).map(function(m){ return m[1]; }).join(', ') + '. For the ones that matter, refresh them, mark them updated, and notify Bing.');
+    if(live.length >= 5) A.push('Most live lookups come on ' + topDay + 's, ' + topBand.toLowerCase() + '. Make sure calls and contact forms are answered quickly then, and consider weighting Google Ads toward those times.');
     if(ins.searchTrend.pct != null && ins.searchTrend.pct <= -25) A.push('AI Search crawling dropped ' + Math.abs(ins.searchTrend.pct) + '% in the second half of the period. Publish or refresh something and notify Bing.');
     if(liveBy.length && ins.absent.length) A.push('No live lookups from ' + ins.absent.join(', ') + '. Try asking those assistants about California employment lawyers to see who they recommend.');
     A.push('Add “AI assistant (ChatGPT, etc.)” to the intake “How did you hear about us?” question to tie these visits to real leads.');
@@ -3182,7 +3172,7 @@
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Pages answering real questions</div><p class="id">AI opened these to answer someone. Your highest-value pages.</p>' + lst(ins.livePages, 'No live lookups in these dates.', pg) + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Assistants sending people</div><p class="id">Where you’re being recommended.</p>' + lst(ins.liveBy, 'None yet.', who) + (ins.refs.length ? '<p class="id" style="margin-top:8px">Referring sites seen: ' + ins.refs.map(function(r){ return esc(r.key) + ' (' + r.n + ')'; }).join(', ') + '</p>' : '') + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.search.hex + '">What AI Search is indexing</div><p class="id">Pages AI search tools saved so they can cite them.</p>' + lst(ins.searchPages, 'No AI Search visits in these dates.', pg) + '</div>' +
-            '<div class="ic"><div class="ih" style="--c:#B38A3C">Pages not crawled by AI Search</div><p class="id">' + (ins.missing.length ? ins.missing.length + ' of ' + ins.totalPages + ' site pages weren’t requested by any AI Search bot in these dates. Most important first' + (ins.missing.length > 15 ? ' (top 15 shown)' : '') + '. A page crawled earlier may still be indexed.' : 'Every page was requested.') + '</p>' + (ins.missing.length ? '<ul class="il plain">' + ins.missing.slice(0, 15).map(function(m){ return '<li><span>' + esc(m[1]) + '<small>' + esc(m[0]) + '</small></span></li>'; }).join('') + '</ul>' : '<p class="ok">Every page on the site was crawled. ✓</p>') + '</div>' +
+            '<div class="ic"><div class="ih" style="--c:#4a3aa7">When people ask</div><p class="id">' + (ins.liveCount ? 'Most live lookups: ' + esc(ins.when.topDay) + ', ' + esc(ins.when.topBand.toLowerCase()) + '.' + (ins.liveCount < 10 ? ' Early read - only ' + ins.liveCount + ' lookups.' : '') : 'No live lookups in these dates.') + '</p>' + (ins.liveCount ? '<ol class="il plain">' + Object.keys(ins.when.bands).map(function(k){ return '<li><span>' + esc(k) + '</span><b>' + ins.when.bands[k] + '</b></li>'; }).join('') + '<li><span>By day: ' + [1,2,3,4,5,6,0].map(function(d){ return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d] + ' ' + ins.when.week[d]; }).join(' · ') + '</span></li></ol>' : '') + '</div>' +
           '</div>' +
           '<div class="ic trend"><div class="ih" style="--c:#4a3aa7">Trend</div><p>' + esc(trendText(ins.liveTrend, 'live lookups')) + '</p><p>' + esc(trendText(ins.searchTrend, 'AI Search crawling')) + '</p></div>' +
           '<div class="ic acts"><div class="ih" style="--c:#1F7A5C">Recommended next steps</div><ol>' + ins.actions.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ol></div>' +
@@ -3617,15 +3607,17 @@
     renderPlat30();
     root.appendChild(plat30);
     // ---- Insights card: what live lookups + AI Search mean, last 30 days ----
-    var showAllMissing = false;
     function keyBox(ins){
       var b = el('div', { class: 'in-box' });
-      b.appendChild(el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#B38A3C' }), 'Pages not crawled by AI Search' ]));
-      b.appendChild(el('p', { class: 'in-d', text: ins.missing.length ? ins.missing.length + ' of ' + ins.totalPages + ' site pages weren’t requested by any AI Search bot in these dates, most important first. A page crawled earlier may still be indexed.' : '' }));
-      if(!ins.missing.length){ b.appendChild(el('p', { class: 'in-ok', text: '✓ Every page on the site was crawled.' })); return b; }
-      var shown = showAllMissing ? ins.missing : ins.missing.slice(0, 12);
-      b.appendChild(el('div', { class: 'in-tags' + (showAllMissing ? ' is-all' : '') }, shown.map(function(m){ return el('a', { class: 'in-tag', href: m[0], target: '_blank', rel: 'noopener', title: m[0], text: m[1] }); })));
-      if(ins.missing.length > 12) b.appendChild(el('button', { type: 'button', class: 'in-edit', style: 'margin-top:10px;', text: showAllMissing ? 'Show fewer' : 'Show all ' + ins.missing.length, onclick: function(){ showAllMissing = !showAllMissing; renderInsightsNow(); } }));
+      b.appendChild(el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#4a3aa7' }), 'When people ask' ]));
+      if(!ins.liveCount){ b.appendChild(el('p', { class: 'in-d', text: 'Timing of live lookups - when real people ask an AI about topics on your site.' })); b.appendChild(el('p', { class: 'in-empty', text: 'No live lookups yet.' })); return b; }
+      b.appendChild(el('p', { class: 'in-d', text: 'Most live lookups: ' + ins.when.topDay + ', ' + ins.when.topBand.toLowerCase() + '.' + (ins.liveCount < 10 ? ' Early read - only ' + ins.liveCount + ' lookups so far.' : '') }));
+      var max = Math.max.apply(null, ins.when.week.concat([1])), order = [1, 2, 3, 4, 5, 6, 0], lab = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S' ];
+      b.appendChild(el('div', { class: 'wk' }, order.map(function(d){ var n = ins.when.week[d];
+        return el('div', { class: 'wk-col', title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n }, [ el('b', { text: n ? String(n) : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
+      var bm = Math.max.apply(null, Object.keys(ins.when.bands).map(function(k){ return ins.when.bands[k]; }).concat([1]));
+      b.appendChild(el('div', { class: 'in-list', style: 'margin-top:12px;' }, Object.keys(ins.when.bands).map(function(k){ var n = ins.when.bands[k];
+        return el('div', { class: 'in-row' }, [ el('span', { class: 'in-name', text: k }), el('b', { text: String(n) }), el('i', {}, [ el('span', { style: 'width:' + (n ? Math.max(6, n / bm * 100) : 0) + '%;background:#4a3aa7' }) ]) ]); })));
       return b;
     }
     var insHost = null;
