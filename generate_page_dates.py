@@ -38,6 +38,9 @@ DATES_FILE = "content/page-dates.json"
 MARKER = "<!-- page-dates -->"
 NOINDEX_RE = re.compile(r'<meta\s+name="robots"\s+content="[^"]*noindex[^"]*"', re.IGNORECASE)
 BULK_COMMIT_FILES = 40  # a commit that really changed more pages than this is site-wide
+# Pages that keep the machine-readable date (meta + JSON-LD dateModified, read
+# by search engines and AI tools) but show no visible "Last updated" line.
+NO_VISIBLE_DATE = {"contact.html", "contact-es.html"}
 
 MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July",
              "August", "September", "October", "November", "December"]
@@ -187,7 +190,7 @@ def inject():
                 f'<script type="application/ld+json">{ld}</script>\n')
         html = html.replace("</head>", head + "</head>", 1)
         idx = html.rfind("</main>")
-        if idx != -1:
+        if idx != -1 and filename not in NO_VISIBLE_DATE:
             label = "Última actualización" if spanish else "Last updated"
             line = f'<p class="page-updated">{label}: <time datetime="{iso}">{fmt(iso, spanish)}</time></p>\n'
             html = html[:idx] + line + html[idx:]
