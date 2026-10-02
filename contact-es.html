@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=314">
+<link rel="stylesheet" href="css/style.css?v=315">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -158,9 +158,15 @@
             <label for="contactName">Nombre Completo</label>
             <input id="contactName" type="text" name="name" required autocomplete="name">
           </div>
-          <div class="form-row">
-            <label for="contactPhone">Número de Teléfono</label>
-            <input id="contactPhone" type="tel" name="phone" required autocomplete="tel" inputmode="numeric" maxlength="12" pattern="\d{3}-\d{3}-\d{4}" title="Ingrese un número de teléfono de 10 dígitos">
+          <div class="form-pair">
+            <div class="form-row">
+              <label for="contactPhone">Número de Teléfono</label>
+              <input id="contactPhone" type="tel" name="phone" required autocomplete="tel" inputmode="numeric" maxlength="12" pattern="\d{3}-\d{3}-\d{4}" title="Ingrese un número de teléfono de 10 dígitos">
+            </div>
+            <div class="form-row">
+              <label for="contactEmail">Correo Electrónico</label>
+              <input id="contactEmail" type="email" name="email" autocomplete="email" inputmode="email" placeholder="usted@ejemplo.com">
+            </div>
           </div>
           <div class="form-row">
             <label for="contactReason">Motivo del Contacto</label>

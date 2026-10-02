@@ -6048,3 +6048,8 @@ p.article-disclaimer{
   border-top:1px solid var(--paper-line);
 }
 @media print{ .page-updated{ display:none !important; } }
+
+/* Contact form: phone + email side by side; stacked on phones */
+.form-pair{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:start; }
+.form-pair .form-row input{ width:100%; min-width:0; box-sizing:border-box; }
+@media (max-width:560px){ .form-pair{ grid-template-columns:minmax(0,1fr); gap:16px; } }
