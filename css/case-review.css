@@ -692,3 +692,10 @@
   .cr-guide.is-in .cr-guide-char-wrap,
   .cr-guide.is-bubble-in .cr-guide-bubble{ pointer-events:auto; }
 }
+
+/* Step 7: pay - wage box with a $ prefix and /hr suffix */
+.cr-pay-field{ max-width:320px; }
+.cr-money{ position:relative; display:flex; align-items:center; }
+.cr-money > span{ position:absolute; left:14px; font-weight:600; color:var(--ink-soft); pointer-events:none; }
+.cr-money > em{ position:absolute; right:14px; font-style:normal; font-size:14px; color:var(--ink-soft); pointer-events:none; }
+.cr-other-field .cr-money input{ padding-left:30px; padding-right:44px; width:100%; }

@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=315">
-<link rel="stylesheet" href="css/case-review.css?v=35">
+<link rel="stylesheet" href="css/case-review.css?v=36">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -235,14 +235,17 @@
         </div>
       </div>
 
-      <!-- Step 6: filed with agency -->
+      <!-- Step 6: length of employment -->
       <div class="cr-step" data-step="6">
-        <span class="eyebrow cr-eyebrow">Presentaciones</span>
-        <h2 class="cr-q">¿Ya ha presentado algo ante una agencia gubernamental?</h2>
-        <p class="cr-q-hint">EEOC, el Departamento de Derechos Civiles de California, o el Comisionado Laboral.</p>
-        <div class="cr-options cr-options-yn" data-field="filedWithAgency">
-          <button type="button" class="cr-opt" data-value="yes"><span class="cr-opt-mark"></span>Sí</button>
-          <button type="button" class="cr-opt" data-value="no"><span class="cr-opt-mark"></span>No</button>
+        <span class="eyebrow cr-eyebrow">Su Empleo</span>
+        <h2 class="cr-q">¿Cuánto tiempo trabajó allí?</h2>
+        <div class="cr-options cr-options-single" data-field="tenure">
+          <button type="button" class="cr-opt" data-value="lt6m"><span class="cr-opt-mark"></span>Menos de 6 meses</button>
+          <button type="button" class="cr-opt" data-value="6-12m"><span class="cr-opt-mark"></span>6 meses – 1 año</button>
+          <button type="button" class="cr-opt" data-value="1-2y"><span class="cr-opt-mark"></span>1 – 2 años</button>
+          <button type="button" class="cr-opt" data-value="2-5y"><span class="cr-opt-mark"></span>2 – 5 años</button>
+          <button type="button" class="cr-opt" data-value="5-10y"><span class="cr-opt-mark"></span>5 – 10 años</button>
+          <button type="button" class="cr-opt" data-value="10y+"><span class="cr-opt-mark"></span>Más de 10 años</button>
         </div>
         <p class="cr-error" data-error-for="6">Por favor elija una opción.</p>
         <div class="cr-nav">
@@ -251,23 +254,72 @@
         </div>
       </div>
 
-      <!-- Step 7: working with another attorney -->
+      <!-- Step 7: pay -->
       <div class="cr-step" data-step="7">
-        <span class="eyebrow cr-eyebrow">Representación</span>
-        <h2 class="cr-q">¿Actualmente está trabajando con otro abogado en esto?</h2>
-        <div class="cr-options cr-options-yn" data-field="workingWithAttorney">
-          <button type="button" class="cr-opt" data-value="yes"><span class="cr-opt-mark"></span>Sí</button>
-          <button type="button" class="cr-opt" data-value="no"><span class="cr-opt-mark"></span>No</button>
+        <span class="eyebrow cr-eyebrow">Su Pago</span>
+        <h2 class="cr-q">¿Cómo le pagaban?</h2>
+        <p class="cr-q-hint">Esto nos ayuda a entender el valor de su reclamo. Es confidencial.</p>
+        <div class="cr-options cr-options-single" data-field="payType">
+          <button type="button" class="cr-opt" data-value="hourly"><span class="cr-opt-mark"></span>Por hora</button>
+          <button type="button" class="cr-opt" data-value="salary"><span class="cr-opt-mark"></span>Salario</button>
+          <button type="button" class="cr-opt" data-value="prefer-not"><span class="cr-opt-mark"></span>Prefiero no decir</button>
         </div>
-        <p class="cr-error" data-error-for="7">Por favor elija una opción.</p>
+        <div class="cr-other-field cr-pay-field" id="crHourlyField" hidden>
+          <label for="crHourly">Pago por hora</label>
+          <div class="cr-money"><span>$</span><input type="text" id="crHourly" inputmode="decimal" autocomplete="off" placeholder="p. ej. 24.50"><em>/hr</em></div>
+        </div>
+        <div class="cr-select cr-pay-field" id="crSalaryField" hidden>
+          <label for="crSalary">Salario anual</label>
+          <select id="crSalary">
+            <option value="" selected disabled>Seleccione un rango</option>
+            <option value="under-50k">Menos de $50K</option>
+            <option value="50-70k">$50K – $70K</option>
+            <option value="70-100k">$70K – $100K</option>
+            <option value="100-150k">$100K – $150K</option>
+            <option value="150-200k">$150K – $200K</option>
+            <option value="over-200k">Más de $200K</option>
+          </select>
+        </div>
+        <p class="cr-error" data-error-for="7">Por favor elija cómo le pagaban e ingrese su pago.</p>
         <div class="cr-nav">
           <button type="button" class="btn cr-btn-back" data-back>Atrás</button>
           <button type="button" class="btn cr-btn-next" data-next disabled>Continuar</button>
         </div>
       </div>
 
-      <!-- Step 8: documentation -->
+      <!-- Step 8: filed with agency -->
       <div class="cr-step" data-step="8">
+        <span class="eyebrow cr-eyebrow">Presentaciones</span>
+        <h2 class="cr-q">¿Ya ha presentado algo ante una agencia gubernamental?</h2>
+        <p class="cr-q-hint">EEOC, el Departamento de Derechos Civiles de California, o el Comisionado Laboral.</p>
+        <div class="cr-options cr-options-yn" data-field="filedWithAgency">
+          <button type="button" class="cr-opt" data-value="yes"><span class="cr-opt-mark"></span>Sí</button>
+          <button type="button" class="cr-opt" data-value="no"><span class="cr-opt-mark"></span>No</button>
+        </div>
+        <p class="cr-error" data-error-for="8">Por favor elija una opción.</p>
+        <div class="cr-nav">
+          <button type="button" class="btn cr-btn-back" data-back>Atrás</button>
+          <button type="button" class="btn cr-btn-next" data-next disabled>Continuar</button>
+        </div>
+      </div>
+
+      <!-- Step 9: working with another attorney -->
+      <div class="cr-step" data-step="9">
+        <span class="eyebrow cr-eyebrow">Representación</span>
+        <h2 class="cr-q">¿Actualmente está trabajando con otro abogado en esto?</h2>
+        <div class="cr-options cr-options-yn" data-field="workingWithAttorney">
+          <button type="button" class="cr-opt" data-value="yes"><span class="cr-opt-mark"></span>Sí</button>
+          <button type="button" class="cr-opt" data-value="no"><span class="cr-opt-mark"></span>No</button>
+        </div>
+        <p class="cr-error" data-error-for="9">Por favor elija una opción.</p>
+        <div class="cr-nav">
+          <button type="button" class="btn cr-btn-back" data-back>Atrás</button>
+          <button type="button" class="btn cr-btn-next" data-next disabled>Continuar</button>
+        </div>
+      </div>
+
+      <!-- Step 10: documentation -->
+      <div class="cr-step" data-step="10">
         <span class="eyebrow cr-eyebrow">Documentación</span>
         <h2 class="cr-q">¿Qué documentación tiene?</h2>
         <p class="cr-q-hint">Seleccione todo lo que corresponda.</p>
@@ -278,15 +330,15 @@
           <button type="button" class="cr-opt cr-multi"><span class="cr-opt-mark"></span>Testigos</button>
           <button type="button" class="cr-opt cr-multi cr-opt-wide" data-clears-siblings="true">Ninguno de estos todavía</button>
         </div>
-        <p class="cr-error" data-error-for="8">Seleccione al menos una opción para continuar.</p>
+        <p class="cr-error" data-error-for="10">Seleccione al menos una opción para continuar.</p>
         <div class="cr-nav">
           <button type="button" class="btn cr-btn-back" data-back>Atrás</button>
           <button type="button" class="btn cr-btn-next" data-next disabled>Continuar</button>
         </div>
       </div>
 
-      <!-- Step 9: anything else -->
-      <div class="cr-step" data-step="9">
+      <!-- Step 11: anything else -->
+      <div class="cr-step" data-step="11">
         <span class="eyebrow cr-eyebrow">Algo Más</span>
         <h2 class="cr-q">¿Algo más que valga la pena saber?</h2>
         <p class="cr-q-hint">Opcional &mdash; una o dos oraciones son suficientes.</p>
@@ -300,8 +352,8 @@
         </div>
       </div>
 
-      <!-- Step 10: contact info -->
-      <div class="cr-step" data-step="10">
+      <!-- Step 12: contact info -->
+      <div class="cr-step" data-step="12">
         <span class="eyebrow cr-eyebrow">Casi Terminamos</span>
         <h2 class="cr-q">Proporciónenos un poco más de información</h2>
         <p class="cr-q-hint">La usaremos para comunicarnos con usted si solicita una consulta.</p>
@@ -325,7 +377,7 @@
             </select>
           </label>
         </div>
-        <p class="cr-error" data-error-for="10">Por favor complete su nombre, un número de teléfono de 10 dígitos, su correo electrónico y el mejor horario para llamar.</p>
+        <p class="cr-error" data-error-for="12">Por favor complete su nombre, un número de teléfono de 10 dígitos, su correo electrónico y el mejor horario para llamar.</p>
         <div class="cr-nav">
           <button type="button" class="btn cr-btn-back" data-back>Atrás</button>
           <button type="button" class="btn cr-btn-next" id="crSeeResults">Ver Mis Resultados</button>
@@ -494,6 +546,8 @@
   <input type="text" name="incidentTiming">
   <input type="text" name="inCalifornia">
   <input type="text" name="companySize">
+  <input type="text" name="lengthOfEmployment">
+  <input type="text" name="pay">
   <input type="text" name="filedWithAgency">
   <input type="text" name="workingWithAttorney">
   <input type="text" name="documentation">
@@ -503,8 +557,8 @@
 
 <script src="js/main.js?v=87" defer></script>
 <script src="js/consult-counter.js?v=1" defer></script>
-<script src="js/case-review.js?v=29" defer></script>
-<script src="js/case-review-guide.js?v=8" defer></script>
+<script src="js/case-review.js?v=31" defer></script>
+<script src="js/case-review-guide.js?v=9" defer></script>
 
 <script src="js/a11y-widget.js?v=15" defer></script>
 </body>

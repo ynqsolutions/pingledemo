@@ -143,7 +143,7 @@
   if(step9Textarea){
     step9Textarea.addEventListener('input', function(){
       if(step9MessageShown || isActive) return;
-      if(activeStep() !== '9') return;
+      if(activeStep() !== '11') return;
       const wordCount = step9Textarea.value.trim().split(/\s+/).filter(Boolean).length;
       if(wordCount > STEP_9_WORD_THRESHOLD){
         step9MessageShown = true;
@@ -158,7 +158,7 @@
     if(!step || step === 'result') return;
     if(Date.now() - lastContinueClick < IDLE_MS) return;
 
-    if(step === '9'){
+    if(step === '11'){
       if(step9MessageShown) return;
       step9MessageShown = true;
       poofIn(MESSAGE_STEP_9);

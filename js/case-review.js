@@ -3,7 +3,7 @@
   if(!card) return;
 
   const steps = Array.from(card.querySelectorAll('.cr-step'));
-  const totalQuestionSteps = 10; // steps 1-10; the result panel isn't counted in the progress bar
+  const totalQuestionSteps = 12; // steps 1-12; the result panel isn't counted in the progress bar
   const progressTrack = document.getElementById('crProgressTrack');
   const progressLabel = document.getElementById('crProgressLabel');
   const stepNum = document.getElementById('crStepNum');
@@ -15,6 +15,10 @@
     incidentTiming: '',
     inCalifornia: '',
     companySize: '',
+    tenure: '',
+    payType: '',
+    hourly: '',
+    salary: '',
     filedWithAgency: '',
     workingWithAttorney: '',
     documentation: [],
@@ -160,7 +164,7 @@
     const field = group.dataset.field;
     const stepEl = group.closest('.cr-step');
     const nextBtn = stepEl.querySelector('[data-next]');
-    const otherField = stepEl.querySelector('.cr-other-field');
+    const otherField = stepEl.querySelector('.cr-other-field:not(.cr-pay-field)');
 
     function collectMultiValues(){
       return Array.from(group.querySelectorAll('.cr-opt.selected')).map(o => {
@@ -217,6 +221,40 @@
       });
     }
   });
+
+  // ---- Step 7: pay. Hourly asks for the wage, Salary for a range; Continue
+  // waits until that sub-answer is filled. "Prefer not to say" is enough. ----
+  const hourlyField = document.getElementById('crHourlyField');
+  const salaryField = document.getElementById('crSalaryField');
+  const hourlyInput = document.getElementById('crHourly');
+  const salarySelect = document.getElementById('crSalary');
+  const payStep = hourlyField ? hourlyField.closest('.cr-step') : null;
+  function payReady(){
+    if(answers.payType === 'hourly') return Number(answers.hourly) > 0;
+    if(answers.payType === 'salary') return !!answers.salary;
+    return answers.payType === 'prefer-not';
+  }
+  function syncPay(){
+    if(!payStep) return;
+    hourlyField.hidden = answers.payType !== 'hourly';
+    salaryField.hidden = answers.payType !== 'salary';
+    const next = payStep.querySelector('[data-next]'), ok = payReady();
+    next.toggleAttribute('disabled', !ok);
+    next.classList.toggle('is-ready', ok);
+  }
+  if(payStep){
+    payStep.querySelectorAll('.cr-opt').forEach(opt => opt.addEventListener('click', () => {
+      syncPay();
+      if(answers.payType === 'hourly') focusOtherInput(hourlyInput);
+    }));
+    hourlyInput.addEventListener('input', () => {
+      const clean = hourlyInput.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+      if(clean !== hourlyInput.value) hourlyInput.value = clean;
+      answers.hourly = clean;
+      syncPay();
+    });
+    salarySelect.addEventListener('change', () => { answers.salary = salarySelect.value; syncPay(); });
+  }
 
   // ---- Select / textarea / text inputs ----
   card.querySelectorAll('select[data-field], textarea[data-field]').forEach(el => {
@@ -332,14 +370,47 @@
   });
 
   // ---- Qualification logic ----
+  // Pay + tenure helpers. Hourly wages are annualized at full time
+  // (x 2,080 hours) so they can be compared with the salary ranges.
+  const TENURE_LABEL = { 'lt6m': 'Less than 6 months', '6-12m': '6 months – 1 year', '1-2y': '1 – 2 years', '2-5y': '2 – 5 years', '5-10y': '5 – 10 years', '10y+': '10+ years' };
+  const SALARY_LABEL = { 'under-50k': 'Under $50K', '50-70k': '$50K – $70K', '70-100k': '$70K – $100K', '100-150k': '$100K – $150K', '150-200k': '$150K – $200K', 'over-200k': 'Over $200K' };
+  function annualFromHourly(){ return Math.round(Number(answers.hourly) * 2080); }
+  function payBand(){
+    // 'low' (< $70K), 'high' (> $150K), 'mid', or '' when not given.
+    if(answers.payType === 'hourly' && Number(answers.hourly) > 0){ const y = annualFromHourly(); return y < 70000 ? 'low' : y > 150000 ? 'high' : 'mid'; }
+    if(answers.payType === 'salary'){ return (answers.salary === 'under-50k' || answers.salary === '50-70k') ? 'low' : (answers.salary === '150-200k' || answers.salary === 'over-200k') ? 'high' : 'mid'; }
+    return '';
+  }
+  function payText(){
+    if(answers.payType === 'hourly' && answers.hourly) return 'Hourly, $' + Number(answers.hourly).toFixed(2) + '/hr (about $' + Math.round(annualFromHourly() / 1000) + 'K/yr full time)';
+    if(answers.payType === 'salary' && answers.salary) return 'Salary, ' + SALARY_LABEL[answers.salary];
+    if(answers.payType === 'prefer-not') return 'Prefer not to say';
+    return '';
+  }
+  const LONG_TENURE = { '2-5y': 1, '5-10y': 1, '10y+': 1 };
+  // HIGH PRIORITY ("strong") when all of these hold:
+  //  - none of the four complicating factors (still employed, incident over
+  //    3 years ago, outside California, already has an attorney)
+  //  - worked there more than 2 years
+  //  - pay under $70K or over $150K a year ("prefer not to say" doesn't
+  //    count against them)
   function computeOutcome(){
     const isMaybe =
       answers.stillEmployed === 'yes' ||
       answers.incidentTiming === 'over-3-years' ||
       answers.inCalifornia === 'no' ||
       answers.workingWithAttorney === 'yes';
-    return isMaybe ? 'maybe' : 'strong';
+    const band = payBand();
+    const payOk = band === 'low' || band === 'high' || answers.payType === 'prefer-not';
+    return !isMaybe && LONG_TENURE[answers.tenure] && payOk ? 'strong' : 'maybe';
   }
+  // One or two sentences for the office email explaining a HIGH PRIORITY.
+  function priorityReason(){
+    const band = payBand();
+    const pay = band === 'low' ? 'earned under $70K a year' : band === 'high' ? 'earned over $150K a year' : 'didn’t share their pay';
+    return 'Worked there ' + (TENURE_LABEL[answers.tenure] || '').toLowerCase() + ' and ' + pay + '. No longer employed there, incident within the last 3 years in California, and no other attorney.';
+  }
+
 
   function renderResult(){
     const outcome = computeOutcome();
@@ -396,16 +467,17 @@
   function restartReview(){
     answers = defaultAnswers();
     card.querySelectorAll('.cr-opt.selected').forEach(o => o.classList.remove('selected'));
-    card.querySelectorAll('.cr-other-field').forEach(f => { f.hidden = true; f.querySelector('input').value = ''; });
+    card.querySelectorAll('.cr-other-field:not(.cr-pay-field)').forEach(f => { f.hidden = true; f.querySelector('input').value = ''; });
     card.querySelectorAll('select[data-field]').forEach(s => { s.value = ''; });
     card.querySelectorAll('textarea[data-field]').forEach(t => { t.value = ''; });
     document.getElementById('crName').value = '';
     document.getElementById('crPhone').value = '';
     document.getElementById('crEmail').value = '';
     document.getElementById('crBestTime').value = '';
+    if(hourlyInput){ hourlyInput.value = ''; salarySelect.value = ''; hourlyField.hidden = true; salaryField.hidden = true; }
     card.querySelectorAll('[data-next]').forEach(btn => {
       const stepEl = btn.closest('.cr-step');
-      const isOptional = stepEl && (stepEl.dataset.step === '9');
+      const isOptional = stepEl && (stepEl.dataset.step === '11');
       btn.toggleAttribute('disabled', !isOptional);
       btn.classList.toggle('is-ready', isOptional);
     });
@@ -427,7 +499,7 @@
   // the raw internal outcome value itself.
   function priorityLabel(outcome){
     return outcome === 'strong'
-      ? '🔥 HIGH PRIORITY - Strong Case'
+      ? '🔥 HIGH PRIORITY - Strong Case. Why: ' + priorityReason()
       : 'Standard Priority - Needs Attorney Review';
   }
 
@@ -449,6 +521,8 @@
       incidentTiming: answers.incidentTiming,
       inCalifornia: answers.inCalifornia,
       companySize: answers.companySize,
+      lengthOfEmployment: TENURE_LABEL[answers.tenure] || '',
+      pay: payText(),
       filedWithAgency: answers.filedWithAgency,
       workingWithAttorney: answers.workingWithAttorney,
       documentation: answers.documentation.join('; '),
