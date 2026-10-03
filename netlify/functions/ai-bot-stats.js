@@ -355,7 +355,7 @@ export default async (req) => {
     <tr><th>Platform</th><th>Page</th><th>Referer</th><th>When</th></tr>
     ${recentHtml}
   </table>
-  <p class="hint">Referer is only ever populated for "live lookup" agents (ChatGPT-User, Perplexity-User, Claude-Web/User, OAI-SearchBot) - those are triggered by an actual person's question right now, and some platforms pass the search page (sometimes the query itself) through this header. Training crawlers (GPTBot, ClaudeBot, CCBot, etc.) have no query behind them, so it's always blank there - expected, not missing data. No platform is guaranteed to send anything useful here.</p>
+  <p class="hint">Referer is only ever populated for "person search" agents (ChatGPT-User, Perplexity-User, Claude-Web/User, OAI-SearchBot) - those are triggered by an actual person's question right now, and some platforms pass the search page (sometimes the query itself) through this header. Training crawlers (GPTBot, ClaudeBot, CCBot, etc.) have no query behind them, so it's always blank there - expected, not missing data. No platform is guaranteed to send anything useful here.</p>
   <p class="hint">Raw data: <a href="/.netlify/functions/ai-bot-stats?format=json">?format=json</a></p>
 </div>
 </body></html>`;

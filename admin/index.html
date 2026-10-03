@@ -500,6 +500,7 @@
   .vh-counts{ display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:10px; font-size:13px; color:var(--muted); }
   .vh-count b{ color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
   .vh-link{ color:var(--accent); font-weight:600; }
+  .rem-x{ flex:none; border:none; background:none; color:#9A8A66; font-size:20px; line-height:1; padding:2px 6px; cursor:pointer; border-radius:6px; } .rem-x:hover{ background:rgba(179,138,60,.15); color:#6b5b32; }
   .rem-card{ margin:0 0 20px; border-left:4px solid #B38A3C; }
   .rem-card h2 small{ display:inline-block; margin-left:8px; font-size:11.5px; background:#B38A3C; color:#fff; border-radius:999px; padding:1px 8px; vertical-align:3px; }
   .rem-list{ display:flex; flex-direction:column; gap:10px; }
@@ -1510,7 +1511,10 @@
   new MutationObserver(hideNetlifyBadge).observe(document.body, { childList: true });
   hideNetlifyBadge();
   if(window.netlifyIdentity){
-    window.netlifyIdentity.on('init', function(user){ setUser(user); });
+    // The widget finishes starting up a moment after the page loads. A view
+    // opened before that saw "not signed in", so once it's ready, reload the
+    // current view with the real session.
+    window.netlifyIdentity.on('init', function(user){ setUser(user); if(user){ resetLoaded(); route(); } });
     window.netlifyIdentity.on('login', function(user){ setUser(user); window.netlifyIdentity.close(); resetLoaded(); route(); });
     // After logout the widget keeps a stale session in memory and its
     // modal opens on the "logged in" panel instead of the sign-in form,
@@ -1522,7 +1526,7 @@
     });
     $('#logoutBtn2').addEventListener('click', doLogout);
   }
-  function resetLoaded(){ Object.keys(editors).forEach(function(k){ editors[k].loaded = false; }); blog.loaded = false; if(typeof overview !== 'undefined'){ overview.activityLoaded = false; overview.aiLoaded = false; } }
+  function resetLoaded(){ Object.keys(editors).forEach(function(k){ editors[k].loaded = false; }); blog.loaded = false; if(typeof aiCrawlers !== 'undefined') aiCrawlers.loaded = false; if(typeof overview !== 'undefined'){ overview.activityLoaded = false; overview.aiLoaded = false; } }
 
   // ---- Git Gateway (GitHub contents API, proxied by Netlify) ----
   function gateway(path, opts){
@@ -1664,22 +1668,36 @@
   // ---- Reminders: nudge when something hasn't been updated in 14+ days ----
   var REMIND_DAYS = 14;
   function daysSince(iso){ return iso ? Math.floor((Date.now() - new Date(String(iso).length === 10 ? iso + 'T12:00:00' : iso).getTime()) / 86400000) : null; }
+  // Dismissed reminders stay hidden for 7 days (remembered in this browser).
+  var REMIND_SNOOZE_DAYS = 7;
+  function remDismissed(){
+    var out = {}, now = Date.now();
+    try {
+      var raw = JSON.parse(localStorage.getItem('pingleRemindersDismissed') || '{}');
+      Object.keys(raw).forEach(function(k){ if(now - raw[k] < REMIND_SNOOZE_DAYS * 86400000) out[k] = raw[k]; });
+    } catch(e){}
+    return out;
+  }
+  function remDismiss(id){
+    try { var d = remDismissed(); d[id] = Date.now(); localStorage.setItem('pingleRemindersDismissed', JSON.stringify(d)); } catch(e){}
+  }
   function renderReminders(){
     var host = $('#ovReminders'); if(!host) return;
     host.innerHTML = '';
     var items = [];
-    function add(age, title, text, href, cta){ if(age != null && age >= REMIND_DAYS) items.push({ age: age, title: title, text: text, href: href, cta: cta }); }
+    var dismissed = remDismissed();
+    function add(age, title, text, href, cta, id){ if(age != null && age >= REMIND_DAYS && !dismissed[id]) items.push({ id: id, age: age, title: title, text: text, href: href, cta: cta }); }
     if(overview.pageDates){
       var dates = overview.pageDates, all = Object.keys(dates), blogs = all.filter(function(f){ return /^blog-/.test(f); });
       var newest = function(list){ return list.reduce(function(m, f){ return dates[f] > m ? dates[f] : m; }, ''); };
       var nb = newest(blogs), np = newest(all.filter(function(f){ return !/^blog-/.test(f); }));
-      add(daysSince(nb), 'No new blog post in ' + daysSince(nb) + ' days', 'Fresh articles are one of the strongest signals for search engines and AI tools. Last post: ' + shortDate(nb) + '.', '#blog/new', 'Write a post');
-      add(daysSince(np), 'Site pages last updated ' + daysSince(np) + ' days ago', 'Review a key page (home, practice areas, FAQ), refresh it, and mark it updated so search engines see the new date.', '#search-updates', 'Mark pages updated');
+      add(daysSince(nb), 'No new blog post in ' + daysSince(nb) + ' days', 'Fresh articles are one of the strongest signals for search engines and AI tools. Last post: ' + shortDate(nb) + '.', '#blog/new', 'Write a post', 'blog');
+      add(daysSince(np), 'Site pages last updated ' + daysSince(np) + ' days ago', 'Review a key page (home, practice areas, FAQ), refresh it, and mark it updated so search engines see the new date.', '#search-updates', 'Mark pages updated', 'pages');
     }
-    if(overview.lastChange) add(daysSince(overview.lastChange.when), 'No admin changes in ' + daysSince(overview.lastChange.when) + ' days', 'Consider refreshing the banner or adding a recent result.', '#banner', 'Update the banner');
+    if(overview.lastChange) add(daysSince(overview.lastChange.when), 'No admin changes in ' + daysSince(overview.lastChange.when) + ' days', 'Consider refreshing the banner or adding a recent result.', '#banner', 'Update the banner', 'admin');
     if(overview.indexnowLast !== undefined){
       var ia = overview.indexnowLast && overview.indexnowLast.ok ? daysSince(overview.indexnowLast.time) : 999;
-      add(ia, ia === 999 ? 'Bing hasn’t been notified yet' : 'Bing last notified ' + ia + ' days ago', 'Send your pages to Bing (feeds ChatGPT search and Copilot) so recent changes are picked up.', '#search-updates', 'Notify Bing');
+      add(ia, ia === 999 ? 'Bing hasn’t been notified yet' : 'Bing last notified ' + ia + ' days ago', 'Send your pages to Bing (feeds ChatGPT search and Copilot) so recent changes are picked up.', '#search-updates', 'Notify Bing', 'bing');
     }
     var navDash = document.querySelector('#nav a[data-view="overview"]');
     if(navDash){ var nb = navDash.querySelector('.nav-badge'); if(items.length){ if(!nb){ nb = el('span', { class: 'nav-badge' }); navDash.appendChild(nb); } nb.textContent = items.length; nb.title = items.length + ' reminder' + (items.length === 1 ? '' : 's'); } else if(nb) nb.remove(); }
@@ -1691,7 +1709,8 @@
         return el('div', { class: 'rem' }, [
           el('span', { class: 'rem-ico', text: '!' }),
           el('div', { class: 'rem-body' }, [ el('b', { text: it.title }), el('p', { text: it.text }) ]),
-          el('a', { class: 'btn btn-ghost btn-sm', href: it.href, text: it.cta })
+          el('a', { class: 'btn btn-ghost btn-sm', href: it.href, text: it.cta }),
+          el('button', { type: 'button', class: 'rem-x', title: 'Dismiss for 7 days', 'aria-label': 'Dismiss "' + it.title + '" for 7 days', text: '×', onclick: function(){ remDismiss(it.id); renderReminders(); } })
         ]);
       }))
     ]));
@@ -1797,7 +1816,7 @@
     var cur = d ? d.slice(-R) : null, prev = d ? d.slice(-2 * R, -R) : null;
     var per = cur ? cur.slice(-28).map(function(x){ return dSum([x]); }) : null, perL = cur ? cur.slice(-28).map(function(x){ return dSum([x], 'live'); }) : null;
     host.appendChild(cell('ai', 'AI visits', cur ? dSum(cur) : null, cur ? { pill: pill(dSum(cur) - dSum(prev), dSum(prev)), meter: meter(per), sub: 'vs. prior ' + R + ' days' } : { sub: signed ? 'Loading…' : 'Sign in to see' }, '#ai-crawlers'));
-    host.appendChild(cell('live', 'Live lookups', cur ? dSum(cur, 'live') : null, cur ? { pill: pill(dSum(cur, 'live') - dSum(prev, 'live'), dSum(prev, 'live')), meter: meter(perL), sub: 'People asking an AI about you' } : { sub: signed ? 'Loading…' : 'Sign in to see' }, '#ai-crawlers'));
+    host.appendChild(cell('live', 'Person searches', cur ? dSum(cur, 'live') : null, cur ? { pill: pill(dSum(cur, 'live') - dSum(prev, 'live'), dSum(prev, 'live')), meter: meter(perL), sub: 'People asking an AI about you' } : { sub: signed ? 'Loading…' : 'Sign in to see' }, '#ai-crawlers'));
     host.appendChild(cell('phone', 'Consultation requests', overview.consults, { sub: 'Total, shown on the site' }));
     host.appendChild(cell('doc', 'Published articles', overview.articles, { sub: 'Blog pages currently live' }, '#blog'));
   }
@@ -2712,7 +2731,15 @@
   function loadAiCrawlers(){
     aiCrawlers.loaded = true; aiCrawlers.busy = true; aiCrawlers.error = ''; renderAiCrawlers();
     var user = currentUser();
-    if(!user){ aiCrawlers.busy = false; aiCrawlers.error = 'Sign in to view this.'; renderAiCrawlers(); return; }
+    if(!user){
+      // Identity may still be starting: wait briefly before giving up.
+      var tries = 0, t = setInterval(function(){
+        var u = currentUser();
+        if(u){ clearInterval(t); loadAiCrawlers(); }
+        else if(++tries > 25){ clearInterval(t); aiCrawlers.loaded = false; aiCrawlers.busy = false; aiCrawlers.error = 'Sign in to view this.'; renderAiCrawlers(); }
+      }, 150);
+      return;
+    }
     // The endpoint itself checks this token server-side (gated, not a
     // public URL) - this header is what makes that check pass, not just
     // a formality.
@@ -2746,7 +2773,7 @@
   var AI_TYPES = {
     training: { label: 'Training', color: 'var(--t-training)', hex: '#2a78d6', note: 'Builds AI training data on a schedule - no one asked anything.' },
     search:   { label: 'AI Search', color: 'var(--t-search)', hex: '#eb6834', note: 'Saves pages so AI search tools (Perplexity, ChatGPT search, Bing/Copilot) can find and cite them in answers.' },
-    live:     { label: 'Live lookup', color: 'var(--t-live)', hex: '#1baf7a', note: 'A real person asked an AI something just now and it fetched this page.' }
+    live:     { label: 'Person search', color: 'var(--t-live)', hex: '#1baf7a', note: 'A real person asked an AI something just now and it fetched this page.' }
   };
   var AI_TYPE_ORDER = ['training', 'search', 'live'];
   var AI_TYPE_OF = {
@@ -2965,7 +2992,7 @@
   // grid), Most-read pages, and Live activity - all for the dates selected.
   // Opens in its own window and goes straight to the print dialog (Save as
   // PDF). ----
-  // ---- Insights: turns Live lookup + AI Search activity into plain-English
+  // ---- Insights: turns Person search + AI Search activity into plain-English
   // findings and next steps. Shared by the admin card and the PDF report. ----
   var KEY_PAGES = [ ['/', 'Home'], ['/practice-areas.html', 'Practice areas'], ['/faq.html', 'FAQ'], ['/case-review.html', 'Free case review'], ['/about.html', 'About'], ['/results-and-testimonials.html', 'Results & testimonials'], ['/contact.html', 'Contact'] ];
   var MAIN_ASSISTANTS = [ 'OpenAI', 'Anthropic', 'Perplexity' ];
@@ -3042,16 +3069,16 @@
     if(days.length){ ins.liveCount = sumT(days, 'live'); ins.searchCount = sumT(days, 'search'); }
     var A = ins.actions;
     if(livePages.length) A.push('Refresh and mark updated: ' + livePages.slice(0, 3).map(function(x){ return pageName(x.key); }).join(', ') + ' — these are the pages AI is using to answer real questions. Make sure each links clearly to the Free Case Review.');
-    else A.push('No live lookups yet in this period. Focus on getting indexed: keep pages fresh, press Notify Bing after updates, and add short question-and-answer sections to key pages.');
+    else A.push('No person searches yet in this period. Focus on getting indexed: keep pages fresh, press Notify Bing after updates, and add short question-and-answer sections to key pages.');
     if(livePages.length) A.push('Write 1–2 new posts on topics close to: ' + livePages.slice(0, 2).map(function(x){ return pageName(x.key); }).join(' and ') + '.');
-    if(wkTotal >= 5 && topBand) A.push('Most live lookups come on ' + topDay + 's (' + pc(Math.max.apply(null, wk)) + '%) and in the ' + topBand.toLowerCase().replace(/ \(.*\)/, '') + ' (' + pcB(bands[topBand]) + '%). Make sure calls and contact forms are answered quickly then, and consider weighting Google Ads toward those times.');
+    if(wkTotal >= 5 && topBand) A.push('Most person searches come on ' + topDay + 's (' + pc(Math.max.apply(null, wk)) + '%) and in the ' + topBand.toLowerCase().replace(/ \(.*\)/, '') + ' (' + pcB(bands[topBand]) + '%). Make sure calls and contact forms are answered quickly then, and consider weighting Google Ads toward those times.');
     if(ins.searchTrend.pct != null && ins.searchTrend.pct <= -25) A.push('AI Search crawling dropped ' + Math.abs(ins.searchTrend.pct) + '% (' + ins.searchTrend.r2 + ' compared with ' + ins.searchTrend.r1 + '). Publish or refresh something and notify Bing.');
-    if(liveBy.length && ins.absent.length) A.push('No live lookups from ' + ins.absent.join(', ') + '. Try asking those assistants about California employment lawyers to see who they recommend.');
+    if(liveBy.length && ins.absent.length) A.push('No person searches from ' + ins.absent.join(', ') + '. Try asking those assistants about California employment lawyers to see who they recommend.');
     A.push('Add “AI assistant (ChatGPT, etc.)” to the intake “How did you hear about us?” question to tie these visits to real leads.');
     return ins;
   }
   function trendText(t, label){
-    // e.g. "Live lookups: 7 during Sep 16–30, up 40% from 5 during Sep 1–15."
+    // e.g. "Person searches: 7 during Sep 16–30, up 40% from 5 during Sep 1–15."
     var L = label.charAt(0).toUpperCase() + label.slice(1);
     if(!t.ok) return L + ': not enough days in this period to compare.';
     if(!t.early && !t.late) return L + ': none during ' + t.r1 + ' or ' + t.r2 + '.';
@@ -3110,7 +3137,7 @@
     } else {
       summary.push('<b>' + esc(plats[0].name) + '</b> was the most active platform (' + pctOf(plats[0].count, total) + '% of visits)' + (busiest && N > 1 ? '. Busiest day: <b>' + esc(shortDate(busiest.date)) + '</b> (' + n0(busiest.total) + ')' : '') + (pageRows.length ? '. Most-read page: <b>' + esc(pageName(pageRows[0].path)) + '</b>' : '') + '.');
     }
-    var coverStats = [ [ n0(total), 'AI visits' ], [ n0(byType.live), 'Live lookups' ], [ n0(byType.search), 'AI Search crawls' ], [ String(plats.length), 'Platforms' ] ];
+    var coverStats = [ [ n0(total), 'AI visits' ], [ n0(byType.live), 'Person searches' ], [ n0(byType.search), 'AI Search crawls' ], [ String(plats.length), 'Platforms' ] ];
     function coverSpark(){
       if(N < 2 || !total) return '';
       var W = 520, H = 90, max = Math.max.apply(null, days.map(function(d){ return d.total; }).concat([1]));
@@ -3256,14 +3283,14 @@
         function lst(items, empty, fmtFn){ return items.length ? '<ol class="il">' + items.slice(0, 6).map(fmtFn).join('') + '</ol>' : '<p class="empty">' + empty + '</p>'; }
         function pg(x){ return '<li><span>' + esc(pageName(x.key)) + '<small>' + esc(x.key) + '</small></span><b>' + x.n + '</b></li>'; }
         function who(x){ return '<li><span>' + esc(x.key) + '</span><b>' + x.n + '</b></li>'; }
-        return '<section class="ins"><h2>What the activity means</h2><p class="sub">Live lookups are real people asking an AI something and it opening your page; AI Search is AI tools indexing pages so they can cite them. ' + ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ' in these dates.' + (ins.capped ? ' The page and assistant rankings use the newest 600 itemized visits; the totals and timing cover every day.' : '') + '</p>' +
+        return '<section class="ins"><h2>What the activity means</h2><p class="sub">Person searches are real people asking an AI something and it opening your page; AI Search is AI tools indexing pages so they can cite them. ' + ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ' in these dates.' + (ins.capped ? ' The page and assistant rankings use the newest 600 itemized visits; the totals and timing cover every day.' : '') + '</p>' +
           '<div class="igrid">' +
-            '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Pages answering real questions</div><p class="id">AI opened these to answer someone. Your highest-value pages.</p>' + lst(ins.livePages, 'No live lookups in these dates.', pg) + '</div>' +
+            '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Pages answering real questions</div><p class="id">AI opened these to answer someone. Your highest-value pages.</p>' + lst(ins.livePages, 'No person searches in these dates.', pg) + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Assistants sending people</div><p class="id">Where you’re being recommended.</p>' + lst(ins.liveBy, 'None yet.', who) + (ins.refs.length ? '<p class="id" style="margin-top:8px">Referring sites seen: ' + ins.refs.map(function(r){ return esc(r.key) + ' (' + r.n + ')'; }).join(', ') + '</p>' : '') + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.search.hex + '">What AI Search is indexing</div><p class="id">Pages AI search tools saved so they can cite them.</p>' + lst(ins.searchPages, 'No AI Search visits in these dates.', pg) + '</div>' +
-            '<div class="ic"><div class="ih" style="--c:#4a3aa7">When people ask</div><p class="id">' + (ins.when.total ? 'Share of ' + ins.when.total + ' live lookups. Busiest: ' + esc(ins.when.topDay) + ' (' + ins.when.topDayPct + '%) and ' + esc(ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase()) + ' (' + ins.when.topBandPct + '%).' + (ins.when.total < 10 ? ' Early read.' : '') : 'No live lookups in these dates.') + '</p>' + (ins.when.total ? '<ol class="il plain">' + Object.keys(ins.when.bands).map(function(k){ return '<li><span>' + esc(k) + '</span><b>' + ins.when.pctB(ins.when.bands[k]) + '%</b></li>'; }).join('') + '<li><span>By day: ' + [1,2,3,4,5,6,0].map(function(d){ return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][[1,2,3,4,5,6,0].indexOf(d)] + ' ' + ins.when.pct(ins.when.week[d]) + '%'; }).join(' · ') + '</span></li></ol>' : '') + '</div>' +
+            '<div class="ic"><div class="ih" style="--c:#4a3aa7">When people ask</div><p class="id">' + (ins.when.total ? 'Share of ' + ins.when.total + ' person searches. Busiest: ' + esc(ins.when.topDay) + ' (' + ins.when.topDayPct + '%) and ' + esc(ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase()) + ' (' + ins.when.topBandPct + '%).' + (ins.when.total < 10 ? ' Early read.' : '') : 'No person searches in these dates.') + '</p>' + (ins.when.total ? '<ol class="il plain">' + Object.keys(ins.when.bands).map(function(k){ return '<li><span>' + esc(k) + '</span><b>' + ins.when.pctB(ins.when.bands[k]) + '%</b></li>'; }).join('') + '<li><span>By day: ' + [1,2,3,4,5,6,0].map(function(d){ return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][[1,2,3,4,5,6,0].indexOf(d)] + ' ' + ins.when.pct(ins.when.week[d]) + '%'; }).join(' · ') + '</span></li></ol>' : '') + '</div>' +
           '</div>' +
-          '<div class="ic trend"><div class="ih" style="--c:#4a3aa7">Trend</div><p>' + esc(trendText(ins.liveTrend, 'live lookups')) + '</p><p>' + esc(trendText(ins.searchTrend, 'AI Search crawling')) + '</p></div>' +
+          '<div class="ic trend"><div class="ih" style="--c:#4a3aa7">Trend</div><p>' + esc(trendText(ins.liveTrend, 'person searches')) + '</p><p>' + esc(trendText(ins.searchTrend, 'AI Search crawling')) + '</p></div>' +
           '<div class="ic acts"><div class="ih" style="--c:#1F7A5C">Recommended next steps</div><ol>' + ins.actions.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ol></div>' +
         '</section>';
       })() +
@@ -3488,7 +3515,7 @@
   }
 
   // ---- Small floating pop-up for AI Visibility: click a heatmap square or a
-  // "When people ask" bar to see the AI Search / Live lookup / Training split. ----
+  // "When people ask" bar to see the AI Search / Person search / Training split. ----
   var aiPopEl = null;
   function closeAiPop(){ if(aiPopEl){ aiPopEl.remove(); aiPopEl = null; document.removeEventListener('mousedown', aiPopOutside, true); document.removeEventListener('keydown', aiPopKey); window.removeEventListener('scroll', closeAiPop, true); } }
   function aiPopOutside(e){ if(aiPopEl && !aiPopEl.contains(e.target) && !e.target.closest('.is-click')) closeAiPop(); }
@@ -3603,7 +3630,7 @@
     var diff = last7 - prev7;
     t7.num.appendChild(el('span', { class: 'ai-delta ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat'), text: (diff > 0 ? '▲ ' : diff < 0 ? '▼ ' : '') + (prev7 ? Math.abs(Math.round(diff / prev7 * 100)) + '%' : (diff > 0 ? 'new' : '0%')) }));
     tiles.appendChild(t7.node);
-    tiles.appendChild(tile(el('span', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES.live.hex }), 'Live lookups · 7 days' ]), dayLive.slice(-7).reduce(function(a, b){ return a + b; }, 0), 'Real people asking an AI, last 7 days', dayLive.length ? aiSpark(dayLive.slice(-14), AI_TYPES.live.hex) : null).node);
+    tiles.appendChild(tile(el('span', {}, [ el('span', { class: 'ai-key', style: 'background:' + AI_TYPES.live.hex }), 'Person searches · 7 days' ]), dayLive.slice(-7).reduce(function(a, b){ return a + b; }, 0), 'Real people asking an AI, last 7 days', dayLive.length ? aiSpark(dayLive.slice(-14), AI_TYPES.live.hex) : null).node);
     var busiest = null;
     daily.forEach(function(d, i){ if(dayTotals[i] > 0 && (!busiest || dayTotals[i] > busiest.n)) busiest = { n: dayTotals[i], date: d.date }; });
     tiles.appendChild(tile('Busiest day', busiest ? busiest.n : 0, busiest ? shortDate(busiest.date) + ' · last 30 days' : 'No visits in the last 30 days').node);
@@ -3652,7 +3679,7 @@
         }));
       }
       var typeSel = el('select', { class: 'pl-type', 'aria-label': 'Crawler type', onchange: function(e){ aiCrawlers.platFilter = e.target.value; renderPlat30(); } },
-        [ ['all', 'All types'], ['search', 'AI Search'], ['live', 'Live lookup'], ['training', 'Training'] ].map(function(o){ return el('option', { value: o[0], text: o[1] }); }));
+        [ ['all', 'All types'], ['search', 'AI Search'], ['live', 'Person search'], ['training', 'Training'] ].map(function(o){ return el('option', { value: o[0], text: o[1] }); }));
       typeSel.value = f;
       var controls = el('div', { class: 'pl-controls' }, [
         segGroup('Period', [ ['7', '7 days'], ['30', '30 days'], ['all', 'All time'], ['custom', 'Custom'] ], per, function(v){ aiCrawlers.platPeriod = v; }),
@@ -3749,12 +3776,12 @@
     }
     renderPlat30();
     root.appendChild(plat30);
-    // ---- Insights card: what live lookups + AI Search mean, last 30 days ----
+    // ---- Insights card: what person searches + AI Search mean, last 30 days ----
     function keyBox(ins){
       var b = el('div', { class: 'in-box' });
       b.appendChild(el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#4a3aa7' }), 'When people ask' ]));
-      if(!ins.when.total){ b.appendChild(el('p', { class: 'in-d', text: 'Timing of live lookups - when real people ask an AI about topics on your site.' })); b.appendChild(el('p', { class: 'in-empty', text: 'No live lookups yet.' })); return b; }
-      b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.when.total + ' live lookup' + (ins.when.total === 1 ? '' : 's') + ' in the last 30 days. Busiest: ' + ins.when.topDay + ' (' + ins.when.topDayPct + '%) and ' + ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase() + ' (' + ins.when.topBandPct + '%).' + (ins.when.total < 10 ? ' Early read.' : '') }));
+      if(!ins.when.total){ b.appendChild(el('p', { class: 'in-d', text: 'Timing of person searches - when real people ask an AI about topics on your site.' })); b.appendChild(el('p', { class: 'in-empty', text: 'No person searches yet.' })); return b; }
+      b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.when.total + ' person search' + (ins.when.total === 1 ? '' : 's') + ' in the last 30 days. Busiest: ' + ins.when.topDay + ' (' + ins.when.topDayPct + '%) and ' + ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase() + ' (' + ins.when.topBandPct + '%).' + (ins.when.total < 10 ? ' Early read.' : '') }));
       var max = Math.max.apply(null, ins.when.week.concat([1])), order = [1, 2, 3, 4, 5, 6, 0], lab = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S' ];
       b.appendChild(el('div', { class: 'wk' }, order.map(function(d){ var n = ins.when.week[d];
         return el('div', { class: 'wk-col' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(e){ e.stopPropagation(); whenDetail('day', d, ins, e.currentTarget); } : null, title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n + ' (' + ins.when.pct(n) + '%)' }, [ el('b', { text: n ? ins.when.pct(n) + '%' : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
@@ -3785,14 +3812,14 @@
       function box(color, title, desc, body){ return el('div', { class: 'in-box' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:' + color }), title ]), el('p', { class: 'in-d', text: desc }), body ]); }
       var card = el('div', { class: 'card ins-card' }); insHost = card;
       card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Insights · last 30 days' }),
-        el('p', { text: ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' }) ]) ]));
+        el('p', { text: ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' }) ]) ]));
       card.appendChild(el('div', { class: 'in-grid' }, [
-        box(AI_TYPES.live.hex, 'Pages answering real questions', 'AI opened these to answer someone - your highest-value pages.', lst(pages(ins.livePages), 'No live lookups yet.')),
+        box(AI_TYPES.live.hex, 'Pages answering real questions', 'AI opened these to answer someone - your highest-value pages.', lst(pages(ins.livePages), 'No person searches yet.')),
         box(AI_TYPES.live.hex, 'Assistants sending people', 'Where you’re being recommended.' + (ins.refs.length ? ' Referring sites: ' + ins.refs.map(function(r){ return r.key; }).join(', ') + '.' : ''), lst(who(ins.liveBy), 'None yet.')),
         box(AI_TYPES.search.hex, 'What AI Search is indexing', 'Pages saved so AI tools can cite them.', lst(pages(ins.searchPages), 'No AI Search visits yet.')),
         keyBox(ins)
       ]));
-      card.appendChild(el('div', { class: 'in-trend' }, [ el('span', { text: trendText(ins.liveTrend, 'live lookups') }), el('span', { text: trendText(ins.searchTrend, 'AI Search crawling') }) ]));
+      card.appendChild(el('div', { class: 'in-trend' }, [ el('span', { text: trendText(ins.liveTrend, 'person searches') }), el('span', { text: trendText(ins.searchTrend, 'AI Search crawling') }) ]));
       card.appendChild(el('div', { class: 'in-acts' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#1F7A5C' }), 'Recommended next steps' ]),
         el('ol', {}, ins.actions.map(function(t){ return el('li', { text: t }); })) ]));
     };
@@ -3840,11 +3867,11 @@
       function mkSel(label, opts, val, on){ var sel = el('select', { class: 'pl-type', 'aria-label': label, onchange: function(e){ on(e.target.value); renderFeed(); } }, opts.map(function(o){ return el('option', { value: o[0], text: o[1] }); })); sel.value = val; return sel; }
       feedCard.appendChild(el('div', { class: 'ai-card-head' }, [
         el('div', {}, [ el('h2', {}, [ 'Live activity', el('small', { text: filtered ? list.length + ' of ' + all.length : all.length + ' recorded' }) ]),
-          el('p', { text: all.length ? 'Itemized visits from ' + shortDate(oldestDay) + ' to ' + shortDate(newestDay) + '. A referer only appears on live lookups.' : 'A referer only appears on live lookups.' }) ])
+          el('p', { text: all.length ? 'Itemized visits from ' + shortDate(oldestDay) + ' to ' + shortDate(newestDay) + '. A referer only appears on person searches.' : 'A referer only appears on person searches.' }) ])
       ]));
       if(all.length){
         feedCard.appendChild(el('div', { class: 'feed-filters' }, [
-          mkSel('Filter by visit type', [ ['', 'All types'], ['live', 'Live lookup'], ['search', 'AI Search'], ['training', 'Training'] ], fType, function(v){ aiCrawlers.feedType = v; }),
+          mkSel('Filter by visit type', [ ['', 'All types'], ['live', 'Person search'], ['search', 'AI Search'], ['training', 'Training'] ], fType, function(v){ aiCrawlers.feedType = v; }),
           mkSel('Filter by date', [ ['all', 'All dates'], ['today', 'Today'], ['yesterday', 'Yesterday'], ['7', 'Last 7 days'], ['custom', 'Custom range…'] ], fDate, function(v){ aiCrawlers.feedDate = v; }),
           filtered ? el('button', { type: 'button', class: 'feed-clear', text: 'Clear', onclick: function(){ aiCrawlers.feedDate = 'all'; aiCrawlers.feedType = ''; aiCrawlers.feedFrom = ''; aiCrawlers.feedTo = ''; renderFeed(); } }) : null
         ]));
