@@ -3152,7 +3152,7 @@
           return '<td class="dv" style="' + (v ? 'background:rgba(31,122,92,' + a + ');' + (v / gMax > 0.6 ? 'color:#fff;' : '') : '') + '">' + (v ? n0(v) : '&ndash;') + '</td>';
         }).join('') + (hasOther ? (function(){ var v = rest.reduce(function(s, p){ return s + (p.perDay[i] || 0); }, 0); return '<td class="dv">' + (v ? n0(v) : '&ndash;') + '</td>'; })() : '') + '<td class="dt">' + (d.total ? n0(d.total) : '&ndash;') + '</td></tr>';
       }
-      return '<p class="cap">' + esc('Day by day, newest first · number = visits · darker = more' + (hasOther ? ' · "Other" = ' + rest.length + ' smaller platform' + (rest.length === 1 ? '' : 's') : '')) + '</p><div class="tscroll"><table class="dtab">' + head + '<tbody>' + rows + '</tbody></table></div>';
+      return '<p class="cap">' + esc('Day by day, newest first · number = visits · darker = more' + (hasOther ? ' · "Other" = ' + rest.length + ' smaller platform' + (rest.length === 1 ? '' : 's') : '')) + '</p><table class="dtab">' + head + '<tbody>' + rows + '</tbody></table>';
     }
 
 
@@ -3232,8 +3232,9 @@
       '.empty{color:#9CA3AF;text-align:center;padding:14px;margin:0;}' +
       '.igrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;} .ic{border:1px solid #E5E7EB;border-radius:12px;padding:13px 15px;break-inside:avoid;} .ic.trend,.ic.acts{margin-top:12px;} .ih{font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;} .ih:before{content:"";width:9px;height:9px;border-radius:3px;background:var(--c);} .id{margin:3px 0 8px;color:#6B7280;font-size:10.5px;} .il{margin:0;padding:0;list-style:none;counter-reset:i;font-size:11.5px;} .il li{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #F3F4F6;} .il li:last-child{border-bottom:none;} .il:not(.plain) li:before{counter-increment:i;content:counter(i);flex:none;width:16px;color:#B38A3C;font-weight:700;font-family:Georgia,serif;} .il li span{flex:1;min-width:0;} .il li small{display:block;color:#9CA3AF;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;word-break:break-all;} .il li b{flex:none;font-variant-numeric:tabular-nums;} .ok{color:#1F7A5C;font-size:12px;margin:4px 0 0;} .ic.trend p{margin:5px 0 0;font-size:11.5px;} .ic.acts ol{margin:8px 0 0;padding-left:18px;font-size:11.5px;line-height:1.55;} .ic.acts li{margin-bottom:5px;}' +
       '.foot{margin-top:26px;padding-top:10px;border-top:1px solid #E5E7EB;color:#9CA3AF;font-size:10.5px;}' +
-      '@media screen{body{background:#EEF0F4;padding:24px 0;} .cover{margin:0 auto 24px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.25);} .doc{background:#fff;padding:32px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.3);}}' +
-      '@media screen and (max-width:860px){.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;padding:0 4px;} .tscroll table.dtab{min-width:660px;} .dtab th.dd,.dtab td.dd{position:sticky;left:0;background:#fff;z-index:1;} .dtab tr.mrow td{position:static;} body{padding:0;} .cover{width:100%;height:auto;min-height:100vh;border-radius:0;} .cover .in{padding:44px 22px 30px;} .cover h1{font-size:34px;margin-top:40px;} .cstats{grid-template-columns:1fr 1fr;} .cstats div:nth-child(3){padding-left:0;border-left:none;} .cstats div:nth-child(n+3){border-top:1px solid #E5E1D6;} .gen{margin-top:30px;} .doc{border-radius:0;padding:22px 16px;} .keys,.igrid{grid-template-columns:1fr;} .heat-wrap{overflow-x:auto;}}';
+      // Screen preview = the printed page, scaled down to fit narrow screens (never reflowed or scrolled),
+      // so what you see is what prints.
+      '@media screen{html{background:#EEF0F4;} body{background:#EEF0F4;width:8in;margin:0 auto;padding:24px 0;zoom:var(--z,1);} .cover{width:7.6in;margin:0 auto 24px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.25);} .doc{width:7.6in;max-width:7.6in;background:#fff;padding:32px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.3);}}';
 
     var html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AI Visibility Report ' + from + ' to ' + to + ' - Pingle Law</title><style>' + css + '</style></head><body>' +
       '<div class="cover"><div class="in">' +
@@ -3273,6 +3274,8 @@
       '<div class="foot">Visits are counted by user-agent from known AI crawlers and agents. Days follow the time zone of the device that made this report (' + esc(tzName()) + ').</div>' +
       '</div></body></html>';
     w.document.open(); w.document.write(html); w.document.close();
+    function fitPreview(){ try { var z = Math.min(1, (w.innerWidth || 800) / (8 * 96 + 8)); w.document.documentElement.style.setProperty('--z', z.toFixed(3)); } catch(e){} }
+    fitPreview(); w.addEventListener('resize', fitPreview);
     w.focus(); setTimeout(function(){ try { w.print(); } catch(e){} }, 700);
     return total;
   }
