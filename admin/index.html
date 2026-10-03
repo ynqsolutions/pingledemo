@@ -3160,27 +3160,43 @@
       }).join('') + '</div>';
     }
     function heatGrid(){
-      // Day by day, newest first: one row per day, one column per platform
-      // (top 8, the rest folded into "Other"). Header repeats on every page.
-      if(!plats.length) return '';
-      var cols = plats.slice(0, 8), rest = plats.slice(8), hasOther = rest.length > 0;
-      var gMax = 1;
-      days.forEach(function(d, i){ cols.forEach(function(p){ if((p.perDay[i] || 0) > gMax) gMax = p.perDay[i]; }); });
-      var head = '<thead><tr><th class="dd">Date</th>' + cols.map(function(p){ return '<th>' + esc(p.name) + '</th>'; }).join('') + (hasOther ? '<th>Other</th>' : '') + '<th class="dt">Total</th></tr></thead>';
-      var rows = '', lastMonth = '';
-      for(var i = N - 1; i >= 0; i--){
-        var d = days[i], m = d.date.slice(0, 7);
-        if(m !== lastMonth){
-          lastMonth = m;
-          rows += '<tr class="mrow"><td colspan="' + (cols.length + 2 + (hasOther ? 1 : 0)) + '">' + esc(new Date(d.date + 'T12:00:00').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })) + '</td></tr>';
-        }
-        rows += '<tr><td class="dd">' + esc(new Date(d.date + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })) + '</td>' + cols.map(function(p){
-          var v = p.perDay[i] || 0, a = v ? (0.12 + 0.6 * v / gMax).toFixed(2) : 0;
-          return '<td class="dv" style="' + (v ? 'background:rgba(31,122,92,' + a + ');' + (v / gMax > 0.6 ? 'color:#fff;' : '') : '') + '">' + (v ? n0(v) : '&ndash;') + '</td>';
-        }).join('') + (hasOther ? (function(){ var v = rest.reduce(function(s, p){ return s + (p.perDay[i] || 0); }, 0); return '<td class="dv">' + (v ? n0(v) : '&ndash;') + '</td>'; })() : '') + '<td class="dt">' + (d.total ? n0(d.total) : '&ndash;') + '</td></tr>';
+      // Text-based summary, newest first: one short paragraph per week (or
+      // per month for periods over ~4 months). Nothing here depends on width.
+      if(!plats.length || !N) return '';
+      var monthly = N > 120, groups = [];
+      if(monthly){
+        var cur = null;
+        days.forEach(function(d, i){ var m = d.date.slice(0, 7); if(!cur || cur.m !== m){ cur = { m: m, idx: [] }; groups.push(cur); } cur.idx.push(i); });
+      } else {
+        for(var e = N; e > 0; e -= 7){ var idx = []; for(var i = Math.max(0, e - 7); i < e; i++) idx.push(i); groups.unshift({ idx: idx }); }
       }
-      return '<p class="cap">' + esc('Day by day, newest first · number = visits · darker = more' + (hasOther ? ' · "Other" = ' + rest.length + ' smaller platform' + (rest.length === 1 ? '' : 's') : '')) + '</p><table class="dtab">' + head + '<tbody>' + rows + '</tbody></table>';
+      var info = groups.map(function(g){
+        var types = { training: 0, search: 0, live: 0 }, tot = 0, best = null;
+        g.idx.forEach(function(i){ AI_TYPE_ORDER.forEach(function(k){ types[k] += days[i][k]; }); tot += days[i].total; if(days[i].total > 0 && (!best || days[i].total > best.total)) best = days[i]; });
+        var by = plats.map(function(p){ var c = 0; g.idx.forEach(function(i){ c += p.perDay[i] || 0; }); return { name: p.name, n: c }; }).filter(function(x){ return x.n; }).sort(function(a, b){ return b.n - a.n; });
+        var a = days[g.idx[0]].date, b = days[g.idx[g.idx.length - 1]].date;
+        var label = monthly ? new Date(a + 'T12:00:00').toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : (a === b ? longDate(a) : shortDate(a) + ' – ' + shortDate(b));
+        return { label: label, days: g.idx.length, total: tot, types: types, by: by, best: best };
+      });
+      var per = monthly ? 'month' : 'week';
+      var out = info.slice().reverse().map(function(w, k, arr){
+        var older = arr[k + 1];
+        var chg = older && older.total ? Math.round((w.total - older.total) / older.total * 100) : null;
+        var chgTxt = chg == null ? '' : ' <span class="wchg ' + (chg > 0 ? 'up' : chg < 0 ? 'down' : '') + '">' + (chg > 0 ? '&#9650; ' + chg + '%' : chg < 0 ? '&#9660; ' + Math.abs(chg) + '%' : 'no change') + ' vs. prior ' + per + '</span>';
+        if(!w.total) return '<div class="wk"><div class="wh"><b>' + esc(w.label) + '</b><span>No AI visits</span></div></div>';
+        var lead = w.by[0], rest = w.by.slice(1, 3);
+        var txt = '<b>' + esc(lead.name) + '</b> led with ' + n0(lead.n) + ' visit' + (lead.n === 1 ? '' : 's') + ' (' + pctOf(lead.n, w.total) + '%)' + (rest.length ? ', followed by ' + joinList(rest.map(function(x){ return esc(x.name) + ' (' + n0(x.n) + ')'; })) : '') + '.';
+        var tp = [];
+        if(w.types.live) tp.push('<b>' + n0(w.types.live) + '</b> person search' + (w.types.live === 1 ? '' : 'es'));
+        if(w.types.search) tp.push('<b>' + n0(w.types.search) + '</b> AI Search');
+        if(w.types.training) tp.push('<b>' + n0(w.types.training) + '</b> training');
+        var more = w.by.length > 3 ? ' ' + (w.by.length - 3) + ' other platform' + (w.by.length - 3 === 1 ? '' : 's') + ' also visited.' : '';
+        return '<div class="wk"><div class="wh"><b>' + esc(w.label) + (w.days < 7 && !monthly ? ' <i>(' + w.days + ' day' + (w.days === 1 ? '' : 's') + ')</i>' : '') + '</b><span><strong>' + n0(w.total) + '</strong> visits' + chgTxt + '</span></div>' +
+          '<p>' + txt + more + '</p><p class="wm">' + joinList(tp) + (w.best && w.days > 1 ? '. Busiest day: ' + esc(shortDate(w.best.date)) + ' (' + n0(w.best.total) + ')' : '') + '.</p></div>';
+      }).join('');
+      return '<p class="cap">' + esc((monthly ? 'Month by month' : 'Week by week') + ', newest first') + '</p>' + out;
     }
+
 
 
     var actRows = act.map(function(r){
@@ -3245,6 +3261,7 @@
       '.bm{grid-column:1/-1;color:#9CA3AF;font-size:10.5px;}' +
       '.cap{color:#6B7280;font-size:10.5px;margin:0 0 6px;}' +
       'table{width:100%;border-collapse:collapse;}' +
+      '.wk{padding:11px 2px;border-bottom:1px solid #EEF0F3;break-inside:avoid;} .wk:last-child{border-bottom:none;} .wh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px;} .wh b{font-family:Georgia,serif;font-size:13.5px;} .wh b i{font-style:normal;font-family:inherit;font-weight:400;color:#9CA3AF;font-size:11px;} .wh span{font-size:11.5px;color:#6B7280;} .wh strong{color:#0A0F27;font-size:13px;} .wchg{margin-left:6px;font-weight:600;color:#6B7280;} .wchg.up{color:#1F7A5C;} .wchg.down{color:#B45309;} .wk p{margin:2px 0 0;font-size:11.5px;line-height:1.55;color:#374151;} .wk p.wm{color:#6B7280;font-size:11px;}' +
       'table.dtab{width:100%;border-collapse:separate;border-spacing:0 2px;font-size:11px;table-layout:auto;} .dtab thead{display:table-header-group;} .dtab th{font-size:8.5px;font-weight:700;color:#6B7280;text-align:center;padding:6px 1px;border-bottom:1.5px solid #E5E7EB;line-height:1.2;overflow-wrap:normal;word-break:normal;hyphens:none;letter-spacing:-.01em;} .dtab th.dd,.dtab td.dd{text-align:left;width:92px;white-space:nowrap;padding-left:2px;} .dtab th.dt,.dtab td.dt{width:46px;text-align:right;font-weight:700;padding-right:4px;} .dtab td{padding:4px 3px;} .dtab td.dv{text-align:center;background:#F6F7F9;border-radius:4px;font-variant-numeric:tabular-nums;color:#0f3d2f;font-weight:600;} .dtab tr{break-inside:avoid;} .dtab tr.mrow td{padding:12px 2px 4px;font-family:Georgia,serif;font-size:13px;font-weight:700;color:#0A0F27;border-bottom:1px solid #B38A3C;background:none;text-align:left;} .dtab td.dd{color:#374151;font-size:10.5px;}' +
       'table.heat2{width:100%;border-collapse:separate;border-spacing:3px;font-size:11.5px;break-inside:avoid;} .heat2 th{font-size:10px;font-weight:600;color:#6B7280;text-align:center;padding:4px 2px;white-space:nowrap;} .heat2 th.hn{text-align:left;} .heat2 td.hn{font-weight:600;white-space:nowrap;padding-right:8px;} .heat2 td.hv{text-align:center;background:#F3F4F6;border-radius:5px;padding:7px 4px;font-weight:600;font-variant-numeric:tabular-nums;color:#0f3d2f;} .heat2 .ht{text-align:right;font-weight:700;padding-left:8px;white-space:nowrap;}' +
       'table.heat{table-layout:fixed;border-spacing:0;} .heat th,.heat td{padding:0;} .hn{width:92px;font-size:11.5px;font-weight:600;padding-right:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}' +
@@ -3259,9 +3276,8 @@
       '.empty{color:#9CA3AF;text-align:center;padding:14px;margin:0;}' +
       '.igrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;} .ic{border:1px solid #E5E7EB;border-radius:12px;padding:13px 15px;break-inside:avoid;} .ic.trend,.ic.acts{margin-top:12px;} .ih{font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;} .ih:before{content:"";width:9px;height:9px;border-radius:3px;background:var(--c);} .id{margin:3px 0 8px;color:#6B7280;font-size:10.5px;} .il{margin:0;padding:0;list-style:none;counter-reset:i;font-size:11.5px;} .il li{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #F3F4F6;} .il li:last-child{border-bottom:none;} .il:not(.plain) li:before{counter-increment:i;content:counter(i);flex:none;width:16px;color:#B38A3C;font-weight:700;font-family:Georgia,serif;} .il li span{flex:1;min-width:0;} .il li small{display:block;color:#9CA3AF;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;word-break:break-all;} .il li b{flex:none;font-variant-numeric:tabular-nums;} .ok{color:#1F7A5C;font-size:12px;margin:4px 0 0;} .ic.trend p{margin:5px 0 0;font-size:11.5px;} .ic.acts ol{margin:8px 0 0;padding-left:18px;font-size:11.5px;line-height:1.55;} .ic.acts li{margin-bottom:5px;}' +
       '.foot{margin-top:26px;padding-top:10px;border-top:1px solid #E5E7EB;color:#9CA3AF;font-size:10.5px;}' +
-      // Screen preview = the printed page, scaled down to fit narrow screens (never reflowed or scrolled),
-      // so what you see is what prints.
-      '@media screen{html{background:#EEF0F4;} body{background:#EEF0F4;width:8in;margin:0 auto;padding:24px 0;zoom:var(--z,1);} .cover{width:7.6in;margin:0 auto 24px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.25);} .doc{width:7.6in;max-width:7.6in;background:#fff;padding:32px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.3);}}';
+      '@media screen{body{background:#EEF0F4;padding:24px 0;} .cover{margin:0 auto 24px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.25);} .doc{background:#fff;padding:32px;border-radius:6px;box-shadow:0 10px 40px -20px rgba(10,15,39,.3);}}' +
+      '@media screen and (max-width:860px){body{padding:0;} .cover{width:100%;height:auto;min-height:100vh;border-radius:0;} .cover .in{padding:44px 22px 30px;} .cover h1{font-size:34px;margin-top:40px;} .cstats{grid-template-columns:1fr 1fr;} .cstats div:nth-child(3){padding-left:0;border-left:none;} .cstats div:nth-child(n+3){border-top:1px solid #E5E1D6;} .gen{margin-top:30px;} .doc{border-radius:0;padding:22px 16px;} .keys,.igrid{grid-template-columns:1fr;}}';
 
     var html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AI Visibility Report ' + from + ' to ' + to + ' - Pingle Law</title><style>' + css + '</style></head><body>' +
       '<div class="cover"><div class="in">' +
@@ -3283,7 +3299,7 @@
         function lst(items, empty, fmtFn){ return items.length ? '<ol class="il">' + items.slice(0, 6).map(fmtFn).join('') + '</ol>' : '<p class="empty">' + empty + '</p>'; }
         function pg(x){ return '<li><span>' + esc(pageName(x.key)) + '<small>' + esc(x.key) + '</small></span><b>' + x.n + '</b></li>'; }
         function who(x){ return '<li><span>' + esc(x.key) + '</span><b>' + x.n + '</b></li>'; }
-        return '<section class="ins"><h2>What the activity means</h2><p class="sub">Person searches are real people asking an AI something and it opening your page; AI Search is AI tools indexing pages so they can cite them. ' + ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ' in these dates.' + (ins.capped ? ' The page and assistant rankings use the newest 600 itemized visits; the totals and timing cover every day.' : '') + '</p>' +
+        return '<section class="ins"><h2>What the activity means</h2><p class="sub">Person searches are real people asking an AI something and it opening your page; AI Search is AI tools indexing pages so they can cite them. ' + ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 'es') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ' in these dates.' + (ins.capped ? ' The page and assistant rankings use the newest 600 itemized visits; the totals and timing cover every day.' : '') + '</p>' +
           '<div class="igrid">' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Pages answering real questions</div><p class="id">AI opened these to answer someone. Your highest-value pages.</p>' + lst(ins.livePages, 'No person searches in these dates.', pg) + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Assistants sending people</div><p class="id">Where you’re being recommended.</p>' + lst(ins.liveBy, 'None yet.', who) + (ins.refs.length ? '<p class="id" style="margin-top:8px">Referring sites seen: ' + ins.refs.map(function(r){ return esc(r.key) + ' (' + r.n + ')'; }).join(', ') + '</p>' : '') + '</div>' +
@@ -3301,8 +3317,6 @@
       '<div class="foot">Visits are counted by user-agent from known AI crawlers and agents. Days follow the time zone of the device that made this report (' + esc(tzName()) + ').</div>' +
       '</div></body></html>';
     w.document.open(); w.document.write(html); w.document.close();
-    function fitPreview(){ try { var z = Math.min(1, (w.innerWidth || 800) / (8 * 96 + 8)); w.document.documentElement.style.setProperty('--z', z.toFixed(3)); } catch(e){} }
-    fitPreview(); w.addEventListener('resize', fitPreview);
     w.focus(); setTimeout(function(){ try { w.print(); } catch(e){} }, 700);
     return total;
   }
@@ -3781,7 +3795,7 @@
       var b = el('div', { class: 'in-box' });
       b.appendChild(el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#4a3aa7' }), 'When people ask' ]));
       if(!ins.when.total){ b.appendChild(el('p', { class: 'in-d', text: 'Timing of person searches - when real people ask an AI about topics on your site.' })); b.appendChild(el('p', { class: 'in-empty', text: 'No person searches yet.' })); return b; }
-      b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.when.total + ' person search' + (ins.when.total === 1 ? '' : 's') + ' in the last 30 days. Busiest: ' + ins.when.topDay + ' (' + ins.when.topDayPct + '%) and ' + ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase() + ' (' + ins.when.topBandPct + '%).' + (ins.when.total < 10 ? ' Early read.' : '') }));
+      b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.when.total + ' person search' + (ins.when.total === 1 ? '' : 'es') + ' in the last 30 days. Busiest: ' + ins.when.topDay + ' (' + ins.when.topDayPct + '%) and ' + ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase() + ' (' + ins.when.topBandPct + '%).' + (ins.when.total < 10 ? ' Early read.' : '') }));
       var max = Math.max.apply(null, ins.when.week.concat([1])), order = [1, 2, 3, 4, 5, 6, 0], lab = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S' ];
       b.appendChild(el('div', { class: 'wk' }, order.map(function(d){ var n = ins.when.week[d];
         return el('div', { class: 'wk-col' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(e){ e.stopPropagation(); whenDetail('day', d, ins, e.currentTarget); } : null, title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n + ' (' + ins.when.pct(n) + '%)' }, [ el('b', { text: n ? ins.when.pct(n) + '%' : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
@@ -3812,7 +3826,7 @@
       function box(color, title, desc, body){ return el('div', { class: 'in-box' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:' + color }), title ]), el('p', { class: 'in-d', text: desc }), body ]); }
       var card = el('div', { class: 'card ins-card' }); insHost = card;
       card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Insights · last 30 days' }),
-        el('p', { text: ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' }) ]) ]));
+        el('p', { text: ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 'es') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' }) ]) ]));
       card.appendChild(el('div', { class: 'in-grid' }, [
         box(AI_TYPES.live.hex, 'Pages answering real questions', 'AI opened these to answer someone - your highest-value pages.', lst(pages(ins.livePages), 'No person searches yet.')),
         box(AI_TYPES.live.hex, 'Assistants sending people', 'Where you’re being recommended.' + (ins.refs.length ? ' Referring sites: ' + ins.refs.map(function(r){ return r.key; }).join(', ') + '.' : ''), lst(who(ins.liveBy), 'None yet.')),
