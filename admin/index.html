@@ -2728,7 +2728,7 @@
           : (b && b.error) || ('Request failed (' + r.status + ')'));
       });
     }).then(function(data){
-        aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || [];
+        aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || []; aiCrawlers.src = { hours: data.hours || {}, utc: data.daily || [] };
         aiCrawlers.daily = aiLocalDaily(data, isoDay(addLocalDays(new Date(), -29)), isoDay(new Date())); aiCrawlers.pages = data.pages || {};
         aiCrawlers.busy = false; renderAiCrawlers();
       })
@@ -2981,7 +2981,7 @@
     var m = {}; list.forEach(function(x){ var k = keyFn(x); if(k) m[k] = (m[k] || 0) + 1; });
     return Object.keys(m).map(function(k){ return { key: k, n: m[k] }; }).sort(function(a, b){ return b.n - a.n; });
   }
-  function buildInsights(recent, daily, from, to){
+  function buildInsights(recent, daily, from, to, src){
     var inRange = (recent || []).filter(function(r){ var d = isoDay(new Date(r.time)); return d >= from && d <= to; });
     var live = inRange.filter(function(r){ return aiTypeOf(r.bot) === 'live'; });
     var search = inRange.filter(function(r){ return aiTypeOf(r.bot) === 'search'; });
@@ -2991,25 +2991,60 @@
     var searchPages = tally(search, function(r){ return norm(r.path); });
     var searchBy = tally(search, function(r){ return aiPlatform(r.label); });
     var refs = tally(live.filter(function(r){ return r.referer; }), function(r){ try { return new URL(r.referer).hostname.replace(/^www\./, ''); } catch(e){ return r.referer; } });
-    // When people ask: live lookups by weekday and time of day (this device's clock).
-    var wk = [0, 0, 0, 0, 0, 0, 0], bands = { 'Morning (6am–12pm)': 0, 'Afternoon (12–5pm)': 0, 'Evening (5–10pm)': 0, 'Overnight (10pm–6am)': 0 };
-    live.forEach(function(r){ var d = new Date(r.time), h = d.getHours(); wk[d.getDay()]++; bands[h >= 6 && h < 12 ? 'Morning (6am–12pm)' : h >= 12 && h < 17 ? 'Afternoon (12–5pm)' : h >= 17 && h < 22 ? 'Evening (5–10pm)' : 'Overnight (10pm–6am)']++; });
+    // When people ask: counted from the per-hour totals for the WHOLE period
+    // (not just the itemized visits, which are capped at the newest 600), in
+    // this device's time zone. Older days that only have a daily total count
+    // toward the weekday but not the time of day.
+    var BANDS = [ 'Morning (6am–12pm)', 'Afternoon (12–5pm)', 'Evening (5–10pm)', 'Overnight (10pm–6am)' ];
+    var bandOf = function(h){ return h >= 6 && h < 12 ? BANDS[0] : h >= 12 && h < 17 ? BANDS[1] : h >= 17 && h < 22 ? BANDS[2] : BANDS[3]; };
+    var T0 = function(){ return { training: 0, search: 0, live: 0 }; };
+    var wkT = [0, 1, 2, 3, 4, 5, 6].map(T0), bandsT = {}; BANDS.forEach(function(n){ bandsT[n] = T0(); });
+    if(src && src.hours){
+      var used = {};
+      Object.keys(src.hours).forEach(function(d){
+        var p = d.split('-');
+        Object.keys(src.hours[d]).forEach(function(h){
+          var dt = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], +h)), ld = isoDay(dt);
+          Object.keys(src.hours[d][h]).forEach(function(bot){
+            var n = src.hours[d][h][bot]; used[d + '|' + bot] = (used[d + '|' + bot] || 0) + n;
+            if(ld < from || ld > to) return;
+            var t = aiTypeOf(bot); wkT[dt.getDay()][t] += n; bandsT[bandOf(dt.getHours())][t] += n;
+          });
+        });
+      });
+      (src.utc || []).forEach(function(day){
+        var ld = isoDay(new Date(day.date + 'T12:00:00'));
+        if(ld < from || ld > to) return;
+        Object.keys(day.counts || {}).forEach(function(bot){
+          var rest = day.counts[bot] - (used[day.date + '|' + bot] || 0);
+          if(rest > 0) wkT[new Date(day.date + 'T12:00:00').getDay()][aiTypeOf(bot)] += rest;
+        });
+      });
+    } else {
+      inRange.forEach(function(r){ var d = new Date(r.time), t = aiTypeOf(r.bot); wkT[d.getDay()][t]++; bandsT[bandOf(d.getHours())][t]++; });
+    }
+    var wk = wkT.map(function(x){ return x.live; }), bands = {}; BANDS.forEach(function(n){ bands[n] = bandsT[n].live; });
+    var wkTotal = wk.reduce(function(a, b){ return a + b; }, 0), bandTotal = BANDS.reduce(function(a, n){ return a + bands[n]; }, 0);
     var WD = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
-    var topDay = live.length ? WD[wk.indexOf(Math.max.apply(null, wk))] : null;
-    var topBand = live.length ? Object.keys(bands).sort(function(a, b){ return bands[b] - bands[a]; })[0] : null;
-    var pc = function(n){ return live.length ? Math.round(n / live.length * 100) : 0; };
+    var topDay = wkTotal ? WD[wk.indexOf(Math.max.apply(null, wk))] : null;
+    var topBand = bandTotal ? BANDS.slice().sort(function(a, b){ return bands[b] - bands[a]; })[0] : null;
+    var pc = function(n){ return wkTotal ? Math.round(n / wkTotal * 100) : 0; };
+    var pcB = function(n){ return bandTotal ? Math.round(n / bandTotal * 100) : 0; };
     var days = (daily || []).filter(function(d){ return d.date >= from && d.date <= to; });
     var half = Math.floor(days.length / 2), first = days.slice(0, half), second = days.slice(half);
     var sumT = function(ds, t){ return ds.reduce(function(s, d){ return s + Object.keys(d.counts || {}).reduce(function(a, k){ return a + (aiTypeOf(k) === t ? d.counts[k] : 0); }, 0); }, 0); };
     var rng = function(ds){ return ds.length ? (ds[0].date === ds[ds.length - 1].date ? shortDate(ds[0].date) : shortDate(ds[0].date) + '–' + shortDate(ds[ds.length - 1].date)) : ''; };
     var trend = function(t){ var a = sumT(first, t), b = sumT(second, t); return { early: a, late: b, pct: a ? Math.round((b - a) / a * 100) : (b ? null : 0), r1: rng(first), r2: rng(second), ok: first.length > 0 && second.length > 0 }; };
-    var ins = { from: from, to: to, liveCount: live.length, searchCount: search.length, livePages: livePages, liveBy: liveBy, searchPages: searchPages, searchBy: searchBy, refs: refs, when: { week: wk, bands: bands, topDay: topDay, topBand: topBand, pct: pc, topDayPct: live.length ? pc(Math.max.apply(null, wk)) : 0, topBandPct: live.length ? pc(bands[topBand]) : 0 },
+    var ins = { from: from, to: to, liveCount: live.length, searchCount: search.length, livePages: livePages, liveBy: liveBy, searchPages: searchPages, searchBy: searchBy, refs: refs, when: { week: wk, bands: bands, weekT: wkT, bandsT: bandsT, total: wkTotal, bandTotal: bandTotal, topDay: topDay, topBand: topBand, pct: pc, pctB: pcB, topDayPct: wkTotal ? pc(Math.max.apply(null, wk)) : 0, topBandPct: bandTotal ? pcB(bands[topBand]) : 0 },
       liveTrend: trend('live'), searchTrend: trend('search'), absent: MAIN_ASSISTANTS.filter(function(a){ return !liveBy.some(function(x){ return x.key === a; }); }), capped: (recent || []).length >= 600, actions: [] };
+    // Headline counts cover the whole period (from the daily totals); the page and
+    // platform rankings below them come from the itemized visits.
+    if(days.length){ ins.liveCount = sumT(days, 'live'); ins.searchCount = sumT(days, 'search'); }
     var A = ins.actions;
     if(livePages.length) A.push('Refresh and mark updated: ' + livePages.slice(0, 3).map(function(x){ return pageName(x.key); }).join(', ') + ' — these are the pages AI is using to answer real questions. Make sure each links clearly to the Free Case Review.');
     else A.push('No live lookups yet in this period. Focus on getting indexed: keep pages fresh, press Notify Bing after updates, and add short question-and-answer sections to key pages.');
     if(livePages.length) A.push('Write 1–2 new posts on topics close to: ' + livePages.slice(0, 2).map(function(x){ return pageName(x.key); }).join(' and ') + '.');
-    if(live.length >= 5) A.push('Most live lookups come on ' + topDay + 's (' + pc(Math.max.apply(null, wk)) + '%) and in the ' + topBand.toLowerCase().replace(/ \(.*\)/, '') + ' (' + pc(bands[topBand]) + '%). Make sure calls and contact forms are answered quickly then, and consider weighting Google Ads toward those times.');
+    if(wkTotal >= 5 && topBand) A.push('Most live lookups come on ' + topDay + 's (' + pc(Math.max.apply(null, wk)) + '%) and in the ' + topBand.toLowerCase().replace(/ \(.*\)/, '') + ' (' + pcB(bands[topBand]) + '%). Make sure calls and contact forms are answered quickly then, and consider weighting Google Ads toward those times.');
     if(ins.searchTrend.pct != null && ins.searchTrend.pct <= -25) A.push('AI Search crawling dropped ' + Math.abs(ins.searchTrend.pct) + '% (' + ins.searchTrend.r2 + ' compared with ' + ins.searchTrend.r1 + '). Publish or refresh something and notify Bing.');
     if(liveBy.length && ins.absent.length) A.push('No live lookups from ' + ins.absent.join(', ') + '. Try asking those assistants about California employment lawyers to see who they recommend.');
     A.push('Add “AI assistant (ChatGPT, etc.)” to the intake “How did you hear about us?” question to tie these visits to real leads.');
@@ -3098,34 +3133,28 @@
       }).join('') + '</div>';
     }
     function heatGrid(){
-      // Readable in print: one column per week (or per month for long
-      // periods), newest first, with the visit count in every cell.
+      // Day by day, newest first: one row per day, one column per platform
+      // (top 8, the rest folded into "Other"). Header repeats on every page.
       if(!plats.length) return '';
-      var cols = [], monthly = N > 62;
-      if(monthly){
-        var cur = null;
-        days.forEach(function(d, i){ var m = d.date.slice(0, 7); if(!cur || cur.m !== m){ cur = { m: m, from: i, to: i + 1 }; cols.push(cur); } else cur.to = i + 1; });
-      } else {
-        for(var i = 0; i < N; i += 7) cols.push({ from: i, to: Math.min(N, i + 7) });
+      var cols = plats.slice(0, 8), rest = plats.slice(8), hasOther = rest.length > 0;
+      var gMax = 1;
+      days.forEach(function(d, i){ cols.forEach(function(p){ if((p.perDay[i] || 0) > gMax) gMax = p.perDay[i]; }); });
+      var head = '<thead><tr><th class="dd">Date</th>' + cols.map(function(p){ return '<th>' + esc(p.name) + '</th>'; }).join('') + (hasOther ? '<th>Other</th>' : '') + '<th class="dt">Total</th></tr></thead>';
+      var rows = '', lastMonth = '';
+      for(var i = N - 1; i >= 0; i--){
+        var d = days[i], m = d.date.slice(0, 7);
+        if(m !== lastMonth){
+          lastMonth = m;
+          rows += '<tr class="mrow"><td colspan="' + (cols.length + 2 + (hasOther ? 1 : 0)) + '">' + esc(new Date(d.date + 'T12:00:00').toLocaleDateString(undefined, { month: 'long', year: 'numeric' })) + '</td></tr>';
+        }
+        rows += '<tr><td class="dd">' + esc(new Date(d.date + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })) + '</td>' + cols.map(function(p){
+          var v = p.perDay[i] || 0, a = v ? (0.12 + 0.6 * v / gMax).toFixed(2) : 0;
+          return '<td class="dv" style="' + (v ? 'background:rgba(31,122,92,' + a + ');' + (v / gMax > 0.6 ? 'color:#fff;' : '') : '') + '">' + (v ? n0(v) : '&ndash;') + '</td>';
+        }).join('') + (hasOther ? (function(){ var v = rest.reduce(function(s, p){ return s + (p.perDay[i] || 0); }, 0); return '<td class="dv">' + (v ? n0(v) : '&ndash;') + '</td>'; })() : '') + '<td class="dt">' + (d.total ? n0(d.total) : '&ndash;') + '</td></tr>';
       }
-      cols.reverse();
-      var label = function(c){
-        if(monthly) return new Date(days[c.from].date + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-        var a = shortDate(days[c.from].date), b = shortDate(days[c.to - 1].date);
-        return a === b ? a : a + ' – ' + b.replace(/^[A-Za-z]+ /, a.split(' ')[0] === b.split(' ')[0] ? '' : b.split(' ')[0] + ' ');
-      };
-      var gMax = 1, rows = plats.slice(0, 12).map(function(p){
-        return cols.map(function(c){ var s = 0; for(var i = c.from; i < c.to; i++) s += p.perDay[i] || 0; if(s > gMax) gMax = s; return s; });
-      });
-      var head = '<tr><th class="hn">Platform</th>' + cols.map(function(c){ return '<th class="hw">' + esc(label(c)) + '</th>'; }).join('') + '<th class="ht">Total</th></tr>';
-      var body = plats.slice(0, 12).map(function(p, ri){
-        return '<tr><td class="hn">' + esc(p.name) + '</td>' + rows[ri].map(function(v){
-          var a = v ? (0.12 + 0.6 * v / gMax).toFixed(2) : 0;
-          return '<td class="hv" style="' + (v ? 'background:rgba(31,122,92,' + a + ');' + (v / gMax > 0.6 ? 'color:#fff;' : '') : '') + '">' + (v ? n0(v) : '&mdash;') + '</td>';
-        }).join('') + '<td class="ht">' + n0(p.count) + '</td></tr>';
-      }).join('');
-      return '<p class="cap">' + esc((monthly ? 'By month' : 'By week') + ', newest first · number = visits · darker = more') + '</p><table class="heat2">' + head + body + '</table>';
+      return '<p class="cap">' + esc('Day by day, newest first · number = visits · darker = more' + (hasOther ? ' · "Other" = ' + rest.length + ' smaller platform' + (rest.length === 1 ? '' : 's') : '')) + '</p><table class="dtab">' + head + '<tbody>' + rows + '</tbody></table>';
     }
+
 
     var actRows = act.map(function(r){
       var t = aiTypeOf(r.bot);
@@ -3189,6 +3218,7 @@
       '.bm{grid-column:1/-1;color:#9CA3AF;font-size:10.5px;}' +
       '.cap{color:#6B7280;font-size:10.5px;margin:0 0 6px;}' +
       'table{width:100%;border-collapse:collapse;}' +
+      'table.dtab{width:100%;border-collapse:separate;border-spacing:0 2px;font-size:11px;table-layout:auto;} .dtab thead{display:table-header-group;} .dtab th{font-size:8.5px;font-weight:700;color:#6B7280;text-align:center;padding:6px 1px;border-bottom:1.5px solid #E5E7EB;line-height:1.2;overflow-wrap:normal;word-break:normal;hyphens:none;letter-spacing:-.01em;} .dtab th.dd,.dtab td.dd{text-align:left;width:92px;white-space:nowrap;padding-left:2px;} .dtab th.dt,.dtab td.dt{width:46px;text-align:right;font-weight:700;padding-right:4px;} .dtab td{padding:4px 3px;} .dtab td.dv{text-align:center;background:#F6F7F9;border-radius:4px;font-variant-numeric:tabular-nums;color:#0f3d2f;font-weight:600;} .dtab tr{break-inside:avoid;} .dtab tr.mrow td{padding:12px 2px 4px;font-family:Georgia,serif;font-size:13px;font-weight:700;color:#0A0F27;border-bottom:1px solid #B38A3C;background:none;text-align:left;} .dtab td.dd{color:#374151;font-size:10.5px;}' +
       'table.heat2{width:100%;border-collapse:separate;border-spacing:3px;font-size:11.5px;break-inside:avoid;} .heat2 th{font-size:10px;font-weight:600;color:#6B7280;text-align:center;padding:4px 2px;white-space:nowrap;} .heat2 th.hn{text-align:left;} .heat2 td.hn{font-weight:600;white-space:nowrap;padding-right:8px;} .heat2 td.hv{text-align:center;background:#F3F4F6;border-radius:5px;padding:7px 4px;font-weight:600;font-variant-numeric:tabular-nums;color:#0f3d2f;} .heat2 .ht{text-align:right;font-weight:700;padding-left:8px;white-space:nowrap;}' +
       'table.heat{table-layout:fixed;border-spacing:0;} .heat th,.heat td{padding:0;} .hn{width:92px;font-size:11.5px;font-weight:600;padding-right:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}' +
       '.hd{font-size:8.5px;color:#9CA3AF;text-align:center;font-weight:500;height:14px;} .hd.m{color:#111827;font-weight:800;}' +
@@ -3221,16 +3251,16 @@
         '<div class="card"><div class="legend">' + AI_TYPE_ORDER.map(function(k){ return '<span>' + keyDot(k) + '<b>' + AI_TYPES[k].label + '</b> &middot; ' + n0(byType[k]) + ' (' + pctOf(byType[k], total) + '%)</span>'; }).join('') + '</div>' + platformBars(plats, total, 12) + '</div>' +
         '<div class="card">' + (heatGrid() || '<p class="empty">No visits in this period.</p>') + '</div></section>' +
       (function(){
-        var ins = buildInsights(data.recent, daily, from, to);
+        var ins = buildInsights(data.recent, daily, from, to, { hours: data.hours, utc: data.daily });
         function lst(items, empty, fmtFn){ return items.length ? '<ol class="il">' + items.slice(0, 6).map(fmtFn).join('') + '</ol>' : '<p class="empty">' + empty + '</p>'; }
         function pg(x){ return '<li><span>' + esc(pageName(x.key)) + '<small>' + esc(x.key) + '</small></span><b>' + x.n + '</b></li>'; }
         function who(x){ return '<li><span>' + esc(x.key) + '</span><b>' + x.n + '</b></li>'; }
-        return '<section class="ins"><h2>What the activity means</h2><p class="sub">Live lookups are real people asking an AI something and it opening your page; AI Search is AI tools indexing pages so they can cite them. ' + ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ' in these dates.' + (ins.capped ? ' Based on the newest 600 itemized visits.' : '') + '</p>' +
+        return '<section class="ins"><h2>What the activity means</h2><p class="sub">Live lookups are real people asking an AI something and it opening your page; AI Search is AI tools indexing pages so they can cite them. ' + ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ' in these dates.' + (ins.capped ? ' The page and assistant rankings use the newest 600 itemized visits; the totals and timing cover every day.' : '') + '</p>' +
           '<div class="igrid">' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Pages answering real questions</div><p class="id">AI opened these to answer someone. Your highest-value pages.</p>' + lst(ins.livePages, 'No live lookups in these dates.', pg) + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Assistants sending people</div><p class="id">Where you’re being recommended.</p>' + lst(ins.liveBy, 'None yet.', who) + (ins.refs.length ? '<p class="id" style="margin-top:8px">Referring sites seen: ' + ins.refs.map(function(r){ return esc(r.key) + ' (' + r.n + ')'; }).join(', ') + '</p>' : '') + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.search.hex + '">What AI Search is indexing</div><p class="id">Pages AI search tools saved so they can cite them.</p>' + lst(ins.searchPages, 'No AI Search visits in these dates.', pg) + '</div>' +
-            '<div class="ic"><div class="ih" style="--c:#4a3aa7">When people ask</div><p class="id">' + (ins.liveCount ? 'Share of ' + ins.liveCount + ' live lookups. Busiest: ' + esc(ins.when.topDay) + ' (' + ins.when.topDayPct + '%) and ' + esc(ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase()) + ' (' + ins.when.topBandPct + '%).' + (ins.liveCount < 10 ? ' Early read.' : '') : 'No live lookups in these dates.') + '</p>' + (ins.liveCount ? '<ol class="il plain">' + Object.keys(ins.when.bands).map(function(k){ return '<li><span>' + esc(k) + '</span><b>' + ins.when.pct(ins.when.bands[k]) + '%</b></li>'; }).join('') + '<li><span>By day: ' + [1,2,3,4,5,6,0].map(function(d){ return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][[1,2,3,4,5,6,0].indexOf(d)] + ' ' + ins.when.pct(ins.when.week[d]) + '%'; }).join(' · ') + '</span></li></ol>' : '') + '</div>' +
+            '<div class="ic"><div class="ih" style="--c:#4a3aa7">When people ask</div><p class="id">' + (ins.when.total ? 'Share of ' + ins.when.total + ' live lookups. Busiest: ' + esc(ins.when.topDay) + ' (' + ins.when.topDayPct + '%) and ' + esc(ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase()) + ' (' + ins.when.topBandPct + '%).' + (ins.when.total < 10 ? ' Early read.' : '') : 'No live lookups in these dates.') + '</p>' + (ins.when.total ? '<ol class="il plain">' + Object.keys(ins.when.bands).map(function(k){ return '<li><span>' + esc(k) + '</span><b>' + ins.when.pctB(ins.when.bands[k]) + '%</b></li>'; }).join('') + '<li><span>By day: ' + [1,2,3,4,5,6,0].map(function(d){ return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][[1,2,3,4,5,6,0].indexOf(d)] + ' ' + ins.when.pct(ins.when.week[d]) + '%'; }).join(' · ') + '</span></li></ol>' : '') + '</div>' +
           '</div>' +
           '<div class="ic trend"><div class="ih" style="--c:#4a3aa7">Trend</div><p>' + esc(trendText(ins.liveTrend, 'live lookups')) + '</p><p>' + esc(trendText(ins.searchTrend, 'AI Search crawling')) + '</p></div>' +
           '<div class="ic acts"><div class="ih" style="--c:#1F7A5C">Recommended next steps</div><ol>' + ins.actions.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') + '</ol></div>' +
@@ -3287,7 +3317,7 @@
       var from = fromIn.value, to = toIn.value;
       if(!from || !to){ err.textContent = 'Pick both a start and end date.'; return; }
       if(from > to){ var t = from; from = to; to = t; }
-      if((new Date(to) - new Date(from)) / 86400000 > 365){ err.textContent = 'Please choose a period of one year or less.'; return; }
+      if((new Date(to) - new Date(from)) / 86400000 > 364){ err.textContent = 'Please choose a period of up to 365 days.'; return; }
       var user = currentUser();
       if(!user){ err.textContent = 'Sign in to create a report.'; return; }
       // The report window has to open synchronously inside the click, or
@@ -3638,7 +3668,7 @@
           var a = fromIn.value, b = toIn.value;
           if(!a || !b){ aiCrawlers.custom = Object.assign({}, cu, { error: 'Pick both dates.' }); renderPlat30(); return; }
           if(a > b){ var t = a; a = b; b = t; }
-          if((new Date(b) - new Date(a)) / 86400000 > 365){ aiCrawlers.custom = Object.assign({}, cu, { from: a, to: b, error: 'Choose a range of one year or less.' }); renderPlat30(); return; }
+          if((new Date(b) - new Date(a)) / 86400000 > 364){ aiCrawlers.custom = Object.assign({}, cu, { from: a, to: b, error: 'Choose a range of up to 365 days.' }); renderPlat30(); return; }
           var user = currentUser(); if(!user) return;
           aiCrawlers.custom = { from: a, to: b, daily: cu.daily || [], busy: true, error: '' }; renderPlat30();
           user.jwt().then(function(token){ return fetch(aiStatsUrl(a, b), { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } }); })
@@ -3720,28 +3750,26 @@
     function keyBox(ins){
       var b = el('div', { class: 'in-box' });
       b.appendChild(el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#4a3aa7' }), 'When people ask' ]));
-      if(!ins.liveCount){ b.appendChild(el('p', { class: 'in-d', text: 'Timing of live lookups - when real people ask an AI about topics on your site.' })); b.appendChild(el('p', { class: 'in-empty', text: 'No live lookups yet.' })); return b; }
-      b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.liveCount + ' live lookup' + (ins.liveCount === 1 ? '' : 's') + '. Busiest: ' + ins.when.topDay + ' (' + ins.when.topDayPct + '%) and ' + ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase() + ' (' + ins.when.topBandPct + '%).' + (ins.liveCount < 10 ? ' Early read.' : '') }));
+      if(!ins.when.total){ b.appendChild(el('p', { class: 'in-d', text: 'Timing of live lookups - when real people ask an AI about topics on your site.' })); b.appendChild(el('p', { class: 'in-empty', text: 'No live lookups yet.' })); return b; }
+      b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.when.total + ' live lookup' + (ins.when.total === 1 ? '' : 's') + ' in the last 30 days. Busiest: ' + ins.when.topDay + ' (' + ins.when.topDayPct + '%) and ' + ins.when.topBand.replace(/ \(.*\)/, '').toLowerCase() + ' (' + ins.when.topBandPct + '%).' + (ins.when.total < 10 ? ' Early read.' : '') }));
       var max = Math.max.apply(null, ins.when.week.concat([1])), order = [1, 2, 3, 4, 5, 6, 0], lab = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S' ];
       b.appendChild(el('div', { class: 'wk' }, order.map(function(d){ var n = ins.when.week[d];
         return el('div', { class: 'wk-col' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(e){ e.stopPropagation(); whenDetail('day', d, ins, e.currentTarget); } : null, title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n + ' (' + ins.when.pct(n) + '%)' }, [ el('b', { text: n ? ins.when.pct(n) + '%' : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
       var bm = Math.max.apply(null, Object.keys(ins.when.bands).map(function(k){ return ins.when.bands[k]; }).concat([1]));
       b.appendChild(el('div', { class: 'in-list', style: 'margin-top:12px;' }, Object.keys(ins.when.bands).map(function(k){ var n = ins.when.bands[k];
-        return el('div', { class: 'in-row' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(e){ e.stopPropagation(); whenDetail('band', k, ins, e.currentTarget); } : null }, [ el('span', { class: 'in-name', text: k }), el('b', { text: ins.when.pct(n) + '%' }), el('i', {}, [ el('span', { style: 'width:' + (n ? Math.max(6, n / bm * 100) : 0) + '%;background:#4a3aa7' }) ]) ]); })));
+        return el('div', { class: 'in-row' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(e){ e.stopPropagation(); whenDetail('band', k, ins, e.currentTarget); } : null }, [ el('span', { class: 'in-name', text: k }), el('b', { text: ins.when.pctB(n) + '%' }), el('i', {}, [ el('span', { style: 'width:' + (n ? Math.max(6, n / bm * 100) : 0) + '%;background:#4a3aa7' }) ]) ]); })));
       return b;
     }
     function whenDetail(kind, key, ins, anchor){
       var WD = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
-      var bandOf = function(h){ return h >= 6 && h < 12 ? 'Morning (6am–12pm)' : h >= 12 && h < 17 ? 'Afternoon (12–5pm)' : h >= 17 && h < 22 ? 'Evening (5–10pm)' : 'Overnight (10pm–6am)'; };
-      var from = isoDay(addLocalDays(new Date(), -29)), to = isoDay(new Date()), t = { training: 0, search: 0, live: 0 };
-      (aiCrawlers.recent || []).forEach(function(r){ var dt = new Date(r.time), d = isoDay(dt); if(d >= from && d <= to && (kind === 'day' ? dt.getDay() === key : bandOf(dt.getHours()) === key)) t[aiTypeOf(r.bot)]++; });
-      openAiPop(anchor, (kind === 'day' ? WD[key] + 's' : key) + ' · last 30 days', t);
+      var t = kind === 'day' ? ins.when.weekT[key] : ins.when.bandsT[key];
+      openAiPop(anchor, (kind === 'day' ? WD[key] + 's' : key) + ' · last 30 days', { training: t.training, search: t.search, live: t.live });
     }
     var insHost = null;
     function renderInsightsNow(){ var old = insHost; renderInsights(); if(old && old.parentNode){ old.parentNode.replaceChild(insHost, old); } }
     var renderInsights = function(){
       var to = isoDay(new Date()), from = isoDay(addLocalDays(new Date(), -29));
-      var ins = buildInsights(aiCrawlers.recent, aiCrawlers.daily, from, to);
+      var ins = buildInsights(aiCrawlers.recent, aiCrawlers.daily, from, to, aiCrawlers.src);
       function lst(items, empty){
         if(!items.length) return el('p', { class: 'in-empty', text: empty });
         var max = items[0].n;
