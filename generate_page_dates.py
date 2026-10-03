@@ -14,9 +14,9 @@ Two modes:
 
   python3 generate_page_dates.py            (no flag - runs on every Netlify deploy)
       Reads content/page-dates.json and, for each indexable page, adds
-        - a visible "Last updated: <date>" line at the bottom of <main>
         - <meta property="article:modified_time"> and schema.org JSON-LD with
           dateModified, which search engines and AI tools read.
+      No visible date is shown to visitors.
       generate_sitemap.py reads the same JSON, so <lastmod> matches.
       Runs in the deploy build only; the files in git are not modified by a
       Netlify build. Idempotent (a marker prevents double-injection).
@@ -38,14 +38,7 @@ DATES_FILE = "content/page-dates.json"
 MARKER = "<!-- page-dates -->"
 NOINDEX_RE = re.compile(r'<meta\s+name="robots"\s+content="[^"]*noindex[^"]*"', re.IGNORECASE)
 BULK_COMMIT_FILES = 40  # a commit that really changed more pages than this is site-wide
-# Pages that keep the machine-readable date (meta + JSON-LD dateModified, read
-# by search engines and AI tools) but show no visible "Last updated" line.
-NO_VISIBLE_DATE = {"contact.html", "contact-es.html"}
 
-MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July",
-             "August", "September", "October", "November", "December"]
-MONTHS_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
-             "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 
 
 def load_dates():
@@ -154,15 +147,6 @@ def blog_post_dates():
     return out
 
 
-def fmt(iso, spanish):
-    try:
-        d = datetime.strptime(iso, "%Y-%m-%d")
-    except ValueError:
-        return iso
-    if spanish:
-        return f"{d.day} de {MONTHS_ES[d.month - 1]} de {d.year}"
-    return f"{MONTHS_EN[d.month - 1]} {d.day}, {d.year}"
-
 
 def date_for(filename, dates, post_dates):
     if is_dynamic(filename):
@@ -183,17 +167,11 @@ def inject():
         if MARKER in html or not is_indexable(html) or "</head>" not in html:
             continue
         iso = date_for(filename, dates, post_dates)
-        spanish = filename.endswith("-es.html") or 'lang="es"' in html[:400]
         url = SITE_URL + ("/" if filename == "index.html" else "/" + filename)
         ld = json.dumps({"@context": "https://schema.org", "@type": "WebPage", "url": url, "dateModified": iso})
         head = (f'{MARKER}\n<meta property="article:modified_time" content="{iso}">\n'
                 f'<script type="application/ld+json">{ld}</script>\n')
         html = html.replace("</head>", head + "</head>", 1)
-        idx = html.rfind("</main>")
-        if idx != -1 and filename not in NO_VISIBLE_DATE:
-            label = "Última actualización" if spanish else "Last updated"
-            line = f'<p class="page-updated">{label}: <time datetime="{iso}">{fmt(iso, spanish)}</time></p>\n'
-            html = html[:idx] + line + html[idx:]
         with open(filename, "w", encoding="utf-8") as f:
             f.write(html)
         done += 1
