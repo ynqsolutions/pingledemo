@@ -2773,7 +2773,7 @@
           : (b && b.error) || ('Request failed (' + r.status + ')'));
       });
     }).then(function(data){
-        aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || []; aiCrawlers.src = { hours: data.hours || {}, utc: data.daily || [] };
+        aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || []; aiCrawlers.src = { hours: data.hours || {}, utc: data.daily || [] }; aiCrawlers.pagesDaily = data.pagesDaily || {}; aiCrawlers.pagesSince = data.pagesSince || null;
         aiCrawlers.daily = aiLocalDaily(data, isoDay(addLocalDays(new Date(), -29)), isoDay(new Date())); aiCrawlers.pages = data.pages || {};
         aiCrawlers.busy = false; renderAiCrawlers();
       })
@@ -3859,26 +3859,46 @@
     renderInsights(); root.appendChild(insHost);
 
     // ---- Top pages + live feed ----
-    var pageRows = Object.keys(aiCrawlers.pages).map(function(k){ return { path: k, count: aiCrawlers.pages[k] }; }).sort(function(a, b){ return b.count - a.count; });
     var pagesCard = el('div', { class: 'card' });
-    pagesCard.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Most-read pages' }), el('p', { text: 'All-time AI crawler hits per page · ' + fmt(Object.keys(aiCrawlers.pages).length) + ' distinct URL' + (Object.keys(aiCrawlers.pages).length === 1 ? '' : 's') + ' read.' }) ]) ]));
-    if(!pageRows.length){
-      pagesCard.appendChild(el('div', { class: 'empty-state', text: 'Page tallies start with the next crawler visit after this deploy.' }));
-    } else {
-      var pbars = el('div', { class: 'ai-bars' }), pgMax = pageRows[0].count;
-      pageRows.slice(0, 8).forEach(function(p, i){
-        var fill = el('div', { class: 'ai-bar-fill', style: 'width:' + Math.max(3, p.count / pgMax * 100) + '%;background:var(--accent)' });
-        fill.style.animationDelay = (0.1 + i * 0.07) + 's';
-        var row = el('div', { class: 'ai-bar-row' }, [
-          el('a', { class: 'ai-bar-name', href: p.path, target: '_blank', rel: 'noopener', style: 'font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:500;font-size:12.5px;' }, [ p.path ]),
-          el('div', { class: 'ai-bar-val', text: fmt(p.count) }),
-          el('div', { class: 'ai-bar-track' }, [ fill ])
-        ]);
-        row.style.animationDelay = (i * 0.05) + 's';
-        pbars.appendChild(row);
-      });
-      pagesCard.appendChild(pbars);
+    function renderPagesCard(){
+      pagesCard.innerHTML = '';
+      var per = aiCrawlers.pagesPeriod || 'all', map = {}, note = '';
+      if(per === 'all'){ map = aiCrawlers.pages || {}; }
+      else {
+        // Per-day page tallies are counted by UTC day, from when per-page
+        // logging began (pagesSince).
+        var n = Number(per), from = isoDay(addLocalDays(new Date(), -(n - 1))), to = isoDay(new Date());
+        Object.keys(aiCrawlers.pagesDaily || {}).forEach(function(d){
+          if(d < from || d > to) return;
+          Object.keys(aiCrawlers.pagesDaily[d]).forEach(function(pth){ map[pth] = (map[pth] || 0) + aiCrawlers.pagesDaily[d][pth]; });
+        });
+        if(aiCrawlers.pagesSince && aiCrawlers.pagesSince > from) note = 'Per-page counts begin ' + shortDate(aiCrawlers.pagesSince) + '; earlier visits in this period aren’t broken down by page.';
+      }
+      var rows = Object.keys(map).map(function(k){ return { path: k, count: map[k] }; }).filter(function(r){ return r.count > 0; }).sort(function(a, b){ return b.count - a.count; });
+      var seg = el('div', { class: 'seg', role: 'group', 'aria-label': 'Period' }, [ ['7', '7 days'], ['30', '30 days'], ['all', 'All time'] ].map(function(c){
+        return el('button', { type: 'button', class: per === c[0] ? 'is-on' : '', 'aria-pressed': per === c[0] ? 'true' : 'false', text: c[1], onclick: function(){ aiCrawlers.pagesPeriod = c[0]; renderPagesCard(); } });
+      }));
+      pagesCard.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Most-read pages' }), el('p', { text: (per === 'all' ? 'All-time' : 'Last ' + per + ' days of') + ' AI crawler hits per page · ' + fmt(rows.length) + ' distinct URL' + (rows.length === 1 ? '' : 's') + ' read.' }) ]), seg ]));
+      if(!rows.length){
+        pagesCard.appendChild(el('div', { class: 'empty-state', text: per === 'all' ? 'Page tallies start with the next crawler visit after this deploy.' : 'No page-level visits in this period yet.' }));
+      } else {
+        var pbars = el('div', { class: 'ai-bars' }), pgMax = rows[0].count;
+        rows.slice(0, 8).forEach(function(p, i){
+          var fill = el('div', { class: 'ai-bar-fill', style: 'width:' + Math.max(3, p.count / pgMax * 100) + '%;background:var(--accent)' });
+          fill.style.animationDelay = (0.1 + i * 0.07) + 's';
+          var row = el('div', { class: 'ai-bar-row' }, [
+            el('a', { class: 'ai-bar-name', href: p.path, target: '_blank', rel: 'noopener', style: 'font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:500;font-size:12.5px;' }, [ p.path ]),
+            el('div', { class: 'ai-bar-val', text: fmt(p.count) }),
+            el('div', { class: 'ai-bar-track' }, [ fill ])
+          ]);
+          row.style.animationDelay = (i * 0.05) + 's';
+          pbars.appendChild(row);
+        });
+        pagesCard.appendChild(pbars);
+      }
+      if(note) pagesCard.appendChild(el('p', { class: 'in-note', text: note }));
     }
+    renderPagesCard();
 
     var feedCard = el('div', { class: 'card' });
     function renderFeed(){
