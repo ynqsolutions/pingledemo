@@ -1208,7 +1208,7 @@
   <div class="gate-card">
     <div class="brand-mark"><img src="/assets/favicon-32.png" alt=""></div>
     <h1>Pingle Law Admin</h1>
-    <p>Sign in to manage the site's content.</p>
+    <p id="gateMsg">Sign in to manage the site's content.</p>
     <button type="button" class="btn btn-primary" id="gateLogin">Sign In</button>
   </div>
 </div>
@@ -1514,8 +1514,8 @@
     // The widget finishes starting up a moment after the page loads. A view
     // opened before that saw "not signed in", so once it's ready, reload the
     // current view with the real session.
-    window.netlifyIdentity.on('init', function(user){ setUser(user); if(user){ resetLoaded(); route(); } });
-    window.netlifyIdentity.on('login', function(user){ setUser(user); window.netlifyIdentity.close(); resetLoaded(); route(); });
+    window.netlifyIdentity.on('init', function(user){ identityReady = true; setUser(user); if(user){ resetLoaded(); route(); } });
+    window.netlifyIdentity.on('login', function(user){ identityReady = true; setUser(user); var gm = $('#gateMsg'); if(gm) gm.textContent = 'Sign in to manage the site\'s content.'; window.netlifyIdentity.close(); resetLoaded(); route(); });
     // After logout the widget keeps a stale session in memory and its
     // modal opens on the "logged in" panel instead of the sign-in form,
     // so reload to a clean state.
@@ -1528,11 +1528,28 @@
   }
   function resetLoaded(){ Object.keys(editors).forEach(function(k){ editors[k].loaded = false; }); blog.loaded = false; if(typeof aiCrawlers !== 'undefined') aiCrawlers.loaded = false; if(typeof overview !== 'undefined'){ overview.activityLoaded = false; overview.aiLoaded = false; } }
 
+  // If the login session has ended (expired or cleared by the browser), go back
+  // to the sign-in screen instead of leaving editors showing "sign in to edit".
+  var identityReady = false;
+  function sessionExpired(){
+    if(!document.body.classList.contains('is-authed')) return;
+    document.body.classList.remove('is-authed');
+    var m = $('#gateMsg'); if(m) m.textContent = 'Your session has ended. Sign in again to continue.';
+  }
+  function checkSession(){ if(identityReady && document.body.classList.contains('is-authed') && !currentUser()) sessionExpired(); }
+  window.addEventListener('focus', checkSession);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) checkSession(); });
+  setInterval(checkSession, 60000);
+
   // ---- Git Gateway (GitHub contents API, proxied by Netlify) ----
   function gateway(path, opts){
     var user = currentUser();
-    if(!user) return Promise.reject(new Error('not-signed-in'));
-    return user.jwt().then(function(token){
+    if(!user){ checkSession(); return Promise.reject(new Error('not-signed-in')); }
+    return user.jwt().catch(function(e){
+      // The token couldn't be refreshed: the session is gone (not just offline).
+      if(navigator.onLine !== false){ identityReady = true; sessionExpired(); }
+      throw new Error('not-signed-in');
+    }).then(function(token){
       opts = opts || {};
       opts.headers = Object.assign({ 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, opts.headers || {});
       return fetch(GATEWAY + path, opts);
@@ -2036,6 +2053,7 @@
     }) : Promise.reject(new Error('not-signed-in'));
     viaRepo.catch(function(err){
       ed.readOnly = true; ed.sha = null;
+      if(err.message === 'not-signed-in') checkSession();
       ed.readOnlyReason = err.message === 'not-signed-in' ? 'Sign in to edit and save.' : 'Couldn\'t reach the repository (' + err.message + '). Showing the live copy instead; saving is disabled until it reconnects.';
       return fetch('/' + ed.def.file, { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error('no-copy'); return r.json(); });
     }).then(function(data){
