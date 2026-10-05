@@ -241,19 +241,14 @@ p:first-child{ padding-top:0.75in; }
 
   function doDownload(){
     if(isPhone()){
-      // PDF on phones and tablets (Word files won't open on iOS). iOS ignores
-      // the download attribute, so it opens the PDF in a new tab where the
-      // share sheet offers Save to Files; other devices download it directly.
+      // PDF on phones and tablets (Word files won't open on iOS). Saved as a
+      // real download (iOS 13+ Safari puts it in Downloads) rather than
+      // opened in a tab.
       const url = URL.createObjectURL(buildPdfBlob(getLetterText()));
       const pdfName = (letter.dataset.filename || 'Letter.doc').replace(/\.docx?$/i, '') + '.pdf';
-      if(isIOS()){
-        const w = window.open(url, '_blank');
-        if(!w) location.href = url;
-      } else {
-        const a = document.createElement('a');
-        a.href = url; a.download = pdfName;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      }
+      const a = document.createElement('a');
+      a.href = url; a.download = pdfName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 60000);
       return;
     }
