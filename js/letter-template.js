@@ -154,7 +154,12 @@
     for(let i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 255;
     return new Blob([bytes], { type: 'application/pdf' });
   }
-  const isPhone = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (window.matchMedia && window.matchMedia('(pointer:coarse) and (max-width:900px)').matches);
+  // iPhone, iPad (including iPadOS, which identifies itself as a Mac but has
+  // a touch screen), Android phones/tablets and other touch tablets. These
+  // can't open the Word-style download and stamp URLs onto printouts, so
+  // they get a real PDF instead.
+  const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent) || (/Mac/i.test(navigator.platform || '') && navigator.maxTouchPoints > 1);
+  const isPhone = () => isIOS() || /Android/i.test(navigator.userAgent) || (window.matchMedia && window.matchMedia('(pointer:coarse) and (max-width:1100px)').matches);
 
   function doPrint(){
     if(isPhone()){
@@ -235,6 +240,23 @@ p:first-child{ padding-top:0.75in; }
   }
 
   function doDownload(){
+    if(isPhone()){
+      // PDF on phones and tablets (Word files won't open on iOS). iOS ignores
+      // the download attribute, so it opens the PDF in a new tab where the
+      // share sheet offers Save to Files; other devices download it directly.
+      const url = URL.createObjectURL(buildPdfBlob(getLetterText()));
+      const pdfName = (letter.dataset.filename || 'Letter.doc').replace(/\.docx?$/i, '') + '.pdf';
+      if(isIOS()){
+        const w = window.open(url, '_blank');
+        if(!w) location.href = url;
+      } else {
+        const a = document.createElement('a');
+        a.href = url; a.download = pdfName;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      return;
+    }
     // Same page setup as Print: Word ignores <body> margins in HTML, so the
     // 1in margins go in a named @page section, with 0.75in extra at the top
     // (letterhead) on the first paragraph.
