@@ -1155,6 +1155,16 @@ if(backToTop){
 // rather than letting the browser do a native POST/reload. Moved here from
 // an inline onsubmit="" attribute so the CSP script-src can drop
 // 'unsafe-inline'.
+// Date shown on form notification emails: "October 5, 2026" (the firm's time zone).
+function formatFormDate(d){
+  return (d || new Date()).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric', year: 'numeric' });
+}
+// Fills the hidden submittedDate field of any form just before it is sent.
+document.addEventListener('submit', function(e){
+  const f = e.target && e.target.querySelector ? e.target.querySelector('input[name="submittedDate"]') : null;
+  if(f) f.value = formatFormDate();
+}, true);
+
 function encodeFormData(data){
   return Object.keys(data)
     .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))

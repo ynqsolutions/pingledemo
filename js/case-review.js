@@ -512,6 +512,7 @@
     const payload = {
       'form-name': 'case-review',
       priority: priorityLabel(answers.outcome),
+      submittedDate: new Date().toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric', year: 'numeric' }),
       fullName: answers.fullName,
       phone: answers.phone,
       email: answers.email,

@@ -194,7 +194,8 @@
 
     var payload = {
       'form-name': 'schedule-consultation',
-      preferredDate: state.date.toISOString().slice(0, 10),
+      submittedDate: new Date().toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric', year: 'numeric' }),
+      preferredDate: state.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
       bestTimeToCall: state.time,
       fullName: fFirst.value.trim() + ' ' + fLast.value.trim(),
       phone: fPhone.value.trim(),
