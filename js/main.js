@@ -1155,9 +1155,9 @@ if(backToTop){
 // rather than letting the browser do a native POST/reload. Moved here from
 // an inline onsubmit="" attribute so the CSP script-src can drop
 // 'unsafe-inline'.
-// Date shown on form notification emails: "October 5, 2026" (the firm's time zone).
+// Date shown on form notification emails: "Monday, October 5, 2026" (the firm's time zone).
 function formatFormDate(d){
-  return (d || new Date()).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric', year: 'numeric' });
+  return (d || new Date()).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
 // Fills the hidden submittedDate field of any form just before it is sent.
 document.addEventListener('submit', function(e){
