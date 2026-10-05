@@ -382,12 +382,10 @@
   .ai-split-legend b{ color:#fff; font-weight:600; }
   .ai-key{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
   .ai-radar{ width:220px; height:220px; justify-self:end; }
-  .ai-radar .ring{ fill:none; stroke:rgba(159,179,255,0.18); }
-  .ai-radar .pulse{ fill:none; stroke:rgba(159,179,255,0.55); transform-origin:110px 110px; animation:aiRing 3.2s ease-out infinite; }
-  .ai-radar .pulse.p2{ animation-delay:1.06s; } .ai-radar .pulse.p3{ animation-delay:2.13s; }
-  .ai-radar .sweep{ transform-origin:110px 110px; animation:aiSpin 6s linear infinite; }
-  .ai-radar .blip{ transform-box:fill-box; transform-origin:center; animation:aiBlip 2.4s ease-in-out infinite; }
-  .ai-radar .core{ fill:#fff; }
+  .ai-radar .track{ fill:none; stroke:#EEF0F4; }
+  .ai-radar .arc{ fill:none; transform:rotate(-90deg); transform-origin:110px 110px; }
+  .ai-radar .dn{ font-size:34px; font-weight:500; fill:var(--ink); font-variant-numeric:tabular-nums; }
+  .ai-radar .dl{ font-size:11px; fill:var(--muted); letter-spacing:.06em; text-transform:uppercase; }
 
   .ai-tiles{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; margin-bottom:20px; }
   .ai-tile{ background:var(--card); border-radius:var(--r-card); padding:18px 20px; box-shadow:var(--shadow); animation:aiRise .5s cubic-bezier(.2,.8,.2,1) both; }
@@ -824,7 +822,6 @@
   .ai-hero{ background:#fff !important; color:var(--ink) !important; border:1px solid var(--line); box-shadow:var(--shadow); }
   .ai-hero-kicker{ color:var(--muted) !important; } .ai-hero-sub, .ai-split-legend{ color:var(--muted) !important; } .ai-split-legend b{ color:var(--ink) !important; }
   .ai-split{ background:var(--field) !important; }
-  .ai-radar .ring{ stroke:#E3E7ED; } .ai-radar .pulse{ stroke:rgba(31,111,181,.35); } .ai-radar .core{ fill:var(--accent); }
   .ai-hero-num, .ai-tile-num, .stat-num{ font-weight:500 !important; }
 
   /* ---- dashboard ---- */
@@ -1082,6 +1079,8 @@
   .hm2-c.has{ background:color-mix(in srgb, var(--hc) calc(var(--a) * 100%), var(--field)); color:var(--ink); }
   .hm2-c.hi{ color:#fff; }
   .hm2-grid{ grid-template-rows:24px; }
+  .hm2-c.hm2-t{ background:none; border-top:1px solid var(--line-strong); border-radius:0; color:var(--ink); font-weight:700; }
+  .hm2-lr.hm2-tl{ border-top:1px solid var(--line-strong); } .hm2-tl .hm2-name{ font-weight:700; }
   @media (max-width:900px){
     .pl-controls{ flex-direction:column; align-items:stretch; }
     .pl-controls > .seg{ display:flex; width:100%; } .pl-controls > .seg button{ flex:1; padding:7px 4px; }
@@ -2842,33 +2841,23 @@
     return out;
   }
 
-  // Animated radar for the hero: sweeping arm + expanding rings, with one
-  // blip per platform seen (bigger blip = more hits), placed at a stable
-  // angle so it doesn't jump around between refreshes.
-  function aiRadar(platforms){
-    var svg = svgEl('svg', { class: 'ai-radar', viewBox: '0 0 220 220', 'aria-hidden': 'true' });
-    var defs = svgEl('defs');
-    var grad = svgEl('linearGradient', { id: 'aiSweepGrad', x1: '0', y1: '0', x2: '1', y2: '0' }, [
-      svgEl('stop', { offset: '0', 'stop-color': '#9fb3ff', 'stop-opacity': '0' }),
-      svgEl('stop', { offset: '1', 'stop-color': '#9fb3ff', 'stop-opacity': '0.45' })
-    ]);
-    defs.appendChild(grad); svg.appendChild(defs);
-    [30, 60, 90].forEach(function(r){ svg.appendChild(svgEl('circle', { class: 'ring', cx: 110, cy: 110, r: r })); });
-    svg.appendChild(svgEl('line', { x1: 110, y1: 18, x2: 110, y2: 202, stroke: 'rgba(159,179,255,0.12)' }));
-    svg.appendChild(svgEl('line', { x1: 18, y1: 110, x2: 202, y2: 110, stroke: 'rgba(159,179,255,0.12)' }));
-    ['p1', 'p2', 'p3'].forEach(function(c){ svg.appendChild(svgEl('circle', { class: 'pulse ' + c, cx: 110, cy: 110, r: 95, 'stroke-width': 1.5 })); });
-    svg.appendChild(svgEl('g', { class: 'sweep' }, [ svgEl('path', { d: 'M110,110 L110,15 A95,95 0 0,1 177,43 Z', fill: 'url(#aiSweepGrad)' }) ]));
-    var max = platforms.reduce(function(m, p){ return Math.max(m, p.count); }, 1);
-    platforms.slice(0, 10).forEach(function(p, i){
-      var hash = 0; for(var c = 0; c < p.name.length; c++) hash = (hash * 31 + p.name.charCodeAt(c)) >>> 0;
-      var angle = (hash % 360) * Math.PI / 180, dist = 38 + (hash % 50);
-      var x = 110 + Math.cos(angle) * dist, y = 110 + Math.sin(angle) * dist, r = 3 + 4 * (p.count / max);
-      var blip = svgEl('circle', { class: 'blip', cx: x.toFixed(1), cy: y.toFixed(1), r: r.toFixed(1), fill: AI_TYPES[p.type].hex, stroke: '#0A0F27', 'stroke-width': 2 });
-      blip.style.animationDelay = (i * 0.3) + 's';
-      blip.appendChild(svgEl('title')); blip.firstChild.textContent = p.name + ' - ' + fmt(p.count) + ' hits';
-      svg.appendChild(blip);
-    });
-    svg.appendChild(svgEl('circle', { class: 'core', cx: 110, cy: 110, r: 4 }));
+  // Hero graphic: a donut of today's visits by type, total in the middle.
+  function aiRadar(tType, total){
+    var svg = svgEl('svg', { class: 'ai-radar', viewBox: '0 0 220 220', role: 'img', 'aria-label': 'Today by type' });
+    var R = 80, C = 2 * Math.PI * R, off = 0;
+    svg.appendChild(svgEl('circle', { class: 'track', cx: 110, cy: 110, r: R, 'stroke-width': 22 }));
+    if(total){
+      AI_TYPE_ORDER.forEach(function(k){
+        if(!tType[k]) return;
+        var len = tType[k] / total * C, gap = Math.min(3, len);
+        var arc = svgEl('circle', { class: 'arc', cx: 110, cy: 110, r: R, 'stroke-width': 22, stroke: AI_TYPES[k].hex, 'stroke-dasharray': Math.max(0, len - gap).toFixed(2) + ' ' + C.toFixed(2), 'stroke-dashoffset': (-off).toFixed(2) });
+        arc.appendChild(svgEl('title')); arc.firstChild.textContent = AI_TYPES[k].label + ': ' + fmt(tType[k]) + ' today';
+        svg.appendChild(arc); off += len;
+      });
+    }
+    var n = svgEl('text', { class: 'dn', x: 110, y: 116, 'text-anchor': 'middle' }); n.textContent = fmt(total);
+    var l = svgEl('text', { class: 'dl', x: 110, y: 138, 'text-anchor': 'middle' }); l.textContent = 'today';
+    svg.appendChild(n); svg.appendChild(l);
     return svg;
   }
 
@@ -3647,7 +3636,7 @@
         el('div', { class: 'ai-hero-sub', text: todayTotal ? 'AI crawler visits today from ' + nTodayPlats + ' platform' + (nTodayPlats === 1 ? '' : 's') + '. Last one ' + relTime(lastSeen) + '. ' + fmt(totalHits) + ' all time.' : 'No AI crawler visits yet today. ' + (totalHits ? fmt(totalHits) + ' all time; last one ' + relTime(lastSeen) + '.' : '') }),
         split, splitLegend
       ]),
-      aiRadar(platforms)
+      aiRadar(tType, todayTotal)
     ]));
     aiCountUp(heroNum, todayTotal, 1200);
 
@@ -3760,6 +3749,8 @@
         var rowsP = list.slice(0, 12);
         var left = el('div', { class: 'hm2-left' }, [ el('div', { class: 'hm2-lh' }, [ el('span', { text: 'Platform' }), el('span', { text: 'Total' }) ]) ]);
         rowsP.forEach(function(p){ left.appendChild(el('div', { class: 'hm2-lr' }, [ el('span', { class: 'hm2-name', title: p.name, text: p.name }), el('b', { text: fmt(p.count) }) ])); });
+        var dayTot = pd.map(function(_, di){ return Object.keys(perDay).reduce(function(a, nm){ return a + (perDay[nm][di] || 0); }, 0); });
+        left.appendChild(el('div', { class: 'hm2-lr hm2-tl' }, [ el('span', { class: 'hm2-name', text: 'Total per day' }), el('b', { text: fmt(dayTot.reduce(function(a, b){ return a + b; }, 0)) }) ]));
         var g = el('div', { class: 'hm2-grid', style: 'grid-template-columns:repeat(' + N + ', var(--cw));--hc:' + hc + ';' });
         order.forEach(function(di, j){
           var d = pd[di].date, dn = Number(d.slice(8));
@@ -3783,6 +3774,7 @@
             g.appendChild(c);
           });
         });
+        order.forEach(function(di){ g.appendChild(el('div', { class: 'hm2-c hm2-t', title: shortDate(pd[di].date) + ': ' + dayTot[di] + ' total', text: dayTot[di] ? String(dayTot[di]) : '' })); });
         plat30.appendChild(el('div', { class: 'ai-hm-cap', text: 'Newest day first · ' + shortDate(pd[N - 1].date) + ' back to ' + shortDate(pd[0].date) + ' · number = visits that day' }));
         plat30.appendChild(el('div', { class: 'hm2' }, [ left, el('div', { class: 'hm2-scroll' }, [ g ]) ]));
         return;
