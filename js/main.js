@@ -1438,6 +1438,26 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   const mq = window.matchMedia('(max-width: 1080px)');
   let embedded = false;
 
+  // Mobile replacement for the "Need Legal Help?" card: a plain CTA box in the
+  // style of the site's closing call to action (no pointing photo covering text).
+  function buildCtaBox(card){
+    const es = (document.documentElement.lang || '').toLowerCase().indexOf('es') === 0;
+    const h = card.querySelector('h3'), p = card.querySelector('p'), a = card.querySelector('a');
+    const pts = es ? ['Consulta gratuita', 'Sin ganar, sin cobrar', 'Respuestas reales'] : ['Free consultation', 'No win, no fee guarantee', 'Real answers'];
+    const box = document.createElement('div');
+    box.className = 'blog-cta-box';
+    const h2 = document.createElement('h3'); h2.textContent = h ? h.textContent : (es ? '\u00bfNecesita ayuda legal?' : 'Need Legal Help?');
+    const para = document.createElement('p'); para.textContent = p ? p.textContent : '';
+    const ul = document.createElement('ul');
+    pts.forEach(function(t){ const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+    const row = document.createElement('div'); row.className = 'blog-cta-box-buttons';
+    const primary = document.createElement('a'); primary.className = 'btn btn-gold'; primary.href = a ? a.getAttribute('href') : 'case-review.html'; primary.textContent = a ? a.textContent : 'Free Case Review';
+    const secondary = document.createElement('a'); secondary.className = 'btn btn-outline-light'; secondary.href = es ? 'contact-es.html' : 'contact.html'; secondary.textContent = es ? 'Cont\u00e1ctenos' : 'Contact Us';
+    row.appendChild(primary); row.appendChild(secondary);
+    box.appendChild(h2); box.appendChild(para); box.appendChild(ul); box.appendChild(row);
+    return box;
+  }
+
   function embed(){
     let sections = Array.prototype.slice.call(article.querySelectorAll('.blog-sign'));
     if(sections.length < 2) sections = Array.prototype.slice.call(article.querySelectorAll(':scope > h2, :scope > .blog-section'));
@@ -1451,6 +1471,7 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
       const wrap = document.createElement('div');
       wrap.className = 'blog-embed';
       wrap.appendChild(b);
+      if(b.classList.contains('blog-help-card')) wrap.appendChild(buildCtaBox(b));
       (after[slot] = after[slot] || []).push(wrap);
     });
     Object.keys(after).forEach(function(k){

@@ -6075,3 +6075,21 @@ p.article-disclaimer{
 .blog-embed .blog-sidebar-card, .blog-embed .blog-help-card{ width:100%; box-sizing:border-box; }
 .blog-embed .sidebar-ad-tools{ display:block; max-width:420px; margin:0 auto; }
 .blog-embed .sidebar-ad-tools img{ width:100%; height:auto; border-radius:12px; }
+
+/* Mobile CTA box that replaces the pointing "Need Legal Help?" card inside blog posts */
+.blog-embed .blog-help-card{ display:none; }
+.blog-cta-box{
+  background:var(--navy-950);
+  background-image:repeating-linear-gradient(115deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 34px);
+  color:#fff;
+  border-radius:14px;
+  padding:26px 22px 24px;
+  box-shadow:0 22px 40px -28px rgba(10,15,39,0.6);
+}
+.blog-cta-box h3{ font-family:var(--font-display); font-size:25px; line-height:1.2; color:#fff; margin:0; }
+.blog-cta-box p{ color:rgba(255,255,255,0.78); font-size:15px; line-height:1.6; margin:10px 0 0; }
+.blog-cta-box ul{ list-style:none; margin:16px 0 0; padding:0; display:grid; gap:8px; }
+.blog-cta-box li{ font-size:14px; padding-left:24px; position:relative; color:rgba(255,255,255,0.9); }
+.blog-cta-box li::before{ content:"\2713"; position:absolute; left:0; color:var(--gold-400); font-weight:700; }
+.blog-cta-box-buttons{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+.blog-cta-box-buttons .btn{ flex:1 1 150px; justify-content:center; text-align:center; }
