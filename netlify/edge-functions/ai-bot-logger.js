@@ -36,6 +36,8 @@ const KNOWN_AI_BOTS = [
   ['Bytespider', 'ByteDance/TikTok (feeds Doubao etc.)'],
   ['Amazonbot', 'Amazon (feeds Alexa/Rufus)'],
   ['meta-externalagent', 'Meta (AI training crawl)'],
+  ['meta-externalfetcher', 'Meta (Meta AI - live browsing)'],
+  ['meta-webindexer', 'Meta (AI search crawl)'],
   ['Diffbot', 'Diffbot (data extraction, feeds various LLMs)'],
   ['YouBot', 'You.com'],
   ['Timpibot', 'Timpi'],

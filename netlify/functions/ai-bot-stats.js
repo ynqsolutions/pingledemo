@@ -49,14 +49,14 @@ const LABELS = {
   'anthropic-ai': 'Anthropic (API-triggered fetch)', 'PerplexityBot': 'Perplexity (search crawl)', 'Perplexity-User': 'Perplexity (live browsing)',
   'CCBot': 'Common Crawl (feeds many LLM training sets)', 'Google-Extended': 'Google (AI training signal)', 'GoogleOther': 'Google (other/experimental crawl)',
   'Applebot-Extended': 'Apple (AI training signal)', 'Bytespider': 'ByteDance/TikTok (feeds Doubao etc.)', 'Amazonbot': 'Amazon (feeds Alexa/Rufus)',
-  'meta-externalagent': 'Meta (AI training crawl)', 'Diffbot': 'Diffbot (data extraction, feeds various LLMs)', 'YouBot': 'You.com', 'Timpibot': 'Timpi',
+  'meta-externalagent': 'Meta (AI training crawl)', 'meta-externalfetcher': 'Meta (Meta AI - live browsing)', 'meta-webindexer': 'Meta (AI search crawl)', 'Diffbot': 'Diffbot (data extraction, feeds various LLMs)', 'YouBot': 'You.com', 'Timpibot': 'Timpi',
   'cohere-ai': 'Cohere', 'DuckAssistBot': 'DuckDuckGo (AI Assist)', 'Bingbot': 'Microsoft Bing (feeds Copilot)'
 };
 
 // Individual visits are kept (compactly, inside each day's rollup) for this many
 // days, capped per day. Only bots whose referer means something have it stored.
 const KEEP_ITEM_DAYS = 90, MAX_ITEMS_PER_DAY = 3000, MAX_FEED = 600;
-const REFERER_BOTS = new Set(['ChatGPT-User', 'Claude-Web', 'Claude-User', 'Perplexity-User', 'OAI-SearchBot', 'anthropic-ai']);
+const REFERER_BOTS = new Set(['ChatGPT-User', 'Claude-Web', 'Claude-User', 'Perplexity-User', 'meta-externalfetcher', 'OAI-SearchBot', 'anthropic-ai']);
 
 function addDaysIso(iso, n){ const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 function parseKey(key){

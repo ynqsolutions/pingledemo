@@ -2794,8 +2794,8 @@
   };
   var AI_TYPE_ORDER = ['training', 'search', 'live'];
   var AI_TYPE_OF = {
-    'ChatGPT-User': 'live', 'Claude-Web': 'live', 'Claude-User': 'live', 'anthropic-ai': 'live', 'Perplexity-User': 'live',
-    'OAI-SearchBot': 'search', 'PerplexityBot': 'search', 'Bingbot': 'search', 'YouBot': 'search', 'DuckAssistBot': 'search'
+    'ChatGPT-User': 'live', 'Claude-Web': 'live', 'Claude-User': 'live', 'anthropic-ai': 'live', 'Perplexity-User': 'live', 'meta-externalfetcher': 'live',
+    'OAI-SearchBot': 'search', 'meta-webindexer': 'search', 'PerplexityBot': 'search', 'Bingbot': 'search', 'YouBot': 'search', 'DuckAssistBot': 'search'
   };
   function aiTypeOf(needle){ return AI_TYPE_OF[needle] || 'training'; }
   function aiPlatform(label){ var i = String(label || '').indexOf(' ('); return i > 0 ? label.slice(0, i) : (label || 'Unknown'); }
