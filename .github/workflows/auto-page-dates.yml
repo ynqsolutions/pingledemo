@@ -1,0 +1,41 @@
+name: Auto-update page dates
+
+# When a push changes a page's real content, record today's date for that page
+# in content/page-dates.json (what the site's hidden "last updated" metadata and
+# sitemap <lastmod> are built from). Cache-bust-only edits and site-wide edits
+# touching more than 40 pages are ignored. This commit changes no HTML, so it
+# does not retrigger itself.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-page-dates
+  cancel-in-progress: false
+
+jobs:
+  dates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Date the pages that really changed
+        run: python3 generate_page_dates.py --auto "${{ github.event.before }}" "${{ github.sha }}"
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add content/page-dates.json
+          git diff --cached --quiet && echo "No page dates to update." || git commit -m "Auto-update page dates"
+          git pull --rebase -q || true
+          git push

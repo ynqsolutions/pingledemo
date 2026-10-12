@@ -12,6 +12,12 @@ Two modes:
       site-wide commits that touched dozens of pages at once (nav/footer
       edits), since those say nothing about a specific page's content.
 
+  python3 generate_page_dates.py --auto BEFORE AFTER
+      Run by .github/workflows/auto-page-dates.yml on every push: pages whose
+      real content changed between the two commits get today's date in
+      content/page-dates.json (cache-bust-only and site-wide edits are
+      ignored, as in --seed). The workflow commits the file.
+
   python3 generate_page_dates.py            (no flag - runs on every Netlify deploy)
       Reads content/page-dates.json and, for each indexable page, adds
         - <meta property="article:modified_time"> and schema.org JSON-LD with
@@ -132,6 +138,47 @@ def seed():
     print(f"generate_page_dates.py --seed: {added_count} new dates, {len(out)} total in {DATES_FILE}")
 
 
+# ---------------------------------------------------------------- auto mode
+def git_show(rev, path):
+    r = subprocess.run(["git", "show", f"{rev}:{path}"], capture_output=True, text=True, encoding="utf-8", errors="replace")
+    return r.stdout if r.returncode == 0 else None
+
+
+def auto(before, after):
+    if not before or set(before) == {"0"}:
+        print("generate_page_dates.py --auto: no previous commit, nothing to do")
+        return
+    proc = subprocess.run(["git", "diff", "--name-only", before, after, "--", "*.html"],
+                          capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if proc.returncode != 0:
+        sys.exit("git diff failed: " + proc.stderr[:200])
+    changed = []
+    for name in proc.stdout.split():
+        if "/" in name or not name.endswith(".html") or not os.path.exists(name):
+            continue
+        old, new = git_show(before, name), git_show(after, name)
+        if new is None:
+            continue
+        if old is None or Counter(map(norm, old.splitlines())) != Counter(map(norm, new.splitlines())):
+            if is_indexable(new) and not is_dynamic(name):
+                changed.append(name)
+    if not changed:
+        print("generate_page_dates.py --auto: no real page changes")
+        return
+    if len(changed) > BULK_COMMIT_FILES:
+        print(f"generate_page_dates.py --auto: {len(changed)} pages changed (site-wide edit), dates left alone")
+        return
+    out = load_dates()
+    today = date.today().isoformat()
+    for f in changed:
+        out[f] = today
+    os.makedirs(os.path.dirname(DATES_FILE), exist_ok=True)
+    with open(DATES_FILE, "w", encoding="utf-8") as fh:
+        json.dump({"pages": dict(sorted(out.items()))}, fh, indent=1, ensure_ascii=False)
+        fh.write("\n")
+    print(f"generate_page_dates.py --auto: dated {len(changed)} page(s) {today}: {', '.join(changed)}")
+
+
 # --------------------------------------------------------------- build mode
 def blog_post_dates():
     """slug -> date from the markdown posts added through the admin."""
@@ -180,7 +227,10 @@ def inject():
 
 def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    if "--seed" in sys.argv:
+    if "--auto" in sys.argv:
+        i = sys.argv.index("--auto")
+        auto(*(sys.argv[i + 1:i + 3] + ["", ""])[:2])
+    elif "--seed" in sys.argv:
         seed()
     else:
         inject()
