@@ -23,6 +23,7 @@ const KNOWN_AI_BOTS = [
   ['GPTBot', 'OpenAI (GPTBot - training crawl)'],
   ['ChatGPT-User', 'OpenAI (ChatGPT - live browsing)'],
   ['OAI-SearchBot', 'OpenAI (search)'],
+  ['OAI-AdsBot', 'OpenAI (ads page check)'],
   ['ClaudeBot', 'Anthropic (ClaudeBot - training crawl)'],
   ['Claude-Web', 'Anthropic (Claude - live browsing)'],
   ['Claude-User', 'Anthropic (Claude - live browsing)'],

@@ -44,7 +44,7 @@ async function verifyUser(req){
 // frozen baseline that is added in.
 const LEGACY_LAST_DAY = '2026-10-02'; // no pre-change daily/hours docs exist after this date
 const LABELS = {
-  'GPTBot': 'OpenAI (GPTBot - training crawl)', 'ChatGPT-User': 'OpenAI (ChatGPT - live browsing)', 'OAI-SearchBot': 'OpenAI (search)',
+  'GPTBot': 'OpenAI (GPTBot - training crawl)', 'ChatGPT-User': 'OpenAI (ChatGPT - live browsing)', 'OAI-SearchBot': 'OpenAI (search)', 'OAI-AdsBot': 'OpenAI (ads page check)',
   'ClaudeBot': 'Anthropic (ClaudeBot - training crawl)', 'Claude-Web': 'Anthropic (Claude - live browsing)', 'Claude-User': 'Anthropic (Claude - live browsing)',
   'anthropic-ai': 'Anthropic (API-triggered fetch)', 'PerplexityBot': 'Perplexity (search crawl)', 'Perplexity-User': 'Perplexity (live browsing)',
   'CCBot': 'Common Crawl (feeds many LLM training sets)', 'Google-Extended': 'Google (AI training signal)', 'GoogleOther': 'Google (other/experimental crawl)',
