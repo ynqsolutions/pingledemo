@@ -22,7 +22,9 @@ Two modes:
       Reads content/page-dates.json and, for each indexable page, adds
         - <meta property="article:modified_time"> and schema.org JSON-LD with
           dateModified, which search engines and AI tools read.
-      No visible date is shown to visitors.
+      Blog posts (blog-*.html) that were really updated at least a day after
+        publishing also get "Updated <date>" appended to their existing
+        "Published <date> - N min read" line. No other page shows a date.
       generate_sitemap.py reads the same JSON, so <lastmod> matches.
       Runs in the deploy build only; the files in git are not modified by a
       Netlify build. Idempotent (a marker prevents double-injection).
@@ -207,6 +209,45 @@ def date_for(filename, dates, post_dates):
     return dates.get(filename) or post_dates.get(filename) or date.today().isoformat()
 
 
+EN_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August",
+             "September", "October", "November", "December"]
+ES_MONTHS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+             "septiembre", "octubre", "noviembre", "diciembre"]
+META_RE = re.compile(r'(<p class="blog-meta">)([^<]*?)(\s*(?:&middot;|\u00b7)\s*[^<]*)?(</p>)')
+
+
+def _parse_pub(text):
+    t = text.strip()
+    m = re.match(r"^([A-Za-z]+) (\d{1,2}), (\d{4})$", t)
+    if m and m.group(1) in EN_MONTHS:
+        return date(int(m.group(3)), EN_MONTHS.index(m.group(1)) + 1, int(m.group(2))), "en"
+    m = re.match(r"^(\d{1,2}) de ([a-z\u00f1]+) de (\d{4})$", t)
+    if m and m.group(2) in ES_MONTHS:
+        return date(int(m.group(3)), ES_MONTHS.index(m.group(2)) + 1, int(m.group(1))), "es"
+    return None, None
+
+
+def add_blog_updated(html, iso):
+    """Append 'Updated <date>' to a blog post's visible date line when the page
+    was really updated at least a day after it was published."""
+    m = META_RE.search(html)
+    if not m:
+        return html
+    pub, lang = _parse_pub(m.group(2))
+    try:
+        upd = date.fromisoformat(iso)
+    except ValueError:
+        return html
+    if not pub or (upd - pub).days < 1:
+        return html
+    if lang == "es":
+        label = f"Actualizado el {upd.day} de {ES_MONTHS[upd.month - 1]} de {upd.year}"
+    else:
+        label = f"Updated {EN_MONTHS[upd.month - 1]} {upd.day}, {upd.year}"
+    new = m.group(1) + m.group(2) + " &middot; " + label + (m.group(3) or "") + m.group(4)
+    return html[:m.start()] + new + html[m.end():]
+
+
 def inject():
     dates = load_dates()
     post_dates = blog_post_dates()
@@ -225,6 +266,8 @@ def inject():
         head = (f'{MARKER}\n<meta property="article:modified_time" content="{iso}">\n'
                 f'<script type="application/ld+json">{ld}</script>\n')
         html = html.replace("</head>", head + "</head>", 1)
+        if filename.startswith("blog-"):
+            html = add_blog_updated(html, iso)
         with open(filename, "w", encoding="utf-8") as f:
             f.write(html)
         done += 1
