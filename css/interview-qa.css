@@ -1,0 +1,19 @@
+/* Interview Q&A blog: practice card + question list */
+.iq-practice{ margin:28px 0; padding:22px 24px; border:1px solid var(--paper-line, #e5e0d6); border-radius:14px; background:#fff; }
+.iq-practice[hidden]{ display:none; }
+.iq-kicker{ font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-600, #8a6d1f); margin:0 0 6px; }
+.iq-q{ font-family:'Fraunces', Georgia, serif; font-size:24px; line-height:1.25; margin:0 0 14px; color:var(--ink, #1c1c1c); }
+.iq-ans{ margin:14px 0 0; padding:14px 16px; border-left:3px solid var(--gold-500, #c9a227); background:var(--paper, #faf7f0); border-radius:0 8px 8px 0; }
+.iq-ans[hidden]{ display:none; }
+.iq-ans p{ margin:0 0 8px; } .iq-ans p:last-child{ margin:0; }
+.iq-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; align-items:center; }
+.iq-btn{ appearance:none; border:1px solid var(--ink, #1c1c1c); background:#fff; color:var(--ink, #1c1c1c); font:inherit; font-weight:600; font-size:14px; padding:10px 16px; border-radius:999px; cursor:pointer; }
+.iq-btn.is-primary{ background:var(--ink, #1c1c1c); color:#fff; }
+.iq-btn:focus-visible{ outline:3px solid var(--gold-500, #c9a227); outline-offset:2px; }
+.iq-count{ margin-left:auto; font-size:13px; color:var(--ink-soft, #666); }
+.iq-item{ padding:18px 0; border-top:1px solid var(--paper-line, #e5e0d6); }
+.iq-item h3{ margin:0 0 8px; font-size:20px; }
+.iq-item p{ margin:0 0 8px; }
+.iq-item .iq-label{ font-weight:700; }
+@media (max-width:560px){ .iq-practice{ padding:18px 16px; } .iq-q{ font-size:20px; } .iq-count{ width:100%; margin:4px 0 0; } }
+@media print{ .iq-practice{ display:none; } }
