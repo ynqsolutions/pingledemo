@@ -3437,6 +3437,39 @@
     inCard.appendChild(el('p', { class: 'in-note', text: 'Use it after publishing or editing pages. It can be sent once every 30 minutes; it asks search engines to look, but doesn’t guarantee indexing.' }));
     root.appendChild(inCard);
 
+    // ---- Google Search Console: resubmit the sitemap (Search Console API) and
+    // a shortcut to the console itself. ----
+    var gCard = el('div', { class: 'card', style: 'margin-top:20px;' });
+    var gStatus = el('p', { class: 'in-status', text: 'Checking the last submission…' });
+    var gBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Resubmit sitemap to Google' });
+    var gOpen = el('a', { class: 'btn', href: 'https://search.google.com/search-console', target: '_blank', rel: 'noopener', text: 'Open Search Console' });
+    function gShow(last, configured){
+      if(configured === false){ gStatus.className = 'in-status'; gStatus.textContent = 'Setup not finished: add the Google service account key in Netlify (see note below).'; return; }
+      if(!last){ gStatus.className = 'in-status'; gStatus.textContent = 'Nothing has been sent yet.'; return; }
+      gStatus.className = 'in-status is-ok';
+      gStatus.textContent = '✓ Last sent ' + relTime(last.time) + ' (' + new Date(last.time).toLocaleString() + ') · ' + last.message;
+    }
+    function gCall(method){
+      var user = currentUser(); if(!user) return Promise.reject(new Error('Sign in first.'));
+      return user.jwt().then(function(token){ return fetch('/.netlify/functions/google-sitemap', { method: method, cache: 'no-store', headers: { Authorization: 'Bearer ' + token } }); })
+        .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(b){ if(!r.ok) throw Object.assign(new Error(b.error || ('Request failed (' + r.status + ')')), { body: b }); return b; }); });
+    }
+    gCall('GET').then(function(b){ gShow(b.last, b.configured); }).catch(function(e){ gStatus.className = 'in-status is-bad'; gStatus.textContent = e.message; });
+    gBtn.addEventListener('click', function(){
+      gBtn.disabled = true; gBtn.textContent = 'Sending…';
+      gCall('POST').then(function(b){ gShow(b.last, true); toast('Google asked to re-read the sitemap.'); })
+        .catch(function(e){ gStatus.className = 'in-status is-bad'; gStatus.textContent = e.message; toast(e.message, true); })
+        .then(function(){ gBtn.disabled = false; gBtn.textContent = 'Resubmit sitemap to Google'; });
+    });
+    gCard.appendChild(el('div', { class: 'ai-card-head' }, [
+      el('div', {}, [ el('h2', { text: 'Google Search Console' }),
+        el('p', { text: 'Google doesn’t support IndexNow. This asks Google to re-read your sitemap right away; Google still decides when to crawl and index.' }) ]),
+      el('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;' }, [ gOpen, gBtn ])
+    ]));
+    gCard.appendChild(gStatus);
+    gCard.appendChild(el('p', { class: 'in-note', text: 'One-time setup: create a Google Cloud service account, enable the Search Console API, add the account’s email as an Owner of pinglelaw.com in Search Console, then save its JSON key in Netlify as GOOGLE_SERVICE_ACCOUNT_JSON. Can be sent once every 30 minutes.' }));
+    root.appendChild(gCard);
+
     // ---- Page dates: each page shows a real "Last updated" date (and sends it
     // to search engines). Pick the pages you changed, and one click records
     // today's date, waits for the site to redeploy, then tells Bing about just
