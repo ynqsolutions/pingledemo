@@ -3839,7 +3839,7 @@
       var b = el('div', { class: 'in-box' });
       b.appendChild(el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:#4a3aa7' }), 'When people ask' ]));
       if(!ins.when.total){ b.appendChild(el('p', { class: 'in-d', text: 'Timing of person searches - when real people ask an AI about topics on your site.' })); b.appendChild(el('p', { class: 'in-empty', text: 'No person searches yet.' })); return b; }
-      b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.when.total + ' person search' + (ins.when.total === 1 ? '' : 'es') + ' in the last 30 days. Busiest: ' + ins.when.busiest + '.' + (ins.when.total < 10 ? ' Early read.' : '') }));
+      b.appendChild(el('p', { class: 'in-d', text: 'Share of ' + ins.when.total + ' person search' + (ins.when.total === 1 ? '' : 'es') + ' in the ' + (ins.label || 'last 30 days') + '. Busiest: ' + ins.when.busiest + '.' + (ins.when.total < 10 ? ' Early read.' : '') }));
       var max = Math.max.apply(null, ins.when.week.concat([1])), order = [1, 2, 3, 4, 5, 6, 0], lab = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S' ];
       b.appendChild(el('div', { class: 'wk' }, order.map(function(d){ var n = ins.when.week[d];
         return el('div', { class: 'wk-col' + (n ? ' is-click' : ''), role: n ? 'button' : null, tabindex: n ? '0' : null, onclick: n ? function(e){ e.stopPropagation(); whenDetail('day', d, ins, e.currentTarget); } : null, title: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ][d] + ': ' + n + ' (' + ins.when.pct(n) + '%)' }, [ el('b', { text: n ? ins.when.pct(n) + '%' : '' }), el('i', {}, [ el('span', { style: 'height:' + Math.max(n ? 8 : 0, n / max * 100) + '%' }) ]), el('em', { text: lab[d] }) ]); })));
@@ -3851,13 +3851,32 @@
     function whenDetail(kind, key, ins, anchor){
       var WD = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
       var t = kind === 'day' ? ins.when.weekT[key] : ins.when.bandsT[key];
-      openAiPop(anchor, (kind === 'day' ? WD[key] + 's' : key) + ' · last 30 days', { training: t.training, search: t.search, live: t.live });
+      openAiPop(anchor, (kind === 'day' ? WD[key] + 's' : key) + ' · ' + (ins.label || 'last 30 days'), { training: t.training, search: t.search, live: t.live });
     }
     var insHost = null;
     function renderInsightsNow(){ var old = insHost; renderInsights(); if(old && old.parentNode){ old.parentNode.replaceChild(insHost, old); } }
     var renderInsights = function(){
-      var to = isoDay(new Date()), from = isoDay(addLocalDays(new Date(), -29));
-      var ins = buildInsights(aiCrawlers.recent, aiCrawlers.daily, from, to, aiCrawlers.src);
+      var per = aiCrawlers.insPeriod || '30', to = isoDay(new Date()), from, label, srcD = aiCrawlers, loadingAll = false;
+      if(per === 'all'){
+        label = 'all time';
+        var ad = aiCrawlers.insAll;
+        if(ad){ srcD = ad; from = to; ad.daily.some(function(d){ if(Object.keys(d.counts || {}).some(function(k){ return d.counts[k] > 0; })){ from = d.date; return true; } return false; }); }
+        else { loadingAll = true; from = isoDay(addLocalDays(new Date(), -29)); }
+      } else { label = 'last ' + per + ' days'; from = isoDay(addLocalDays(new Date(), -(Number(per) - 1))); }
+      var ins = buildInsights(srcD.recent, srcD.daily, from, to, srcD.src);
+      ins.label = label;
+      if(per === 'all' && !aiCrawlers.insAll && !aiCrawlers.insAllBusy){
+        var u = currentUser();
+        if(u){
+          aiCrawlers.insAllBusy = true;
+          var f365 = isoDay(addLocalDays(new Date(), -364));
+          u.jwt().then(function(token){ return fetch(aiStatsUrl(f365, to), { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } }); })
+            .then(function(r){ if(!r.ok) throw new Error('Request failed (' + r.status + ')'); return r.json(); })
+            .then(function(d){ aiCrawlers.insAll = { recent: d.recent || [], daily: aiLocalDaily(d, f365, to), src: { hours: d.hours || {}, utc: d.daily || [] } }; })
+            .catch(function(){ aiCrawlers.insPeriod = '30'; })
+            .then(function(){ aiCrawlers.insAllBusy = false; renderInsightsNow(); });
+        }
+      }
       function lst(items, empty){
         if(!items.length) return el('p', { class: 'in-empty', text: empty });
         var max = items[0].n;
@@ -3869,8 +3888,11 @@
       var who = function(arr){ return arr.map(function(x){ return { key: x.key, n: x.n, label: x.key }; }); };
       function box(color, title, desc, body){ return el('div', { class: 'in-box' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:' + color }), title ]), el('p', { class: 'in-d', text: desc }), body ]); }
       var card = el('div', { class: 'card ins-card' }); insHost = card;
-      card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Insights · last 30 days' }),
-        el('p', { text: ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 'es') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' }) ]) ]));
+      card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Insights · ' + label }),
+        el('p', { text: (loadingAll ? 'Loading all-time data… ' : '') + ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 'es') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' + (per === 'all' && ins.capped ? ' Page and assistant rankings use the newest 600 itemized visits.' : '') }) ]),
+        el('div', { class: 'seg', role: 'group', 'aria-label': 'Period' }, [ ['7', '7 days'], ['14', '14 days'], ['30', '30 days'], ['all', 'All time'] ].map(function(c){
+          return el('button', { type: 'button', class: per === c[0] ? 'is-on' : '', 'aria-pressed': per === c[0] ? 'true' : 'false', text: c[1], onclick: function(){ aiCrawlers.insPeriod = c[0]; renderInsightsNow(); } });
+        })) ]));
       card.appendChild(el('div', { class: 'in-grid' }, [
         box(AI_TYPES.live.hex, 'Pages answering real questions', 'AI opened these to answer someone - your highest-value pages.', lst(pages(ins.livePages), 'No person searches yet.')),
         box(AI_TYPES.live.hex, 'Assistants that looked you up', 'AI assistants that opened your pages to answer someone’s question.' + (ins.refs.length ? ' Referring sites: ' + ins.refs.map(function(r){ return r.key; }).join(', ') + '.' : ''), lst(who(ins.liveBy), 'None yet.')),
