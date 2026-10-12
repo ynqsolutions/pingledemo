@@ -3,7 +3,8 @@ name: Auto-update page dates
 # When a push changes a page's real content, record today's date for that page
 # in content/page-dates.json (what the site's hidden "last updated" metadata and
 # sitemap <lastmod> are built from). Cache-bust-only edits and site-wide edits
-# touching more than 40 pages are ignored. This commit changes no HTML, so it
+# touching more than 40 pages are ignored. Admin-written blog posts
+# (content/blog/*.md) are dated when they are added or edited. This commit changes no HTML, so it
 # does not retrigger itself.
 on:
   push:

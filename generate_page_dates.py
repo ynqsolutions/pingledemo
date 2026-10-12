@@ -148,12 +148,18 @@ def auto(before, after):
     if not before or set(before) == {"0"}:
         print("generate_page_dates.py --auto: no previous commit, nothing to do")
         return
-    proc = subprocess.run(["git", "diff", "--name-only", before, after, "--", "*.html"],
+    proc = subprocess.run(["git", "diff", "--name-only", before, after, "--", "*.html", "content/blog/*.md"],
                           capture_output=True, text=True, encoding="utf-8", errors="replace")
     if proc.returncode != 0:
         sys.exit("git diff failed: " + proc.stderr[:200])
     changed = []
     for name in proc.stdout.split():
+        # Posts written in the admin: content/blog/<slug>.md becomes blog-<slug>.html
+        # at build time, so an edited or new post dates that generated page.
+        if name.startswith("content/blog/") and name.endswith(".md"):
+            if os.path.exists(name):
+                changed.append("blog-" + os.path.splitext(os.path.basename(name))[0] + ".html")
+            continue
         if "/" in name or not name.endswith(".html") or not os.path.exists(name):
             continue
         old, new = git_show(before, name), git_show(after, name)
