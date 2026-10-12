@@ -22,3 +22,7 @@ All **indexable** pages (no `<meta name="robots" content="noindex">`) must follo
 ## Footer
 
 All indexable pages use the same footer (firm blurb + newsletter form, Contact + social icons, Explore links, Service Area list), with Privacy/Terms/Disclaimer/Sitemap only in the bottom bar — not the four legal pages themselves, which use a simpler footer without the newsletter/social/Service Area column.
+
+## Blog posts
+
+Write and build every blog post per `BLOG-STYLE-GUIDE.md` (voice, structure, Spanish twin, Resources card, review checklist).
