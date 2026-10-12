@@ -2,6 +2,7 @@
 .iq-btn{ appearance:none; border:1.5px solid var(--navy-950, #0a0f27); background:#fff; color:var(--navy-950, #0a0f27); font:inherit; font-weight:600; font-size:15px; padding:11px 20px; border-radius:999px; cursor:pointer; }
 .iq-btn.is-primary{ background:var(--navy-950, #0a0f27); color:#fff; }
 .iq-btn:hover{ filter:brightness(1.08); }
+.iq-btn:disabled{ opacity:.35; cursor:default; filter:none; }
 .iq-btn:focus-visible, .iq-card:focus-visible, .iq-x:focus-visible{ outline:3px solid var(--gold-500, #c9a227); outline-offset:2px; }
 
 .iq-launch{ display:flex; align-items:center; justify-content:space-between; gap:18px; margin:24px 0; padding:20px 22px; border-radius:14px; background:var(--navy-950, #0a0f27); color:#fff; }
@@ -46,21 +47,16 @@ body.iq-open{ overflow:hidden; }
 .iq-face-body .iq-tag{ margin-top:6px; }
 .iq-face-body .iq-sample{ background:#fff; }
 .iq-face-body .glossary-term{ border-bottom:1.5px dotted var(--gold-500, #c9a227); pointer-events:none; }
-.iq-controls{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; padding:16px 20px calc(20px + env(safe-area-inset-bottom)); }
+.iq-controls{ display:flex; flex-wrap:wrap; justify-content:center; gap:14px; padding:16px 20px calc(20px + env(safe-area-inset-bottom)); }
 .iq-modal .iq-btn{ background:transparent; border-color:rgba(255,255,255,.5); color:#fff; }
 .iq-modal .iq-btn.is-primary{ background:var(--gold-500, #c9a227); border-color:var(--gold-500, #c9a227); color:var(--navy-950, #0a0f27); }
-.iq-done{ text-align:center; max-width:520px; } .iq-done[hidden]{ display:none; }
-.iq-done h2{ font-family:'Fraunces', Georgia, serif; font-size:32px; margin:0 0 10px; }
-.iq-done .iq-actions{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:18px; }
-.iq-modal.is-done .iq-controls{ display:none; }
-.iq-modal.is-done .iq-card{ display:none; }
 
 @media (max-width:640px){
   .iq-launch{ flex-direction:column; align-items:stretch; text-align:left; }
   .iq-head h3{ font-size:17.5px; }
   .iq-face{ padding:24px 20px; }
   .iq-card{ height:100%; }
-  .iq-controls .iq-btn{ flex:1 1 40%; padding:11px 10px; }
+  .iq-controls .iq-btn{ flex:1 1 40%; padding:12px 10px; }
 }
 @media (prefers-reduced-motion: reduce){ .iq-card{ transition:none; } }
 @media print{ .iq-launch, .iq-modal{ display:none !important; } .iq-item{ break-inside:avoid; } }

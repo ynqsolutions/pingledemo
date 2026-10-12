@@ -6053,3 +6053,25 @@ p.article-disclaimer{
 .form-pair{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:start; }
 .form-pair .form-row input{ width:100%; min-width:0; box-sizing:border-box; }
 @media (max-width:560px){ .form-pair{ grid-template-columns:minmax(0,1fr); gap:16px; } }
+
+/* ===== Blog layout: one column on tablets and phones =====
+   (This rule was lost in the dead-CSS cleanup; without it the sidebar column
+   pushed phones into horizontal scroll.) On these widths main.js embeds the
+   sidebar blocks between the article's sections, so nothing is stacked at the
+   very bottom. */
+@media (max-width: 1080px){
+  .blog-layout{ grid-template-columns:minmax(0, 1fr); gap:24px; }
+  .blog-main{ padding:28px 24px 32px; min-width:0; }
+  .blog-toc-grid{ grid-template-columns:1fr; }
+  .blog-sidebar:empty{ display:none; }
+}
+@media (max-width: 680px){
+  .blog-main{ padding:22px 16px 26px; border-radius:12px; }
+  .blog-prev-next{ grid-template-columns:1fr; }
+  .blog-post-meta-row{ flex-wrap:wrap; gap:10px; }
+  .blog-main img, .blog-main iframe, .blog-main table{ max-width:100%; }
+}
+.blog-embed{ margin:28px 0; }
+.blog-embed .blog-sidebar-card, .blog-embed .blog-help-card{ width:100%; box-sizing:border-box; }
+.blog-embed .sidebar-ad-tools{ display:block; max-width:420px; margin:0 auto; }
+.blog-embed .sidebar-ad-tools img{ width:100%; height:auto; border-radius:12px; }

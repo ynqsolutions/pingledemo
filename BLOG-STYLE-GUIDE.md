@@ -26,7 +26,7 @@ How blog posts are written and built on this site. Follow it exactly so every po
 11. **"What to do" section** last: concrete next steps, ending with a soft pointer to the Free Case Review (never pushy).
 12. **Disclaimer** (`.article-disclaimer`): general educational purposes, not legal advice, no attorney-client relationship, and no guarantee of any outcome (for career-advice posts, also that following the tips does not guarantee a job or offer).
 13. **Previous / Next** (`.blog-prev-next`), plus `data-prev-post` / `data-next-post` on `<body>`.
-14. **Sidebar:** "Need Legal Help?" card, the free-tools banner, and a **Related Articles** list (4-8 links; tag each with its category).
+14. **Sidebar:** "Need Legal Help?" card, the free-tools banner, and a **Related Articles** list (4-8 links; tag each with its category). On tablets and phones (up to 1080px) `js/main.js` embeds these blocks between the article's numbered sections automatically, so keep them as direct children of `.blog-sidebar` and keep sections as `.blog-sign`.
 15. Footer / final CTA are copied unchanged from an existing post.
 
 Keep the page template (header, mobile nav, sticky CTA, footer, scripts) byte-identical to an existing post. Do not hand-edit the shared pieces.
@@ -34,7 +34,7 @@ Keep the page template (header, mobile nav, sticky CTA, footer, scripts) byte-id
 ## 3. Interactive Q&A variant (like the interview post)
 - Questions are real HTML cards (`.iq-item`) with: `Q#` badge + question (`h3`), "What they're really asking", "How to answer" (2-3 steps), a **Sample answer** quote, an **Avoid** line, with any tips as ordinary glossary terms in the text.
 - Group cards into numbered `.blog-sign` sections.
-- Flashcards (`js/interview-qa.js`, `css/interview-qa.css`) are built from those cards, so all text stays in the HTML. Interactivity may only reveal text that already exists in the page; never load answers by script.
+- Flashcards are Back and Next buttons only (full-page overlay, tap to flip, Esc closes). Built by `js/interview-qa.js`, `css/interview-qa.css`) are built from those cards, so all text stays in the HTML. Interactivity may only reveal text that already exists in the page; never load answers by script.
 - Add `FAQPage` JSON-LD whose text matches the visible answers, and `Article` JSON-LD (author Corey).
 - Nothing the visitor does is stored or sent; calculators and templates never carry data to the case review.
 
@@ -50,6 +50,7 @@ Keep the page template (header, mobile nav, sticky CTA, footer, scripts) byte-id
 - [ ] Direct answer in the TL;DR and first section
 - [ ] Every legal statement flagged for Corey's review
 - [ ] Definitions and examples present
+- [ ] Checked at 375px wide: no horizontal scroll, sidebar blocks embedded between sections
 - [ ] EN and ES pages, both linked from the toggle
 - [ ] Unsplash photo present and loading; icon created; Resources card added
 - [ ] Share block directly under the intro; Did You Know shown only as glossary popups

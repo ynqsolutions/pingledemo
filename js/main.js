@@ -1425,3 +1425,57 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   });
 })();
 
+
+// Blog posts on tablets and phones: instead of stacking the sidebar (help card,
+// tools banner, related articles) at the very bottom, embed each block between
+// the article's sections. On wide screens everything goes back to the sidebar.
+(function(){
+  const sidebar = document.querySelector('.blog-layout .blog-sidebar');
+  const article = document.querySelector('.blog-layout .blog-main');
+  if(!sidebar || !article || !window.matchMedia) return;
+  const blocks = Array.prototype.slice.call(sidebar.children);
+  if(!blocks.length) return;
+  const mq = window.matchMedia('(max-width: 1080px)');
+  let embedded = false;
+
+  function embed(){
+    let sections = Array.prototype.slice.call(article.querySelectorAll('.blog-sign'));
+    if(sections.length < 2) sections = Array.prototype.slice.call(article.querySelectorAll(':scope > h2, :scope > .blog-section'));
+    const end = article.querySelector('.article-disclaimer') || article.querySelector('.blog-share');
+    const n = sections.length;
+    // help card ~1/3 through, banner ~2/3 through, related articles after the last section
+    const slots = n >= 3 ? [Math.ceil(n / 3) - 1, Math.ceil(2 * n / 3) - 1, n - 1] : [n - 1, n - 1, n - 1];
+    const after = {};
+    blocks.forEach(function(b, i){
+      const slot = blocks.length === 1 ? slots[2] : Math.min(i, 2) === 0 ? slots[0] : (i === blocks.length - 1 ? slots[2] : slots[1]);
+      const wrap = document.createElement('div');
+      wrap.className = 'blog-embed';
+      wrap.appendChild(b);
+      (after[slot] = after[slot] || []).push(wrap);
+    });
+    Object.keys(after).forEach(function(k){
+      const anchor = sections[Number(k)];
+      let ref = anchor ? anchor.nextSibling : null;
+      after[k].forEach(function(w){
+        if(anchor && anchor.parentNode) anchor.parentNode.insertBefore(w, ref);
+        else if(end && end.parentNode) end.parentNode.insertBefore(w, end);
+        else article.appendChild(w);
+      });
+    });
+    embedded = true;
+  }
+  function restore(){
+    blocks.forEach(function(b){
+      const wrap = b.parentNode;
+      sidebar.appendChild(b);
+      if(wrap && wrap.classList && wrap.classList.contains('blog-embed') && wrap.parentNode) wrap.parentNode.removeChild(wrap);
+    });
+    embedded = false;
+  }
+  function sync(){
+    if(mq.matches && !embedded) embed();
+    else if(!mq.matches && embedded) restore();
+  }
+  sync();
+  if(mq.addEventListener) mq.addEventListener('change', sync); else if(mq.addListener) mq.addListener(sync);
+})();
