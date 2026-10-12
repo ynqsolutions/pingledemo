@@ -635,7 +635,8 @@ if(backToTop){
 
   const popup = document.createElement('div');
   popup.className = 'glossary-popup';
-  popup.innerHTML = '<button type="button" class="glossary-close" aria-label="Close definition">&times;</button><div class="glossary-popup-head"><img src="assets/Pingle_HS_Thinking.png" alt="" class="glossary-popup-photo"><span class="glossary-popup-tag">Did You Know?</span></div><strong></strong><span class="glossary-popup-text"></span>';
+  const esPage = (document.documentElement.lang || '').toLowerCase().indexOf('es') === 0;
+  popup.innerHTML = '<button type="button" class="glossary-close" aria-label="' + (esPage ? 'Cerrar definici\u00f3n' : 'Close definition') + '">&times;</button><div class="glossary-popup-head"><img src="assets/Pingle_HS_Thinking.png" alt="" class="glossary-popup-photo"><span class="glossary-popup-tag">' + (esPage ? '\u00bfSab\u00eda Que?' : 'Did You Know?') + '</span></div><strong></strong><span class="glossary-popup-text"></span>';
   document.body.appendChild(popup);
 
   const titleEl = popup.querySelector('strong');

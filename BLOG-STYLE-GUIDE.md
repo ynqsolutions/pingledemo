@@ -39,7 +39,7 @@ Keep the page template (header, mobile nav, sticky CTA, footer, scripts) byte-id
 - Nothing the visitor does is stored or sent; calculators and templates never carry data to the case review.
 
 ## 4. Every new post also needs
-- **Spanish twin:** `blog-<slug>-es.html`, the same structure, with the EN/ES toggle linking both ways (`lang="es"`, translated title, description, meta line "28 de agosto de 2026 · 7 min de lectura").
+- **Spanish twin:** `blog-<slug>-es.html`, the same structure (Spanish labels: Resumen, En Este Artículo, Compartir este artículo, Anterior/Siguiente; links go to `-es` pages; glossary popups and flashcards switch language automatically from `<html lang>`), with a Spanish card in `resources-es.html` and entries in `sitemap.html` and `sitemap-es.html`, with the EN/ES toggle linking both ways (`lang="es"`, translated title, description, meta line "28 de agosto de 2026 · 7 min de lectura").
 - **Resources card** in `resources.html` (`resource-article-card` with `data-category` and `data-industry`, tag, title, date) with its icon: a 512x512 pencil-sketch PNG at `assets/blog-icons/blog-<slug>.png`, chosen from `blog icons/` (use `git show HEAD:` if the file is deleted locally) and not already used by another post.
 - **Cache-busting:** use the current `?v=` numbers from an existing post for `css/style.css`, `js/main.js` and any other asset.
 - **Canonical URL, one `<h1>`, descriptive image alt text.**

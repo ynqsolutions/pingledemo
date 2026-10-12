@@ -8,6 +8,8 @@
   var $ = function(id){ return document.getElementById(id); };
   var card = $('iqCard'), front = $('iqFrontQ'), backQ = $('iqBackQ'), back = $('iqBackBody'), tag = $('iqTag'),
       seg = $('iqSeg'), prev = $('iqPrev'), next = $('iqNext');
+  var es = (document.documentElement.lang || '').toLowerCase().indexOf('es') === 0;
+  var T = es ? { q: 'Pregunta ', of: ' de ', flip: 'Voltear tarjeta. ' } : { q: 'Question ', of: ' of ', flip: 'Flip card. ' };
   var pos = 0, lastFocus = null;
 
   items.forEach(function(){ seg.appendChild(document.createElement('span')); });
@@ -19,11 +21,11 @@
     card.classList.remove('is-flipped');
     front.textContent = q; backQ.textContent = q;
     back.innerHTML = plain(it.querySelector('.iq-body'));
-    tag.textContent = 'Question ' + (pos + 1) + ' of ' + items.length;
+    tag.textContent = T.q + (pos + 1) + T.of + items.length;
     segs.forEach(function(s, i){ s.className = i < pos ? 'is-done' : (i === pos ? 'is-on' : ''); });
     prev.disabled = pos === 0;
     next.disabled = pos === items.length - 1;
-    card.setAttribute('aria-label', 'Flip card. ' + tag.textContent);
+    card.setAttribute('aria-label', T.flip + tag.textContent);
   }
   function go(d){ var n = pos + d; if(n < 0 || n >= items.length) return; pos = n; show(); }
   function open(){
