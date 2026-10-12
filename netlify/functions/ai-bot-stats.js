@@ -56,6 +56,12 @@ const LABELS = {
 // Individual visits are kept (compactly, inside each day's rollup) for this many
 // days, capped per day. Only bots whose referer means something have it stored.
 const KEEP_ITEM_DAYS = 90, MAX_ITEMS_PER_DAY = 3000, MAX_FEED = 600;
+// Person-search and AI-search crawlers: their visits are returned in full (up
+// to MAX_INSIGHT) as `insight`, so the admin's Insights rankings aren't crowded
+// out of the 600-visit feed by high-volume training crawls.
+const INSIGHT_BOTS = new Set(['ChatGPT-User', 'Claude-Web', 'Claude-User', 'anthropic-ai', 'Perplexity-User', 'meta-externalfetcher',
+  'OAI-SearchBot', 'PerplexityBot', 'Bingbot', 'YouBot', 'DuckAssistBot', 'meta-webindexer']);
+const MAX_INSIGHT = 4000;
 const REFERER_BOTS = new Set(['ChatGPT-User', 'Claude-Web', 'Claude-User', 'Perplexity-User', 'meta-externalfetcher', 'OAI-SearchBot', 'anthropic-ai']);
 
 function addDaysIso(iso, n){ const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
@@ -223,6 +229,9 @@ async function gatherData(store, url){
   const fresh = top.map(c => ({ bot: c.bot, label: LABELS[c.bot] || c.bot, path: c.path, referer: c.referer || null, time: new Date(c.ms).toISOString() }));
   const legacyRecent = ((await store.get('recent', { type: 'json' })) || []).filter(r => inWindow.has(String(r.time || '').slice(0, 10)));
   const recent = fresh.concat(legacyRecent).slice(0, MAX_FEED);
+  const insight = cand.filter(c => INSIGHT_BOTS.has(c.bot)).slice(0, MAX_INSIGHT)
+    .map(c => ({ bot: c.bot, label: LABELS[c.bot] || c.bot, path: c.path, referer: c.referer || null, time: new Date(c.ms).toISOString() }))
+    .concat(legacyRecent.filter(r => INSIGHT_BOTS.has(r.bot))).slice(0, MAX_INSIGHT);
 
   // Per-day page tallies for the window (top pages only, to keep the payload
   // small on long ranges) - lets the report show "most-read pages" for the
@@ -239,7 +248,7 @@ async function gatherData(store, url){
   });
   const pagesSince = [...newDays.keys()].sort()[0] || null;
 
-  return { totals, recent, daily, pages, hours, pagesDaily, pagesSince };
+  return { totals, recent, insight, daily, pages, hours, pagesDaily, pagesSince };
 }
 
 export default async (req) => {

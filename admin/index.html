@@ -2772,7 +2772,7 @@
           : (b && b.error) || ('Request failed (' + r.status + ')'));
       });
     }).then(function(data){
-        aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || []; aiCrawlers.src = { hours: data.hours || {}, utc: data.daily || [] }; aiCrawlers.pagesDaily = data.pagesDaily || {}; aiCrawlers.pagesSince = data.pagesSince || null;
+        aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || []; aiCrawlers.insight = data.insight || data.recent || []; aiCrawlers.src = { hours: data.hours || {}, utc: data.daily || [] }; aiCrawlers.pagesDaily = data.pagesDaily || {}; aiCrawlers.pagesSince = data.pagesSince || null;
         aiCrawlers.daily = aiLocalDaily(data, isoDay(addLocalDays(new Date(), -29)), isoDay(new Date())); aiCrawlers.pages = data.pages || {};
         aiCrawlers.busy = false; renderAiCrawlers();
       })
@@ -3070,7 +3070,7 @@
     var rng = function(ds){ return ds.length ? (ds[0].date === ds[ds.length - 1].date ? shortDate(ds[0].date) : shortDate(ds[0].date) + '–' + shortDate(ds[ds.length - 1].date)) : ''; };
     var trend = function(t){ var a = sumT(first, t), b = sumT(second, t); return { early: a, late: b, pct: a ? Math.round((b - a) / a * 100) : (b ? null : 0), r1: rng(first), r2: rng(second), ok: first.length > 0 && second.length > 0 }; };
     var ins = { from: from, to: to, liveCount: live.length, searchCount: search.length, livePages: livePages, liveBy: liveBy, searchPages: searchPages, searchBy: searchBy, refs: refs, when: { week: wk, bands: bands, weekT: wkT, bandsT: bandsT, total: wkTotal, bandTotal: bandTotal, topDay: topDay, topBand: topBand, pct: pc, pctB: pcB, topDayPct: wkTotal ? pc(Math.max.apply(null, wk)) : 0, topBandPct: bandTotal ? pcB(bands[topBand]) : 0 },
-      liveTrend: trend('live'), searchTrend: trend('search'), absent: MAIN_ASSISTANTS.filter(function(a){ return !liveBy.some(function(x){ return x.key === a; }); }), capped: (recent || []).length >= 600, actions: [] };
+      liveTrend: trend('live'), searchTrend: trend('search'), absent: MAIN_ASSISTANTS.filter(function(a){ return !liveBy.some(function(x){ return x.key === a; }); }), capped: (recent || []).length === 600 || (recent || []).length >= 4000, actions: [] };
     ins.when.busiest = (topDay ? topDay + ' (' + ins.when.topDayPct + '%)' : '') + (topBand ? ' and ' + topBand.replace(/ \(.*\)/, '').toLowerCase() + ' (' + ins.when.topBandPct + '%)' : '');
     // Headline counts cover the whole period (from the daily totals); the page and
     // platform rankings below them come from the itemized visits.
@@ -3303,11 +3303,11 @@
         '<div class="card"><div class="legend">' + AI_TYPE_ORDER.map(function(k){ return '<span>' + keyDot(k) + '<b>' + AI_TYPES[k].label + '</b> &middot; ' + n0(byType[k]) + ' (' + pctOf(byType[k], total) + '%)</span>'; }).join('') + '</div>' + platformBars(plats, total, 12) + '</div>' +
         '<div class="card">' + (heatGrid() || '<p class="empty">No visits in this period.</p>') + '</div></section>' +
       (function(){
-        var ins = buildInsights(data.recent, daily, from, to, { hours: data.hours, utc: data.daily });
+        var ins = buildInsights(data.insight || data.recent, daily, from, to, { hours: data.hours, utc: data.daily });
         function lst(items, empty, fmtFn){ return items.length ? '<ol class="il">' + items.slice(0, 6).map(fmtFn).join('') + '</ol>' : '<p class="empty">' + empty + '</p>'; }
         function pg(x){ return '<li><span>' + esc(pageName(x.key)) + '<small>' + esc(x.key) + '</small></span><b>' + x.n + '</b></li>'; }
         function who(x){ return '<li><span>' + esc(x.key) + '</span><b>' + x.n + '</b></li>'; }
-        return '<section class="ins"><h2>What the activity means</h2><p class="sub">Person searches are real people asking an AI something and it opening your page; AI Search is AI tools indexing pages so they can cite them. ' + ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 'es') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ' in these dates.' + (ins.capped ? ' The page and assistant rankings use the newest 600 itemized visits; the totals and timing cover every day.' : '') + '</p>' +
+        return '<section class="ins"><h2>What the activity means</h2><p class="sub">Person searches are real people asking an AI something and it opening your page; AI Search is AI tools indexing pages so they can cite them. ' + ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 'es') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ' in these dates.' + (ins.capped ? ' The page and assistant rankings use the newest itemized visits only; the totals and timing cover every day.' : '') + '</p>' +
           '<div class="igrid">' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Pages answering real questions</div><p class="id">AI opened these to answer someone. Your highest-value pages.</p>' + lst(ins.livePages, 'No person searches in these dates.', pg) + '</div>' +
             '<div class="ic"><div class="ih" style="--c:' + AI_TYPES.live.hex + '">Assistants that looked you up</div><p class="id">AI assistants that opened your pages to answer someone’s question.</p>' + lst(ins.liveBy, 'None yet.', who) + (ins.refs.length ? '<p class="id" style="margin-top:8px">Referring sites seen: ' + ins.refs.map(function(r){ return esc(r.key) + ' (' + r.n + ')'; }).join(', ') + '</p>' : '') + '</div>' +
@@ -3863,7 +3863,7 @@
         if(ad){ srcD = ad; from = to; ad.daily.some(function(d){ if(Object.keys(d.counts || {}).some(function(k){ return d.counts[k] > 0; })){ from = d.date; return true; } return false; }); }
         else { loadingAll = true; from = isoDay(addLocalDays(new Date(), -29)); }
       } else { label = 'last ' + per + ' days'; from = isoDay(addLocalDays(new Date(), -(Number(per) - 1))); }
-      var ins = buildInsights(srcD.recent, srcD.daily, from, to, srcD.src);
+      var ins = buildInsights(srcD.insight || srcD.recent, srcD.daily, from, to, srcD.src);
       ins.label = label;
       if(per === 'all' && !aiCrawlers.insAll && !aiCrawlers.insAllBusy){
         var u = currentUser();
@@ -3872,7 +3872,7 @@
           var f365 = isoDay(addLocalDays(new Date(), -364));
           u.jwt().then(function(token){ return fetch(aiStatsUrl(f365, to), { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } }); })
             .then(function(r){ if(!r.ok) throw new Error('Request failed (' + r.status + ')'); return r.json(); })
-            .then(function(d){ aiCrawlers.insAll = { recent: d.recent || [], daily: aiLocalDaily(d, f365, to), src: { hours: d.hours || {}, utc: d.daily || [] } }; })
+            .then(function(d){ aiCrawlers.insAll = { recent: d.recent || [], insight: d.insight || d.recent || [], daily: aiLocalDaily(d, f365, to), src: { hours: d.hours || {}, utc: d.daily || [] } }; })
             .catch(function(){ aiCrawlers.insPeriod = '30'; })
             .then(function(){ aiCrawlers.insAllBusy = false; renderInsightsNow(); });
         }
@@ -3889,7 +3889,7 @@
       function box(color, title, desc, body){ return el('div', { class: 'in-box' }, [ el('div', { class: 'in-h' }, [ el('span', { class: 'ai-key', style: 'background:' + color }), title ]), el('p', { class: 'in-d', text: desc }), body ]); }
       var card = el('div', { class: 'card ins-card' }); insHost = card;
       card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Insights · ' + label }),
-        el('p', { text: (loadingAll ? 'Loading all-time data… ' : '') + ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 'es') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' + (per === 'all' && ins.capped ? ' Page and assistant rankings use the newest 600 itemized visits.' : '') }) ]),
+        el('p', { text: (loadingAll ? 'Loading all-time data… ' : '') + ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 'es') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' + (per === 'all' && ins.capped ? ' Page and assistant rankings use only the newest itemized visits.' : '') }) ]),
         el('div', { class: 'seg', role: 'group', 'aria-label': 'Period' }, [ ['7', '7 days'], ['14', '14 days'], ['30', '30 days'], ['all', 'All time'] ].map(function(c){
           return el('button', { type: 'button', class: per === c[0] ? 'is-on' : '', 'aria-pressed': per === c[0] ? 'true' : 'false', text: c[1], onclick: function(){ aiCrawlers.insPeriod = c[0]; renderInsightsNow(); } });
         })) ]));
