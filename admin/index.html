@@ -3890,9 +3890,11 @@
       var card = el('div', { class: 'card ins-card' }); insHost = card;
       card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Insights · ' + label }),
         el('p', { text: (loadingAll ? 'Loading all-time data… ' : '') + ins.liveCount + ' person search' + (ins.liveCount === 1 ? '' : 'es') + ' and ' + ins.searchCount + ' AI Search visit' + (ins.searchCount === 1 ? '' : 's') + ', translated into what they mean and what to do.' + (per === 'all' && ins.capped ? ' Page and assistant rankings use only the newest itemized visits.' : '') }) ]),
-        el('div', { class: 'seg', role: 'group', 'aria-label': 'Period' }, [ ['7', '7 days'], ['14', '14 days'], ['30', '30 days'], ['all', 'All time'] ].map(function(c){
-          return el('button', { type: 'button', class: per === c[0] ? 'is-on' : '', 'aria-pressed': per === c[0] ? 'true' : 'false', text: c[1], onclick: function(){ aiCrawlers.insPeriod = c[0]; renderInsightsNow(); } });
-        })) ]));
+        (function(){
+          var sel = el('select', { class: 'pl-type', 'aria-label': 'Filter by date', onchange: function(e){ aiCrawlers.insPeriod = e.target.value; renderInsightsNow(); } },
+            [ ['7', 'Last 7 days'], ['14', 'Last 14 days'], ['30', 'Last 30 days'], ['all', 'All time'] ].map(function(c){ return el('option', { value: c[0], text: c[1] }); }));
+          sel.value = per; return sel;
+        })() ]));
       card.appendChild(el('div', { class: 'in-grid' }, [
         box(AI_TYPES.live.hex, 'Pages answering real questions', 'AI opened these to answer someone - your highest-value pages.', lst(pages(ins.livePages), 'No person searches yet.')),
         box(AI_TYPES.live.hex, 'Assistants that looked you up', 'AI assistants that opened your pages to answer someone’s question.' + (ins.refs.length ? ' Referring sites: ' + ins.refs.map(function(r){ return r.key; }).join(', ') + '.' : ''), lst(who(ins.liveBy), 'None yet.')),
@@ -3922,9 +3924,9 @@
         if(aiCrawlers.pagesSince && aiCrawlers.pagesSince > from) note = 'Per-page counts begin ' + shortDate(aiCrawlers.pagesSince) + '; earlier visits in this period aren’t broken down by page.';
       }
       var rows = Object.keys(map).map(function(k){ return { path: k, count: map[k] }; }).filter(function(r){ return r.count > 0; }).sort(function(a, b){ return b.count - a.count; });
-      var seg = el('div', { class: 'seg', role: 'group', 'aria-label': 'Period' }, [ ['7', '7 days'], ['30', '30 days'], ['all', 'All time'] ].map(function(c){
-        return el('button', { type: 'button', class: per === c[0] ? 'is-on' : '', 'aria-pressed': per === c[0] ? 'true' : 'false', text: c[1], onclick: function(){ aiCrawlers.pagesPeriod = c[0]; renderPagesCard(); } });
-      }));
+      var seg = el('select', { class: 'pl-type', 'aria-label': 'Filter by date', onchange: function(e){ aiCrawlers.pagesPeriod = e.target.value; renderPagesCard(); } },
+        [ ['7', 'Last 7 days'], ['30', 'Last 30 days'], ['all', 'All time'] ].map(function(c){ return el('option', { value: c[0], text: c[1] }); }));
+      seg.value = per;
       pagesCard.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Most-read pages' }), el('p', { text: (per === 'all' ? 'All-time' : 'Last ' + per + ' days of') + ' AI crawler hits per page · ' + fmt(rows.length) + ' distinct URL' + (rows.length === 1 ? '' : 's') + ' read.' }) ]), seg ]));
       if(!rows.length){
         pagesCard.appendChild(el('div', { class: 'empty-state', text: per === 'all' ? 'Page tallies start with the next crawler visit after this deploy.' : 'No page-level visits in this period yet.' }));
