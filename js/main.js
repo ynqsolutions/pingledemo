@@ -1443,18 +1443,13 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   function buildCtaBox(card){
     const es = (document.documentElement.lang || '').toLowerCase().indexOf('es') === 0;
     const h = card.querySelector('h3'), p = card.querySelector('p'), a = card.querySelector('a');
-    const pts = es ? ['Consulta gratuita', 'Sin ganar, sin cobrar', 'Respuestas reales'] : ['Free consultation', 'No win, no fee guarantee', 'Real answers'];
     const box = document.createElement('div');
     box.className = 'blog-cta-box';
+    const eyebrow = document.createElement('span'); eyebrow.className = 'blog-cta-eyebrow'; eyebrow.textContent = es ? 'Consulta gratuita' : 'Free case review';
     const h2 = document.createElement('h3'); h2.textContent = h ? h.textContent : (es ? '\u00bfNecesita ayuda legal?' : 'Need Legal Help?');
     const para = document.createElement('p'); para.textContent = p ? p.textContent : '';
-    const ul = document.createElement('ul');
-    pts.forEach(function(t){ const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
-    const row = document.createElement('div'); row.className = 'blog-cta-box-buttons';
-    const primary = document.createElement('a'); primary.className = 'btn btn-gold'; primary.href = a ? a.getAttribute('href') : 'case-review.html'; primary.textContent = a ? a.textContent : 'Free Case Review';
-    const secondary = document.createElement('a'); secondary.className = 'btn btn-outline-light'; secondary.href = es ? 'contact-es.html' : 'contact.html'; secondary.textContent = es ? 'Cont\u00e1ctenos' : 'Contact Us';
-    row.appendChild(primary); row.appendChild(secondary);
-    box.appendChild(h2); box.appendChild(para); box.appendChild(ul); box.appendChild(row);
+    const btn = document.createElement('a'); btn.className = 'btn btn-gold'; btn.href = a ? a.getAttribute('href') : 'case-review.html'; btn.textContent = a ? a.textContent : 'Free Case Review';
+    box.appendChild(eyebrow); box.appendChild(h2); box.appendChild(para); box.appendChild(btn);
     return box;
   }
 

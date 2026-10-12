@@ -2264,7 +2264,6 @@ html.answerly-hidden iframe[placement]{ display:none !important; }
   padding:14px 16px;
   background:var(--paper-dim);
   border:1px solid var(--paper-line);
-  border-left:3px solid var(--gold-500);
   border-radius:6px;
   font-size:13.5px;
   line-height:1.55;
@@ -6079,17 +6078,22 @@ p.article-disclaimer{
 /* Mobile CTA box that replaces the pointing "Need Legal Help?" card inside blog posts */
 .blog-embed .blog-help-card{ display:none; }
 .blog-cta-box{
-  background:var(--navy-950);
-  background-image:repeating-linear-gradient(115deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 34px);
-  color:#fff;
-  border-radius:14px;
+  text-align:center;
+  background:linear-gradient(180deg, #fff 0%, var(--paper-dim) 100%);
+  border:1px solid var(--paper-line);
+  border-radius:16px;
   padding:26px 22px 24px;
-  box-shadow:0 22px 40px -28px rgba(10,15,39,0.6);
+  box-shadow:0 22px 40px -30px rgba(10,15,39,0.4);
 }
-.blog-cta-box h3{ font-family:var(--font-display); font-size:25px; line-height:1.2; color:#fff; margin:0; }
-.blog-cta-box p{ color:rgba(255,255,255,0.78); font-size:15px; line-height:1.6; margin:10px 0 0; }
-.blog-cta-box ul{ list-style:none; margin:16px 0 0; padding:0; display:grid; gap:8px; }
-.blog-cta-box li{ font-size:14px; padding-left:24px; position:relative; color:rgba(255,255,255,0.9); }
-.blog-cta-box li::before{ content:"\2713"; position:absolute; left:0; color:var(--gold-400); font-weight:700; }
-.blog-cta-box-buttons{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
-.blog-cta-box-buttons .btn{ flex:1 1 150px; justify-content:center; text-align:center; }
+.blog-cta-eyebrow{
+  display:block;
+  font-family:var(--font-body);
+  font-size:11.5px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--gold-600, #8a6d1f);
+}
+.blog-cta-box h3{ font-family:var(--font-display); font-size:24px; line-height:1.22; color:var(--navy-950); margin:8px 0 0; }
+.blog-cta-box p{ color:var(--ink-soft); font-size:15px; line-height:1.6; margin:10px auto 0; max-width:34ch; }
+.blog-cta-box .btn{ margin-top:20px; width:100%; justify-content:center; text-align:center; }

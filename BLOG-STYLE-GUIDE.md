@@ -26,7 +26,7 @@ How blog posts are written and built on this site. Follow it exactly so every po
 11. **"What to do" section** last: concrete next steps, ending with a soft pointer to the Free Case Review (never pushy).
 12. **Disclaimer** (`.article-disclaimer`): general educational purposes, not legal advice, no attorney-client relationship, and no guarantee of any outcome (for career-advice posts, also that following the tips does not guarantee a job or offer).
 13. **Previous / Next** (`.blog-prev-next`), plus `data-prev-post` / `data-next-post` on `<body>`.
-14. **Sidebar:** "Need Legal Help?" card, the free-tools banner, and a **Related Articles** list (4-8 links; tag each with its category). On tablets and phones (up to 1080px) `js/main.js` embeds these blocks between the article's numbered sections automatically, (the help card becomes a plain navy CTA box there, never the pointing photo, so no text is covered), so keep them as direct children of `.blog-sidebar` and keep sections as `.blog-sign`.
+14. **Sidebar:** "Need Legal Help?" card, the free-tools banner, and a **Related Articles** list (4-8 links; tag each with its category). On tablets and phones (up to 1080px) `js/main.js` embeds these blocks between the article's numbered sections automatically, (the help card becomes a light CTA box with one Free Case Review button there, no checkmarks and never the pointing photo, so no text is covered), so keep them as direct children of `.blog-sidebar` and keep sections as `.blog-sign`.
 15. Footer / final CTA are copied unchanged from an existing post.
 
 Keep the page template (header, mobile nav, sticky CTA, footer, scripts) byte-identical to an existing post. Do not hand-edit the shared pieces.
