@@ -1496,3 +1496,30 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   sync();
   if(mq.addEventListener) mq.addEventListener('change', sync); else if(mq.addListener) mq.addListener(sync);
 })();
+
+// Jelly stretch on toggles: language switches, accessibility-widget toggles,
+// switches, pressed/expanded buttons and the menu button squash and spring
+// back when used. Respects prefers-reduced-motion (CSS turns the animation off).
+(function(){
+  const SEL = '.lang-toggle a, .lang-toggle span, .a11y-lang-toggle a, .a11y-lang-toggle span, .a11y-icon-toggle, .a11y-btn, .a11y-group-toggle, [aria-pressed], .calc-toggle, .burger';
+  function jelly(el){
+    el.classList.remove('jelly');
+    void el.offsetWidth; // restart the animation if it is triggered again quickly
+    el.classList.add('jelly');
+    el.addEventListener('animationend', function(){ el.classList.remove('jelly'); }, { once:true });
+  }
+  document.addEventListener('click', function(e){
+    const el = e.target && e.target.closest ? e.target.closest(SEL) : null;
+    if(!el) return;
+    jelly(el);
+    // Language links change the page: let the stretch be seen first.
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!reduce && el.tagName === 'A' && el.closest('.lang-toggle, .a11y-lang-toggle') && el.getAttribute('href')
+       && !el.classList.contains('active') && !e.defaultPrevented && e.button === 0
+       && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && el.target !== '_blank'){
+      e.preventDefault();
+      const href = el.href;
+      setTimeout(function(){ window.location.href = href; }, 280);
+    }
+  }, true);
+})();
