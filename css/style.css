@@ -6119,3 +6119,9 @@ p.article-disclaimer{
   .jelly{ animation:none; }
   .calc-toggle-thumb{ transition:none; }
 }
+
+/* Language switch: sliding pill (created by main.js on first use) */
+.lang-toggle.has-thumb, .a11y-lang-toggle.has-thumb{ position:relative; }
+.lang-thumb{ position:absolute; z-index:0; border-radius:999px; pointer-events:none; transform-origin:center; will-change:left, width, transform; }
+.has-thumb > a, .has-thumb > span:not(.lang-thumb){ position:relative; z-index:1; }
+.has-thumb > .active, .has-thumb > a.active, .has-thumb > span.active{ background:transparent !important; }

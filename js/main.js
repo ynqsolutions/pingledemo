@@ -1497,11 +1497,12 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   if(mq.addEventListener) mq.addEventListener('change', sync); else if(mq.addListener) mq.addListener(sync);
 })();
 
-// Jelly stretch on toggles: language switches, accessibility-widget toggles,
-// switches, pressed/expanded buttons and the menu button squash and spring
-// back when used. Respects prefers-reduced-motion (CSS turns the animation off).
+// Jelly stretch on toggles: accessibility-widget toggles, switches,
+// pressed/expanded buttons and the menu button squash and spring back when
+// used. Respects prefers-reduced-motion (CSS turns the animation off).
+// The EN/ES language switches have their own sliding pill (below).
 (function(){
-  const SEL = '.lang-toggle a, .lang-toggle span, .a11y-lang-toggle a, .a11y-lang-toggle span, .a11y-icon-toggle, .a11y-btn, .a11y-group-toggle, [aria-pressed], .calc-toggle, .burger';
+  const SEL = '.a11y-icon-toggle, .a11y-btn, .a11y-group-toggle, [aria-pressed]:not(.lang-toggle *):not(.a11y-lang-toggle *), .calc-toggle, .burger';
   function jelly(el){
     el.classList.remove('jelly');
     void el.offsetWidth; // restart the animation if it is triggered again quickly
@@ -1510,16 +1511,62 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   }
   document.addEventListener('click', function(e){
     const el = e.target && e.target.closest ? e.target.closest(SEL) : null;
-    if(!el) return;
-    jelly(el);
-    // Language links change the page: let the stretch be seen first.
-    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(!reduce && el.tagName === 'A' && el.closest('.lang-toggle, .a11y-lang-toggle') && el.getAttribute('href')
-       && !el.classList.contains('active') && !e.defaultPrevented && e.button === 0
-       && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && el.target !== '_blank'){
-      e.preventDefault();
-      const href = el.href;
-      setTimeout(function(){ window.location.href = href; }, 280);
+    if(el) jelly(el);
+  }, true);
+
+  // Language switch: the gold pill slides (and stretches like jelly) from the
+  // current language to the other one, and the page changes only after it
+  // lands, so the animation is always seen.
+  const SLIDE_MS = 620;
+  const reduce = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.addEventListener('click', function(e){
+    const link = e.target && e.target.closest ? e.target.closest('.lang-toggle a, .a11y-lang-toggle a') : null;
+    if(!link || !link.getAttribute('href') || link.target === '_blank') return;
+    if(e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const box = link.closest('.lang-toggle, .a11y-lang-toggle');
+    const from = box.querySelector('.active');
+    if(!from || from === link || reduce() || !box.animate) return; // go straight there
+    e.preventDefault();
+    if(box.dataset.sliding) return;
+    box.dataset.sliding = '1';
+    const href = link.href;
+
+    const fromBg = getComputedStyle(from).backgroundColor;
+    const boxRect = box.getBoundingClientRect();
+    const place = (el) => {
+      const b = el.getBoundingClientRect();
+      return { l: b.left - boxRect.left - box.clientLeft, t: b.top - boxRect.top - box.clientTop, w: b.width, h: b.height };
+    };
+    const A = place(from), B = place(link);
+    let thumb = box.querySelector('.lang-thumb');
+    if(!thumb){
+      thumb = document.createElement('span');
+      thumb.className = 'lang-thumb';
+      thumb.setAttribute('aria-hidden', 'true');
+      box.insertBefore(thumb, box.firstChild);
     }
+    thumb.style.background = fromBg;
+    thumb.style.top = A.t + 'px';
+    thumb.style.height = A.h + 'px';
+    thumb.style.left = A.l + 'px';
+    thumb.style.width = A.w + 'px';
+    box.classList.add('has-thumb');
+
+    const L = Math.min(A.l, B.l), R = Math.max(A.l + A.w, B.l + B.w);
+    const anim = thumb.animate([
+      { left: A.l + 'px', width: A.w + 'px', transform: 'scale(1,1)', offset: 0 },
+      { left: L + 'px', width: (R - L) + 'px', transform: 'scale(1,.8)', offset: .38, easing: 'cubic-bezier(.3,.9,.4,1)' },
+      { left: B.l + 'px', width: B.w + 'px', transform: 'scale(1.14,.9)', offset: .7 },
+      { left: B.l + 'px', width: B.w + 'px', transform: 'scale(.96,1.08)', offset: .86 },
+      { left: B.l + 'px', width: B.w + 'px', transform: 'scale(1,1)', offset: 1 }
+    ], { duration: SLIDE_MS, easing: 'ease-out', fill: 'forwards' });
+    // text colors follow the pill
+    setTimeout(function(){ from.classList.remove('active'); link.classList.add('active'); }, Math.round(SLIDE_MS * .3));
+    let gone = false;
+    const go = function(){ if(gone) return; gone = true; window.location.href = href; };
+    anim.finished.then(function(){ setTimeout(go, 90); }, go);
+    // Safety net: never leave the visitor stuck if animations are paused
+    // (for example a background tab).
+    setTimeout(go, SLIDE_MS + 400);
   }, true);
 })();
