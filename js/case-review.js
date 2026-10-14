@@ -503,100 +503,39 @@
       : 'Standard Priority - Needs Attorney Review';
   }
 
-  // ---- Plain-language summary for the office email, in English and Spanish,
-  // for every priority. Built from the answers (by option position, so it is
-  // the same whichever language the visitor filled the form in). ----
-  const WH = {
-    en: ['fired or laid off', 'demoted or written up unfairly', 'harassed or discriminated against', 'not paid correctly (overtime, breaks, final check)', 'misclassified (independent contractor or exempt employee)', 'denied or punished for medical/family leave', 'asked to sign a severance agreement'],
-    es: ['despedido(a) o cesado(a)', 'degradado(a) o amonestado(a) injustamente', 'acosado(a) o discriminado(a)', 'no se le pagó correctamente (horas extra, descansos, cheque final)', 'clasificado(a) incorrectamente (contratista independiente o empleado exento)', 'negado(a) o sancionado(a) por licencia médica/familiar', 'se le pidió firmar un acuerdo de indemnización']
-  };
-  const DOCS = {
-    en: ['emails or texts', 'performance reviews', 'pay stubs or time records', 'witnesses', 'none of these yet'],
-    es: ['correos electrónicos o mensajes de texto', 'evaluaciones de desempeño', 'recibos de pago o registros de horario', 'testigos', 'ninguno de estos todavía']
-  };
-  const TIMING = {
-    en: { 'last-month': 'within the last month', '1-6-months': '1–6 months ago', '6-12-months': '6–12 months ago', '1-3-years': '1–3 years ago', 'over-3-years': 'more than 3 years ago' },
-    es: { 'last-month': 'en el último mes', '1-6-months': 'hace 1 a 6 meses', '6-12-months': 'hace 6 a 12 meses', '1-3-years': 'hace 1 a 3 años', 'over-3-years': 'hace más de 3 años' }
-  };
-  const TENURE = {
-    en: { 'lt6m': 'less than 6 months', '6-12m': '6 months to 1 year', '1-2y': '1 to 2 years', '2-5y': '2 to 5 years', '5-10y': '5 to 10 years', '10y+': '10+ years' },
+  // ---- Short "why this priority" summary for the office email, in English
+  // and Spanish, for every priority. It explains the decision only; the
+  // answers themselves are already in the email's own fields. ----
+  const TENURE_SUM = {
+    en: { 'lt6m': 'less than 6 months', '6-12m': '6 months to 1 year', '1-2y': '1 to 2 years', '2-5y': '2 to 5 years', '5-10y': '5 to 10 years', '10y+': 'more than 10 years' },
     es: { 'lt6m': 'menos de 6 meses', '6-12m': '6 meses a 1 año', '1-2y': '1 a 2 años', '2-5y': '2 a 5 años', '5-10y': '5 a 10 años', '10y+': 'más de 10 años' }
   };
-  const SIZE = {
-    en: { '1-4': '1–4 employees', '5-14': '5–14 employees', '15-49': '15–49 employees', '50+': '50+ employees', 'not-sure': 'size not sure' },
-    es: { '1-4': '1 a 4 empleados', '5-14': '5 a 14 empleados', '15-49': '15 a 49 empleados', '50+': 'más de 50 empleados', 'not-sure': 'tamaño no confirmado' }
-  };
-  function chosenList(field, table, lang){
-    const group = card.querySelector('[data-field="' + field + '"]');
-    if(!group) return [];
-    const out = [];
-    Array.from(group.querySelectorAll('.cr-opt')).forEach((o, i) => {
-      if(!o.classList.contains('selected')) return;
-      if(o.dataset.other === 'true'){
-        const input = card.querySelector('#crOtherText1');
-        const t = input ? input.value.trim() : '';
-        out.push((lang === 'es' ? 'otro: ' : 'other: ') + (t || (lang === 'es' ? 'sin detalle' : 'no detail')));
-      } else if(table[lang][i]) out.push(table[lang][i]);
-    });
-    return out;
-  }
-  function yn(v, lang){ return v === 'yes' ? (lang === 'es' ? 'sí' : 'yes') : v === 'no' ? 'no' : (lang === 'es' ? 'sin respuesta' : 'no answer'); }
-  function payTextLang(lang){
-    if(answers.payType === 'hourly' && answers.hourly){
-      const k = Math.round(annualFromHourly() / 1000);
-      return lang === 'es' ? 'por hora, $' + Number(answers.hourly).toFixed(2) + '/h (aprox. $' + k + 'K al año a tiempo completo)'
-                           : 'hourly, $' + Number(answers.hourly).toFixed(2) + '/hr (about $' + k + 'K/yr full time)';
-    }
-    if(answers.payType === 'salary' && answers.salary) return (lang === 'es' ? 'salario, ' : 'salary, ') + SALARY_LABEL[answers.salary];
-    if(answers.payType === 'prefer-not') return lang === 'es' ? 'prefiere no decirlo' : 'prefers not to say';
-    return lang === 'es' ? 'sin dato' : 'not given';
-  }
   function whyNotHigh(lang){
     const es = lang === 'es', r = [];
     if(answers.stillEmployed === 'yes') r.push(es ? 'todavía trabaja allí' : 'still employed there');
-    if(answers.incidentTiming === 'over-3-years') r.push(es ? 'el incidente fue hace más de 3 años' : 'incident was more than 3 years ago');
-    if(answers.inCalifornia === 'no') r.push(es ? 'el trabajo no fue en California' : 'job was not in California');
+    if(answers.incidentTiming === 'over-3-years') r.push(es ? 'el incidente fue hace más de 3 años' : 'the incident was more than 3 years ago');
+    if(answers.inCalifornia === 'no') r.push(es ? 'el trabajo no fue en California' : 'the job was not in California');
     if(answers.workingWithAttorney === 'yes') r.push(es ? 'ya trabaja con otro abogado' : 'already working with another attorney');
     if(!LONG_TENURE[answers.tenure]) r.push(es ? 'trabajó allí 2 años o menos' : 'worked there 2 years or less');
-    const band = payBand();
-    if(band === 'mid') r.push(es ? 'su pago está entre $70K y $150K al año' : 'pay is between $70K and $150K a year');
+    if(payBand() === 'mid') r.push(es ? 'su pago está entre $70K y $150K al año' : 'pay is between $70K and $150K a year');
     return r;
   }
   function summaryText(lang){
     const es = lang === 'es';
-    const name = answers.fullName || (es ? 'La persona' : 'This person');
-    const parts = [];
-    parts.push(name + (es
-      ? (answers.stillEmployed === 'yes' ? ' todavía trabaja en esa empresa.' : ' ya no trabaja en esa empresa.')
-      : (answers.stillEmployed === 'yes' ? ' still works at the company.' : ' no longer works at the company.')));
-    const what = chosenList('whatHappened', WH, lang);
-    if(what.length) parts.push((es ? 'Indica que fue ' : 'Reports being ') + what.join('; ') + '.');
-    parts.push((es ? 'Incidente más reciente: ' : 'Most recent incident: ') + (TIMING[lang][answers.incidentTiming] || (es ? 'sin dato' : 'not given')) +
-      (es ? '; en California: ' : '; in California: ') + yn(answers.inCalifornia, lang) +
-      '; ' + (SIZE[lang][answers.companySize] || (es ? 'tamaño sin dato' : 'company size not given')) + '.');
-    parts.push((es ? 'Trabajó allí ' : 'Worked there ') + (TENURE[lang][answers.tenure] || (es ? 'sin dato' : 'not given')) +
-      (es ? '; pago: ' : '; pay: ') + payTextLang(lang) + '.');
-    parts.push((es ? 'Presentó queja ante una agencia: ' : 'Filed with an agency: ') + yn(answers.filedWithAgency, lang) +
-      (es ? '. Trabaja con otro abogado: ' : '. Working with another attorney: ') + yn(answers.workingWithAttorney, lang) + '.');
-    const docs = chosenList('documentation', DOCS, lang);
-    if(docs.length) parts.push((es ? 'Documentación: ' : 'Documentation: ') + docs.join('; ') + '.');
     if(answers.outcome === 'strong'){
       const band = payBand();
-      const t = (TENURE[lang][answers.tenure] || '');
+      const t = TENURE_SUM[lang][answers.tenure] || '';
       const pay = band === 'low' ? (es ? 'ganaba menos de $70K al año' : 'earned under $70K a year')
                 : band === 'high' ? (es ? 'ganaba más de $150K al año' : 'earned over $150K a year')
-                : (es ? 'no compartió su pago' : 'did not share their pay');
-      parts.push(es
-        ? 'PRIORIDAD ALTA: trabajó allí ' + t + ' y ' + pay + '; ya no trabaja allí, el incidente fue en los últimos 3 años en California y no tiene otro abogado.'
-        : 'HIGH PRIORITY: worked there ' + t + ' and ' + pay + '; no longer employed there, incident within the last 3 years in California, and no other attorney.');
-    } else {
-      const why = whyNotHigh(lang);
-      parts.push(es
-        ? 'Prioridad estándar: requiere revisión de un abogado.' + (why.length ? ' No es prioridad alta porque ' + why.join('; ') + '.' : '')
-        : 'Standard priority: needs attorney review.' + (why.length ? ' Not high priority because ' + why.join('; ') + '.' : ''));
+                : (es ? 'no compartió su pago (no cuenta en su contra)' : 'did not share their pay (not counted against them)');
+      return es
+        ? 'PRIORIDAD ALTA porque: trabajó allí ' + t + ' (más de 2 años), ' + pay + ', ya no trabaja allí, el incidente fue en los últimos 3 años, ocurrió en California y no tiene otro abogado.'
+        : 'HIGH PRIORITY because: worked there ' + t + ' (more than 2 years), ' + pay + ', no longer employed there, the incident was within the last 3 years, it happened in California, and no other attorney is involved.';
     }
-    if(answers.anythingElse) parts.push((es ? 'Notas de la persona: ' : 'Their notes: ') + answers.anythingElse);
-    return parts.join(' ');
+    const why = whyNotHigh(lang);
+    return es
+      ? 'Prioridad estándar porque: ' + (why.length ? why.join('; ') : 'requiere revisión de un abogado') + '.'
+      : 'Standard priority because: ' + (why.length ? why.join('; ') : 'it needs attorney review') + '.';
   }
 
   function submitCaseReview(e){
