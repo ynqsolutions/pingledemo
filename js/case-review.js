@@ -404,14 +404,6 @@
     const payOk = band === 'low' || band === 'high' || answers.payType === 'prefer-not';
     return !isMaybe && LONG_TENURE[answers.tenure] && payOk ? 'strong' : 'maybe';
   }
-  // One or two sentences for the office email explaining a HIGH PRIORITY.
-  function priorityReason(){
-    const band = payBand();
-    const pay = band === 'low' ? 'earned under $70K a year' : band === 'high' ? 'earned over $150K a year' : 'didn’t share their pay';
-    return 'Worked there ' + (TENURE_LABEL[answers.tenure] || '').toLowerCase() + ' and ' + pay + '. No longer employed there, incident within the last 3 years in California, and no other attorney.';
-  }
-
-
   function renderResult(){
     const outcome = computeOutcome();
     answers.outcome = outcome;
@@ -498,13 +490,15 @@
   // priority label for the office's notification email, without sending
   // the raw internal outcome value itself.
   function priorityLabel(outcome){
-    return outcome === 'strong'
-      ? '🔥 HIGH PRIORITY - Strong Case. Why: ' + priorityReason()
-      : 'Standard Priority - Needs Attorney Review';
+    const lang = (document.documentElement.lang || 'en').toLowerCase().indexOf('es') === 0 ? 'es' : 'en';
+    const label = outcome === 'strong'
+      ? (lang === 'es' ? '🔥 PRIORIDAD ALTA' : '🔥 HIGH PRIORITY')
+      : (lang === 'es' ? 'Prioridad estándar' : 'Standard Priority');
+    return label + ' - ' + priorityExplanation(lang);
   }
 
-  // ---- Short "why this priority" summary for the office email, in English
-  // and Spanish, for every priority. It explains the decision only; the
+  // ---- "Why this priority" for the office email, in the page language
+  // (English or Spanish), for every priority. It explains the decision only; the
   // answers themselves are already in the email's own fields. ----
   const TENURE_SUM = {
     en: { 'lt6m': 'less than 6 months', '6-12m': '6 months to 1 year', '1-2y': '1 to 2 years', '2-5y': '2 to 5 years', '5-10y': '5 to 10 years', '10y+': 'more than 10 years' },
@@ -520,7 +514,10 @@
     if(payBand() === 'mid') r.push(es ? 'su pago está entre $70K y $150K al año' : 'pay is between $70K and $150K a year');
     return r;
   }
-  function summaryText(lang){
+  function cap(t){ return t.charAt(0).toUpperCase() + t.slice(1); }
+  // Why the submission got its priority, in the language of the page the
+  // visitor used. Goes straight after the priority label in the email.
+  function priorityExplanation(lang){
     const es = lang === 'es';
     if(answers.outcome === 'strong'){
       const band = payBand();
@@ -529,13 +526,11 @@
                 : band === 'high' ? (es ? 'ganaba más de $150K al año' : 'earned over $150K a year')
                 : (es ? 'no compartió su pago (no cuenta en su contra)' : 'did not share their pay (not counted against them)');
       return es
-        ? 'PRIORIDAD ALTA porque: trabajó allí ' + t + ' (más de 2 años), ' + pay + ', ya no trabaja allí, el incidente fue en los últimos 3 años, ocurrió en California y no tiene otro abogado.'
-        : 'HIGH PRIORITY because: worked there ' + t + ' (more than 2 years), ' + pay + ', no longer employed there, the incident was within the last 3 years, it happened in California, and no other attorney is involved.';
+        ? 'Trabajó allí ' + t + ' (más de 2 años), ' + pay + ', ya no trabaja allí, el incidente fue en los últimos 3 años, ocurrió en California y no tiene otro abogado.'
+        : 'Worked there ' + t + ' (more than 2 years), ' + pay + ', no longer employed there, the incident was within the last 3 years, it happened in California, and no other attorney is involved.';
     }
     const why = whyNotHigh(lang);
-    return es
-      ? 'Prioridad estándar porque: ' + (why.length ? why.join('; ') : 'requiere revisión de un abogado') + '.'
-      : 'Standard priority because: ' + (why.length ? why.join('; ') : 'it needs attorney review') + '.';
+    return why.length ? cap(why.join('; ')) + '.' : (es ? 'Requiere revisión de un abogado.' : 'Needs attorney review.');
   }
 
   function submitCaseReview(e){
@@ -547,8 +542,6 @@
     const payload = {
       'form-name': 'case-review',
       priority: priorityLabel(answers.outcome),
-      summary: summaryText('en'),
-      resumen: summaryText('es'),
       submittedDate: new Date().toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }),
       fullName: answers.fullName,
       phone: answers.phone,
