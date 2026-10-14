@@ -387,11 +387,11 @@
     if(answers.payType === 'prefer-not') return 'Prefer not to say';
     return '';
   }
-  const LONG_TENURE = { '2-5y': 1, '5-10y': 1, '10y+': 1 };
+  const LONG_TENURE = { '1-2y': 1, '2-5y': 1, '5-10y': 1, '10y+': 1 }; // 1 year or more
   // HIGH PRIORITY ("strong") when all of these hold:
   //  - none of the four complicating factors (still employed, incident over
   //    3 years ago, outside California, already has an attorney)
-  //  - worked there more than 2 years
+  //  - worked there 1 year or more (under 1 year is Standard)
   //  - pay under $70K or over $150K a year ("prefer not to say" doesn't
   //    count against them)
   function computeOutcome(){
@@ -510,7 +510,7 @@
     if(answers.incidentTiming === 'over-3-years') r.push(es ? 'el incidente fue hace más de 3 años' : 'the incident was more than 3 years ago');
     if(answers.inCalifornia === 'no') r.push(es ? 'el trabajo no fue en California' : 'the job was not in California');
     if(answers.workingWithAttorney === 'yes') r.push(es ? 'ya trabaja con otro abogado' : 'already working with another attorney');
-    if(!LONG_TENURE[answers.tenure]) r.push(es ? 'trabajó allí 2 años o menos' : 'worked there 2 years or less');
+    if(!LONG_TENURE[answers.tenure]) r.push(es ? 'trabajó allí menos de 1 año' : 'worked there less than 1 year');
     if(payBand() === 'mid') r.push(es ? 'su pago está entre $70K y $150K al año' : 'pay is between $70K and $150K a year');
     return r;
   }
@@ -526,8 +526,8 @@
                 : band === 'high' ? (es ? 'ganaba más de $150K al año' : 'earned over $150K a year')
                 : (es ? 'no compartió su pago (no cuenta en su contra)' : 'did not share their pay (not counted against them)');
       return es
-        ? 'Trabajó allí ' + t + ' (más de 2 años), ' + pay + ', ya no trabaja allí, el incidente fue en los últimos 3 años, ocurrió en California y no tiene otro abogado.'
-        : 'Worked there ' + t + ' (more than 2 years), ' + pay + ', no longer employed there, the incident was within the last 3 years, it happened in California, and no other attorney is involved.';
+        ? 'Trabajó allí ' + t + ' (1 año o más), ' + pay + ', ya no trabaja allí, el incidente fue en los últimos 3 años, ocurrió en California y no tiene otro abogado.'
+        : 'Worked there ' + t + ' (1 year or more), ' + pay + ', no longer employed there, the incident was within the last 3 years, it happened in California, and no other attorney is involved.';
     }
     const why = whyNotHigh(lang);
     return why.length ? cap(why.join('; ')) + '.' : (es ? 'Requiere revisión de un abogado.' : 'Needs attorney review.');
