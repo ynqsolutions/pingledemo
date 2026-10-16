@@ -1108,6 +1108,19 @@
   .ads-tip p{ margin:0; color:var(--ink); line-height:1.55; }
   .ads-tip .do{ color:var(--muted); }
   .ads-tip .do span{ font-weight:600; color:var(--ink); }
+
+  /* ---- Google Ads keywords ---- */
+  .kw-sec{ margin-top:22px; }
+  .kw-sec:first-of-type{ margin-top:6px; }
+  .kw-sec h3{ margin:0 0 2px; font-size:15px; }
+  .kw-sec > p.kw-sub{ margin:0 0 8px; font-size:12.5px; color:var(--muted); }
+  .kw-rec{ margin:10px 0 0; padding:10px 12px; border-radius:10px; background:var(--field); font-size:13px; line-height:1.55; }
+  .kw-rec b{ font-weight:600; }
+  .kw-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .kw-chip{ font-size:12.5px; padding:4px 10px; border-radius:999px; background:var(--field); color:var(--ink); }
+  .kw-filter{ height:34px; border:1px solid var(--line-strong); border-radius:8px; padding:0 10px; font:inherit; font-size:13px; min-width:180px; }
+  .kw-filter:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-100); }
+  .kw-empty{ font-size:13px; color:var(--muted); margin:6px 0 0; }
   /* ---- Google Ads view ---- */
   .ads-controls{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; }
   .ads-tiles{ grid-template-columns:repeat(3, minmax(0,1fr)); }
@@ -4110,9 +4123,9 @@
   // inside the Ads account on a schedule (no API approval needed). The data
   // is stored by /.netlify/functions/ads-ingest and read from ads-stats. ----
   var ADS_SCRIPT = [
-    "// Pingle Law: sends Google Ads performance to the website admin.",
+    "// Pingle Law: sends Google Ads performance, keywords and search terms to the website admin.",
     "// In Google Ads: Tools > Bulk actions > Scripts > + New script. Paste this, set SECRET,",
-    "// authorize, then Frequency: Hourly.",
+    "// authorize, then Frequency: Hourly. (Delete the starter \"function main() {}\" first.)",
     "var ENDPOINT = 'https://www.pinglelaw.com/.netlify/functions/ads-ingest';",
     "var SECRET = 'PASTE_YOUR_SECRET_HERE'; // same value as ADS_INGEST_SECRET in Netlify",
     "var DAYS = 90;",
@@ -4121,34 +4134,80 @@
     "  var account = AdsApp.currentAccount();",
     "  var tz = account.getTimeZone();",
     "  var end = new Date();",
-    "  var start = new Date(end.getTime() - DAYS * 86400000);",
     "  var f = function (d) { return Utilities.formatDate(d, tz, 'yyyy-MM-dd'); };",
-    "  var query = 'SELECT segments.date, campaign.name, campaign.status, metrics.impressions, ' +",
-    "    'metrics.clicks, metrics.cost_micros, metrics.conversions, metrics.conversions_value ' +",
-    "    \"FROM campaign WHERE segments.date BETWEEN '\" + f(start) + \"' AND '\" + f(end) + \"' \" +",
-    "    'AND metrics.impressions > 0 ORDER BY segments.date';",
+    "  var ago = function (n) { return f(new Date(end.getTime() - n * 86400000)); };",
+    "  var today = f(end);",
+    "",
+    "  // 1) Daily performance per campaign",
     "  var rows = [];",
-    "  var it = AdsApp.search(query);",
+    "  var it = AdsApp.search(",
+    "    'SELECT segments.date, campaign.name, campaign.status, metrics.impressions, metrics.clicks, ' +",
+    "    'metrics.cost_micros, metrics.conversions, metrics.conversions_value FROM campaign ' +",
+    "    \"WHERE segments.date BETWEEN '\" + ago(DAYS) + \"' AND '\" + today + \"' AND metrics.impressions > 0 ORDER BY segments.date\");",
     "  while (it.hasNext()) {",
     "    var r = it.next();",
     "    rows.push({",
-    "      date: r.segments.date,",
-    "      campaign: r.campaign.name,",
-    "      status: r.campaign.status,",
-    "      impressions: Number(r.metrics.impressions),",
-    "      clicks: Number(r.metrics.clicks),",
-    "      cost: Number(r.metrics.costMicros) / 1000000,",
-    "      conversions: Number(r.metrics.conversions),",
+    "      date: r.segments.date, campaign: r.campaign.name, status: r.campaign.status,",
+    "      impressions: Number(r.metrics.impressions), clicks: Number(r.metrics.clicks),",
+    "      cost: Number(r.metrics.costMicros) / 1000000, conversions: Number(r.metrics.conversions),",
     "      value: Number(r.metrics.conversionsValue)",
     "    });",
     "  }",
+    "",
+    "  // 2) Every keyword in the account (including ones that get no traffic) and negative keywords",
+    "  var keywordList = [];",
+    "  var statusOf = {};",
+    "  var kit = AdsApp.search(",
+    "    'SELECT ad_group_criterion.keyword.text, ad_group_criterion.keyword.match_type, ad_group_criterion.status, ' +",
+    "    'ad_group_criterion.negative, campaign.name, ad_group.name FROM ad_group_criterion ' +",
+    "    \"WHERE ad_group_criterion.type = 'KEYWORD' AND ad_group_criterion.status != 'REMOVED'\");",
+    "  while (kit.hasNext()) {",
+    "    var k = kit.next();",
+    "    var text = k.adGroupCriterion.keyword.text, match = k.adGroupCriterion.keyword.matchType;",
+    "    keywordList.push({ k: text, m: match, c: k.campaign.name, a: k.adGroup.name, s: k.adGroupCriterion.status, n: k.adGroupCriterion.negative ? 1 : 0 });",
+    "    statusOf[text + '|' + match + '|' + k.campaign.name] = k.adGroupCriterion.status;",
+    "  }",
+    "  var cit = AdsApp.search(",
+    "    'SELECT campaign_criterion.keyword.text, campaign_criterion.keyword.match_type, campaign.name FROM campaign_criterion ' +",
+    "    \"WHERE campaign_criterion.type = 'KEYWORD' AND campaign_criterion.negative = TRUE AND campaign_criterion.status != 'REMOVED'\");",
+    "  while (cit.hasNext()) {",
+    "    var c = cit.next();",
+    "    keywordList.push({ k: c.campaignCriterion.keyword.text, m: c.campaignCriterion.keyword.matchType, c: c.campaign.name, a: '', s: 'ENABLED', n: 1 });",
+    "  }",
+    "",
+    "  // 3) Keyword performance and search terms for the last 7, 30 and 90 days",
+    "  var keywords = {}, searchTerms = {};",
+    "  [7, 30, 90].forEach(function (n) {",
+    "    var range = \"segments.date BETWEEN '\" + ago(n) + \"' AND '\" + today + \"'\";",
+    "    keywords[n] = [];",
+    "    var a = AdsApp.search(",
+    "      'SELECT ad_group_criterion.keyword.text, ad_group_criterion.keyword.match_type, campaign.name, ad_group.name, ' +",
+    "      'metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions FROM keyword_view ' +",
+    "      'WHERE ' + range + ' AND metrics.impressions > 0 ORDER BY metrics.cost_micros DESC LIMIT 500');",
+    "    while (a.hasNext()) {",
+    "      var x = a.next(), kk = x.adGroupCriterion.keyword;",
+    "      keywords[n].push({ k: kk.text, m: kk.matchType, c: x.campaign.name, a: x.adGroup.name,",
+    "        i: Number(x.metrics.impressions), cl: Number(x.metrics.clicks), co: Number(x.metrics.costMicros) / 1000000, cv: Number(x.metrics.conversions) });",
+    "    }",
+    "    searchTerms[n] = [];",
+    "    var b = AdsApp.search(",
+    "      'SELECT search_term_view.search_term, search_term_view.status, campaign.name, ' +",
+    "      'metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions FROM search_term_view ' +",
+    "      'WHERE ' + range + ' AND metrics.impressions > 0 ORDER BY metrics.clicks DESC LIMIT 300');",
+    "    while (b.hasNext()) {",
+    "      var y = b.next();",
+    "      searchTerms[n].push({ t: y.searchTermView.searchTerm, st: y.searchTermView.status, c: y.campaign.name,",
+    "        i: Number(y.metrics.impressions), cl: Number(y.metrics.clicks), co: Number(y.metrics.costMicros) / 1000000, cv: Number(y.metrics.conversions) });",
+    "    }",
+    "  });",
+    "",
     "  var res = UrlFetchApp.fetch(ENDPOINT, {",
     "    method: 'post',",
     "    contentType: 'application/json',",
     "    headers: { 'X-Ads-Secret': SECRET },",
     "    payload: JSON.stringify({",
     "      account: { name: account.getName(), currency: account.getCurrencyCode(), timezone: tz },",
-    "      rows: rows",
+    "      rows: rows, keywordList: keywordList, keywords: keywords, searchTerms: searchTerms",
     "    }),",
     "    muteHttpExceptions: true",
     "  });",
@@ -4267,7 +4326,113 @@
       'Judge performance over 7 to 14 days, not single days.',
       'Make sure calls are answered quickly. Most leads call the first firm that picks up.'
     ].map(function(t){ return el('li', { text: t }); })) ]);
-    return el('div', { class: 'card', style: 'margin-bottom:20px;' }, [ el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Tips for these days' }), el('p', { text: 'Plain-English suggestions based on the numbers above. They update when you change the dates.' }) ]) ]), list, general ]);
+    return el('div', { class: 'card', style: 'margin-bottom:20px;' }, [ el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Tips for these days' }), el('p', { text: 'Suggestions based on the numbers above. They update when you change the dates.' }) ]) ]), list, general ]);
+  }
+
+  // ---- Keywords: used, unused, missing and ones to block ----
+  var KW_IDEAS = [
+    'wrongful termination lawyer', 'wrongful termination attorney california', 'employment lawyer near me', 'employment attorney',
+    'unpaid overtime lawyer', 'overtime attorney california', 'unpaid wages attorney', 'wage and hour lawyer',
+    'sexual harassment lawyer', 'workplace harassment attorney', 'retaliation lawyer', 'whistleblower attorney california',
+    'discrimination lawyer', 'pregnancy discrimination attorney', 'disability discrimination attorney', 'severance agreement lawyer',
+    'fired after medical leave', 'labor lawyer', 'meal and rest break lawyer', 'misclassification lawyer',
+    'independent contractor misclassification attorney', 'hostile work environment lawyer', 'paga attorney', 'class action employment attorney'
+  ];
+  var KW_STOP = { a: 1, the: 1, in: 1, near: 1, me: 1, of: 1, for: 1, and: 1, to: 1 };
+  var KW_BLOCK = ['jobs', 'job', 'careers', 'salary', 'free', 'template', 'pdf', 'form', 'forms', 'reddit', 'youtube', 'definition', 'meaning', 'internship', 'hiring'];
+  function kwNorm(t){ return String(t || '').toLowerCase().replace(/[+\[\]"]/g, ' ').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function kwTokens(t){ return kwNorm(t).split(' ').filter(function(w){ return w && !KW_STOP[w]; }); }
+  function kwMatch(m){ return m === 'EXACT' ? 'Exact' : m === 'PHRASE' ? 'Phrase' : m === 'BROAD' ? 'Broad' : (m || '').toLowerCase(); }
+  function kwTable(head, rows, empty){
+    if(!rows.length) return el('p', { class: 'kw-empty', text: empty });
+    var t = el('table', { class: 'ads-table' }, [ el('thead', {}, [ el('tr', {}, head.map(function(h){ return el('th', { text: h }); })) ]) ]);
+    var tb = el('tbody'); t.appendChild(tb); rows.forEach(function(r){ tb.appendChild(r); });
+    return el('div', { class: 'ads-table-wrap' }, [ t ]);
+  }
+  function kwRec(parts){
+    return el('p', { class: 'kw-rec' }, [ el('b', { text: 'Recommended: ' }) ].concat(parts));
+  }
+  function kwKeywordsCard(snap, cur){
+    var card = el('div', { class: 'card', style: 'margin-bottom:20px;' });
+    var win = gAds.kwWin || '30';
+    var dd = adsDropdown('Keyword period', [ ['7', 'Last 7 days'], ['30', 'Last 30 days'], ['90', 'Last 90 days'] ], win, function(v){ gAds.kwWin = v; renderGoogleAds(); });
+    card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Keywords' }), el('p', { text: 'What your ads are targeting, what is not getting traffic, and what people search that you are not covering.' }) ]), dd ]));
+    if(!snap.keywords || !snap.keywordList){
+      card.appendChild(el('p', { class: 'kw-empty', text: 'Keyword data has not arrived yet. Copy the updated script from “Setup and script” at the bottom of this page, paste it over the old one in Google Ads, and run it once.' }));
+      return card;
+    }
+    var money = function(v, d){ return adsMoney(v, cur, d == null ? 0 : d); };
+    var stats = snap.keywords[win] || [], terms = (snap.searchTerms && snap.searchTerms[win]) || [], list = snap.keywordList || [];
+    var positives = list.filter(function(k){ return !k.n; }), negatives = list.filter(function(k){ return k.n; });
+    var statusOf = {}; positives.forEach(function(k){ statusOf[k.k + '|' + k.m + '|' + k.c] = k.s; });
+    var seen = {}; stats.forEach(function(k){ seen[k.k + '|' + k.m + '|' + k.c] = 1; });
+
+    // A. keywords in use
+    var used = stats.slice().sort(function(a, b){ return b.co - a.co; });
+    var secA = el('div', { class: 'kw-sec' }, [ el('h3', { text: 'Keywords in use (' + used.length + ')' }), el('p', { class: 'kw-sub', text: 'Keywords that showed your ads in this period, highest spend first.' }) ]);
+    var filter = el('input', { type: 'search', class: 'kw-filter', placeholder: 'Filter keywords', 'aria-label': 'Filter keywords' });
+    var holder = el('div');
+    function drawUsed(){
+      var q = filter.value.trim().toLowerCase();
+      var rows = used.filter(function(k){ return !q || (k.k + ' ' + k.c).toLowerCase().indexOf(q) > -1; });
+      holder.innerHTML = '';
+      holder.appendChild(kwTable([ 'Keyword', 'Match', 'Campaign', 'Clicks', 'Spend', 'Conv.', 'Cost / conv.' ], rows.slice(0, q ? 60 : 15).map(function(k){
+        var st = statusOf[k.k + '|' + k.m + '|' + k.c];
+        return el('tr', {}, [ el('td', {}, [ k.k, st && st !== 'ENABLED' ? el('span', { class: 'ads-status', text: st.toLowerCase() }) : null ]), el('td', { text: kwMatch(k.m) }), el('td', { text: k.c }), el('td', { text: fmt(k.cl) }), el('td', { text: money(k.co, k.co < 100 ? 2 : 0) }), el('td', { text: String(Math.round(k.cv * 10) / 10) }), el('td', { text: k.cv ? money(k.co / k.cv, 2) : '–' }) ]);
+      }), 'No keywords match.'));
+      if(!q && rows.length > 15) holder.appendChild(el('p', { class: 'kw-empty', text: 'Showing the top 15 of ' + rows.length + '. Use the filter to find others.' }));
+    }
+    filter.addEventListener('input', drawUsed); drawUsed();
+    secA.appendChild(el('div', { style: 'margin:0 0 8px;' }, [ filter ])); secA.appendChild(holder);
+    var burning = used.filter(function(k){ return k.co >= 30 && k.cv === 0; }).slice(0, 4);
+    var winners = used.filter(function(k){ return k.cv >= 2; }).sort(function(a, b){ return a.co / a.cv - b.co / b.cv; }).slice(0, 3);
+    var recA = [];
+    if(burning.length) recA.push('Review or pause keywords that spent without a lead: ' + burning.map(function(k){ return '“' + k.k + '” (' + money(k.co) + ')'; }).join(', ') + '. ');
+    if(winners.length) recA.push('Add close variations of what is working: ' + winners.map(function(k){ return '“' + k.k + '” (' + money(k.co / k.cv, 2) + ' per lead)'; }).join(', ') + '. ');
+    var broadNoLead = used.filter(function(k){ return k.m === 'BROAD' && k.cv === 0 && k.co >= 20; }).length;
+    if(broadNoLead >= 2) recA.push(broadNoLead + ' broad-match keywords spent without leads; switch them to phrase or exact match to tighten who sees your ads. ');
+    if(!recA.length) recA.push(used.length ? 'No keyword needs attention right now. Check again after more clicks.' : 'No keyword activity in this period.');
+    secA.appendChild(kwRec(recA)); card.appendChild(secA);
+
+    // B. keywords with no traffic
+    var idle = positives.filter(function(k){ return k.s === 'ENABLED' && !seen[k.k + '|' + k.m + '|' + k.c]; });
+    var secB = el('div', { class: 'kw-sec' }, [ el('h3', { text: 'Keywords not getting traffic (' + idle.length + ')' }), el('p', { class: 'kw-sub', text: 'Active keywords that showed no ads in this period.' }) ]);
+    secB.appendChild(kwTable([ 'Keyword', 'Match', 'Campaign', 'Ad group' ], idle.slice(0, 20).map(function(k){ return el('tr', {}, [ el('td', { text: k.k }), el('td', { text: kwMatch(k.m) }), el('td', { text: k.c }), el('td', { text: k.a }) ]); }), 'Every active keyword showed ads in this period.'));
+    if(idle.length > 20) secB.appendChild(el('p', { class: 'kw-empty', text: 'Showing 20 of ' + idle.length + '.' }));
+    secB.appendChild(kwRec([ idle.length ? 'Check the match type and bid on these, and make sure the ad group has a matching ad. Pause any that no longer fit, so your account stays focused.' : 'Nothing to do here.' ])); card.appendChild(secB);
+
+    // C. searches not targeted
+    var untargeted = terms.filter(function(t){ return t.st === 'NONE'; }).sort(function(a, b){ return b.cv - a.cv || b.cl - a.cl; });
+    var secC = el('div', { class: 'kw-sec' }, [ el('h3', { text: 'Searches you are not targeting (' + untargeted.length + ')' }), el('p', { class: 'kw-sub', text: 'Real searches that showed your ads but are not one of your keywords.' }) ]);
+    secC.appendChild(kwTable([ 'Search', 'Campaign', 'Clicks', 'Spend', 'Conv.' ], untargeted.slice(0, 15).map(function(t){ return el('tr', {}, [ el('td', { text: t.t }), el('td', { text: t.c }), el('td', { text: fmt(t.cl) }), el('td', { text: money(t.co, t.co < 100 ? 2 : 0) }), el('td', { text: String(Math.round(t.cv * 10) / 10) }) ]); }), 'No untargeted searches in this period.'));
+    var add = untargeted.filter(function(t){ return (t.cv > 0 || t.cl >= 3) && !KW_BLOCK.some(function(w){ return kwTokens(t.t).indexOf(w) > -1; }); }).slice(0, 6);
+    secC.appendChild(kwRec([ add.length ? 'Add as keywords (phrase or exact match): ' + add.map(function(t){ return '“' + t.t + '”'; }).join(', ') + '.' : 'No search stands out yet. Check again when there are more clicks.' ])); card.appendChild(secC);
+
+    // D. searches to block
+    var wasted = terms.filter(function(t){ return t.st !== 'EXCLUDED' && t.cv === 0 && (t.co >= 10 || t.cl >= 3); }).sort(function(a, b){ return b.co - a.co; });
+    var secD = el('div', { class: 'kw-sec' }, [ el('h3', { text: 'Searches to block (' + wasted.length + ')' }), el('p', { class: 'kw-sub', text: 'Searches that cost money and brought no leads, and are not blocked yet.' }) ]);
+    secD.appendChild(kwTable([ 'Search', 'Campaign', 'Clicks', 'Spend' ], wasted.slice(0, 15).map(function(t){ return el('tr', {}, [ el('td', { text: t.t }), el('td', { text: t.c }), el('td', { text: fmt(t.cl) }), el('td', { text: money(t.co, 2) }) ]); }), 'No wasted searches found in this period.'));
+    var blockWords = {}; terms.forEach(function(t){ if(t.st === 'EXCLUDED') return; kwTokens(t.t).forEach(function(w){ if(KW_BLOCK.indexOf(w) > -1) blockWords[w] = (blockWords[w] || 0) + t.co; }); });
+    var negSet = {}; negatives.forEach(function(k){ kwTokens(k.k).forEach(function(w){ negSet[w] = 1; }); });
+    var suggestWords = Object.keys(blockWords).filter(function(w){ return !negSet[w]; }).sort(function(a, b){ return blockWords[b] - blockWords[a]; });
+    var recD = [];
+    if(wasted.length) recD.push('Add the top searches above as negative keywords. ');
+    if(suggestWords.length) recD.push('Words people use when they are not looking for a lawyer: add ' + suggestWords.slice(0, 6).map(function(w){ return '“' + w + '”'; }).join(', ') + ' as negative keywords. ');
+    if(!recD.length) recD.push('Nothing to block right now. Review the Search terms report in Google Ads weekly.');
+    secD.appendChild(kwRec(recD));
+    if(negatives.length){
+      secD.appendChild(el('details', { class: 'ai-table', style: 'margin-top:10px;' }, [ el('summary', { text: 'Negative keywords already in place (' + negatives.length + ')' }), el('div', { class: 'kw-chips' }, negatives.slice(0, 120).map(function(k){ return el('span', { class: 'kw-chip', text: k.k + (k.m ? ' · ' + kwMatch(k.m).toLowerCase() : '') }); })) ]));
+    } else secD.appendChild(el('p', { class: 'kw-empty', text: 'No negative keywords are set up yet.' }));
+    card.appendChild(secD);
+
+    // E. ideas not used
+    var allKw = positives.map(function(k){ return kwTokens(k.k); });
+    var ideas = KW_IDEAS.filter(function(idea){ var tk = kwTokens(idea); return !allKw.some(function(kt){ return tk.every(function(w){ return kt.indexOf(w) > -1; }); }); });
+    var secE = el('div', { class: 'kw-sec' }, [ el('h3', { text: 'Keyword ideas you are not using (' + ideas.length + ')' }), el('p', { class: 'kw-sub', text: 'Common employment-law searches that none of your keywords cover.' }) ]);
+    secE.appendChild(ideas.length ? el('div', { class: 'kw-chips' }, ideas.map(function(i){ return el('span', { class: 'kw-chip', text: i }); })) : el('p', { class: 'kw-empty', text: 'Your keywords already cover the common searches on this list.' }));
+    secE.appendChild(kwRec([ ideas.length ? 'Check search volume and cost in Google Ads Keyword Planner, then add the ones that match cases you take as phrase or exact match, each in an ad group with a matching ad.' : 'Review Keyword Planner for new ideas every few months.' ]));
+    card.appendChild(secE);
+    return card;
   }
   function adsChart(days, metric, cur){
     var W = 720, H = 240, L = 46, R = 16, T = 12, B = 28, pw = W - L - R, ph = H - T - B;
@@ -4422,6 +4587,7 @@
       el('div', { class: 'ads-table-wrap' }, [ table ])
     ]));
     tipsHost.appendChild(adsTipsCard(adsTips(T, P, camps, n, cur, rows)));
+    root.appendChild(kwKeywordsCard(snap, cur));
     root.appendChild(adsSetup(false));
   }
 
@@ -4474,7 +4640,7 @@
 
     // ---- plain-English guide ----
     root.appendChild(el('details', { class: 'card ads-setup', style: 'margin-bottom:20px;' }, [
-      el('summary', { text: 'New to this? A plain-English guide' }),
+      el('summary', { text: 'New to this? Quick guide' }),
       el('ol', {}, [
         el('li', { html: '<b>NAP</b> means <b>N</b>ame, <b>A</b>ddress and <b>P</b>hone number. It is how Google and local directories recognize your business.' }),
         el('li', { html: '<b>Why it matters:</b> when your NAP is written the same way everywhere, search engines trust it and are more likely to show you in local search and on maps. Small differences can make them think it is a different business.' }),

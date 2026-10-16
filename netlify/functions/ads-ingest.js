@@ -47,7 +47,28 @@ export default async (req) => {
     currency: /^[A-Z]{3}$/.test(String(body.account && body.account.currency)) ? body.account.currency : 'USD',
     timezone: str(body.account && body.account.timezone, 60)
   };
+  // Optional keyword data (from the newer script): every keyword in the
+  // account, keyword performance per window (7 / 30 / 90 days) and the search
+  // terms that triggered ads.
+  const kwList = (Array.isArray(body.keywordList) ? body.keywordList : []).slice(0, 3000).map(k => ({
+    k: str(k.k, 120), m: str(k.m, 12), c: str(k.c, 120), a: str(k.a, 120), s: str(k.s, 12), n: k.n ? 1 : 0
+  })).filter(k => k.k);
+  const windows = ['7', '30', '90'];
+  const kw = {}, terms = {};
+  for(const w of windows){
+    kw[w] = ((body.keywords && body.keywords[w]) || []).slice(0, 600).map(k => ({
+      k: str(k.k, 120), m: str(k.m, 12), c: str(k.c, 120), a: str(k.a, 120),
+      i: Math.round(num(k.i)), cl: Math.round(num(k.cl)), co: Math.round(num(k.co) * 100) / 100, cv: Math.round(num(k.cv) * 100) / 100
+    })).filter(k => k.k);
+    terms[w] = ((body.searchTerms && body.searchTerms[w]) || []).slice(0, 400).map(t => ({
+      t: str(t.t, 160), st: str(t.st, 12), c: str(t.c, 120),
+      i: Math.round(num(t.i)), cl: Math.round(num(t.cl)), co: Math.round(num(t.co) * 100) / 100, cv: Math.round(num(t.cv) * 100) / 100
+    })).filter(t => t.t);
+  }
+  const hasKeywords = kwList.length > 0 || windows.some(w => kw[w].length || terms[w].length);
   const store = getStore('google-ads');
-  await store.setJSON('snapshot', { updated: new Date().toISOString(), account, rows });
-  return Response.json({ ok: true, rows: rows.length });
+  const snapshot = { updated: new Date().toISOString(), account, rows };
+  if(hasKeywords) Object.assign(snapshot, { keywordList: kwList, keywords: kw, searchTerms: terms });
+  await store.setJSON('snapshot', snapshot);
+  return Response.json({ ok: true, rows: rows.length, keywords: kwList.length });
 };
