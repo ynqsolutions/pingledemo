@@ -160,40 +160,48 @@ def main():
     # phones
     for d, pg in sorted(phones.items(), key=lambda kv: -len(kv[1])):
         if d != canon_phone:
-            issues.append({"id": "phone-" + d, "severity": "high", "type": "Phone", "title": "Different phone number: %s" % pretty_phone(d),
+            issues.append({"id": "phone-" + d, "severity": "high", "type": "Phone", "title": "A different phone number appears on %d page%s: %s" % (len(pg), "" if len(pg) == 1 else "s", pretty_phone(d)),
                            "found": pretty_phone(d), "expected": cfg["phone"], "pages": sorted(pg),
-                           "fix": "Replace with %s, or confirm it is a real second line." % cfg["phone"]})
+                           "why": "Customers and search engines see two numbers for one business. That splits your calls and can weaken your local search ranking.",
+                           "fix": "Replace it with %s, or confirm it is a real second line." % cfg["phone"]})
     # names
     for (kind, label), cnt in names.items():
         if kind == "bad":
             fl = next(x for x in cfg["flagNames"] if x["label"] == label)
-            issues.append({"id": "name-" + re.sub(r"\W+", "-", label.lower()), "severity": "medium", "type": "Name", "title": "Name variant on %d page%s: %s" % (cnt, "" if cnt == 1 else "s", label),
+            issues.append({"id": "name-" + re.sub(r"\W+", "-", label.lower()), "severity": "medium", "type": "Name", "title": "The firm name is written differently on %d page%s: %s" % (cnt, "" if cnt == 1 else "s", label),
                            "found": label, "expected": fl["fix"], "pages": sorted(name_pages[(kind, label)]),
+                           "why": "Search engines and directories match businesses by their exact name. A different spelling can make them treat it as a separate business.",
                            "fix": "Use “%s” everywhere the firm is named." % fl["fix"]})
     # addresses
     for raw, pg in sorted(addrs.items(), key=lambda kv: -len(kv[1])):
         if canon_street not in norm_addr(raw):
-            issues.append({"id": "addr-" + re.sub(r"\W+", "-", raw.lower())[:40], "severity": "high", "type": "Address", "title": "Different street address: %s" % raw,
+            issues.append({"id": "addr-" + re.sub(r"\W+", "-", raw.lower())[:40], "severity": "high", "type": "Address", "title": "A different street address appears on %d page%s: %s" % (len(pg), "" if len(pg) == 1 else "s", raw),
                            "found": raw, "expected": canon_full, "pages": sorted(pg),
+                           "why": "A second address confuses search engines about where the business is, which hurts map and local results.",
                            "fix": "Use %s." % canon_full})
         elif not re.search(re.escape(a["zip"]), raw) and re.search(r"\bCA\b|California", raw):
-            issues.append({"id": "zip-" + re.sub(r"\W+", "-", raw.lower())[:40], "severity": "medium", "type": "Address", "title": "Address with a different ZIP: %s" % raw,
-                           "found": raw, "expected": canon_full, "pages": sorted(pg), "fix": "Use ZIP %s." % a["zip"]})
+            issues.append({"id": "zip-" + re.sub(r"\W+", "-", raw.lower())[:40], "severity": "medium", "type": "Address", "title": "The ZIP code is different on %d page%s: %s" % (len(pg), "" if len(pg) == 1 else "s", raw),
+                           "found": raw, "expected": canon_full, "pages": sorted(pg),
+                           "why": "Even a small difference in the address can stop listings from matching.", "fix": "Use ZIP %s." % a["zip"]})
     # schema
     gap = lambda key: sorted(p for p, g in schema_pages.items() if not g[key])
     for key, label, exp in (("telephone", "telephone", cfg["phone"]), ("address", "address", canon_full), ("url", "url", cfg.get("website", ""))):
         pg = gap(key)
         if pg:
-            issues.append({"id": "schema-" + key, "severity": "high" if key != "url" else "medium", "type": "Schema",
-                           "title": "LegalService structured data has no %s (%d page%s)" % (label, len(pg), "" if len(pg) == 1 else "s"),
-                           "found": "no " + label, "expected": exp, "pages": pg,
-                           "fix": "Add %s to the LegalService schema so search engines read the same details as the page." % label})
+            plain = {"telephone": "phone number", "address": "address", "url": "website address"}[key]
+            issues.append({"id": "schema-" + key, "severity": "high" if key != "url" else "medium", "type": "Search data",
+                           "title": "Your %s is missing from the hidden business data Google reads on %d page%s" % (plain, len(pg), "" if len(pg) == 1 else "s"),
+                           "found": "No %s in the page's business data (LegalService schema)" % plain, "expected": exp, "pages": pg,
+                           "why": "Behind each page is hidden code (called schema or structured data) that tells Google who the business is. Without your %s there, Google has to guess it from the page text." % plain,
+                           "fix": "Add the %s to the LegalService block in each page's code." % plain})
     if schema_pages and "index.html" not in schema_pages:
-        issues.append({"id": "schema-home", "severity": "medium", "type": "Schema", "title": "The home page has no LegalService / LocalBusiness structured data",
-                       "found": "none", "expected": "LegalService with name, url, telephone, address", "pages": ["index.html"],
+        issues.append({"id": "schema-home", "severity": "medium", "type": "Search data", "title": "The home page has no hidden business data for Google (LegalService schema)",
+                       "found": "None on the home page", "expected": "Name, website, phone and address in a LegalService block", "pages": ["index.html"],
+                       "why": "The home page is the first place Google looks to learn who the business is and where it is.",
                        "fix": "Add one LegalService block with the official name, phone, address and website to the home page."})
     elif not schema_pages:
-        issues.append({"id": "schema-none", "severity": "high", "type": "Schema", "title": "No LegalService / LocalBusiness structured data found", "found": "none", "expected": "LegalService", "pages": [], "fix": "Add LegalService schema."})
+        issues.append({"id": "schema-none", "severity": "high", "type": "Search data", "title": "No hidden business data for Google (schema) was found on the site", "found": "None", "expected": "LegalService block", "pages": [],
+                       "why": "Google uses this hidden data to understand the business.", "fix": "Add LegalService schema."})
     # contact card (vCard) files
     cards = []
     for vf in sorted(glob.glob("assets/*.vcf")):
@@ -203,26 +211,30 @@ def main():
         cards.append(card)
         probs = []
         if cfg["name"] not in card["name"] + " " + card["org"]:
-            probs.append("name is “%s” (expected “%s”)" % (card["org"] or card["name"], cfg["name"]))
+            probs.append("the name reads “%s” instead of “%s”" % (card["org"] or card["name"], cfg["name"]))
         if digits(card["phone"]) != canon_phone:
-            probs.append("phone is %s" % (card["phone"] or "missing"))
+            probs.append("the phone is %s" % (card["phone"] or "missing"))
         if not card["address"]:
-            probs.append("no address")
+            probs.append("there is no address")
         if cfg.get("website") and card["url"].rstrip("/") != cfg["website"].rstrip("/"):
-            probs.append("website is %s (expected %s)" % (card["url"] or "missing", cfg["website"]))
+            probs.append("the website is %s instead of %s" % (card["url"] or "missing", cfg["website"]))
         if probs:
-            issues.append({"id": "vcard-" + os.path.basename(vf), "severity": "medium", "type": "Contact card", "title": "Saved-contact file %s differs: %s" % (os.path.basename(vf), "; ".join(probs)),
+            issues.append({"id": "vcard-" + os.path.basename(vf), "severity": "medium", "type": "Contact card", "title": "The “Save our contact” file doesn’t match your official details: %s" % "; ".join(probs),
                            "found": "; ".join(probs), "expected": "%s, %s, %s, %s" % (cfg["name"], cfg["phone"], canon_full, cfg.get("website", "")), "pages": [vf],
-                           "fix": "Update the .vcf so the contact people save matches the official name, phone, address and website."})
+                           "why": "When someone taps “Save contact”, their phone stores these details. If they’re wrong or incomplete, that’s what customers see and share.",
+                           "fix": "Update the contact file (%s) so it has the official name, phone, address and website." % os.path.basename(vf)})
     if canon_phone not in phones:
-        issues.append({"id": "phone-missing", "severity": "high", "type": "Phone", "title": "The official phone number was not found on any page", "found": "", "expected": cfg["phone"], "pages": [], "fix": "Add the phone number to the header or footer."})
+        issues.append({"id": "phone-missing", "severity": "high", "type": "Phone", "title": "The official phone number was not found on any page", "found": "", "expected": cfg["phone"], "pages": [],
+                       "why": "Customers and search engines need to see the same number everywhere.", "fix": "Add the phone number to the header or footer."})
     if not any(canon_street in norm_addr(k) for k in addrs):
-        issues.append({"id": "addr-missing", "severity": "high", "type": "Address", "title": "The official address was not found on any page", "found": "", "expected": canon_full, "pages": [], "fix": "Show the address on the contact page and footer."})
+        issues.append({"id": "addr-missing", "severity": "high", "type": "Address", "title": "The official address was not found on any page", "found": "", "expected": canon_full, "pages": [],
+                       "why": "Search engines match your listings to your website by comparing addresses.", "fix": "Show the address on the contact page and footer."})
     elif len([p for k, v in addrs.items() if canon_street in norm_addr(k) for p in v]) < max(3, indexable // 50):
         n = len(set(p for k, v in addrs.items() if canon_street in norm_addr(k) for p in v))
-        issues.append({"id": "addr-sparse", "severity": "low", "type": "Address", "title": "The address appears on only %d page%s" % (n, "" if n == 1 else "s"),
-                       "found": "%d pages" % n, "expected": canon_full, "pages": [],
-                       "fix": "Search engines match listings to the site more confidently when the address is also in the footer or in schema. Add it to the footer if you want it public everywhere."})
+        issues.append({"id": "addr-sparse", "severity": "low", "type": "Address", "title": "Your address is shown on only %d page%s" % (n, "" if n == 1 else "s"),
+                       "found": "%d page%s" % (n, "" if n == 1 else "s"), "expected": canon_full, "pages": [],
+                       "why": "Search engines trust a business more when its address appears consistently, such as in the footer.",
+                       "fix": "Add the address to the footer of every page if you want it public everywhere. Skip this if you prefer to show it only on the contact page."})
 
     sev = {"high": 0, "medium": 1, "low": 2}
     issues.sort(key=lambda i: (sev[i["severity"]], -len(i["pages"])))

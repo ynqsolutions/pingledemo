@@ -4380,50 +4380,65 @@
     var rep = nap.report;
     root.appendChild(el('div', { class: 'page-head' }, [ el('div', {}, [
       el('h1', { text: 'NAP Checker' }),
-      el('p', { text: rep ? 'Checks that the firm’s Name, Address and Phone match across the site. Scanned at the last deploy (' + relTime(rep.generated) + '); it re-scans automatically with every deploy.' : 'Checks that the firm’s Name, Address and Phone match everywhere.' })
+      el('p', { text: rep ? 'NAP means Name, Address and Phone. Google and local directories compare them everywhere your firm appears, and matching details help you show up in local search. Last scanned ' + relTime(rep.generated) + '; it re-scans automatically after every site update.' : 'NAP means Name, Address and Phone. Checks they are written the same way everywhere.' })
     ]) ]));
     if(nap.busy && !rep){ root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: 'Loading…' }) ])); return; }
     if(nap.error){ root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: nap.error }), el('button', { type: 'button', class: 'btn', text: 'Try again', onclick: function(){ loadNap(); } }) ])); return; }
     var C = rep.canonical, S = rep.summary;
 
+    // ---- plain-English guide ----
+    root.appendChild(el('details', { class: 'card ads-setup', style: 'margin-bottom:20px;' }, [
+      el('summary', { text: 'New to this? A plain-English guide' }),
+      el('ol', {}, [
+        el('li', { html: '<b>NAP</b> means <b>N</b>ame, <b>A</b>ddress and <b>P</b>hone number. It is how Google and local directories recognize your business.' }),
+        el('li', { html: '<b>Why it matters:</b> when your NAP is written the same way everywhere, search engines trust it and are more likely to show you in local search and on maps. Small differences can make them think it is a different business.' }),
+        el('li', { html: '<b>Schema (structured data)</b> is hidden code on each page that tells Google your firm’s name, phone and address in a format it reads directly.' }),
+        el('li', { html: '<b>Citations (listings)</b> are your profiles on other sites, like Google Business Profile, Yelp and Avvo. Each should show your exact NAP.' }),
+        el('li', { html: '<b>What to do:</b> work through “Issues to fix” from the top, then check your listings at the bottom of this page.' })
+      ])
+    ]));
+
     // ---- score tiles ----
+    var wrongNames = rep.names.filter(function(n){ return !n.ok; }).reduce(function(a, n){ return a + n.pages; }, 0);
+    var cardN = (rep.cards || []).length;
     var checks = [
-      { label: 'Phone', ok: S.pagesWithOtherPhone === 0 && S.pagesWithOfficialPhone > 0, sub: S.pagesWithOfficialPhone + ' of ' + S.pagesScanned + ' pages show ' + C.phone + (S.pagesWithOtherPhone ? '; ' + S.pagesWithOtherPhone + ' show another number' : '') },
-      { label: 'Name', ok: !rep.issues.some(function(i){ return i.type === 'Name'; }), sub: S.pagesWithOfficialName + ' pages use the full legal name; ' + rep.names.filter(function(n){ return !n.ok; }).reduce(function(a, n){ return a + n.pages; }, 0) + ' use a wrong variant' },
-      { label: 'Address', ok: !rep.issues.some(function(i){ return i.type === 'Address' && i.severity !== 'low'; }) && S.pagesWithAddress > 0, sub: 'Shown on ' + S.pagesWithAddress + ' page' + (S.pagesWithAddress === 1 ? '' : 's') + '; no conflicting addresses found' },
-      { label: 'Structured data', ok: !rep.issues.some(function(i){ return i.type === 'Schema'; }), sub: rep.schema.pages + ' pages have LegalService data; phone on ' + rep.schema.telephone + ', address on ' + rep.schema.address },
-      { label: 'Saved contact file', ok: !rep.issues.some(function(i){ return i.type === 'Contact card'; }), sub: (rep.cards || []).length + ' .vcf file' + ((rep.cards || []).length === 1 ? '' : 's') + ' checked' }
+      { label: 'Phone number', ok: S.pagesWithOtherPhone === 0 && S.pagesWithOfficialPhone > 0, sub: S.pagesWithOfficialPhone + ' of ' + S.pagesScanned + ' pages show ' + C.phone + (S.pagesWithOtherPhone ? '. ' + S.pagesWithOtherPhone + ' pages show a different number.' : '. No other numbers found.') },
+      { label: 'Firm name', ok: !rep.issues.some(function(i){ return i.type === 'Name'; }), sub: S.pagesWithOfficialName + ' pages use the full name. ' + (wrongNames ? wrongNames + ' spell it a different way.' : 'None spell it a different way.') },
+      { label: 'Street address', ok: !rep.issues.some(function(i){ return i.type === 'Address' && i.severity !== 'low'; }) && S.pagesWithAddress > 0, sub: 'Shown on ' + S.pagesWithAddress + ' page' + (S.pagesWithAddress === 1 ? '' : 's') + '. No conflicting addresses found.' },
+      { label: 'Business data for Google', ok: !rep.issues.some(function(i){ return i.type === 'Search data'; }), sub: rep.schema.pages + ' pages have it. Phone is included on ' + rep.schema.telephone + ' and address on ' + rep.schema.address + '.' },
+      { label: '“Save contact” file', ok: !rep.issues.some(function(i){ return i.type === 'Contact card'; }), sub: cardN + ' contact file' + (cardN === 1 ? '' : 's') + ' checked against your official details.' }
     ];
     var passed = checks.filter(function(c){ return c.ok; }).length;
     var tiles = el('div', { class: 'ai-tiles' });
-    tiles.appendChild(el('div', { class: 'ai-tile' }, [ el('div', { class: 'ai-tile-label', text: 'Checks passed' }), el('div', { class: 'ai-tile-num', text: passed + ' of ' + checks.length }), el('div', { class: 'ai-tile-sub', text: S.issues + ' issue' + (S.issues === 1 ? '' : 's') + ' to review (' + S.high + ' high)' }) ]));
+    tiles.appendChild(el('div', { class: 'ai-tile' }, [ el('div', { class: 'ai-tile-label', text: 'Checks passed' }), el('div', { class: 'ai-tile-num', text: passed + ' of ' + checks.length }), el('div', { class: 'ai-tile-sub', text: S.issues ? S.issues + ' thing' + (S.issues === 1 ? '' : 's') + ' to fix, ' + S.high + ' of them important' : 'Nothing to fix' }) ]));
     checks.slice(0, 5).forEach(function(c){
-      tiles.appendChild(el('div', { class: 'ai-tile' }, [ el('div', { class: 'ai-tile-label' }, [ c.label + ' ', el('span', { class: 'nap-chip ' + (c.ok ? 'ok' : 'bad'), text: c.ok ? 'Consistent' : 'Needs attention' }) ]), el('div', { class: 'ai-tile-sub', text: c.sub }) ]));
+      tiles.appendChild(el('div', { class: 'ai-tile' }, [ el('div', { class: 'ai-tile-label' }, [ c.label + ' ', el('span', { class: 'nap-chip ' + (c.ok ? 'ok' : 'bad'), text: c.ok ? 'Good' : 'Needs a fix' }) ]), el('div', { class: 'ai-tile-sub', text: c.sub }) ]));
     });
     root.appendChild(tiles);
 
     // ---- source of truth ----
     var truth = el('div', { class: 'nap-truth' });
-    [ ['Name', C.name], ['Also used as', C.brand], ['Phone', C.phone], ['Address', C.address], ['Website', C.website] ].forEach(function(r){
+    [ ['Firm name', C.name], ['Short name (also fine)', C.brand], ['Phone', C.phone], ['Address', C.address], ['Website', C.website] ].forEach(function(r){
       truth.appendChild(el('div', { class: 'nap-truth-row' }, [ el('div', {}, [ el('small', { text: r[0] }), el('b', { text: r[1] }) ]), el('button', { type: 'button', class: 'btn btn-sm', text: 'Copy', onclick: function(){ napCopy(r[1], r[0]); } }) ]));
     });
     root.appendChild(el('div', { class: 'card', style: 'margin-bottom:20px;' }, [
-      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Official name, address and phone' }), el('p', { text: 'Everything is compared against these. Use these exact values on every listing. (Edit them in content/nap.json.)' }) ]),
+      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Official name, address and phone' }), el('p', { text: 'This is the correct version. Everything on this page is compared with it, so use these exact words and numbers on every website and directory listing. (To change them, edit content/nap.json.)' }) ]),
         el('button', { type: 'button', class: 'btn btn-primary', text: 'Copy all', onclick: function(){ napCopy(C.name + '\n' + C.address + '\n' + C.phone + '\n' + C.website, 'NAP'); } }) ]),
       truth
     ]));
 
     // ---- issues ----
-    var issuesCard = el('div', { class: 'card', style: 'margin-bottom:20px;' }, [ el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Issues to fix' }), el('p', { text: rep.issues.length ? 'Highest priority first. Open an item to see what was found, what it should be and which pages are affected.' : 'No inconsistencies found.' }) ]) ]) ]);
+    var issuesCard = el('div', { class: 'card', style: 'margin-bottom:20px;' }, [ el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Issues to fix' }), el('p', { text: rep.issues.length ? 'Most important first. Click an item to see what we found, why it matters, how to fix it and which pages are affected.' : 'No mismatches found. Everything matches.' }) ]) ]) ]);
     rep.issues.forEach(function(i){
       var body = el('div', { class: 'nap-issue-body' }, [
-        el('div', {}, [ el('span', { class: 'k', text: 'Found' }), i.found || 'Not present' ]),
-        el('div', {}, [ el('span', { class: 'k', text: 'Should be' }), i.expected ]),
-        el('div', {}, [ el('span', { class: 'k', text: 'Fix' }), i.fix ])
+        el('div', {}, [ el('span', { class: 'k', text: 'What we found' }), i.found || 'Not present' ]),
+        el('div', {}, [ el('span', { class: 'k', text: 'What it should be' }), i.expected ]),
+        i.why ? el('div', {}, [ el('span', { class: 'k', text: 'Why it matters' }), i.why ]) : null,
+        el('div', {}, [ el('span', { class: 'k', text: 'How to fix it' }), i.fix ])
       ]);
-      if(i.pages && i.pages.length){ body.appendChild(el('div', {}, [ el('span', { class: 'k', text: 'Affected (' + i.pages.length + ')' }), napPagesList(i.pages) ])); }
+      if(i.pages && i.pages.length){ body.appendChild(el('div', {}, [ el('span', { class: 'k', text: 'Where (' + i.pages.length + ')' }), napPagesList(i.pages) ])); }
       issuesCard.appendChild(el('details', { class: 'nap-issue' }, [
-        el('summary', {}, [ el('span', { class: 'nap-chip ' + (i.severity === 'high' ? 'bad' : i.severity === 'medium' ? 'warn' : 'none'), text: i.severity }), el('span', { class: 'nap-chip none', text: i.type }), el('b', { text: i.title }) ]),
+        el('summary', {}, [ el('span', { class: 'nap-chip ' + (i.severity === 'high' ? 'bad' : i.severity === 'medium' ? 'warn' : 'none'), text: i.severity === 'high' ? 'Fix first' : i.severity === 'medium' ? 'Should fix' : 'Minor' }), el('span', { class: 'nap-chip none', text: i.type }), el('b', { text: i.title }) ]),
         body
       ]));
     });
@@ -4435,23 +4450,23 @@
       var tb = el('tbody'); t.appendChild(tb); rows.forEach(function(r){ tb.appendChild(r); });
       return el('div', { style: 'margin-top:14px;' }, [ el('h3', { text: title, style: 'margin:0 0 4px;font-size:14px;' }), t ]);
     }
-    var found = el('div', { class: 'card', style: 'margin-bottom:20px;' }, [ el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'What the site shows' }), el('p', { text: 'Every phone number, name and street address found in page text, links, titles and structured data.' }) ]) ]) ]);
-    found.appendChild(table('Phone numbers', ['Number', 'Status', 'Where', 'Pages'], rep.phones.map(function(p){
-      return el('tr', {}, [ el('td', { text: p.value }), el('td', {}, [ el('span', { class: 'nap-chip ' + (p.ok ? 'ok' : 'bad'), text: p.ok ? 'Official' : 'Different' }) ]), el('td', { text: p.where.join(', ') }), el('td', { class: 'n', text: String(p.pages) }) ]);
+    var found = el('div', { class: 'card', style: 'margin-bottom:20px;' }, [ el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'What the site shows' }), el('p', { text: 'Every phone number, firm name and street address found on your pages, in page titles and in the hidden data Google reads. Use it to spot anything that doesn’t belong.' }) ]) ]) ]);
+    found.appendChild(table('Phone numbers', ['Number', 'Status', 'Where it’s found', 'Pages'], rep.phones.map(function(p){
+      return el('tr', {}, [ el('td', { text: p.value }), el('td', {}, [ el('span', { class: 'nap-chip ' + (p.ok ? 'ok' : 'bad'), text: p.ok ? 'Correct' : 'Different' }) ]), el('td', { text: p.where.map(function(w){ return w === 'page text' ? 'on the page' : w === 'tel link' ? 'tap-to-call links' : w === 'schema' ? 'hidden business data' : w; }).join(', ') }), el('td', { class: 'n', text: String(p.pages) }) ]);
     })));
-    found.appendChild(table('Names', ['Name as written', 'Status', 'Pages'], rep.names.map(function(n){
-      return el('tr', {}, [ el('td', { text: n.text }), el('td', {}, [ el('span', { class: 'nap-chip ' + (n.ok ? 'ok' : 'bad'), text: n.ok ? 'Accepted' : 'Wrong variant' }) ]), el('td', { class: 'n', text: String(n.pages) }) ]);
+    found.appendChild(table('How the firm’s name is written', ['Wording used', 'Status', 'Pages'], rep.names.map(function(n){
+      return el('tr', {}, [ el('td', { text: n.text }), el('td', {}, [ el('span', { class: 'nap-chip ' + (n.ok ? 'ok' : 'bad'), text: n.ok ? 'Fine' : 'Spelled differently' }) ]), el('td', { class: 'n', text: String(n.pages) }) ]);
     })));
     found.appendChild(table('Street addresses', ['Address', 'Status', 'Pages'], rep.addresses.length ? rep.addresses.map(function(a){
-      return el('tr', {}, [ el('td', { text: a.text }), el('td', {}, [ el('span', { class: 'nap-chip ' + (a.ok ? 'ok' : 'bad'), text: a.ok ? 'Official' : 'Different' }) ]), el('td', { class: 'n', text: String(a.pages) }) ]);
+      return el('tr', {}, [ el('td', { text: a.text }), el('td', {}, [ el('span', { class: 'nap-chip ' + (a.ok ? 'ok' : 'bad'), text: a.ok ? 'Correct' : 'Different' }) ]), el('td', { class: 'n', text: String(a.pages) }) ]);
     }) : [ el('tr', {}, [ el('td', { text: 'No street address found on any page.' }), el('td'), el('td') ]) ]));
     var sc = rep.schema;
-    found.appendChild(table('Structured data (what Google reads)', ['LegalService field', 'Present on', 'Status'], [ ['name', 'Name'], ['url', 'Website'], ['telephone', 'Phone'], ['address', 'Address'], ['sameAs', 'Profile links'] ].map(function(f){
+    found.appendChild(table('Hidden business data Google reads (called schema or structured data)', ['Detail', 'Included on', 'Status'], [ ['name', 'Firm name'], ['url', 'Website'], ['telephone', 'Phone'], ['address', 'Address'], ['sameAs', 'Links to your other profiles'] ].map(function(f){
       var n = sc[f[0]] || 0, ok = sc.pages > 0 && n === sc.pages;
-      return el('tr', {}, [ el('td', { text: f[1] + ' (' + f[0] + ')' }), el('td', { text: n + ' of ' + sc.pages + ' pages' }), el('td', {}, [ el('span', { class: 'nap-chip ' + (ok ? 'ok' : n ? 'warn' : 'bad'), text: ok ? 'Complete' : n ? 'Partly' : 'Missing' }) ]) ]);
+      return el('tr', {}, [ el('td', { text: f[1] }), el('td', { text: n + ' of ' + sc.pages + ' pages' }), el('td', {}, [ el('span', { class: 'nap-chip ' + (ok ? 'ok' : n ? 'warn' : 'bad'), text: ok ? 'Complete' : n ? 'Partly' : 'Missing' }) ]) ]);
     })));
     (rep.cards || []).forEach(function(c){
-      found.appendChild(table('Saved contact file: ' + c.file, ['Field', 'Value'], [ ['Name', c.name], ['Organization', c.org], ['Phone', c.phone], ['Address', c.address || '(none)'], ['Website', c.url] ].map(function(r){ return el('tr', {}, [ el('td', { text: r[0] }), el('td', { text: r[1] }) ]); })));
+      found.appendChild(table('“Save our contact” file (' + c.file + ')', ['Detail', 'What it says'], [ ['Name', c.name], ['Organization', c.org], ['Phone', c.phone], ['Address', c.address || '(none)'], ['Website', c.url] ].map(function(r){ return el('tr', {}, [ el('td', { text: r[0] }), el('td', { text: r[1] }) ]); })));
     });
     root.appendChild(found);
 
@@ -4477,7 +4492,7 @@
     var card = el('div', { class: 'card', style: 'margin-bottom:20px;' });
     var saveBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Save listings' });
     var note = el('span', { class: 'nap-cite-note', text: nap.citesError || (nap.cites && nap.cites.updated ? 'Saved ' + relTime(nap.cites.updated) + '.' : 'Nothing saved yet.') });
-    card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Listings on other sites' }), el('p', { text: 'Open each profile, paste what it shows for the name, address and phone, and this compares it with the official details. Most listings can’t be read automatically, so this is a quick manual check.' }) ]), el('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap;' }, [ note, saveBtn ]) ]));
+    card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Listings on other sites (also called citations)' }), el('p', { text: 'Directories like Google, Yelp and Avvo each keep their own copy of your name, address and phone. Open each one, paste what it shows, and this checks it against the correct version. It has to be done by hand because those sites can’t be read automatically.' }) ]), el('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap;' }, [ note, saveBtn ]) ]));
     var wrap = el('div', { class: 'nap-cites' }); card.appendChild(wrap);
     function chip(r){ return el('span', { class: 'nap-chip ' + (r === null ? 'none' : r ? 'ok' : 'bad'), text: r === null ? 'not entered' : r ? 'matches' : 'differs' }); }
     function row(e, idx){

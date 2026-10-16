@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-16T20:06:34+00:00",
+ "generated": "2026-10-16T20:38:43+00:00",
  "canonical": {
   "name": "Law Offices of Corey A. Pingle",
   "brand": "Pingle Law",
@@ -136,9 +136,9 @@
   {
    "id": "schema-telephone",
    "severity": "high",
-   "type": "Schema",
-   "title": "LegalService structured data has no telephone (16 pages)",
-   "found": "no telephone",
+   "type": "Search data",
+   "title": "Your phone number is missing from the hidden business data Google reads on 16 pages",
+   "found": "No phone number in the page's business data (LegalService schema)",
    "expected": "(714) 593-2306",
    "pages": [
     "beverly-hills-practice-areas-es.html",
@@ -158,14 +158,15 @@
     "san-francisco-practice-areas-es.html",
     "san-francisco-practice-areas.html"
    ],
-   "fix": "Add telephone to the LegalService schema so search engines read the same details as the page."
+   "why": "Behind each page is hidden code (called schema or structured data) that tells Google who the business is. Without your phone number there, Google has to guess it from the page text.",
+   "fix": "Add the phone number to the LegalService block in each page's code."
   },
   {
    "id": "schema-address",
    "severity": "high",
-   "type": "Schema",
-   "title": "LegalService structured data has no address (16 pages)",
-   "found": "no address",
+   "type": "Search data",
+   "title": "Your address is missing from the hidden business data Google reads on 16 pages",
+   "found": "No address in the page's business data (LegalService schema)",
    "expected": "9550 Warner Ave #250-06, Fountain Valley, CA 92708",
    "pages": [
     "beverly-hills-practice-areas-es.html",
@@ -185,14 +186,15 @@
     "san-francisco-practice-areas-es.html",
     "san-francisco-practice-areas.html"
    ],
-   "fix": "Add address to the LegalService schema so search engines read the same details as the page."
+   "why": "Behind each page is hidden code (called schema or structured data) that tells Google who the business is. Without your address there, Google has to guess it from the page text.",
+   "fix": "Add the address to the LegalService block in each page's code."
   },
   {
    "id": "schema-url",
    "severity": "medium",
-   "type": "Schema",
-   "title": "LegalService structured data has no url (16 pages)",
-   "found": "no url",
+   "type": "Search data",
+   "title": "Your website address is missing from the hidden business data Google reads on 16 pages",
+   "found": "No website address in the page's business data (LegalService schema)",
    "expected": "https://www.pinglelaw.com",
    "pages": [
     "beverly-hills-practice-areas-es.html",
@@ -212,41 +214,45 @@
     "san-francisco-practice-areas-es.html",
     "san-francisco-practice-areas.html"
    ],
-   "fix": "Add url to the LegalService schema so search engines read the same details as the page."
+   "why": "Behind each page is hidden code (called schema or structured data) that tells Google who the business is. Without your website address there, Google has to guess it from the page text.",
+   "fix": "Add the website address to the LegalService block in each page's code."
   },
   {
    "id": "schema-home",
    "severity": "medium",
-   "type": "Schema",
-   "title": "The home page has no LegalService / LocalBusiness structured data",
-   "found": "none",
-   "expected": "LegalService with name, url, telephone, address",
+   "type": "Search data",
+   "title": "The home page has no hidden business data for Google (LegalService schema)",
+   "found": "None on the home page",
+   "expected": "Name, website, phone and address in a LegalService block",
    "pages": [
     "index.html"
    ],
+   "why": "The home page is the first place Google looks to learn who the business is and where it is.",
    "fix": "Add one LegalService block with the official name, phone, address and website to the home page."
   },
   {
    "id": "vcard-pingle-law-contact.vcf",
    "severity": "medium",
    "type": "Contact card",
-   "title": "Saved-contact file pingle-law-contact.vcf differs: name is “Law Offices of Corey Pingle” (expected “Law Offices of Corey A. Pingle”); no address; website is https://pinglelaw.com (expected https://www.pinglelaw.com)",
-   "found": "name is “Law Offices of Corey Pingle” (expected “Law Offices of Corey A. Pingle”); no address; website is https://pinglelaw.com (expected https://www.pinglelaw.com)",
+   "title": "The “Save our contact” file doesn’t match your official details: the name reads “Law Offices of Corey Pingle” instead of “Law Offices of Corey A. Pingle”; there is no address; the website is https://pinglelaw.com instead of https://www.pinglelaw.com",
+   "found": "the name reads “Law Offices of Corey Pingle” instead of “Law Offices of Corey A. Pingle”; there is no address; the website is https://pinglelaw.com instead of https://www.pinglelaw.com",
    "expected": "Law Offices of Corey A. Pingle, (714) 593-2306, 9550 Warner Ave #250-06, Fountain Valley, CA 92708, https://www.pinglelaw.com",
    "pages": [
     "assets/pingle-law-contact.vcf"
    ],
-   "fix": "Update the .vcf so the contact people save matches the official name, phone, address and website."
+   "why": "When someone taps “Save contact”, their phone stores these details. If they’re wrong or incomplete, that’s what customers see and share.",
+   "fix": "Update the contact file (pingle-law-contact.vcf) so it has the official name, phone, address and website."
   },
   {
    "id": "addr-sparse",
    "severity": "low",
    "type": "Address",
-   "title": "The address appears on only 2 pages",
+   "title": "Your address is shown on only 2 pages",
    "found": "2 pages",
    "expected": "9550 Warner Ave #250-06, Fountain Valley, CA 92708",
    "pages": [],
-   "fix": "Search engines match listings to the site more confidently when the address is also in the footer or in schema. Add it to the footer if you want it public everywhere."
+   "why": "Search engines trust a business more when its address appears consistently, such as in the footer.",
+   "fix": "Add the address to the footer of every page if you want it public everywhere. Skip this if you prefer to show it only on the contact page."
   }
  ],
  "citations": [
