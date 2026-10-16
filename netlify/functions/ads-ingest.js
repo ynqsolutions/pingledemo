@@ -26,6 +26,8 @@ export default async (req) => {
   if(raw.length > MAX_BYTES) return Response.json({ error: 'Payload too large.' }, { status: 413 });
   let body;
   try { body = JSON.parse(raw); } catch (e) { return Response.json({ error: 'Invalid JSON.' }, { status: 400 }); }
+  // Connection test: confirms the secret works without storing anything.
+  if(body && body.ping === true) return Response.json({ ok: true, ping: true });
   if(!body || !Array.isArray(body.rows)) return Response.json({ error: 'Expected { rows: [...] }.' }, { status: 400 });
 
   const rows = [];
