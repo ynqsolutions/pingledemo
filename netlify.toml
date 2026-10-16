@@ -22,7 +22,7 @@
   #    the repo (including the just-generated posts/rss page), so it always
   #    reflects reality without hand-editing. See generate_sitemap.py for
   #    the rules (noindex pages excluded, etc).
-  command = "python3 generate_blog_posts.py && python3 generate_cms_sections.py && python3 generate_rss_page.py && python3 generate_page_dates.py && python3 generate_sitemap.py"
+  command = "python3 generate_blog_posts.py && python3 generate_cms_sections.py && python3 generate_rss_page.py && python3 generate_page_dates.py && python3 generate_sitemap.py && python3 generate_nap_report.py"
 
 # ---------------------------------------------------------------------------
 # Security headers (applied to every route). Netlify serves this site from

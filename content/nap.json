@@ -1,0 +1,31 @@
+{
+  "_note": "Source of truth for the admin's NAP Checker (generate_nap_report.py). Edit these values if the firm's name, phone or address ever changes.",
+  "name": "Law Offices of Corey A. Pingle",
+  "brand": "Pingle Law",
+  "phone": "(714) 593-2306",
+  "address": { "street": "9550 Warner Ave", "suite": "#250-06", "city": "Fountain Valley", "state": "CA", "zip": "92708" },
+  "website": "https://www.pinglelaw.com",
+  "acceptedNames": ["Law Offices of Corey A. Pingle", "The Law Offices of Corey A. Pingle", "Pingle Law", "Corey A. Pingle", "Corey Pingle", "Law Offices of Corey A. Pingle, Esq."],
+  "flagNames": [
+    { "pattern": "Law Offices? of Corey Pingle", "label": "Law Offices of Corey Pingle (missing the “A.”)", "fix": "Law Offices of Corey A. Pingle" },
+    { "pattern": "Law Office of Corey A\\. Pingle", "label": "Law Office (singular) of Corey A. Pingle", "fix": "Law Offices of Corey A. Pingle" },
+    { "pattern": "Pingle Law (Firm|Group|Offices?|Office|PC|APC|LLP)\\b", "label": "Pingle Law with a suffix", "fix": "Pingle Law" },
+    { "pattern": "Pingle (&|and) (Associates|Partners)", "label": "Pingle & Associates", "fix": "Law Offices of Corey A. Pingle" },
+    { "pattern": "Corey A\\. Pingle,? (P\\.?C\\.?|A\\.?P\\.?C\\.?|Law)", "label": "Corey A. Pingle with a firm suffix", "fix": "Law Offices of Corey A. Pingle" }
+  ],
+  "citations": [
+    { "name": "Google Business Profile", "url": "https://business.google.com" },
+    { "name": "Bing Places", "url": "https://www.bingplaces.com" },
+    { "name": "Apple Business Connect", "url": "https://businessconnect.apple.com" },
+    { "name": "Yelp", "url": "https://biz.yelp.com" },
+    { "name": "Avvo", "url": "https://www.avvo.com" },
+    { "name": "Justia", "url": "https://lawyers.justia.com" },
+    { "name": "FindLaw", "url": "https://lawyers.findlaw.com" },
+    { "name": "Martindale-Nolo", "url": "https://www.martindale.com" },
+    { "name": "Super Lawyers", "url": "https://www.superlawyers.com" },
+    { "name": "State Bar of California", "url": "https://apps.calbar.ca.gov/attorney/Licensee/Detail" },
+    { "name": "Better Business Bureau", "url": "https://www.bbb.org" },
+    { "name": "Facebook", "url": "https://www.facebook.com/pinglelaw/" },
+    { "name": "LinkedIn", "url": "https://www.linkedin.com/in/corey-pingle-b777979a/" }
+  ]
+}

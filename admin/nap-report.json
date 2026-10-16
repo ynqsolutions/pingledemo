@@ -1,0 +1,306 @@
+{
+ "generated": "2026-10-16T20:06:34+00:00",
+ "canonical": {
+  "name": "Law Offices of Corey A. Pingle",
+  "brand": "Pingle Law",
+  "phone": "(714) 593-2306",
+  "address": "9550 Warner Ave #250-06, Fountain Valley, CA 92708",
+  "website": "https://www.pinglelaw.com"
+ },
+ "summary": {
+  "pagesScanned": 373,
+  "pagesWithPhone": 373,
+  "pagesWithOfficialPhone": 373,
+  "pagesWithOtherPhone": 0,
+  "pagesWithOfficialName": 276,
+  "pagesWithAddress": 2,
+  "issues": 6,
+  "high": 2
+ },
+ "phones": [
+  {
+   "value": "(714) 593-2306",
+   "ok": true,
+   "pages": 373,
+   "where": [
+    "page text",
+    "tel link"
+   ],
+   "sample": [
+    "about-es.html",
+    "about.html",
+    "accept-job-offer-letter-es.html",
+    "accept-job-offer-letter.html",
+    "bereavement-leave-request-letter-es.html",
+    "bereavement-leave-request-letter.html"
+   ]
+  }
+ ],
+ "names": [
+  {
+   "text": "Pingle Law",
+   "ok": true,
+   "pages": 373,
+   "sample": [
+    "about-es.html",
+    "about.html",
+    "accept-job-offer-letter-es.html",
+    "accept-job-offer-letter.html",
+    "bereavement-leave-request-letter-es.html",
+    "bereavement-leave-request-letter.html"
+   ]
+  },
+  {
+   "text": "Corey A. Pingle",
+   "ok": true,
+   "pages": 373,
+   "sample": [
+    "about-es.html",
+    "about.html",
+    "accept-job-offer-letter-es.html",
+    "accept-job-offer-letter.html",
+    "bereavement-leave-request-letter-es.html",
+    "bereavement-leave-request-letter.html"
+   ]
+  },
+  {
+   "text": "Law Offices of Corey A. Pingle",
+   "ok": true,
+   "pages": 276,
+   "sample": [
+    "about.html",
+    "accept-job-offer-letter.html",
+    "bereavement-leave-request-letter.html",
+    "beverly-hills-class-actions-paga.html",
+    "beverly-hills-disability-workplace-accommodations.html",
+    "beverly-hills-employee-misclassification-equal-pay-es.html"
+   ]
+  },
+  {
+   "text": "Corey Pingle",
+   "ok": true,
+   "pages": 17,
+   "sample": [
+    "about-es.html",
+    "about.html",
+    "beverly-hills-es.html",
+    "beverly-hills.html",
+    "fountain-valley-es.html",
+    "fountain-valley.html"
+   ]
+  },
+  {
+   "text": "The Law Offices of Corey A. Pingle",
+   "ok": true,
+   "pages": 15,
+   "sample": [
+    "beverly-hills-practice-areas.html",
+    "beverly-hills.html",
+    "faq.html",
+    "fountain-valley-practice-areas.html",
+    "fountain-valley.html",
+    "index.html"
+   ]
+  }
+ ],
+ "addresses": [
+  {
+   "text": "9550 Warner Ave #250-06, Fountain Valley, CA 92708",
+   "ok": true,
+   "pages": 2,
+   "sample": [
+    "contact-es.html",
+    "contact.html"
+   ]
+  }
+ ],
+ "schema": {
+  "pages": 16,
+  "name": 16,
+  "url": 0,
+  "telephone": 0,
+  "address": 0,
+  "sameAs": 0
+ },
+ "cards": [
+  {
+   "file": "assets/pingle-law-contact.vcf",
+   "name": "Law Offices of Corey Pingle - Employment Attorney",
+   "org": "Law Offices of Corey Pingle",
+   "phone": "+17145932306",
+   "address": "",
+   "url": "https://pinglelaw.com"
+  }
+ ],
+ "issues": [
+  {
+   "id": "schema-telephone",
+   "severity": "high",
+   "type": "Schema",
+   "title": "LegalService structured data has no telephone (16 pages)",
+   "found": "no telephone",
+   "expected": "(714) 593-2306",
+   "pages": [
+    "beverly-hills-practice-areas-es.html",
+    "beverly-hills-practice-areas.html",
+    "fountain-valley-practice-areas-es.html",
+    "fountain-valley-practice-areas.html",
+    "practice-areas-es.html",
+    "practice-areas.html",
+    "results-and-testimonials-es.html",
+    "results-and-testimonials.html",
+    "sacramento-practice-areas-es.html",
+    "sacramento-practice-areas.html",
+    "san-bernardino-practice-areas-es.html",
+    "san-bernardino-practice-areas.html",
+    "san-diego-practice-areas-es.html",
+    "san-diego-practice-areas.html",
+    "san-francisco-practice-areas-es.html",
+    "san-francisco-practice-areas.html"
+   ],
+   "fix": "Add telephone to the LegalService schema so search engines read the same details as the page."
+  },
+  {
+   "id": "schema-address",
+   "severity": "high",
+   "type": "Schema",
+   "title": "LegalService structured data has no address (16 pages)",
+   "found": "no address",
+   "expected": "9550 Warner Ave #250-06, Fountain Valley, CA 92708",
+   "pages": [
+    "beverly-hills-practice-areas-es.html",
+    "beverly-hills-practice-areas.html",
+    "fountain-valley-practice-areas-es.html",
+    "fountain-valley-practice-areas.html",
+    "practice-areas-es.html",
+    "practice-areas.html",
+    "results-and-testimonials-es.html",
+    "results-and-testimonials.html",
+    "sacramento-practice-areas-es.html",
+    "sacramento-practice-areas.html",
+    "san-bernardino-practice-areas-es.html",
+    "san-bernardino-practice-areas.html",
+    "san-diego-practice-areas-es.html",
+    "san-diego-practice-areas.html",
+    "san-francisco-practice-areas-es.html",
+    "san-francisco-practice-areas.html"
+   ],
+   "fix": "Add address to the LegalService schema so search engines read the same details as the page."
+  },
+  {
+   "id": "schema-url",
+   "severity": "medium",
+   "type": "Schema",
+   "title": "LegalService structured data has no url (16 pages)",
+   "found": "no url",
+   "expected": "https://www.pinglelaw.com",
+   "pages": [
+    "beverly-hills-practice-areas-es.html",
+    "beverly-hills-practice-areas.html",
+    "fountain-valley-practice-areas-es.html",
+    "fountain-valley-practice-areas.html",
+    "practice-areas-es.html",
+    "practice-areas.html",
+    "results-and-testimonials-es.html",
+    "results-and-testimonials.html",
+    "sacramento-practice-areas-es.html",
+    "sacramento-practice-areas.html",
+    "san-bernardino-practice-areas-es.html",
+    "san-bernardino-practice-areas.html",
+    "san-diego-practice-areas-es.html",
+    "san-diego-practice-areas.html",
+    "san-francisco-practice-areas-es.html",
+    "san-francisco-practice-areas.html"
+   ],
+   "fix": "Add url to the LegalService schema so search engines read the same details as the page."
+  },
+  {
+   "id": "schema-home",
+   "severity": "medium",
+   "type": "Schema",
+   "title": "The home page has no LegalService / LocalBusiness structured data",
+   "found": "none",
+   "expected": "LegalService with name, url, telephone, address",
+   "pages": [
+    "index.html"
+   ],
+   "fix": "Add one LegalService block with the official name, phone, address and website to the home page."
+  },
+  {
+   "id": "vcard-pingle-law-contact.vcf",
+   "severity": "medium",
+   "type": "Contact card",
+   "title": "Saved-contact file pingle-law-contact.vcf differs: name is “Law Offices of Corey Pingle” (expected “Law Offices of Corey A. Pingle”); no address; website is https://pinglelaw.com (expected https://www.pinglelaw.com)",
+   "found": "name is “Law Offices of Corey Pingle” (expected “Law Offices of Corey A. Pingle”); no address; website is https://pinglelaw.com (expected https://www.pinglelaw.com)",
+   "expected": "Law Offices of Corey A. Pingle, (714) 593-2306, 9550 Warner Ave #250-06, Fountain Valley, CA 92708, https://www.pinglelaw.com",
+   "pages": [
+    "assets/pingle-law-contact.vcf"
+   ],
+   "fix": "Update the .vcf so the contact people save matches the official name, phone, address and website."
+  },
+  {
+   "id": "addr-sparse",
+   "severity": "low",
+   "type": "Address",
+   "title": "The address appears on only 2 pages",
+   "found": "2 pages",
+   "expected": "9550 Warner Ave #250-06, Fountain Valley, CA 92708",
+   "pages": [],
+   "fix": "Search engines match listings to the site more confidently when the address is also in the footer or in schema. Add it to the footer if you want it public everywhere."
+  }
+ ],
+ "citations": [
+  {
+   "name": "Google Business Profile",
+   "url": "https://business.google.com"
+  },
+  {
+   "name": "Bing Places",
+   "url": "https://www.bingplaces.com"
+  },
+  {
+   "name": "Apple Business Connect",
+   "url": "https://businessconnect.apple.com"
+  },
+  {
+   "name": "Yelp",
+   "url": "https://biz.yelp.com"
+  },
+  {
+   "name": "Avvo",
+   "url": "https://www.avvo.com"
+  },
+  {
+   "name": "Justia",
+   "url": "https://lawyers.justia.com"
+  },
+  {
+   "name": "FindLaw",
+   "url": "https://lawyers.findlaw.com"
+  },
+  {
+   "name": "Martindale-Nolo",
+   "url": "https://www.martindale.com"
+  },
+  {
+   "name": "Super Lawyers",
+   "url": "https://www.superlawyers.com"
+  },
+  {
+   "name": "State Bar of California",
+   "url": "https://apps.calbar.ca.gov/attorney/Licensee/Detail"
+  },
+  {
+   "name": "Better Business Bureau",
+   "url": "https://www.bbb.org"
+  },
+  {
+   "name": "Facebook",
+   "url": "https://www.facebook.com/pinglelaw/"
+  },
+  {
+   "name": "LinkedIn",
+   "url": "https://www.linkedin.com/in/corey-pingle-b777979a/"
+  }
+ ]
+}

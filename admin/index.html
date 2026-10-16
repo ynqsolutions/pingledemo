@@ -1059,6 +1059,37 @@
   }
 
 
+
+  /* ---- NAP Checker ---- */
+  .nap-chip{ display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; letter-spacing:.02em; white-space:nowrap; }
+  .nap-chip.ok{ background:#E4F3EC; color:#1F7A5C; } .nap-chip.bad{ background:#FBE8E4; color:#B3402A; } .nap-chip.warn{ background:#FBF0DB; color:#8A6420; } .nap-chip.none{ background:var(--field); color:var(--muted); }
+  .nap-truth{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; margin-top:6px; }
+  .nap-truth-row{ border:1px solid var(--line); border-radius:10px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:10px; background:#fff; }
+  .nap-truth-row small{ display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .nap-truth-row b{ font-weight:600; font-size:14px; overflow-wrap:anywhere; }
+  .nap-issue{ border:1px solid var(--line); border-radius:12px; margin-top:10px; background:#fff; }
+  .nap-issue summary{ list-style:none; cursor:pointer; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; }
+  .nap-issue summary::-webkit-details-marker{ display:none; }
+  .nap-issue summary b{ font-weight:600; font-size:14px; flex:1; min-width:200px; }
+  .nap-issue-body{ padding:0 14px 14px; font-size:13px; color:var(--ink); display:grid; gap:8px; }
+  .nap-issue-body .k{ font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-right:6px; }
+  .nap-pages{ display:flex; flex-wrap:wrap; gap:6px; margin-top:2px; }
+  .nap-pages a{ font-size:12px; padding:3px 9px; border-radius:999px; background:var(--field); color:var(--ink); text-decoration:none; }
+  .nap-pages a:hover{ background:var(--line); }
+  .nap-tbl{ width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; }
+  .nap-tbl th{ text-align:left; font-size:11.5px; font-weight:600; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; padding:6px 8px; border-bottom:1px solid var(--line); }
+  .nap-tbl td{ padding:8px; border-top:1px solid var(--line); vertical-align:top; overflow-wrap:anywhere; }
+  .nap-tbl td.n{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .nap-cites{ display:grid; gap:10px; margin-top:8px; }
+  .nap-cite{ border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:#fff; display:grid; gap:10px; }
+  .nap-cite-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .nap-cite-head b{ font-weight:600; flex:1; min-width:140px; }
+  .nap-cite-fields{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; }
+  .nap-cite-fields label{ display:grid; gap:4px; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .nap-cite-fields input{ height:36px; border:1px solid var(--line-strong); border-radius:8px; padding:0 10px; font:inherit; font-size:13.5px; text-transform:none; letter-spacing:0; color:var(--ink); background:#fff; min-width:0; }
+  .nap-cite-fields input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-100); }
+  .nap-cite-note{ font-size:12px; color:var(--muted); }
+  @media (max-width:820px){ .nap-truth, .nap-cite-fields{ grid-template-columns:1fr; } }
   /* ---- Google Ads view ---- */
   .ads-controls{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; }
   .ads-tiles{ grid-template-columns:repeat(3, minmax(0,1fr)); }
@@ -1271,6 +1302,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><path d="M4 4v16h16"/><path d="M8 16l4-5 3 3 5-7"/></svg>
         Google Ads
       </a>
+      <a href="#nap" data-view="nap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 21s-6.5-6.2-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.8-6.5 11-6.5 11z"/><path d="M9.5 10l2 2 3.5-4"/></svg>
+        NAP Checker
+      </a>
     </nav>
     <div class="sidebar-foot">
       <a href="/" target="_blank" rel="noopener">
@@ -1352,6 +1387,7 @@
       <section class="view" data-view="ai-crawlers" id="aiCrawlersView"></section>
       <section class="view" data-view="search-updates" id="searchUpdatesView"></section>
       <section class="view" data-view="google-ads" id="googleAdsView"></section>
+      <section class="view" data-view="nap" id="napView"></section>
 
     </div>
   </div>
@@ -4275,8 +4311,189 @@
     root.appendChild(adsSetup(false));
   }
 
+
+  // ---- NAP Checker: name / address / phone consistency. The site scan is
+  // generated on every deploy by generate_nap_report.py (plain text matching,
+  // no AI); listings on other sites are compared with the same plain rules. ----
+  var nap = { root: $('#napView'), loaded: false, busy: false, error: '', report: null, cites: null, citesError: '', dirty: false, saving: false };
+  function napPhone(s){ var d = String(s || '').replace(/\D/g, ''); return d.length === 11 && d[0] === '1' ? d.slice(1) : d; }
+  function napName(s){ return String(s || '').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9 ]/g, ' ').replace(/\b(the|esq|apc|pc|llp|inc|llc)\b/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function napAddr(s){
+    return String(s || '').toLowerCase().replace(/[.,]/g, ' ').replace(/\bavenue\b/g, 'ave').replace(/\bstreet\b/g, 'st').replace(/\bsuite\b|\bste\b|\bunit\b|\bapt\b/g, '#').replace(/\bcalifornia\b/g, 'ca')
+      .replace(/#\s*/g, '#').replace(/\b(united states|usa|us)\b/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function openNap(){ if(!nap.loaded && !nap.busy) loadNap(); else renderNap(); }
+  function loadNap(){
+    nap.busy = true; nap.error = ''; renderNap();
+    var user = currentUser();
+    var rep = fetch('/admin/nap-report.json?_=' + Date.now(), { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error('The scan has not run yet. It runs on the next site deploy (' + r.status + ').'); return r.json(); });
+    var cites = user ? user.jwt().then(function(t){ return fetch('/.netlify/functions/nap-citations', { cache: 'no-store', headers: { Authorization: 'Bearer ' + t } }); })
+      .then(function(r){ if(!r.ok) throw new Error(r.status === 401 ? 'Sign in to use the listings tracker.' : 'Request failed (' + r.status + ')'); return r.json(); }) : Promise.reject(new Error('Sign in to use the listings tracker.'));
+    Promise.all([ rep, cites.catch(function(e){ nap.citesError = e.message; return null; }) ])
+      .then(function(res){ nap.report = res[0]; nap.cites = res[1]; nap.loaded = true; })
+      .catch(function(e){ nap.error = e.message || 'Could not load the NAP report.'; })
+      .then(function(){ nap.busy = false; renderNap(); });
+  }
+  function napCopy(text, label){
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function(){ toast(label + ' copied.'); }, function(){ toast('Could not copy.', true); });
+    else toast('Could not copy.', true);
+  }
+  function napPagesList(pages){
+    var box = el('div', { class: 'nap-pages' });
+    pages.slice(0, 40).forEach(function(p){
+      var href = p.indexOf('/') > -1 ? '/' + p : '/' + p;
+      box.appendChild(el('a', { href: href, target: '_blank', rel: 'noopener', text: p }));
+    });
+    if(pages.length > 40) box.appendChild(el('span', { class: 'nap-cite-note', text: 'and ' + (pages.length - 40) + ' more' }));
+    return box;
+  }
+  function renderNap(){
+    var root = nap.root; if(!root) return;
+    root.innerHTML = ''; root.classList.add('ai-root');
+    var rep = nap.report;
+    root.appendChild(el('div', { class: 'page-head' }, [ el('div', {}, [
+      el('h1', { text: 'NAP Checker' }),
+      el('p', { text: rep ? 'Checks that the firm’s Name, Address and Phone match across the site. Scanned at the last deploy (' + relTime(rep.generated) + '); it re-scans automatically with every deploy.' : 'Checks that the firm’s Name, Address and Phone match everywhere.' })
+    ]) ]));
+    if(nap.busy && !rep){ root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: 'Loading…' }) ])); return; }
+    if(nap.error){ root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: nap.error }), el('button', { type: 'button', class: 'btn', text: 'Try again', onclick: function(){ loadNap(); } }) ])); return; }
+    var C = rep.canonical, S = rep.summary;
+
+    // ---- score tiles ----
+    var checks = [
+      { label: 'Phone', ok: S.pagesWithOtherPhone === 0 && S.pagesWithOfficialPhone > 0, sub: S.pagesWithOfficialPhone + ' of ' + S.pagesScanned + ' pages show ' + C.phone + (S.pagesWithOtherPhone ? '; ' + S.pagesWithOtherPhone + ' show another number' : '') },
+      { label: 'Name', ok: !rep.issues.some(function(i){ return i.type === 'Name'; }), sub: S.pagesWithOfficialName + ' pages use the full legal name; ' + rep.names.filter(function(n){ return !n.ok; }).reduce(function(a, n){ return a + n.pages; }, 0) + ' use a wrong variant' },
+      { label: 'Address', ok: !rep.issues.some(function(i){ return i.type === 'Address' && i.severity !== 'low'; }) && S.pagesWithAddress > 0, sub: 'Shown on ' + S.pagesWithAddress + ' page' + (S.pagesWithAddress === 1 ? '' : 's') + '; no conflicting addresses found' },
+      { label: 'Structured data', ok: !rep.issues.some(function(i){ return i.type === 'Schema'; }), sub: rep.schema.pages + ' pages have LegalService data; phone on ' + rep.schema.telephone + ', address on ' + rep.schema.address },
+      { label: 'Saved contact file', ok: !rep.issues.some(function(i){ return i.type === 'Contact card'; }), sub: (rep.cards || []).length + ' .vcf file' + ((rep.cards || []).length === 1 ? '' : 's') + ' checked' }
+    ];
+    var passed = checks.filter(function(c){ return c.ok; }).length;
+    var tiles = el('div', { class: 'ai-tiles' });
+    tiles.appendChild(el('div', { class: 'ai-tile' }, [ el('div', { class: 'ai-tile-label', text: 'Checks passed' }), el('div', { class: 'ai-tile-num', text: passed + ' of ' + checks.length }), el('div', { class: 'ai-tile-sub', text: S.issues + ' issue' + (S.issues === 1 ? '' : 's') + ' to review (' + S.high + ' high)' }) ]));
+    checks.slice(0, 5).forEach(function(c){
+      tiles.appendChild(el('div', { class: 'ai-tile' }, [ el('div', { class: 'ai-tile-label' }, [ c.label + ' ', el('span', { class: 'nap-chip ' + (c.ok ? 'ok' : 'bad'), text: c.ok ? 'Consistent' : 'Needs attention' }) ]), el('div', { class: 'ai-tile-sub', text: c.sub }) ]));
+    });
+    root.appendChild(tiles);
+
+    // ---- source of truth ----
+    var truth = el('div', { class: 'nap-truth' });
+    [ ['Name', C.name], ['Also used as', C.brand], ['Phone', C.phone], ['Address', C.address], ['Website', C.website] ].forEach(function(r){
+      truth.appendChild(el('div', { class: 'nap-truth-row' }, [ el('div', {}, [ el('small', { text: r[0] }), el('b', { text: r[1] }) ]), el('button', { type: 'button', class: 'btn btn-sm', text: 'Copy', onclick: function(){ napCopy(r[1], r[0]); } }) ]));
+    });
+    root.appendChild(el('div', { class: 'card', style: 'margin-bottom:20px;' }, [
+      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Official name, address and phone' }), el('p', { text: 'Everything is compared against these. Use these exact values on every listing. (Edit them in content/nap.json.)' }) ]),
+        el('button', { type: 'button', class: 'btn btn-primary', text: 'Copy all', onclick: function(){ napCopy(C.name + '\n' + C.address + '\n' + C.phone + '\n' + C.website, 'NAP'); } }) ]),
+      truth
+    ]));
+
+    // ---- issues ----
+    var issuesCard = el('div', { class: 'card', style: 'margin-bottom:20px;' }, [ el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Issues to fix' }), el('p', { text: rep.issues.length ? 'Highest priority first. Open an item to see what was found, what it should be and which pages are affected.' : 'No inconsistencies found.' }) ]) ]) ]);
+    rep.issues.forEach(function(i){
+      var body = el('div', { class: 'nap-issue-body' }, [
+        el('div', {}, [ el('span', { class: 'k', text: 'Found' }), i.found || 'Not present' ]),
+        el('div', {}, [ el('span', { class: 'k', text: 'Should be' }), i.expected ]),
+        el('div', {}, [ el('span', { class: 'k', text: 'Fix' }), i.fix ])
+      ]);
+      if(i.pages && i.pages.length){ body.appendChild(el('div', {}, [ el('span', { class: 'k', text: 'Affected (' + i.pages.length + ')' }), napPagesList(i.pages) ])); }
+      issuesCard.appendChild(el('details', { class: 'nap-issue' }, [
+        el('summary', {}, [ el('span', { class: 'nap-chip ' + (i.severity === 'high' ? 'bad' : i.severity === 'medium' ? 'warn' : 'none'), text: i.severity }), el('span', { class: 'nap-chip none', text: i.type }), el('b', { text: i.title }) ]),
+        body
+      ]));
+    });
+    root.appendChild(issuesCard);
+
+    // ---- what was found ----
+    function table(title, head, rows){
+      var t = el('table', { class: 'nap-tbl' }, [ el('thead', {}, [ el('tr', {}, head.map(function(h){ return el('th', { text: h }); })) ]) ]);
+      var tb = el('tbody'); t.appendChild(tb); rows.forEach(function(r){ tb.appendChild(r); });
+      return el('div', { style: 'margin-top:14px;' }, [ el('h3', { text: title, style: 'margin:0 0 4px;font-size:14px;' }), t ]);
+    }
+    var found = el('div', { class: 'card', style: 'margin-bottom:20px;' }, [ el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'What the site shows' }), el('p', { text: 'Every phone number, name and street address found in page text, links, titles and structured data.' }) ]) ]) ]);
+    found.appendChild(table('Phone numbers', ['Number', 'Status', 'Where', 'Pages'], rep.phones.map(function(p){
+      return el('tr', {}, [ el('td', { text: p.value }), el('td', {}, [ el('span', { class: 'nap-chip ' + (p.ok ? 'ok' : 'bad'), text: p.ok ? 'Official' : 'Different' }) ]), el('td', { text: p.where.join(', ') }), el('td', { class: 'n', text: String(p.pages) }) ]);
+    })));
+    found.appendChild(table('Names', ['Name as written', 'Status', 'Pages'], rep.names.map(function(n){
+      return el('tr', {}, [ el('td', { text: n.text }), el('td', {}, [ el('span', { class: 'nap-chip ' + (n.ok ? 'ok' : 'bad'), text: n.ok ? 'Accepted' : 'Wrong variant' }) ]), el('td', { class: 'n', text: String(n.pages) }) ]);
+    })));
+    found.appendChild(table('Street addresses', ['Address', 'Status', 'Pages'], rep.addresses.length ? rep.addresses.map(function(a){
+      return el('tr', {}, [ el('td', { text: a.text }), el('td', {}, [ el('span', { class: 'nap-chip ' + (a.ok ? 'ok' : 'bad'), text: a.ok ? 'Official' : 'Different' }) ]), el('td', { class: 'n', text: String(a.pages) }) ]);
+    }) : [ el('tr', {}, [ el('td', { text: 'No street address found on any page.' }), el('td'), el('td') ]) ]));
+    var sc = rep.schema;
+    found.appendChild(table('Structured data (what Google reads)', ['LegalService field', 'Present on', 'Status'], [ ['name', 'Name'], ['url', 'Website'], ['telephone', 'Phone'], ['address', 'Address'], ['sameAs', 'Profile links'] ].map(function(f){
+      var n = sc[f[0]] || 0, ok = sc.pages > 0 && n === sc.pages;
+      return el('tr', {}, [ el('td', { text: f[1] + ' (' + f[0] + ')' }), el('td', { text: n + ' of ' + sc.pages + ' pages' }), el('td', {}, [ el('span', { class: 'nap-chip ' + (ok ? 'ok' : n ? 'warn' : 'bad'), text: ok ? 'Complete' : n ? 'Partly' : 'Missing' }) ]) ]);
+    })));
+    (rep.cards || []).forEach(function(c){
+      found.appendChild(table('Saved contact file: ' + c.file, ['Field', 'Value'], [ ['Name', c.name], ['Organization', c.org], ['Phone', c.phone], ['Address', c.address || '(none)'], ['Website', c.url] ].map(function(r){ return el('tr', {}, [ el('td', { text: r[0] }), el('td', { text: r[1] }) ]); })));
+    });
+    root.appendChild(found);
+
+    root.appendChild(napCitationsCard(rep));
+  }
+
+  // ---- Listings on other sites: you paste what each directory shows; the
+  // comparison against the official NAP is plain text matching. ----
+  function napCmp(field, listed, canon){
+    if(!String(listed || '').trim()) return null;
+    if(field === 'phone') return napPhone(listed) === napPhone(canon);
+    if(field === 'name'){ var a = napName(listed), b = napName(canon), br = napName(nap.report.canonical.brand); return a === b || a === br; }
+    var x = napAddr(listed), y = napAddr(canon);
+    if(x === y) return true;
+    var street = napAddr(String(canon).split('#')[0].split(',')[0]), suite = (String(canon).match(/#\s*([\w-]+)/) || [])[1], zip = (String(canon).match(/\b\d{5}\b/) || [])[0], city = napAddr(String(canon).split(',')[1] || '');
+    return x.indexOf(street) > -1 && (!suite || x.indexOf(String(suite).toLowerCase()) > -1) && (!city || x.indexOf(city) > -1) && (!zip || x.indexOf(zip) > -1);
+  }
+  function napCitationsCard(rep){
+    var C = rep.canonical;
+    var byName = {}; ((nap.cites && nap.cites.entries) || []).forEach(function(e){ byName[e.name] = e; });
+    var list = (rep.citations || []).map(function(c){ return Object.assign({ name: c.name, url: c.url, listedName: '', listedAddress: '', listedPhone: '', checked: '' }, byName[c.name] || {}); });
+    ((nap.cites && nap.cites.entries) || []).forEach(function(e){ if(!(rep.citations || []).some(function(c){ return c.name === e.name; })) list.push(e); });
+    var card = el('div', { class: 'card', style: 'margin-bottom:20px;' });
+    var saveBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Save listings' });
+    var note = el('span', { class: 'nap-cite-note', text: nap.citesError || (nap.cites && nap.cites.updated ? 'Saved ' + relTime(nap.cites.updated) + '.' : 'Nothing saved yet.') });
+    card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Listings on other sites' }), el('p', { text: 'Open each profile, paste what it shows for the name, address and phone, and this compares it with the official details. Most listings can’t be read automatically, so this is a quick manual check.' }) ]), el('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap;' }, [ note, saveBtn ]) ]));
+    var wrap = el('div', { class: 'nap-cites' }); card.appendChild(wrap);
+    function chip(r){ return el('span', { class: 'nap-chip ' + (r === null ? 'none' : r ? 'ok' : 'bad'), text: r === null ? 'not entered' : r ? 'matches' : 'differs' }); }
+    function row(e, idx){
+      var statusBox = el('span', { style: 'display:inline-flex;gap:6px;flex-wrap:wrap;' });
+      function status(){
+        statusBox.innerHTML = '';
+        var n = napCmp('name', e.listedName, C.name), a = napCmp('address', e.listedAddress, C.address), p = napCmp('phone', e.listedPhone, C.phone);
+        var all = [n, a, p], entered = all.filter(function(x){ return x !== null; });
+        var overall = !entered.length ? el('span', { class: 'nap-chip none', text: 'Not checked' }) : entered.every(Boolean) && entered.length === 3 ? el('span', { class: 'nap-chip ok', text: 'All match' }) : entered.every(Boolean) ? el('span', { class: 'nap-chip warn', text: 'Partly checked' }) : el('span', { class: 'nap-chip bad', text: 'Mismatch' });
+        statusBox.appendChild(overall);
+        statusBox.appendChild(el('span', { class: 'nap-cite-note', text: 'Name ' + (n === null ? '–' : n ? '✓' : '✕') + ' · Address ' + (a === null ? '–' : a ? '✓' : '✕') + ' · Phone ' + (p === null ? '–' : p ? '✓' : '✕') }));
+      }
+      function field(label, key, ph){
+        var inp = el('input', { type: 'text', value: e[key] || '', placeholder: ph, 'aria-label': e.name + ' ' + label });
+        inp.addEventListener('input', function(){ e[key] = inp.value; e.checked = isoDay(new Date()); nap.dirty = true; status(); });
+        return el('label', {}, [ label, inp ]);
+      }
+      status();
+      var head = el('div', { class: 'nap-cite-head' }, [ el('b', { text: e.name }), e.url ? el('a', { href: e.url, target: '_blank', rel: 'noopener', class: 'nap-cite-note', text: 'Open ↗' }) : null, statusBox ]);
+      return el('div', { class: 'nap-cite' }, [ head, el('div', { class: 'nap-cite-fields' }, [ field('Name shown', 'listedName', C.name), field('Address shown', 'listedAddress', C.address), field('Phone shown', 'listedPhone', C.phone) ]), e.checked ? el('div', { class: 'nap-cite-note', text: 'Last updated ' + shortDate(e.checked) }) : null ]);
+    }
+    list.forEach(function(e, i){ wrap.appendChild(row(e, i)); });
+    var addName = el('input', { type: 'text', placeholder: 'Add another site (for example, a local directory)', style: 'height:36px;border:1px solid var(--line-strong);border-radius:8px;padding:0 10px;font:inherit;font-size:13.5px;flex:1;min-width:200px;' });
+    var addBtn = el('button', { type: 'button', class: 'btn', text: 'Add', onclick: function(){
+      var nm = addName.value.trim(); if(!nm) return;
+      var ne = { name: nm, url: '', listedName: '', listedAddress: '', listedPhone: '', checked: '' }; list.push(ne); wrap.appendChild(row(ne, list.length - 1)); addName.value = ''; nap.dirty = true;
+    } });
+    card.appendChild(el('div', { style: 'display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;' }, [ addName, addBtn ]));
+    saveBtn.addEventListener('click', function(){
+      var user = currentUser(); if(!user){ toast('Sign in first.', true); return; }
+      saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+      var entries = list.filter(function(e){ return e.listedName || e.listedAddress || e.listedPhone || (!(rep.citations || []).some(function(c){ return c.name === e.name; })); });
+      user.jwt().then(function(t){ return fetch('/.netlify/functions/nap-citations', { method: 'POST', cache: 'no-store', headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify({ entries: entries }) }); })
+        .then(function(r){ return r.json().then(function(b){ if(!r.ok) throw new Error(b.error || ('Request failed (' + r.status + ')')); return b; }); })
+        .then(function(b){ nap.cites = b; nap.citesError = ''; nap.dirty = false; note.textContent = 'Saved just now.'; toast('Listings saved.'); })
+        .catch(function(e){ toast(e.message, true); })
+        .then(function(){ saveBtn.disabled = false; saveBtn.textContent = 'Save listings'; });
+    });
+    return card;
+  }
+
   // ---- Routing (hash) ----
-  var VIEW_TITLES = { overview: 'Dashboard', banner: 'Announcement Banner', settlements: 'Settlements', team: 'Legal Team', blog: 'Blog Posts', 'ai-crawlers': 'AI Visibility', 'search-updates': 'Search Updates', 'google-ads': 'Google Ads' };
+  var VIEW_TITLES = { overview: 'Dashboard', banner: 'Announcement Banner', settlements: 'Settlements', team: 'Legal Team', blog: 'Blog Posts', 'ai-crawlers': 'AI Visibility', 'search-updates': 'Search Updates', 'google-ads': 'Google Ads', 'nap': 'NAP Checker' };
   var currentView = null, currentHash = null;
   function route(){
     var raw = (location.hash || '#overview').slice(1), parts = raw.split('/'), key = parts[0], sub = parts.slice(1).join('/');
@@ -4320,6 +4537,7 @@
     if(key === 'ai-crawlers' && !aiCrawlers.loaded) loadAiCrawlers();
     if(key === 'search-updates') renderSearchUpdates();
     if(key === 'google-ads') openGoogleAds();
+    if(key === 'nap') openNap();
     closeAiPop(); setMenu(false); window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', route);
