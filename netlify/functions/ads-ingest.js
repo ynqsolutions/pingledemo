@@ -65,10 +65,14 @@ export default async (req) => {
       i: Math.round(num(t.i)), cl: Math.round(num(t.cl)), co: Math.round(num(t.co) * 100) / 100, cv: Math.round(num(t.cv) * 100) / 100
     })).filter(t => t.t);
   }
-  const hasKeywords = kwList.length > 0 || windows.some(w => kw[w].length || terms[w].length);
+  const scriptErrors = (Array.isArray(body.errors) ? body.errors : []).slice(0, 8).map(e => str(e, 300));
+  // The newer script always sends these fields, even when Google returns none (for example
+  // Performance Max or Smart campaigns have no keywords), so remember that it ran.
+  const hasKeywords = body.keywords != null || body.keywordList != null || body.searchTerms != null;
   const store = getStore('google-ads');
   const snapshot = { updated: new Date().toISOString(), account, rows };
-  if(hasKeywords) Object.assign(snapshot, { keywordList: kwList, keywords: kw, searchTerms: terms });
+  if(hasKeywords) Object.assign(snapshot, { keywordsSent: true, keywordList: kwList, keywords: kw, searchTerms: terms });
+  if(scriptErrors.length) snapshot.scriptErrors = scriptErrors;
   await store.setJSON('snapshot', snapshot);
   return Response.json({ ok: true, rows: rows.length, keywords: kwList.length });
 };

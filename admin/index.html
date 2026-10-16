@@ -4123,7 +4123,7 @@
   // inside the Ads account on a schedule (no API approval needed). The data
   // is stored by /.netlify/functions/ads-ingest and read from ads-stats. ----
   var ADS_SCRIPT = [
-    "// Pingle Law: sends Google Ads performance, keywords and search terms to the website admin.",
+    "// Pingle Law: sends Google Ads performance, keywords and search terms to the website admin. (v3)",
     "// In Google Ads: Tools > Bulk actions > Scripts > + New script. Paste this, set SECRET,",
     "// authorize, then Frequency: Hourly. (Delete the starter \"function main() {}\" first.)",
     "var ENDPOINT = 'https://www.pinglelaw.com/.netlify/functions/ads-ingest';",
@@ -4137,6 +4137,7 @@
     "  var f = function (d) { return Utilities.formatDate(d, tz, 'yyyy-MM-dd'); };",
     "  var ago = function (n) { return f(new Date(end.getTime() - n * 86400000)); };",
     "  var today = f(end);",
+    "  var errors = [];",
     "",
     "  // 1) Daily performance per campaign",
     "  var rows = [];",
@@ -4156,7 +4157,7 @@
     "",
     "  // 2) Every keyword in the account (including ones that get no traffic) and negative keywords",
     "  var keywordList = [];",
-    "  var statusOf = {};",
+    "  try {",
     "  var kit = AdsApp.search(",
     "    'SELECT ad_group_criterion.keyword.text, ad_group_criterion.keyword.match_type, ad_group_criterion.status, ' +",
     "    'ad_group_criterion.negative, campaign.name, ad_group.name FROM ad_group_criterion ' +",
@@ -4165,7 +4166,6 @@
     "    var k = kit.next();",
     "    var text = k.adGroupCriterion.keyword.text, match = k.adGroupCriterion.keyword.matchType;",
     "    keywordList.push({ k: text, m: match, c: k.campaign.name, a: k.adGroup.name, s: k.adGroupCriterion.status, n: k.adGroupCriterion.negative ? 1 : 0 });",
-    "    statusOf[text + '|' + match + '|' + k.campaign.name] = k.adGroupCriterion.status;",
     "  }",
     "  var cit = AdsApp.search(",
     "    'SELECT campaign_criterion.keyword.text, campaign_criterion.keyword.match_type, campaign.name FROM campaign_criterion ' +",
@@ -4174,10 +4174,12 @@
     "    var c = cit.next();",
     "    keywordList.push({ k: c.campaignCriterion.keyword.text, m: c.campaignCriterion.keyword.matchType, c: c.campaign.name, a: '', s: 'ENABLED', n: 1 });",
     "  }",
+    "  } catch (e) { errors.push('Keyword list: ' + e.message); Logger.log('Keyword list failed: ' + e.message); }",
     "",
     "  // 3) Keyword performance and search terms for the last 7, 30 and 90 days",
     "  var keywords = {}, searchTerms = {};",
     "  [7, 30, 90].forEach(function (n) {",
+    "    try {",
     "    var range = \"segments.date BETWEEN '\" + ago(n) + \"' AND '\" + today + \"'\";",
     "    keywords[n] = [];",
     "    var a = AdsApp.search(",
@@ -4199,6 +4201,7 @@
     "      searchTerms[n].push({ t: y.searchTermView.searchTerm, st: y.searchTermView.status, c: y.campaign.name,",
     "        i: Number(y.metrics.impressions), cl: Number(y.metrics.clicks), co: Number(y.metrics.costMicros) / 1000000, cv: Number(y.metrics.conversions) });",
     "    }",
+    "    } catch (e) { errors.push('Last ' + n + ' days: ' + e.message); Logger.log('Last ' + n + ' days failed: ' + e.message); }",
     "  });",
     "",
     "  var res = UrlFetchApp.fetch(ENDPOINT, {",
@@ -4207,7 +4210,7 @@
     "    headers: { 'X-Ads-Secret': SECRET },",
     "    payload: JSON.stringify({",
     "      account: { name: account.getName(), currency: account.getCurrencyCode(), timezone: tz },",
-    "      rows: rows, keywordList: keywordList, keywords: keywords, searchTerms: searchTerms",
+    "      rows: rows, keywordList: keywordList, keywords: keywords, searchTerms: searchTerms, errors: errors",
     "    }),",
     "    muteHttpExceptions: true",
     "  });",
@@ -4357,6 +4360,14 @@
     var win = gAds.kwWin || '30';
     var dd = adsDropdown('Keyword period', [ ['7', 'Last 7 days'], ['30', 'Last 30 days'], ['90', 'Last 90 days'] ], win, function(v){ gAds.kwWin = v; renderGoogleAds(); });
     card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Keywords' }), el('p', { text: 'What your ads are targeting, what is not getting traffic, and what people search that you are not covering.' }) ]), dd ]));
+    if(snap.scriptErrors && snap.scriptErrors.length){
+      card.appendChild(el('p', { class: 'kw-rec' }, [ el('b', { text: 'Google Ads reported a problem: ' }), snap.scriptErrors.join(' | ') ]));
+    }
+    var kwCount = (snap.keywordList || []).length + ['7', '30', '90'].reduce(function(a, w){ return a + ((snap.keywords && snap.keywords[w]) || []).length + ((snap.searchTerms && snap.searchTerms[w]) || []).length; }, 0);
+    if(snap.keywordsSent && !kwCount){
+      card.appendChild(el('p', { class: 'kw-empty', text: 'The script ran, but Google Ads returned no keywords or search terms for this account. Campaign types that do not use keywords, such as Performance Max, Smart or Local Services campaigns, have none to show. If your Search campaigns should have keywords, check that the script is running in that account (not a manager account) and that the campaigns have had impressions in the last 90 days.' }));
+      return card;
+    }
     if(!snap.keywords || !snap.keywordList){
       card.appendChild(el('p', { class: 'kw-empty', text: 'Keyword data has not arrived yet. Copy the updated script from “Setup and script” at the bottom of this page, paste it over the old one in Google Ads, and run it once.' }));
       return card;
