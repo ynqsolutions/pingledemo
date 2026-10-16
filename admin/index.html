@@ -1090,6 +1090,24 @@
   .nap-cite-fields input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-100); }
   .nap-cite-note{ font-size:12px; color:var(--muted); }
   @media (max-width:820px){ .nap-truth, .nap-cite-fields{ grid-template-columns:1fr; } }
+
+  /* ---- Custom dropdown (opens directly under its button, above the cards below) ---- */
+  .dd{ position:relative; display:inline-block; }
+  .dd-btn{ height:36px; min-width:170px; border:1px solid var(--line-strong); border-radius:10px; padding:0 34px 0 12px; font:inherit; font-size:13.5px; color:var(--ink); background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 10px center / 15px; cursor:pointer; text-align:left; display:inline-flex; align-items:center; }
+  .dd-btn:focus-visible{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-100); }
+  .dd.is-open .dd-btn{ border-color:var(--accent); }
+  .dd-menu{ position:absolute; top:calc(100% + 6px); left:0; min-width:100%; width:max-content; max-width:min(320px, 86vw); z-index:60; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 18px 40px -16px rgba(17,24,39,.35); padding:6px; display:grid; gap:2px; max-height:min(340px, 60vh); overflow:auto; }
+  .dd-menu[hidden]{ display:none; }
+  .dd-opt{ border:none; background:none; font:inherit; font-size:13.5px; color:var(--ink); text-align:left; padding:9px 12px; border-radius:8px; cursor:pointer; white-space:nowrap; }
+  .dd-opt:hover, .dd-opt:focus-visible{ background:var(--field); outline:none; }
+  .dd-opt.is-on{ background:var(--accent-100); font-weight:600; }
+  .ads-controls{ position:relative; z-index:20; }
+  .ads-tips-list{ display:grid; gap:10px; margin-top:6px; }
+  .ads-tip{ border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:#fff; display:grid; gap:4px; font-size:13.5px; }
+  .ads-tip b{ font-weight:600; font-size:14px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .ads-tip p{ margin:0; color:var(--ink); line-height:1.55; }
+  .ads-tip .do{ color:var(--muted); }
+  .ads-tip .do span{ font-weight:600; color:var(--ink); }
   /* ---- Google Ads view ---- */
   .ads-controls{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; }
   .ads-tiles{ grid-template-columns:repeat(3, minmax(0,1fr)); }
@@ -4181,6 +4199,76 @@
     if(open) det.setAttribute('open', '');
     return det;
   }
+
+  // A dropdown that always opens directly beneath its button.
+  function adsDropdown(label, options, value, onPick){
+    var cur = options.filter(function(o){ return o[0] === value; })[0] || options[0];
+    var wrap = el('div', { class: 'dd' });
+    var btn = el('button', { type: 'button', class: 'dd-btn', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-label': label + ': ' + cur[1], text: cur[1] });
+    var menu = el('div', { class: 'dd-menu', role: 'listbox', 'aria-label': label, hidden: true });
+    var opts = options.map(function(o){
+      var b = el('button', { type: 'button', role: 'option', class: 'dd-opt' + (o[0] === cur[0] ? ' is-on' : ''), 'aria-selected': o[0] === cur[0] ? 'true' : 'false', text: o[1] });
+      b.addEventListener('click', function(e){ e.stopPropagation(); close(); onPick(o[0]); });
+      return b;
+    });
+    opts.forEach(function(b){ menu.appendChild(b); });
+    function close(){ menu.hidden = true; wrap.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); document.removeEventListener('click', away, true); document.removeEventListener('keydown', key, true); }
+    function away(e){ if(!wrap.contains(e.target)) close(); }
+    function key(e){
+      if(e.key === 'Escape'){ close(); btn.focus(); return; }
+      if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+        e.preventDefault(); var i = opts.indexOf(document.activeElement); i = e.key === 'ArrowDown' ? Math.min(opts.length - 1, i + 1) : Math.max(0, i - 1); opts[i < 0 ? 0 : i].focus();
+      }
+    }
+    function open(){
+      menu.hidden = false; wrap.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true');
+      document.addEventListener('click', away, true); document.addEventListener('keydown', key, true);
+      var on = opts.filter(function(b){ return b.classList.contains('is-on'); })[0]; if(on) on.focus();
+    }
+    btn.addEventListener('click', function(){ if(menu.hidden) open(); else close(); });
+    wrap.appendChild(btn); wrap.appendChild(menu);
+    return wrap;
+  }
+  // Plain-English tips from the numbers on screen. Simple rules only; nothing is sent anywhere.
+  function adsTips(T, P, camps, n, cur, rows){
+    var out = [], money = function(v, d){ return adsMoney(v, cur, d == null ? 0 : d); };
+    var ctr = T.impressions ? T.clicks / T.impressions : 0, cpc = T.clicks ? T.cost / T.clicks : 0, pcpc = P.clicks ? P.cost / P.clicks : 0;
+    var cpa = T.conversions ? T.cost / T.conversions : 0;
+    if(!rows.length){
+      out.push({ tone: 'warn', title: 'No ad activity on these days', body: 'Google Ads recorded no impressions in this range.', todo: 'If ads should be running, open Google Ads and check the campaign status, daily budget and billing.' });
+      return out;
+    }
+    if(n && n <= 2) out.push({ tone: 'info', title: 'One or two days is a small sample', body: 'Daily numbers swing a lot (weekends, news, a single call).', todo: 'Judge performance over at least 7 to 14 days before changing anything.' });
+    else if(T.clicks < 30) out.push({ tone: 'info', title: 'Not much data yet', body: 'Only ' + fmt(Math.round(T.clicks)) + ' click' + (T.clicks === 1 ? '' : 's') + ' in this range, which is too few to draw conclusions.', todo: 'Wait for more clicks before changing bids, keywords or ads.' });
+    if(T.cost >= 100 && T.conversions === 0) out.push({ tone: 'warn', title: 'No conversions recorded', body: 'You spent ' + money(T.cost) + ' and Google Ads recorded no leads. Either the ads aren’t producing leads, or lead tracking isn’t set up.', todo: 'In Google Ads, go to Goals → Conversions and count form submissions (case review, contact) and phone calls as conversions.' });
+    if(T.impressions >= 1000 && ctr < 0.02) out.push({ tone: 'warn', title: 'Few people click your ads (' + (ctr * 100).toFixed(1) + '%)', body: 'Your ads are shown but rarely clicked. Search ads for legal services often reach well above that.', todo: 'Make headlines match what people type (for example “fired without warning, California”), and add negative keywords to cut irrelevant searches.' });
+    if(n && P.clicks >= 20 && pcpc && cpc > pcpc * 1.2) out.push({ tone: 'warn', title: 'Each click costs more (' + money(cpc, 2) + ', up ' + Math.round((cpc / pcpc - 1) * 100) + '%)', body: 'You are paying more per visitor than in the days just before.', todo: 'Check for new competitors or broad keywords pulling in costly clicks, and review the Search terms report.' });
+    else if(n && P.clicks >= 20 && pcpc && cpc < pcpc * 0.85) out.push({ tone: 'good', title: 'Clicks are getting cheaper (' + money(cpc, 2) + ', down ' + Math.round((1 - cpc / pcpc) * 100) + '%)', body: 'You are paying less per visitor than in the days just before.', todo: 'If leads held steady, this is working. Keep an eye on lead quality.' });
+    if(n && P.cost > 0 && T.cost > P.cost * 1.25 && T.conversions <= P.conversions) out.push({ tone: 'warn', title: 'Spending is up but results are not', body: 'Spend rose ' + Math.round((T.cost / P.cost - 1) * 100) + '% compared with the days before, with no increase in conversions.', todo: 'Look at which campaign grew in the table below and tighten its keywords or budget.' });
+    var waste = camps.filter(function(c){ return c.cost >= Math.max(50, T.cost * 0.1) && c.conversions === 0; }).slice(0, 3);
+    waste.forEach(function(c){ out.push({ tone: 'warn', title: '“' + c.name + '” spent ' + money(c.cost) + ' with no conversions', body: 'This campaign is using budget without recorded leads in this range.', todo: 'Review its keywords and ads, add negative keywords, or pause it if it keeps not converting.' }); });
+    var eff = camps.filter(function(c){ return c.conversions >= 3; }).sort(function(a, b){ return a.cost / a.conversions - b.cost / b.conversions; });
+    if(eff.length && camps.length > 1){ var b = eff[0], bc = b.cost / b.conversions; out.push({ tone: 'good', title: '“' + b.name + '” is your most efficient campaign', body: 'It costs ' + money(bc, 2) + ' per conversion' + (cpa ? ', against ' + money(cpa, 2) + ' for the whole account' : '') + '.', todo: 'If it is limited by budget, consider moving some spend to it from weaker campaigns.' }); }
+    camps.filter(function(c){ return c.status !== 'ENABLED' && c.conversions > 0; }).slice(0, 2).forEach(function(c){ out.push({ tone: 'info', title: '“' + c.name + '” is paused but produced ' + (Math.round(c.conversions * 10) / 10) + ' conversion' + (c.conversions === 1 ? '' : 's'), body: 'It brought leads during this range before it was paused.', todo: 'If you paused it by mistake, turn it back on in Google Ads.' }); });
+    if(!out.length) out.push({ tone: 'good', title: 'Nothing needs attention right now', body: 'Click rate, cost per click and conversions look steady for these days.', todo: 'Check back weekly and compare 7-day periods.' });
+    return out;
+  }
+  function adsTipsCard(tips){
+    var tone = { warn: ['warn', 'Look at this'], good: ['ok', 'Going well'], info: ['none', 'Good to know'] };
+    var list = el('div', { class: 'ads-tips-list' });
+    tips.forEach(function(t){
+      list.appendChild(el('div', { class: 'ads-tip' }, [ el('b', {}, [ el('span', { class: 'nap-chip ' + tone[t.tone][0], text: tone[t.tone][1] }), t.title ]), el('p', { text: t.body }), el('p', { class: 'do' }, [ el('span', { text: 'What to do: ' }), t.todo ]) ]));
+    });
+    var general = el('details', { class: 'ai-table', style: 'margin-top:14px;' }, [ el('summary', { text: 'General tips for law-firm ads' }), el('ol', { style: 'margin:10px 0 0 18px;padding:0;display:grid;gap:6px;font-size:13.5px;' }, [
+      'Count phone calls and form submissions as conversions, or you can’t tell which ads bring cases.',
+      'Add negative keywords such as “jobs”, “careers”, “salary”, “template” and “free” so you don’t pay for people looking for work or free forms. Review the Search terms report weekly.',
+      'Send each ad to the page that matches it, for example wrongful-termination ads to the free case review page rather than the home page.',
+      'Limit targeting to California and to the cities you serve.',
+      'Judge performance over 7 to 14 days, not single days.',
+      'Make sure calls are answered quickly. Most leads call the first firm that picks up.'
+    ].map(function(t){ return el('li', { text: t }); })) ]);
+    return el('div', { class: 'card', style: 'margin-bottom:20px;' }, [ el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Tips for these days' }), el('p', { text: 'Plain-English suggestions based on the numbers above. They update when you change the dates.' }) ]) ]), list, general ]);
+  }
   function adsChart(days, metric, cur){
     var W = 720, H = 240, L = 46, R = 16, T = 12, B = 28, pw = W - L - R, ph = H - T - B;
     var val = function(d){ return metric === 'cost' ? d.cost : d[metric]; };
@@ -4264,13 +4352,11 @@
     var T = adsSum(rows), P = adsSum(prevRows);
     var last = to;
 
-    var pSel = el('select', { class: 'pl-type', 'aria-label': 'Period', onchange: function(e){
-      gAds.period = e.target.value;
-      if(gAds.period === 'custom' && !gAds.from){ gAds.from = addDays(end, -6); gAds.to = end; }
+    var pSel = adsDropdown('Period', [ ['today', 'Today'], ['yesterday', 'Yesterday'], ['7', 'Last 7 days'], ['14', 'Last 14 days'], ['30', 'Last 30 days'], ['all', 'All data (up to 90 days)'], ['custom', 'Pick specific days…'] ], per, function(v){
+      gAds.period = v;
+      if(v === 'custom' && !gAds.from){ gAds.from = addDays(end, -6); gAds.to = end; }
       renderGoogleAds();
-    } },
-      [ ['today', 'Today'], ['yesterday', 'Yesterday'], ['7', 'Last 7 days'], ['14', 'Last 14 days'], ['30', 'Last 30 days'], ['all', 'All data (up to 90 days)'], ['custom', 'Pick specific days…'] ].map(function(c){ return el('option', { value: c[0], text: c[1] }); }));
-    pSel.value = per;
+    });
     var ctl = [ pSel ];
     if(per === 'custom'){
       var dIn = function(label, key, val){ return el('label', { class: 'ai-feed-date' }, [ label, el('input', { type: 'date', value: val, min: first, max: end, 'aria-label': label + ' date', onchange: function(e){ if(e.target.value){ gAds[key] = e.target.value; renderGoogleAds(); } } }) ]); };
@@ -4305,12 +4391,12 @@
         : tile('Cost per conversion', T.conversions ? adsMoney(cpa, cur, 2) : '–', 'Spend divided by conversions', delta(cpa, P.conversions ? P.cost / P.conversions : 0, true))
     ]));
 
+    var tipsHost = el('div'); root.appendChild(tipsHost);
+
     // Daily chart (one metric at a time)
     var byDay = {}; rows.forEach(function(r){ var d = byDay[r.date] || (byDay[r.date] = { date: r.date, impressions: 0, clicks: 0, cost: 0, conversions: 0 }); d.impressions += r.impressions; d.clicks += r.clicks; d.cost += r.cost; d.conversions += r.conversions; });
     var days = []; for(var d = from; d <= last; d = addDays(d, 1)) days.push(byDay[d] || { date: d, impressions: 0, clicks: 0, cost: 0, conversions: 0 });
-    var mSel = el('select', { class: 'pl-type', 'aria-label': 'Chart metric', onchange: function(e){ gAds.metric = e.target.value; renderGoogleAds(); } },
-      [ ['cost', 'Spend'], ['clicks', 'Clicks'], ['impressions', 'Impressions'], ['conversions', 'Conversions'] ].map(function(c){ return el('option', { value: c[0], text: c[1] }); }));
-    mSel.value = gAds.metric;
+    var mSel = adsDropdown('Chart metric', [ ['cost', 'Spend'], ['clicks', 'Clicks'], ['impressions', 'Impressions'], ['conversions', 'Conversions'] ], gAds.metric, function(v){ gAds.metric = v; renderGoogleAds(); });
     root.appendChild(el('div', { class: 'card', style: 'margin-bottom:20px;' }, [
       el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Daily trend' }), el('p', { text: 'Hover or tab onto a day for details.' }) ]), mSel ]),
       adsChart(days, gAds.metric, cur)
@@ -4335,6 +4421,7 @@
       el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Campaigns' }), el('p', { text: 'Highest spend first, for the period above.' }) ]) ]),
       el('div', { class: 'ads-table-wrap' }, [ table ])
     ]));
+    tipsHost.appendChild(adsTipsCard(adsTips(T, P, camps, n, cur, rows)));
     root.appendChild(adsSetup(false));
   }
 
@@ -4379,8 +4466,7 @@
     root.innerHTML = ''; root.classList.add('ai-root');
     var rep = nap.report;
     root.appendChild(el('div', { class: 'page-head' }, [ el('div', {}, [
-      el('h1', { text: 'NAP Checker' }),
-      el('p', { text: rep ? 'NAP means Name, Address and Phone. Google and local directories compare them everywhere your firm appears, and matching details help you show up in local search. Last scanned ' + relTime(rep.generated) + '; it re-scans automatically after every site update.' : 'NAP means Name, Address and Phone. Checks they are written the same way everywhere.' })
+      el('h1', { text: 'NAP Checker' })
     ]) ]));
     if(nap.busy && !rep){ root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: 'Loading…' }) ])); return; }
     if(nap.error){ root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: nap.error }), el('button', { type: 'button', class: 'btn', text: 'Try again', onclick: function(){ loadNap(); } }) ])); return; }
