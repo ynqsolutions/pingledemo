@@ -4242,17 +4242,44 @@
       return;
     }
     var cur = (snap.account && snap.account.currency) || 'USD';
-    var dates = snap.rows.map(function(r){ return r.date; }).sort(), last = dates[dates.length - 1], first = dates[0];
-    var n = gAds.period === 'all' ? 0 : Number(gAds.period);
-    var from = n ? addDays(last, -(n - 1)) : first, prevFrom = n ? addDays(from, -n) : null, prevTo = n ? addDays(from, -1) : null;
-    var rows = snap.rows.filter(function(r){ return r.date >= from && r.date <= last; });
+    var dates = snap.rows.map(function(r){ return r.date; }).sort(), lastData = dates[dates.length - 1], first = dates[0];
+    // "Today" is today in the Ads account's own time zone.
+    var tz = snap.account && snap.account.timezone, end;
+    try { end = new Intl.DateTimeFormat('en-CA', { timeZone: tz || undefined }).format(new Date()); } catch (e) { end = isoDay(new Date()); }
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(end)) end = isoDay(new Date());
+    if(lastData > end) end = lastData;
+    var per = gAds.period, from, to = end, n;
+    if(per === 'today'){ from = end; n = 1; }
+    else if(per === 'yesterday'){ from = to = addDays(end, -1); n = 1; }
+    else if(per === 'all'){ from = first; n = 0; }
+    else if(per === 'custom'){
+      from = gAds.from || addDays(end, -6); to = gAds.to || end;
+      if(from > to){ var sw = from; from = to; to = sw; }
+      if(to > end) to = end;
+      n = Math.round((new Date(to + 'T12:00:00Z') - new Date(from + 'T12:00:00Z')) / 86400000) + 1;
+    } else { n = Number(per) || 30; from = addDays(end, -(n - 1)); }
+    var prevFrom = n ? addDays(from, -n) : null, prevTo = n ? addDays(from, -1) : null;
+    var rows = snap.rows.filter(function(r){ return r.date >= from && r.date <= to; });
     var prevRows = n ? snap.rows.filter(function(r){ return r.date >= prevFrom && r.date <= prevTo; }) : [];
     var T = adsSum(rows), P = adsSum(prevRows);
+    var last = to;
 
-    var pSel = el('select', { class: 'pl-type', 'aria-label': 'Period', onchange: function(e){ gAds.period = e.target.value; renderGoogleAds(); } },
-      [ ['7', 'Last 7 days'], ['14', 'Last 14 days'], ['30', 'Last 30 days'], ['all', 'All data (up to 90 days)'] ].map(function(c){ return el('option', { value: c[0], text: c[1] }); }));
-    pSel.value = gAds.period;
-    root.appendChild(el('div', { class: 'ads-controls' }, [ pSel, el('button', { type: 'button', class: 'btn', text: 'Refresh', onclick: function(){ loadGoogleAds(); } }) ]));
+    var pSel = el('select', { class: 'pl-type', 'aria-label': 'Period', onchange: function(e){
+      gAds.period = e.target.value;
+      if(gAds.period === 'custom' && !gAds.from){ gAds.from = addDays(end, -6); gAds.to = end; }
+      renderGoogleAds();
+    } },
+      [ ['today', 'Today'], ['yesterday', 'Yesterday'], ['7', 'Last 7 days'], ['14', 'Last 14 days'], ['30', 'Last 30 days'], ['all', 'All data (up to 90 days)'], ['custom', 'Pick specific days…'] ].map(function(c){ return el('option', { value: c[0], text: c[1] }); }));
+    pSel.value = per;
+    var ctl = [ pSel ];
+    if(per === 'custom'){
+      var dIn = function(label, key, val){ return el('label', { class: 'ai-feed-date' }, [ label, el('input', { type: 'date', value: val, min: first, max: end, 'aria-label': label + ' date', onchange: function(e){ if(e.target.value){ gAds[key] = e.target.value; renderGoogleAds(); } } }) ]); };
+      ctl.push(dIn('From', 'from', from), dIn('To', 'to', to));
+    }
+    ctl.push(el('button', { type: 'button', class: 'btn', text: 'Refresh', onclick: function(){ loadGoogleAds(); } }));
+    root.appendChild(el('div', { class: 'ads-controls' }, ctl));
+    var rangeLabel = from === to ? shortDate(from) : shortDate(from) + ' to ' + shortDate(to);
+    if(first > from) root.appendChild(el('p', { class: 'nap-cite-note', style: 'margin:-6px 0 14px;', text: 'Data starts ' + shortDate(first) + '; earlier days in this range are not included.' }));
 
     function delta(curV, prevV, lowerBetter){
       if(!n || !prevV) return null;
@@ -4266,7 +4293,7 @@
     var ctr = T.impressions ? T.clicks / T.impressions : 0, pctr = P.impressions ? P.clicks / P.impressions : 0;
     var cpc = T.clicks ? T.cost / T.clicks : 0, pcpc = P.clicks ? P.cost / P.clicks : 0;
     var cpa = T.conversions ? T.cost / T.conversions : 0;
-    var vs = n ? 'vs. the prior ' + n + ' days' : shortDate(first) + ' to ' + shortDate(last);
+    var vs = n ? (n === 1 ? rangeLabel + ' · vs. the day before' : rangeLabel + ' · vs. the prior ' + n + ' days') : shortDate(first) + ' to ' + shortDate(last);
     root.appendChild(el('div', { class: 'ai-tiles ads-tiles' }, [
       tile('Spend', adsMoney(T.cost, cur, T.cost < 100 ? 2 : 0), vs, delta(T.cost, P.cost, false)),
       tile('Clicks', fmt(Math.round(T.clicks)), fmt(Math.round(T.impressions)) + ' impressions', delta(T.clicks, P.clicks, false)),
