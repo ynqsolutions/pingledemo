@@ -1058,6 +1058,23 @@
     .item.is-compact .g-grid .photo-preview{ width:64px !important; height:64px !important; }
   }
 
+
+  /* ---- Google Ads view ---- */
+  .ads-controls{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; }
+  .ads-tiles{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+  .ads-delta{ font-size:12px; font-weight:600; margin-left:8px; }
+  .ads-delta.up{ color:#1F7A5C; } .ads-delta.down{ color:#B3402A; } .ads-delta.flat{ color:var(--soft); }
+  .ads-chart .bar{ fill:#2a78d6; }
+  .ads-table-wrap{ overflow-x:auto; }
+  .ads-table{ width:100%; border-collapse:collapse; font-size:13px; min-width:560px; }
+  .ads-table th{ text-align:right; font-size:11.5px; font-weight:600; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  .ads-table td{ text-align:right; padding:9px 10px; border-top:1px solid var(--line); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .ads-table th:first-child, .ads-table td:first-child{ text-align:left; white-space:normal; font-weight:600; }
+  .ads-status{ display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--field); color:var(--muted); margin-left:8px; vertical-align:1px; }
+  .ads-status.on{ background:#E4F3EC; color:#1F7A5C; }
+  .ads-setup ol{ margin:10px 0 0 18px; padding:0; display:grid; gap:6px; font-size:13.5px; color:var(--ink); }
+  .ads-code{ margin-top:12px; max-height:260px; overflow:auto; background:#0F1424; color:#E8ECF6; border-radius:10px; padding:14px 16px; font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre; }
+  @media (max-width:820px){ .ads-tiles{ grid-template-columns:1fr; } }
   /* ---- Platforms card: controls + fixed-name heatmap ---- */
   .pl-controls{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
   .pl-row2{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
@@ -1250,6 +1267,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><path d="M12 3.5 20.5 12 12 20.5 3.5 12z"/><path d="M12 8v4h4"/></svg>
         Search Updates
       </a>
+      <a href="#google-ads" data-view="google-ads">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="square" stroke-linejoin="miter"><path d="M4 4v16h16"/><path d="M8 16l4-5 3 3 5-7"/></svg>
+        Google Ads
+      </a>
     </nav>
     <div class="sidebar-foot">
       <a href="/" target="_blank" rel="noopener">
@@ -1330,6 +1351,7 @@
       <section class="view" data-view="blog" id="blogView"></section>
       <section class="view" data-view="ai-crawlers" id="aiCrawlersView"></section>
       <section class="view" data-view="search-updates" id="searchUpdatesView"></section>
+      <section class="view" data-view="google-ads" id="googleAdsView"></section>
 
     </div>
   </div>
@@ -4029,8 +4051,232 @@
 
   }
 
+
+  // ---- Google Ads: performance sent by a small Google Ads Script that runs
+  // inside the Ads account on a schedule (no API approval needed). The data
+  // is stored by /.netlify/functions/ads-ingest and read from ads-stats. ----
+  var ADS_SCRIPT = [
+    "// Pingle Law: sends Google Ads performance to the website admin.",
+    "// In Google Ads: Tools > Bulk actions > Scripts > + New script. Paste this, set SECRET,",
+    "// authorize, then Frequency: Hourly.",
+    "var ENDPOINT = 'https://www.pinglelaw.com/.netlify/functions/ads-ingest';",
+    "var SECRET = 'PASTE_YOUR_SECRET_HERE'; // same value as ADS_INGEST_SECRET in Netlify",
+    "var DAYS = 90;",
+    "",
+    "function main() {",
+    "  var account = AdsApp.currentAccount();",
+    "  var tz = account.getTimeZone();",
+    "  var end = new Date();",
+    "  var start = new Date(end.getTime() - DAYS * 86400000);",
+    "  var f = function (d) { return Utilities.formatDate(d, tz, 'yyyy-MM-dd'); };",
+    "  var query = 'SELECT segments.date, campaign.name, campaign.status, metrics.impressions, ' +",
+    "    'metrics.clicks, metrics.cost_micros, metrics.conversions, metrics.conversions_value ' +",
+    "    \"FROM campaign WHERE segments.date BETWEEN '\" + f(start) + \"' AND '\" + f(end) + \"' \" +",
+    "    'AND metrics.impressions > 0 ORDER BY segments.date';",
+    "  var rows = [];",
+    "  var it = AdsApp.search(query);",
+    "  while (it.hasNext()) {",
+    "    var r = it.next();",
+    "    rows.push({",
+    "      date: r.segments.date,",
+    "      campaign: r.campaign.name,",
+    "      status: r.campaign.status,",
+    "      impressions: Number(r.metrics.impressions),",
+    "      clicks: Number(r.metrics.clicks),",
+    "      cost: Number(r.metrics.costMicros) / 1000000,",
+    "      conversions: Number(r.metrics.conversions),",
+    "      value: Number(r.metrics.conversionsValue)",
+    "    });",
+    "  }",
+    "  var res = UrlFetchApp.fetch(ENDPOINT, {",
+    "    method: 'post',",
+    "    contentType: 'application/json',",
+    "    headers: { 'X-Ads-Secret': SECRET },",
+    "    payload: JSON.stringify({",
+    "      account: { name: account.getName(), currency: account.getCurrencyCode(), timezone: tz },",
+    "      rows: rows",
+    "    }),",
+    "    muteHttpExceptions: true",
+    "  });",
+    "  Logger.log(res.getResponseCode() + ' ' + res.getContentText());",
+    "}"
+  ].join('\n');
+  var gAds = { root: $('#googleAdsView'), loaded: false, busy: false, error: '', data: null, period: '30', metric: 'cost' };
+  function adsMoney(n, cur, dec){
+    try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur || 'USD', minimumFractionDigits: dec || 0, maximumFractionDigits: dec || 0 }).format(n); }
+    catch (e) { return '$' + Number(n).toFixed(dec || 0); }
+  }
+  function adsSum(rows){
+    var t = { impressions: 0, clicks: 0, cost: 0, conversions: 0, value: 0 };
+    rows.forEach(function(r){ t.impressions += r.impressions; t.clicks += r.clicks; t.cost += r.cost; t.conversions += r.conversions; t.value += r.value; });
+    return t;
+  }
+  function openGoogleAds(){
+    if(!gAds.loaded && !gAds.busy) loadGoogleAds(); else renderGoogleAds();
+  }
+  function loadGoogleAds(){
+    var user = currentUser();
+    gAds.busy = true; gAds.error = ''; renderGoogleAds();
+    if(!user){ gAds.busy = false; gAds.error = 'Sign in to view this.'; renderGoogleAds(); return; }
+    user.jwt().then(function(token){ return fetch('/.netlify/functions/ads-stats', { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } }); })
+      .then(function(r){ if(!r.ok) throw new Error(r.status === 401 ? 'Your session ended. Sign in again.' : 'Request failed (' + r.status + ')'); return r.json(); })
+      .then(function(d){ gAds.data = d; gAds.loaded = true; })
+      .catch(function(e){ gAds.error = e.message || 'Could not load Google Ads data.'; })
+      .then(function(){ gAds.busy = false; renderGoogleAds(); });
+  }
+  function adsSetup(open){
+    var copyBtn = el('button', { type: 'button', class: 'btn btn-primary', text: 'Copy script' });
+    copyBtn.addEventListener('click', function(){
+      var done = function(){ toast('Script copied. Paste it into Google Ads.'); };
+      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ADS_SCRIPT).then(done, function(){ toast('Could not copy. Select the text and copy it.', true); });
+      else toast('Select the text and copy it.', true);
+    });
+    var det = el('details', { class: 'card ads-setup' }, [
+      el('summary', { text: open ? 'Set up Google Ads (one time)' : 'Setup and script' }),
+      el('ol', {}, [
+        el('li', { html: 'In <b>Netlify</b> (Site settings → Environment variables) add <b>ADS_INGEST_SECRET</b> with a long random value, then redeploy.' }),
+        el('li', { html: 'In <b>Google Ads</b> open Tools → Bulk actions → Scripts → <b>+ New script</b>.' }),
+        el('li', { text: 'Paste the script below, replace PASTE_YOUR_SECRET_HERE with the same secret, then Authorize and Run once to test.' }),
+        el('li', { text: 'Set the frequency to Hourly. Data appears here within a minute of a successful run.' })
+      ]),
+      el('div', { style: 'margin-top:12px;' }, [ copyBtn ]),
+      el('pre', { class: 'ads-code', text: ADS_SCRIPT })
+    ]);
+    if(open) det.setAttribute('open', '');
+    return det;
+  }
+  function adsChart(days, metric, cur){
+    var W = 720, H = 240, L = 46, R = 16, T = 12, B = 28, pw = W - L - R, ph = H - T - B;
+    var val = function(d){ return metric === 'cost' ? d.cost : d[metric]; };
+    var label = { cost: 'Spend', clicks: 'Clicks', impressions: 'Impressions', conversions: 'Conversions' }[metric];
+    var show = function(n){ return metric === 'cost' ? adsMoney(n, cur, n < 10 ? 2 : 0) : (metric === 'conversions' ? String(Math.round(n * 10) / 10) : fmt(Math.round(n))); };
+    var yMax = niceMax(days.reduce(function(m, d){ return Math.max(m, val(d)); }, 0) || 4);
+    var slot = pw / Math.max(1, days.length), bw = Math.max(3, Math.min(18, slot - 4));
+    var wrap = el('div', { class: 'ai-chart-wrap' });
+    var svg = svgEl('svg', { class: 'ai-chart ads-chart', viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': label + ' per day' });
+    for(var g = 0; g <= 4; g++){
+      var gy = T + ph - (g / 4) * ph;
+      svg.appendChild(svgEl('line', { class: 'gridline', x1: L, x2: W - R, y1: gy, y2: gy }));
+      var lb = svgEl('text', { class: 'axis', x: L - 8, y: gy + 4, 'text-anchor': 'end' }); lb.textContent = show(g / 4 * yMax); svg.appendChild(lb);
+    }
+    var tip = el('div', { class: 'ai-tip', role: 'status' }), groups = [];
+    days.forEach(function(d, i){
+      var x = L + i * slot + (slot - bw) / 2, gr = svgEl('g', { class: 'day' }), v = val(d);
+      gr.style.animationDelay = (i * 0.015) + 's';
+      if(!v) gr.appendChild(svgEl('rect', { class: 'zero', x: x, y: T + ph - 2, width: bw, height: 2, rx: 1 }));
+      else { var h = Math.max(2, v / yMax * ph); gr.appendChild(svgEl('path', { class: 'bar', d: roundTopPath(x, T + ph - h, bw, h, 3) })); }
+      svg.appendChild(gr); groups.push(gr);
+      if(i % Math.ceil(days.length / 7) === 0 || i === days.length - 1){
+        var xl = svgEl('text', { class: 'axis', x: x + bw / 2, y: H - 8, 'text-anchor': 'middle' }); xl.textContent = shortDate(d.date); svg.appendChild(xl);
+      }
+    });
+    days.forEach(function(d, i){
+      var hit = svgEl('rect', { class: 'hit', x: L + i * slot, y: T, width: slot, height: ph, tabindex: '0', 'aria-label': shortDate(d.date) + ': ' + show(val(d)) });
+      function on(){
+        svg.classList.add('is-hovering'); groups.forEach(function(gg, j){ gg.classList.toggle('is-hot', j === i); });
+        tip.innerHTML = ''; tip.appendChild(el('b', { text: shortDate(d.date) + ' · ' + show(val(d)) }));
+        tip.appendChild(el('div', { text: fmt(d.clicks) + ' clicks · ' + adsMoney(d.cost, cur, 2) + ' spend' }));
+        var rect = svg.getBoundingClientRect(), sc = rect.width / W, cx = (L + i * slot + slot / 2) * sc - wrap.scrollLeft;
+        var top = (T + ph - (val(d) / yMax) * ph) * sc;
+        tip.style.left = Math.min(Math.max(cx, 80), wrap.clientWidth - 80) + 'px'; tip.style.top = Math.max(0, top - 64) + 'px'; tip.classList.add('is-on');
+      }
+      function off(){ svg.classList.remove('is-hovering'); groups.forEach(function(gg){ gg.classList.remove('is-hot'); }); tip.classList.remove('is-on'); }
+      hit.addEventListener('mouseenter', on); hit.addEventListener('focus', on); hit.addEventListener('mouseleave', off); hit.addEventListener('blur', off);
+      svg.appendChild(hit);
+    });
+    wrap.appendChild(svg);
+    return el('div', { class: 'ai-chart-outer' }, [ wrap, tip ]);
+  }
+  function renderGoogleAds(){
+    var root = gAds.root; if(!root) return;
+    root.innerHTML = ''; root.classList.add('ai-root');
+    var snap = gAds.data && gAds.data.snapshot;
+    root.appendChild(el('div', { class: 'page-head' }, [ el('div', {}, [
+      el('h1', { text: 'Google Ads' }),
+      el('p', { text: snap ? 'Spend and results from ' + (snap.account && snap.account.name ? snap.account.name : 'your Google Ads account') + '. Updated ' + relTime(snap.updated) + '.' : 'Spend, clicks and results from your Google Ads account.' })
+    ]) ]));
+    if(gAds.busy && !snap){ root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: 'Loading…' }) ])); return; }
+    if(gAds.error){
+      root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: 'Couldn’t load Google Ads data (' + gAds.error + ')' }), el('button', { type: 'button', class: 'btn', text: 'Try again', onclick: function(){ loadGoogleAds(); } }) ]));
+      return;
+    }
+    if(!snap || !snap.rows || !snap.rows.length){
+      root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: gAds.data && gAds.data.configured ? 'Connected, but no data has arrived yet. Run the script once in Google Ads.' : 'Not connected yet. Follow the steps below; it takes about five minutes.' }) ]));
+      root.appendChild(adsSetup(true));
+      return;
+    }
+    var cur = (snap.account && snap.account.currency) || 'USD';
+    var dates = snap.rows.map(function(r){ return r.date; }).sort(), last = dates[dates.length - 1], first = dates[0];
+    var n = gAds.period === 'all' ? 0 : Number(gAds.period);
+    var from = n ? addDays(last, -(n - 1)) : first, prevFrom = n ? addDays(from, -n) : null, prevTo = n ? addDays(from, -1) : null;
+    var rows = snap.rows.filter(function(r){ return r.date >= from && r.date <= last; });
+    var prevRows = n ? snap.rows.filter(function(r){ return r.date >= prevFrom && r.date <= prevTo; }) : [];
+    var T = adsSum(rows), P = adsSum(prevRows);
+
+    var pSel = el('select', { class: 'pl-type', 'aria-label': 'Period', onchange: function(e){ gAds.period = e.target.value; renderGoogleAds(); } },
+      [ ['7', 'Last 7 days'], ['14', 'Last 14 days'], ['30', 'Last 30 days'], ['all', 'All data (up to 90 days)'] ].map(function(c){ return el('option', { value: c[0], text: c[1] }); }));
+    pSel.value = gAds.period;
+    root.appendChild(el('div', { class: 'ads-controls' }, [ pSel, el('button', { type: 'button', class: 'btn', text: 'Refresh', onclick: function(){ loadGoogleAds(); } }) ]));
+
+    function delta(curV, prevV, lowerBetter){
+      if(!n || !prevV) return null;
+      var pct = Math.round((curV - prevV) / prevV * 100), good = lowerBetter ? pct < 0 : pct > 0;
+      return el('span', { class: 'ads-delta ' + (pct === 0 ? 'flat' : good ? 'up' : 'down'), text: (pct > 0 ? '▲ ' : pct < 0 ? '▼ ' : '') + Math.abs(pct) + '%' });
+    }
+    function tile(label, value, sub, d){
+      var num = el('div', { class: 'ai-tile-num' }, [ el('span', { text: value }) ]); if(d) num.appendChild(d);
+      return el('div', { class: 'ai-tile' }, [ el('div', { class: 'ai-tile-label', text: label }), num, sub ? el('div', { class: 'ai-tile-sub', text: sub }) : null ]);
+    }
+    var ctr = T.impressions ? T.clicks / T.impressions : 0, pctr = P.impressions ? P.clicks / P.impressions : 0;
+    var cpc = T.clicks ? T.cost / T.clicks : 0, pcpc = P.clicks ? P.cost / P.clicks : 0;
+    var cpa = T.conversions ? T.cost / T.conversions : 0;
+    var vs = n ? 'vs. the prior ' + n + ' days' : shortDate(first) + ' to ' + shortDate(last);
+    root.appendChild(el('div', { class: 'ai-tiles ads-tiles' }, [
+      tile('Spend', adsMoney(T.cost, cur, T.cost < 100 ? 2 : 0), vs, delta(T.cost, P.cost, false)),
+      tile('Clicks', fmt(Math.round(T.clicks)), fmt(Math.round(T.impressions)) + ' impressions', delta(T.clicks, P.clicks, false)),
+      tile('Click-through rate', (ctr * 100).toFixed(2) + '%', 'Clicks per impression', delta(ctr, pctr, false)),
+      tile('Avg. cost per click', adsMoney(cpc, cur, 2), 'Spend divided by clicks', delta(cpc, pcpc, true)),
+      tile('Conversions', String(Math.round(T.conversions * 10) / 10), T.conversions ? adsMoney(cpa, cur, 2) + ' per conversion' : 'No conversions recorded', delta(T.conversions, P.conversions, false)),
+      T.value > 0
+        ? tile('Conversion value', adsMoney(T.value, cur, 0), T.cost ? (T.value / T.cost).toFixed(2) + 'x return on spend' : '', delta(T.value, P.value, false))
+        : tile('Cost per conversion', T.conversions ? adsMoney(cpa, cur, 2) : '–', 'Spend divided by conversions', delta(cpa, P.conversions ? P.cost / P.conversions : 0, true))
+    ]));
+
+    // Daily chart (one metric at a time)
+    var byDay = {}; rows.forEach(function(r){ var d = byDay[r.date] || (byDay[r.date] = { date: r.date, impressions: 0, clicks: 0, cost: 0, conversions: 0 }); d.impressions += r.impressions; d.clicks += r.clicks; d.cost += r.cost; d.conversions += r.conversions; });
+    var days = []; for(var d = from; d <= last; d = addDays(d, 1)) days.push(byDay[d] || { date: d, impressions: 0, clicks: 0, cost: 0, conversions: 0 });
+    var mSel = el('select', { class: 'pl-type', 'aria-label': 'Chart metric', onchange: function(e){ gAds.metric = e.target.value; renderGoogleAds(); } },
+      [ ['cost', 'Spend'], ['clicks', 'Clicks'], ['impressions', 'Impressions'], ['conversions', 'Conversions'] ].map(function(c){ return el('option', { value: c[0], text: c[1] }); }));
+    mSel.value = gAds.metric;
+    root.appendChild(el('div', { class: 'card', style: 'margin-bottom:20px;' }, [
+      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Daily trend' }), el('p', { text: 'Hover or tab onto a day for details.' }) ]), mSel ]),
+      adsChart(days, gAds.metric, cur)
+    ]));
+
+    // Campaigns
+    var by = {}; rows.forEach(function(r){ var c = by[r.campaign] || (by[r.campaign] = { name: r.campaign, status: r.status, impressions: 0, clicks: 0, cost: 0, conversions: 0 }); c.impressions += r.impressions; c.clicks += r.clicks; c.cost += r.cost; c.conversions += r.conversions; c.status = r.status; });
+    var camps = Object.keys(by).map(function(k){ return by[k]; }).sort(function(a, b){ return b.cost - a.cost; });
+    var table = el('table', { class: 'ads-table' }, [ el('thead', {}, [ el('tr', {}, [ 'Campaign', 'Spend', 'Clicks', 'CTR', 'Avg. CPC', 'Conv.', 'Cost / conv.' ].map(function(h){ return el('th', { text: h }); })) ]) ]);
+    var tb = el('tbody'); table.appendChild(tb);
+    camps.forEach(function(c){
+      tb.appendChild(el('tr', {}, [
+        el('td', {}, [ c.name, el('span', { class: 'ads-status' + (c.status === 'ENABLED' ? ' on' : ''), text: c.status === 'ENABLED' ? 'Active' : (c.status || '').toLowerCase() }) ]),
+        el('td', { text: adsMoney(c.cost, cur, c.cost < 100 ? 2 : 0) }), el('td', { text: fmt(c.clicks) }),
+        el('td', { text: (c.impressions ? c.clicks / c.impressions * 100 : 0).toFixed(2) + '%' }),
+        el('td', { text: adsMoney(c.clicks ? c.cost / c.clicks : 0, cur, 2) }),
+        el('td', { text: String(Math.round(c.conversions * 10) / 10) }),
+        el('td', { text: c.conversions ? adsMoney(c.cost / c.conversions, cur, 2) : '–' })
+      ]));
+    });
+    root.appendChild(el('div', { class: 'card', style: 'margin-bottom:20px;' }, [
+      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Campaigns' }), el('p', { text: 'Highest spend first, for the period above.' }) ]) ]),
+      el('div', { class: 'ads-table-wrap' }, [ table ])
+    ]));
+    root.appendChild(adsSetup(false));
+  }
+
   // ---- Routing (hash) ----
-  var VIEW_TITLES = { overview: 'Dashboard', banner: 'Announcement Banner', settlements: 'Settlements', team: 'Legal Team', blog: 'Blog Posts', 'ai-crawlers': 'AI Visibility', 'search-updates': 'Search Updates' };
+  var VIEW_TITLES = { overview: 'Dashboard', banner: 'Announcement Banner', settlements: 'Settlements', team: 'Legal Team', blog: 'Blog Posts', 'ai-crawlers': 'AI Visibility', 'search-updates': 'Search Updates', 'google-ads': 'Google Ads' };
   var currentView = null, currentHash = null;
   function route(){
     var raw = (location.hash || '#overview').slice(1), parts = raw.split('/'), key = parts[0], sub = parts.slice(1).join('/');
@@ -4073,6 +4319,7 @@
     }
     if(key === 'ai-crawlers' && !aiCrawlers.loaded) loadAiCrawlers();
     if(key === 'search-updates') renderSearchUpdates();
+    if(key === 'google-ads') openGoogleAds();
     closeAiPop(); setMenu(false); window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', route);
