@@ -1102,6 +1102,16 @@
   .dd-opt:hover, .dd-opt:focus-visible{ background:var(--field); outline:none; }
   .dd-opt.is-on{ background:var(--accent-100); font-weight:600; }
   .ads-controls{ position:relative; z-index:20; }
+  .ads-summary{ margin:-4px 0 14px; font-size:13px; color:var(--muted); }
+  .ads-summary b{ color:var(--ink); font-weight:600; }
+  .ads-share{ display:flex; align-items:center; gap:8px; justify-content:flex-end; min-width:110px; }
+  .ads-share i{ display:block; height:6px; border-radius:3px; background:#2a78d6; min-width:2px; }
+  .ads-back{ display:inline-block; font-size:13px; font-weight:600; color:var(--accent); text-decoration:none; margin-bottom:6px; }
+  .ads-back:hover{ text-decoration:underline; }
+  .ads-table tr.is-click{ cursor:pointer; }
+  .ads-table tr.is-click:hover td{ background:var(--field); }
+  .ads-table td a.ads-open{ color:var(--ink); text-decoration:none; }
+  .ads-table td a.ads-open::after{ content:' ›'; color:var(--soft); }
   .ads-tips-list{ display:grid; gap:10px; margin-top:6px; }
   .ads-tip{ border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:#fff; display:grid; gap:4px; font-size:13.5px; }
   .ads-tip b{ font-weight:600; font-size:14px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
@@ -4227,7 +4237,9 @@
     rows.forEach(function(r){ t.impressions += r.impressions; t.clicks += r.clicks; t.cost += r.cost; t.conversions += r.conversions; t.value += r.value; });
     return t;
   }
-  function openGoogleAds(){
+  function openGoogleAds(sub){
+    var name = ''; try { name = sub ? decodeURIComponent(sub) : ''; } catch (e) { name = sub || ''; }
+    gAds.campaign = name;
     if(!gAds.loaded && !gAds.busy) loadGoogleAds(); else renderGoogleAds();
   }
   function loadGoogleAds(){
@@ -4355,11 +4367,11 @@
   function kwRec(parts){
     return el('p', { class: 'kw-rec' }, [ el('b', { text: 'Recommended: ' }) ].concat(parts));
   }
-  function kwKeywordsCard(snap, cur){
+  function kwKeywordsCard(snap, cur, camp){
     var card = el('div', { class: 'card', style: 'margin-bottom:20px;' });
     var win = gAds.kwWin || '30';
     var dd = adsDropdown('Keyword period', [ ['7', 'Last 7 days'], ['30', 'Last 30 days'], ['90', 'Last 90 days'] ], win, function(v){ gAds.kwWin = v; renderGoogleAds(); });
-    card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Keywords' }), el('p', { text: 'What your ads are targeting, what is not getting traffic, and what people search that you are not covering.' }) ]), dd ]));
+    card.appendChild(el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Keywords' }), el('p', { text: 'What this campaign targets, what is not getting traffic, and what people search that it does not cover.' }) ]), dd ]));
     if(snap.scriptErrors && snap.scriptErrors.length){
       card.appendChild(el('p', { class: 'kw-rec' }, [ el('b', { text: 'Google Ads reported a problem: ' }), snap.scriptErrors.join(' | ') ]));
     }
@@ -4373,8 +4385,10 @@
       return card;
     }
     var money = function(v, d){ return adsMoney(v, cur, d == null ? 0 : d); };
-    var stats = snap.keywords[win] || [], terms = (snap.searchTerms && snap.searchTerms[win]) || [], list = snap.keywordList || [];
+    var inCamp = function(x){ return !camp || x.c === camp; };
+    var stats = (snap.keywords[win] || []).filter(inCamp), terms = ((snap.searchTerms && snap.searchTerms[win]) || []).filter(inCamp), allList = snap.keywordList || [], list = allList.filter(inCamp);
     var positives = list.filter(function(k){ return !k.n; }), negatives = list.filter(function(k){ return k.n; });
+    var accountPositives = allList.filter(function(k){ return !k.n; });
     var statusOf = {}; positives.forEach(function(k){ statusOf[k.k + '|' + k.m + '|' + k.c] = k.s; });
     var seen = {}; stats.forEach(function(k){ seen[k.k + '|' + k.m + '|' + k.c] = 1; });
 
@@ -4437,23 +4451,24 @@
     card.appendChild(secD);
 
     // E. ideas not used
-    var allKw = positives.map(function(k){ return kwTokens(k.k); });
+    var allKw = accountPositives.map(function(k){ return kwTokens(k.k); });
     var ideas = KW_IDEAS.filter(function(idea){ var tk = kwTokens(idea); return !allKw.some(function(kt){ return tk.every(function(w){ return kt.indexOf(w) > -1; }); }); });
-    var secE = el('div', { class: 'kw-sec' }, [ el('h3', { text: 'Keyword ideas you are not using (' + ideas.length + ')' }), el('p', { class: 'kw-sub', text: 'Common employment-law searches that none of your keywords cover.' }) ]);
+    var secE = el('div', { class: 'kw-sec' }, [ el('h3', { text: 'Keyword ideas you are not using (' + ideas.length + ')' }), el('p', { class: 'kw-sub', text: 'Common employment-law searches that none of your keywords cover in any campaign.' }) ]);
     secE.appendChild(ideas.length ? el('div', { class: 'kw-chips' }, ideas.map(function(i){ return el('span', { class: 'kw-chip', text: i }); })) : el('p', { class: 'kw-empty', text: 'Your keywords already cover the common searches on this list.' }));
     secE.appendChild(kwRec([ ideas.length ? 'Check search volume and cost in Google Ads Keyword Planner, then add the ones that match cases you take as phrase or exact match, each in an ad group with a matching ad.' : 'Review Keyword Planner for new ideas every few months.' ]));
     card.appendChild(secE);
     return card;
   }
-  function adsChart(days, metric, cur){
+  function adsChart(days, metric, cur, series){
     var W = 720, H = 240, L = 46, R = 16, T = 12, B = 28, pw = W - L - R, ph = H - T - B;
-    var val = function(d){ return metric === 'cost' ? d.cost : d[metric]; };
     var label = { cost: 'Spend', clicks: 'Clicks', impressions: 'Impressions', conversions: 'Conversions' }[metric];
     var show = function(n){ return metric === 'cost' ? adsMoney(n, cur, n < 10 ? 2 : 0) : (metric === 'conversions' ? String(Math.round(n * 10) / 10) : fmt(Math.round(n))); };
-    var yMax = niceMax(days.reduce(function(m, d){ return Math.max(m, val(d)); }, 0) || 4);
+    var segVal = function(d, sr){ var v = d.by && d.by[sr.name]; return v ? v[metric] : 0; };
+    var total = function(d){ return series.reduce(function(a, sr){ return a + segVal(d, sr); }, 0); };
+    var yMax = niceMax(days.reduce(function(m, d){ return Math.max(m, total(d)); }, 0) || 4);
     var slot = pw / Math.max(1, days.length), bw = Math.max(3, Math.min(18, slot - 4));
     var wrap = el('div', { class: 'ai-chart-wrap' });
-    var svg = svgEl('svg', { class: 'ai-chart ads-chart', viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': label + ' per day' });
+    var svg = svgEl('svg', { class: 'ai-chart ads-chart', viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': label + ' per day' + (series.length > 1 ? ', stacked by campaign' : '') });
     for(var g = 0; g <= 4; g++){
       var gy = T + ph - (g / 4) * ph;
       svg.appendChild(svgEl('line', { class: 'gridline', x1: L, x2: W - R, y1: gy, y2: gy }));
@@ -4461,39 +4476,56 @@
     }
     var tip = el('div', { class: 'ai-tip', role: 'status' }), groups = [];
     days.forEach(function(d, i){
-      var x = L + i * slot + (slot - bw) / 2, gr = svgEl('g', { class: 'day' }), v = val(d);
+      var x = L + i * slot + (slot - bw) / 2, gr = svgEl('g', { class: 'day' }), tot = total(d);
       gr.style.animationDelay = (i * 0.015) + 's';
-      if(!v) gr.appendChild(svgEl('rect', { class: 'zero', x: x, y: T + ph - 2, width: bw, height: 2, rx: 1 }));
-      else { var h = Math.max(2, v / yMax * ph); gr.appendChild(svgEl('path', { class: 'bar', d: roundTopPath(x, T + ph - h, bw, h, 3) })); }
+      if(!tot) gr.appendChild(svgEl('rect', { class: 'zero', x: x, y: T + ph - 2, width: bw, height: 2, rx: 1 }));
+      else {
+        var y = T + ph, present = series.filter(function(sr){ return segVal(d, sr) > 0; });
+        present.forEach(function(sr, idx){
+          var h = (segVal(d, sr) / yMax) * ph, gap = idx > 0 ? 2 : 0, topSeg = idx === present.length - 1, segH = Math.max(1, h - gap); y -= h;
+          if(topSeg) gr.appendChild(svgEl('path', { d: roundTopPath(x, y + gap, bw, segH, 3), fill: sr.color }));
+          else gr.appendChild(svgEl('rect', { x: x, y: y + gap, width: bw, height: segH, fill: sr.color }));
+        });
+      }
       svg.appendChild(gr); groups.push(gr);
       if(i % Math.ceil(days.length / 7) === 0 || i === days.length - 1){
         var xl = svgEl('text', { class: 'axis', x: x + bw / 2, y: H - 8, 'text-anchor': 'middle' }); xl.textContent = shortDate(d.date); svg.appendChild(xl);
       }
     });
     days.forEach(function(d, i){
-      var hit = svgEl('rect', { class: 'hit', x: L + i * slot, y: T, width: slot, height: ph, tabindex: '0', 'aria-label': shortDate(d.date) + ': ' + show(val(d)) });
+      var tot = total(d);
+      var hit = svgEl('rect', { class: 'hit', x: L + i * slot, y: T, width: slot, height: ph, tabindex: '0', 'aria-label': shortDate(d.date) + ': ' + show(tot) });
       function on(){
         svg.classList.add('is-hovering'); groups.forEach(function(gg, j){ gg.classList.toggle('is-hot', j === i); });
-        tip.innerHTML = ''; tip.appendChild(el('b', { text: shortDate(d.date) + ' · ' + show(val(d)) }));
-        tip.appendChild(el('div', { text: fmt(d.clicks) + ' clicks · ' + adsMoney(d.cost, cur, 2) + ' spend' }));
+        tip.innerHTML = ''; tip.appendChild(el('b', { text: shortDate(d.date) + ' · ' + show(tot) }));
+        if(series.length > 1) series.forEach(function(sr){ var v = segVal(d, sr); if(v) tip.appendChild(el('div', {}, [ el('span', { class: 'ai-key', style: 'background:' + sr.color }), sr.name + ': ' + show(v) ])); });
+        else tip.appendChild(el('div', { text: fmt(d.clicks) + ' clicks · ' + adsMoney(d.cost, cur, 2) + ' spend' }));
         var rect = svg.getBoundingClientRect(), sc = rect.width / W, cx = (L + i * slot + slot / 2) * sc - wrap.scrollLeft;
-        var top = (T + ph - (val(d) / yMax) * ph) * sc;
-        tip.style.left = Math.min(Math.max(cx, 80), wrap.clientWidth - 80) + 'px'; tip.style.top = Math.max(0, top - 64) + 'px'; tip.classList.add('is-on');
+        var top = (T + ph - (tot / yMax) * ph) * sc, lines = series.length > 1 ? series.filter(function(sr){ return segVal(d, sr) > 0; }).length : 1;
+        tip.style.left = Math.min(Math.max(cx, 90), wrap.clientWidth - 90) + 'px'; tip.style.top = Math.max(0, top - 44 - lines * 20) + 'px'; tip.classList.add('is-on');
       }
       function off(){ svg.classList.remove('is-hovering'); groups.forEach(function(gg){ gg.classList.remove('is-hot'); }); tip.classList.remove('is-on'); }
       hit.addEventListener('mouseenter', on); hit.addEventListener('focus', on); hit.addEventListener('mouseleave', off); hit.addEventListener('blur', off);
       svg.appendChild(hit);
     });
     wrap.appendChild(svg);
-    return el('div', { class: 'ai-chart-outer' }, [ wrap, tip ]);
+    var kids = [ el('div', { class: 'ai-chart-outer' }, [ wrap, tip ]) ];
+    if(series.length > 1){
+      var lg = el('div', { class: 'ai-legend' });
+      series.forEach(function(sr){ lg.appendChild(el('span', {}, [ el('span', { class: 'ai-key', style: 'background:' + sr.color }), sr.name ])); });
+      kids.push(lg);
+    }
+    return el('div', {}, kids);
   }
   function renderGoogleAds(){
     var root = gAds.root; if(!root) return;
     root.innerHTML = ''; root.classList.add('ai-root');
     var snap = gAds.data && gAds.data.snapshot;
+    var camp = gAds.campaign || '';
     root.appendChild(el('div', { class: 'page-head' }, [ el('div', {}, [
-      el('h1', { text: 'Google Ads' }),
-      el('p', { text: snap ? 'Spend and results from ' + (snap.account && snap.account.name ? snap.account.name : 'your Google Ads account') + '. Updated ' + relTime(snap.updated) + '.' : 'Spend, clicks and results from your Google Ads account.' })
+      camp ? el('a', { href: '#google-ads', class: 'ads-back', text: '← All campaigns' }) : null,
+      el('h1', { text: camp || 'Google Ads' }),
+      el('p', { text: snap ? (camp ? 'Results and keywords for this campaign. ' : 'Spend and results from ' + (snap.account && snap.account.name ? snap.account.name : 'your Google Ads account') + '. ') + 'Updated ' + relTime(snap.updated) + '.' : 'Spend, clicks and results from your Google Ads account.' })
     ]) ]));
     if(gAds.busy && !snap){ root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: 'Loading…' }) ])); return; }
     if(gAds.error){
@@ -4525,6 +4557,14 @@
     var prevFrom = n ? addDays(from, -n) : null, prevTo = n ? addDays(from, -1) : null;
     var rows = snap.rows.filter(function(r){ return r.date >= from && r.date <= to; });
     var prevRows = n ? snap.rows.filter(function(r){ return r.date >= prevFrom && r.date <= prevTo; }) : [];
+    if(camp){
+      if(!snap.rows.some(function(r){ return r.campaign === camp; })){
+        root.appendChild(el('div', { class: 'card' }, [ el('p', { class: 'empty', text: 'No data for “' + camp + '” yet. It may have been renamed or had no impressions in the last 90 days.' }), el('a', { href: '#google-ads', class: 'btn', text: 'Back to all campaigns' }) ]));
+        return;
+      }
+      rows = rows.filter(function(r){ return r.campaign === camp; });
+      prevRows = prevRows.filter(function(r){ return r.campaign === camp; });
+    }
     var T = adsSum(rows), P = adsSum(prevRows);
     var last = to;
 
@@ -4548,6 +4588,11 @@
       var pct = Math.round((curV - prevV) / prevV * 100), good = lowerBetter ? pct < 0 : pct > 0;
       return el('span', { class: 'ads-delta ' + (pct === 0 ? 'flat' : good ? 'up' : 'down'), text: (pct > 0 ? '▲ ' : pct < 0 ? '▼ ' : '') + Math.abs(pct) + '%' });
     }
+    if(!camp){
+      var latest = {}; snap.rows.slice().sort(function(a, b){ return a.date < b.date ? -1 : 1; }).forEach(function(r){ latest[r.campaign] = r.status; });
+      var names = Object.keys(latest), act = names.filter(function(nm){ return latest[nm] === 'ENABLED'; }).length;
+      root.appendChild(el('p', { class: 'ads-summary' }, [ el('b', { text: 'All campaigns' }), ' · ' + names.length + ' campaign' + (names.length === 1 ? '' : 's') + ' (' + act + ' active' + (names.length - act ? ', ' + (names.length - act) + ' paused or ended' : '') + '). The numbers below add up every campaign, including any you add later.' ]));
+    }
     function tile(label, value, sub, d){
       var num = el('div', { class: 'ai-tile-num' }, [ el('span', { text: value }) ]); if(d) num.appendChild(d);
       return el('div', { class: 'ai-tile' }, [ el('div', { class: 'ai-tile-label', text: label }), num, sub ? el('div', { class: 'ai-tile-sub', text: sub }) : null ]);
@@ -4570,36 +4615,61 @@
     var tipsHost = el('div'); root.appendChild(tipsHost);
 
     // Daily chart (one metric at a time)
-    var byDay = {}; rows.forEach(function(r){ var d = byDay[r.date] || (byDay[r.date] = { date: r.date, impressions: 0, clicks: 0, cost: 0, conversions: 0 }); d.impressions += r.impressions; d.clicks += r.clicks; d.cost += r.cost; d.conversions += r.conversions; });
-    var days = []; for(var d = from; d <= last; d = addDays(d, 1)) days.push(byDay[d] || { date: d, impressions: 0, clicks: 0, cost: 0, conversions: 0 });
+    // Campaigns are ranked by all-time spend in the stored data so each keeps the same colour.
+    var spendAll = {}; snap.rows.forEach(function(r){ spendAll[r.campaign] = (spendAll[r.campaign] || 0) + r.cost; });
+    var order = Object.keys(spendAll).sort(function(a, b){ return spendAll[b] - spendAll[a]; });
+    var PAL = ['#2a78d6', '#eb6834', '#1baf7a', '#8a5fd6', '#d6a32a', '#3aa8c9'], OTHER = 'Other campaigns';
+    var inRows = {}; rows.forEach(function(r){ inRows[r.campaign] = 1; });
+    var series = [];
+    if(camp) series.push({ name: camp, color: PAL[0] });
+    else {
+      order.filter(function(nm){ return inRows[nm]; }).forEach(function(nm){ var i = order.indexOf(nm); if(i < PAL.length) series.push({ name: nm, color: PAL[i] }); });
+      if(Object.keys(inRows).some(function(nm){ return order.indexOf(nm) >= PAL.length; })) series.push({ name: OTHER, color: '#9aa3b2' });
+    }
+    var inSeries = {}; series.forEach(function(sr){ inSeries[sr.name] = 1; });
+    var byDay = {};
+    rows.forEach(function(r){
+      var d = byDay[r.date] || (byDay[r.date] = { date: r.date, impressions: 0, clicks: 0, cost: 0, conversions: 0, by: {} });
+      d.impressions += r.impressions; d.clicks += r.clicks; d.cost += r.cost; d.conversions += r.conversions;
+      var key = inSeries[r.campaign] ? r.campaign : OTHER, b = d.by[key] || (d.by[key] = { impressions: 0, clicks: 0, cost: 0, conversions: 0 });
+      b.impressions += r.impressions; b.clicks += r.clicks; b.cost += r.cost; b.conversions += r.conversions;
+    });
+    var days = []; for(var d = from; d <= last; d = addDays(d, 1)) days.push(byDay[d] || { date: d, impressions: 0, clicks: 0, cost: 0, conversions: 0, by: {} });
     var mSel = adsDropdown('Chart metric', [ ['cost', 'Spend'], ['clicks', 'Clicks'], ['impressions', 'Impressions'], ['conversions', 'Conversions'] ], gAds.metric, function(v){ gAds.metric = v; renderGoogleAds(); });
     root.appendChild(el('div', { class: 'card', style: 'margin-bottom:20px;' }, [
-      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Daily trend' }), el('p', { text: 'Hover or tab onto a day for details.' }) ]), mSel ]),
-      adsChart(days, gAds.metric, cur)
+      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: camp ? 'Daily trend' : 'Daily trend, all campaigns' }), el('p', { text: series.length > 1 ? 'Each colour is a campaign. Hover or tab onto a day for details.' : 'Hover or tab onto a day for details.' }) ]), mSel ]),
+      adsChart(days, gAds.metric, cur, series)
     ]));
 
     // Campaigns
     var by = {}; rows.forEach(function(r){ var c = by[r.campaign] || (by[r.campaign] = { name: r.campaign, status: r.status, impressions: 0, clicks: 0, cost: 0, conversions: 0 }); c.impressions += r.impressions; c.clicks += r.clicks; c.cost += r.cost; c.conversions += r.conversions; c.status = r.status; });
     var camps = Object.keys(by).map(function(k){ return by[k]; }).sort(function(a, b){ return b.cost - a.cost; });
-    var table = el('table', { class: 'ads-table' }, [ el('thead', {}, [ el('tr', {}, [ 'Campaign', 'Spend', 'Clicks', 'CTR', 'Avg. CPC', 'Conv.', 'Cost / conv.' ].map(function(h){ return el('th', { text: h }); })) ]) ]);
+    var table = el('table', { class: 'ads-table' }, [ el('thead', {}, [ el('tr', {}, [ 'Campaign', 'Spend', 'Share of spend', 'Clicks', 'CTR', 'Avg. CPC', 'Conv.', 'Cost / conv.' ].map(function(h){ return el('th', { text: h }); })) ]) ]);
     var tb = el('tbody'); table.appendChild(tb);
-    camps.forEach(function(c){
-      tb.appendChild(el('tr', {}, [
-        el('td', {}, [ c.name, el('span', { class: 'ads-status' + (c.status === 'ENABLED' ? ' on' : ''), text: c.status === 'ENABLED' ? 'Active' : (c.status || '').toLowerCase() }) ]),
-        el('td', { text: adsMoney(c.cost, cur, c.cost < 100 ? 2 : 0) }), el('td', { text: fmt(c.clicks) }),
+    camps.slice(0, gAds.allCamps ? camps.length : 10).forEach(function(c){
+      var link = '#google-ads/' + encodeURIComponent(c.name);
+      var tr = el('tr', { class: 'is-click', tabindex: '0', role: 'link', 'aria-label': c.name + ': open keywords and details' }, [
+        el('td', {}, [ el('a', { href: link, class: 'ads-open', text: c.name }), el('span', { class: 'ads-status' + (c.status === 'ENABLED' ? ' on' : ''), text: c.status === 'ENABLED' ? 'Active' : (c.status || '').toLowerCase() }) ]),
+        el('td', { text: adsMoney(c.cost, cur, c.cost < 100 ? 2 : 0) }),
+        el('td', {}, [ el('div', { class: 'ads-share' }, [ el('span', { text: (T.cost ? Math.round(c.cost / T.cost * 100) : 0) + '%' }), el('i', { style: 'width:' + Math.max(2, Math.round((T.cost ? c.cost / T.cost : 0) * 60)) + 'px;background:' + (inSeries[c.name] ? (series.filter(function(sr){ return sr.name === c.name; })[0] || {}).color : '#9aa3b2') }) ]) ]),
+        el('td', { text: fmt(c.clicks) }),
         el('td', { text: (c.impressions ? c.clicks / c.impressions * 100 : 0).toFixed(2) + '%' }),
         el('td', { text: adsMoney(c.clicks ? c.cost / c.clicks : 0, cur, 2) }),
         el('td', { text: String(Math.round(c.conversions * 10) / 10) }),
         el('td', { text: c.conversions ? adsMoney(c.cost / c.conversions, cur, 2) : '–' })
-      ]));
+      ]);
+      tr.addEventListener('click', function(e){ if(e.target.tagName !== 'A') location.hash = link; });
+      tr.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ location.hash = link; } });
+      tb.appendChild(tr);
     });
-    root.appendChild(el('div', { class: 'card', style: 'margin-bottom:20px;' }, [
-      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Campaigns' }), el('p', { text: 'Highest spend first, for the period above.' }) ]) ]),
-      el('div', { class: 'ads-table-wrap' }, [ table ])
+    if(!camp) root.appendChild(el('div', { class: 'card', style: 'margin-bottom:20px;' }, [
+      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { text: 'Campaigns (' + camps.length + ')' }), el('p', { text: 'Highest spend first, for the period above. Click a campaign to see its keywords and details.' }) ]) ]),
+      el('div', { class: 'ads-table-wrap' }, [ table ]),
+      camps.length > 10 ? el('button', { type: 'button', class: 'btn', style: 'margin-top:12px;', text: gAds.allCamps ? 'Show top 10' : 'Show all ' + camps.length, onclick: function(){ gAds.allCamps = !gAds.allCamps; renderGoogleAds(); } }) : null
     ]));
     tipsHost.appendChild(adsTipsCard(adsTips(T, P, camps, n, cur, rows)));
-    root.appendChild(kwKeywordsCard(snap, cur));
-    root.appendChild(adsSetup(false));
+    if(camp) root.appendChild(kwKeywordsCard(snap, cur, camp));
+    else root.appendChild(adsSetup(false));
   }
 
 
@@ -4841,7 +4911,7 @@
     }
     if(key === 'ai-crawlers' && !aiCrawlers.loaded) loadAiCrawlers();
     if(key === 'search-updates') renderSearchUpdates();
-    if(key === 'google-ads') openGoogleAds();
+    if(key === 'google-ads') openGoogleAds(sub);
     if(key === 'nap') openNap();
     closeAiPop(); setMenu(false); window.scrollTo(0, 0);
   }
