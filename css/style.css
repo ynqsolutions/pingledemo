@@ -424,6 +424,14 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .hero-trust-big .stars{ font-size:24px; }
 .hero-trust-big .trust-item strong{ font-size:26px; }
 .hero-trust-big .trust-item span{ font-size:15px; }
+.hero-trust-big .trust-item:first-child span{
+  font-family:var(--font-display);
+  font-size:18px;
+  color:var(--navy-950);
+  text-transform:none;
+  letter-spacing:0;
+}
+.trust-dot{ display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--gold-500); margin:0 9px; vertical-align:middle; position:relative; top:-1px; }
 
 .hero-media{
   position:relative;
@@ -1908,7 +1916,8 @@ html.answerly-hidden iframe[placement]{ display:none !important; }
   .hero-trust-big .stars{ font-size:19px; letter-spacing:0; }
   .hero-trust-big .trust-item strong{ font-size:18px; }
   .hero-trust-big .trust-item span{ font-size:12px; }
-  .hero-trust-big .trust-item:first-child .stars{ font-size:16px; }
+  .hero-trust-big .trust-item:first-child span{ font-size:14px; white-space:nowrap; }
+  .trust-dot{ margin:0 7px; }
   .mobile-sticky-btn{ font-size:19px; padding:14px 6px; gap:6px; letter-spacing:-0.01em; }
   .review-card{ width:280px; }
   .docket-grid{ grid-template-columns:1fr; }
