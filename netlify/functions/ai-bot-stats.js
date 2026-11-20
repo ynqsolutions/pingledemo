@@ -20,13 +20,20 @@ a{color:#1F7A5C;font-weight:600;}</style></head>
 }
 // Returns { ok: true } or { ok: false, reason } - the reason is shown in the
 // admin so a rejected session can be diagnosed instead of guessed at.
+const GOOD_TOKENS = new Map(); // token -> expiry ms (saves a round trip to Identity on repeat requests)
 async function verifyUser(req){
   const auth = req.headers.get('authorization');
   if(!auth) return { ok: false, reason: 'the request arrived without a login token' };
+  const until = GOOD_TOKENS.get(auth);
+  if(until && until > Date.now()) return { ok: true };
   try {
     const origin = new URL(req.url).origin;
     const res = await fetch(origin + '/.netlify/identity/user', { headers: { authorization: auth } });
-    if(res.ok) return { ok: true };
+    if(res.ok){
+      if(GOOD_TOKENS.size > 50) GOOD_TOKENS.clear();
+      GOOD_TOKENS.set(auth, Date.now() + 120000);
+      return { ok: true };
+    }
     return { ok: false, reason: 'Netlify Identity rejected the token (status ' + res.status + ')' };
   } catch (err) {
     return { ok: false, reason: 'could not reach Netlify Identity: ' + String(err && err.message || err).slice(0, 100) };
@@ -110,7 +117,7 @@ async function inChunks(items, size, fn){
 // Reads everything the admin's AI Visibility page needs. Kept separate so
 // the (unauthenticated, counts-only) health check below runs the exact same
 // code path as the real, gated request.
-async function gatherData(store, url){
+async function gatherData(store, url, lite){
   const today = new Date().toISOString().slice(0, 10);
   const liveFrom = addDaysIso(today, -1); // yesterday and today stay as raw records
 
@@ -122,41 +129,22 @@ async function gatherData(store, url){
     const doc = await store.get('rollup/' + d, { type: 'json' });
     if(doc) newDays.set(d, doc);
   }));
+  // Days that are not rolled up yet are counted straight from their records. Bundling
+  // them into a rollup (and deleting the records) is done by the hourly job in
+  // ai-rollup.js, so opening the admin never has to do that work.
   const rawDates = (await listDirs(store, 'h/')).map(d => d.split('/')[1]).filter(Boolean);
   await Promise.all(rawDates.filter(d => !newDays.has(d)).map(async d => {
     const keys = await listKeys(store, 'h/' + d + '/');
     const parsed = keys.map(parseKey).filter(Boolean);
-    const agg = aggregate(parsed);
-    newDays.set(d, agg);
-    if(d >= liveFrom){ parsed.forEach(h => liveHits.push(h)); return; }
-    try {
-      // Keep the day's individual visits, newest first, in a compact form:
-      // [ms, bot, page, referer]. ~60-100 bytes each.
-      const sorted = parsed.slice().sort((x, y) => y.ms - x.ms).slice(0, MAX_ITEMS_PER_DAY);
-      const refs = {};
-      await inChunks(sorted.filter(h => REFERER_BOTS.has(h.bot)), 25, async h => {
-        const v = await Promise.resolve().then(() => store.get(h.key, { type: 'json' })).catch(() => null);
-        if(v && v.referer) refs[h.key] = v.referer;
-      });
-      agg.items = sorted.map(h => [h.ms, h.bot, h.path, refs[h.key] || '']);
-      await store.setJSON('rollup/' + d, agg);
-      await inChunks(keys, 25, k => store.delete(k));
-    } catch (e) { /* stays raw; counted again next time, never lost */ }
-  }));
-  // Keep storage bounded: drop itemized visits older than KEEP_ITEM_DAYS (the
-  // counts in the same rollup stay forever).
-  const pruneBefore = addDaysIso(today, -KEEP_ITEM_DAYS);
-  const stale = [...newDays.keys()].filter(d => d < pruneBefore && newDays.get(d).items).slice(0, 10);
-  await Promise.all(stale.map(async d => {
-    const doc = newDays.get(d); delete doc.items;
-    try { await store.setJSON('rollup/' + d, doc); } catch (e) {}
+    newDays.set(d, aggregate(parsed));
+    parsed.forEach(h => liveHits.push(h));
   }));
 
   // ---- all-time totals + pages: frozen baseline + new-format days ----
   const legacyTotals = (await store.get('totals', { type: 'json' })) || {};
   const totals = {};
   Object.keys(legacyTotals).forEach(k => { totals[k] = Object.assign({}, legacyTotals[k]); });
-  const pages = Object.assign({}, (await store.get('pages', { type: 'json' })) || {});
+  const pages = lite ? {} : Object.assign({}, (await store.get('pages', { type: 'json' })) || {});
   newDays.forEach(agg => {
     const c = dayCounts(agg);
     Object.keys(c).forEach(b => {
@@ -167,7 +155,7 @@ async function gatherData(store, url){
       const iso = new Date(agg.last[b]).toISOString();
       if(totals[b] && (!totals[b].lastSeen || iso > totals[b].lastSeen)) totals[b].lastSeen = iso;
     });
-    Object.keys(agg.pages || {}).forEach(p => { pages[p] = (pages[p] || 0) + agg.pages[p]; });
+    if(!lite) Object.keys(agg.pages || {}).forEach(p => { pages[p] = (pages[p] || 0) + agg.pages[p]; });
   });
 
   // ---- per-day + per-hour counts for the requested window ----
@@ -229,9 +217,9 @@ async function gatherData(store, url){
   const fresh = top.map(c => ({ bot: c.bot, label: LABELS[c.bot] || c.bot, path: c.path, referer: c.referer || null, time: new Date(c.ms).toISOString() }));
   const legacyRecent = ((await store.get('recent', { type: 'json' })) || []).filter(r => inWindow.has(String(r.time || '').slice(0, 10)));
   const recent = fresh.concat(legacyRecent).slice(0, MAX_FEED);
-  const insight = cand.filter(c => INSIGHT_BOTS.has(c.bot)).slice(0, MAX_INSIGHT)
+  const insight = lite ? [] : cand.filter(c => INSIGHT_BOTS.has(c.bot)).slice(0, MAX_INSIGHT)
     .map(c => ({ bot: c.bot, label: LABELS[c.bot] || c.bot, path: c.path, referer: c.referer || null, time: new Date(c.ms).toISOString() }))
-    .concat(legacyRecent.filter(r => INSIGHT_BOTS.has(r.bot))).slice(0, MAX_INSIGHT);
+    .concat(lite ? [] : legacyRecent.filter(r => INSIGHT_BOTS.has(r.bot))).slice(0, MAX_INSIGHT);
 
   // Per-day page tallies for the window (top pages only, to keep the payload
   // small on long ranges) - lets the report show "most-read pages" for the
@@ -240,7 +228,7 @@ async function gatherData(store, url){
   // `pagesSince` says where per-day page data starts.
   const perDayLimit = days.length > 92 ? 30 : 200;
   const pagesDaily = {};
-  days.forEach(d => {
+  if(!lite) days.forEach(d => {
     const nd = newDays.get(d);
     if(!nd || !nd.pages) return;
     const top = Object.entries(nd.pages).sort((a, b) => b[1] - a[1]).slice(0, perDayLimit);
@@ -249,6 +237,27 @@ async function gatherData(store, url){
   const pagesSince = [...newDays.keys()].sort()[0] || null;
 
   return { totals, recent, insight, daily, pages, hours, pagesDaily, pagesSince };
+}
+
+// The finished JSON is kept for a minute (in memory and in Blobs) so repeat
+// opens of the Dashboard / AI Visibility don't redo the reading.
+const CACHE_MS = 60000;
+const MEM = new Map();
+async function cachedJson(store, url, lite){
+  const isDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
+  const f = isDate(url.searchParams.get('from')) ? url.searchParams.get('from') : '', t = isDate(url.searchParams.get('to')) ? url.searchParams.get('to') : '';
+  const key = 'cache/' + new Date().toISOString().slice(0, 10) + '/' + (lite ? 'l' : 'f') + '/' + f + '/' + t;
+  const now = Date.now();
+  const m = MEM.get(key);
+  if(m && now - m.t < CACHE_MS) return m.body;
+  const b = await store.get(key, { type: 'json' }).catch(() => null);
+  if(b && b.body && now - b.t < CACHE_MS){ MEM.set(key, b); return b.body; }
+  const body = JSON.stringify(await gatherData(store, url, lite));
+  const doc = { t: now, body };
+  if(MEM.size > 20) MEM.delete(MEM.keys().next().value);
+  MEM.set(key, doc);
+  try { await store.setJSON(key, doc); } catch (e) { /* cache only */ }
+  return body;
 }
 
 export default async (req) => {
@@ -285,9 +294,18 @@ export default async (req) => {
     });
   }
 
+  const store = getStore('ai-bot-log');
+  const lite = url.searchParams.get('lite') === '1';
+  if(url.searchParams.get('format') === 'json'){
+    try {
+      return new Response(await cachedJson(store, url, lite), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
+    } catch (err) {
+      return Response.json({ error: 'Could not read crawler data: ' + String(err && err.message || err).slice(0, 160) }, { status: 500 });
+    }
+  }
   let data;
   try {
-    data = await gatherData(getStore('ai-bot-log'), url);
+    data = await gatherData(store, url);
   } catch (err) {
     return Response.json({ error: 'Could not read crawler data: ' + String(err && err.message || err).slice(0, 160) }, { status: 500 });
   }

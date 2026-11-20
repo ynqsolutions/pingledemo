@@ -1617,7 +1617,7 @@
     // After logout the widget keeps a stale session in memory and its
     // modal opens on the "logged in" panel instead of the sign-in form,
     // so reload to a clean state.
-    window.netlifyIdentity.on('logout', function(){ setUser(null); location.replace(location.pathname); });
+    window.netlifyIdentity.on('logout', function(){ aiCacheClear(); setUser(null); location.replace(location.pathname); });
     $('#gateLogin').addEventListener('click', function(){
       if(currentUser()){ setUser(currentUser()); route(); return; }
       window.netlifyIdentity.open('login');
@@ -1876,19 +1876,22 @@
       renderOverviewHero(); renderDashTable();
     }).catch(function(){ overview.activityLoaded = false; overview.commits = []; renderDashTable(); });
   }
+  function overviewApplyAi(d){
+    var w = aiWindow();
+    overview.aiDaily = aiLocalDaily(d, w.from, w.to);
+    overview.aiRecent = d.recent || [];
+    overview.ai7 = dSum(overview.aiDaily.slice(-7));
+    renderDashChart(); renderDashKpis(); renderDashTable(); renderOverviewHero();
+  }
   function loadOverviewAi(){
+    // Show the last numbers from this browser straight away, then refresh them.
+    if(!overview.aiPainted){
+      var c = aiCacheGet('full') || aiCacheGet('lite');
+      if(c){ try { overviewApplyAi(c.data); overview.aiPainted = true; } catch (e) { /* ignore a bad copy */ } }
+    }
     var user = currentUser(); if(!user || overview.aiLoaded) return;
     overview.aiLoaded = true;
-    var from = isoDay(addLocalDays(new Date(), -59)), to = isoDay(new Date());
-    user.jwt().then(function(token){
-      return fetch(aiStatsUrl(from, to), { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } });
-    }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function(d){
-        overview.aiDaily = aiLocalDaily(d, from, to);
-        overview.aiRecent = d.recent || [];
-        overview.ai7 = dSum(overview.aiDaily.slice(-7));
-        renderDashChart(); renderDashKpis(); renderDashTable(); renderOverviewHero();
-      }).catch(function(){ overview.aiLoaded = false; });
+    aiFetch('lite').then(function(d){ overviewApplyAi(d); overview.aiPainted = true; }).catch(function(){ overview.aiLoaded = false; });
   }
 
   // ================= Dashboard =================
@@ -2844,43 +2847,38 @@
   // verifies server-side before returning anything - not reachable just
   // by knowing the URL. ----
   var aiCrawlers = { root: $('#aiCrawlersView'), loaded: false, busy: false, error: '', totals: {}, recent: [], daily: [], pages: {} };
-  function loadAiCrawlers(){
-    aiCrawlers.loaded = true; aiCrawlers.busy = true; aiCrawlers.error = ''; renderAiCrawlers();
+  function applyAiCrawlers(data){
+    aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || []; aiCrawlers.insight = data.insight || data.recent || []; aiCrawlers.src = { hours: data.hours || {}, utc: data.daily || [] }; aiCrawlers.pagesDaily = data.pagesDaily || {}; aiCrawlers.pagesSince = data.pagesSince || null;
+    aiCrawlers.daily = aiLocalDaily(data, isoDay(addLocalDays(new Date(), -29)), isoDay(new Date())); aiCrawlers.pages = data.pages || {};
+    aiCrawlers.hasData = true;
+  }
+  function loadAiCrawlers(force){
+    aiCrawlers.loaded = true; aiCrawlers.error = '';
+    // Show the last numbers from this browser straight away, then refresh them.
+    if(!aiCrawlers.hasData){
+      var c = aiCacheGet('full');
+      if(c){ try { applyAiCrawlers(c.data); } catch (e) { aiCrawlers.hasData = false; } }
+    }
+    aiCrawlers.busy = !aiCrawlers.hasData; renderAiCrawlers();
     var user = currentUser();
     if(!user){
       // Identity may still be starting: wait briefly before giving up.
       var tries = 0, t = setInterval(function(){
         var u = currentUser();
-        if(u){ clearInterval(t); loadAiCrawlers(); }
-        else if(++tries > 25){ clearInterval(t); aiCrawlers.loaded = false; aiCrawlers.busy = false; aiCrawlers.error = 'Sign in to view this.'; renderAiCrawlers(); }
+        if(u){ clearInterval(t); loadAiCrawlers(force); }
+        else if(++tries > 25){ clearInterval(t); aiCrawlers.loaded = false; aiCrawlers.busy = false; aiCrawlers.hasData = false; aiCrawlers.error = 'Sign in to view this.'; renderAiCrawlers(); }
       }, 150);
       return;
     }
-    // The endpoint itself checks this token server-side (gated, not a
-    // public URL) - this header is what makes that check pass, not just
-    // a formality.
-    user.jwt().then(function(token){
-      return fetch(aiStatsUrl(isoDay(addLocalDays(new Date(), -29)), isoDay(new Date())), { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } });
-    }).then(function(r){
-      if(r.ok) return r.json();
-      // Surface the server's own message (401 = not signed in; anything else
-      // = a real error worth reading) instead of a bare status code.
-      return r.json().catch(function(){ return {}; }).then(function(b){
-        throw new Error(r.status === 401
-          ? 'The server didn\u2019t accept your login' + (b && b.reason ? ': ' + b.reason : '') + '. Try signing out and back in.'
-          : (b && b.error) || ('Request failed (' + r.status + ')'));
-      });
-    }).then(function(data){
-        aiCrawlers.totals = data.totals || {}; aiCrawlers.recent = data.recent || []; aiCrawlers.insight = data.insight || data.recent || []; aiCrawlers.src = { hours: data.hours || {}, utc: data.daily || [] }; aiCrawlers.pagesDaily = data.pagesDaily || {}; aiCrawlers.pagesSince = data.pagesSince || null;
-        aiCrawlers.daily = aiLocalDaily(data, isoDay(addLocalDays(new Date(), -29)), isoDay(new Date())); aiCrawlers.pages = data.pages || {};
-        aiCrawlers.busy = false; renderAiCrawlers();
-      })
-      .catch(function(err){
-        // Not "loaded": leaving it false lets navigating back (or Refresh)
-        // try again instead of staying stuck on this error.
-        aiCrawlers.loaded = false;
-        aiCrawlers.busy = false; aiCrawlers.error = err.message || 'Unknown error'; renderAiCrawlers();
-      });
+    aiFetch('full', force).then(function(data){
+      applyAiCrawlers(data); aiCrawlers.busy = false; renderAiCrawlers();
+    }).catch(function(err){
+      // Not "loaded": leaving it false lets navigating back (or Refresh) try again
+      // instead of staying stuck on this error.
+      aiCrawlers.loaded = false; aiCrawlers.busy = false;
+      if(!aiCrawlers.hasData) aiCrawlers.error = err.message || 'Unknown error';
+      renderAiCrawlers();
+    });
   }
 
   // Crawler TYPE drives every color on this page (one categorical slot per
@@ -3059,7 +3057,39 @@
   // re-bucketed into calendar days in THIS device's time zone. Days that
   // predate the hourly counters fall back to their UTC date. ----
   function addDays(iso, n){ var d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
-  function aiStatsUrl(from, to){ return '/.netlify/functions/ai-bot-stats?format=json&from=' + addDays(from, -1) + '&to=' + addDays(to, 1); }
+  function aiStatsUrl(from, to, lite){ return '/.netlify/functions/ai-bot-stats?format=json&from=' + addDays(from, -1) + '&to=' + addDays(to, 1) + (lite ? '&lite=1' : ''); }
+  // ---- Loading the AI numbers: one request shared by the Dashboard and the AI
+  // Visibility page (reused for 45 seconds), plus a copy kept in this browser
+  // so the last numbers show instantly while fresh ones load. ----
+  var aiShared = { full: null, lite: null };
+  function aiWindow(){ return { from: isoDay(addLocalDays(new Date(), -59)), to: isoDay(new Date()) }; }
+  function aiCacheKey(kind){ return 'pl-ai-' + kind + '-v1'; }
+  function aiCacheGet(kind){ try { var raw = localStorage.getItem(aiCacheKey(kind)); if(!raw) return null; var o = JSON.parse(raw); return o && o.data ? o : null; } catch (e) { return null; } }
+  function aiCacheSet(kind, data){ try { var str = JSON.stringify({ t: Date.now(), data: data }); if(str.length < 2500000) localStorage.setItem(aiCacheKey(kind), str); else localStorage.removeItem(aiCacheKey(kind)); } catch (e) { /* storage full or blocked */ } }
+  function aiCacheClear(){ try { localStorage.removeItem(aiCacheKey('full')); localStorage.removeItem(aiCacheKey('lite')); } catch (e) {} }
+  function aiFetch(kind, force){
+    // kind: 'full' (everything) or 'lite' (daily totals + recent visits). A full result also serves a lite request.
+    var now = Date.now(), fresh = function(x){ return x && (x.pending || now - x.t < 45000); };
+    if(!force){
+      if(fresh(aiShared.full)) return aiShared.full.p;
+      if(kind === 'lite' && fresh(aiShared.lite)) return aiShared.lite.p;
+    }
+    var user = currentUser(); if(!user) return Promise.reject(new Error('Sign in to view this.'));
+    var w = aiWindow(), slot = { t: now, pending: true };
+    slot.p = user.jwt().then(function(token){ return fetch(aiStatsUrl(w.from, w.to, kind === 'lite'), { cache: 'no-store', headers: { Authorization: 'Bearer ' + token } }); })
+      .then(function(r){
+        if(r.ok) return r.json();
+        // Surface the server's own message instead of a bare status code.
+        return r.json().catch(function(){ return {}; }).then(function(b){
+          throw new Error(r.status === 401
+            ? 'The server didn’t accept your login' + (b && b.reason ? ': ' + b.reason : '') + '. Try signing out and back in.'
+            : (b && b.error) || ('Request failed (' + r.status + ')'));
+        });
+      })
+      .then(function(data){ slot.pending = false; slot.t = Date.now(); aiCacheSet(kind, data); return data; })
+      .catch(function(err){ if(aiShared[kind] === slot) aiShared[kind] = null; throw err; });
+    aiShared[kind] = slot; return slot.p;
+  }
   function aiLocalDaily(data, from, to){
     var out = {}, order = [];
     for(var s = from; s <= to; s = addDays(s, 1)){ out[s] = {}; order.push(s); }
@@ -3701,7 +3731,7 @@
         el('p', { text: 'Which AI platforms visit the site, why, and which pages they read.' })
       ]),
       el('div', { class: 'page-head-actions' }, [
-        el('button', { type: 'button', class: 'btn btn-ghost', onclick: function(){ aiCrawlers.loaded = false; loadAiCrawlers(); } }, [ 'Refresh' ]),
+        el('button', { type: 'button', class: 'btn btn-ghost', onclick: function(){ aiCrawlers.loaded = false; loadAiCrawlers(true); } }, [ 'Refresh' ]),
         el('button', { type: 'button', class: 'btn btn-primary', onclick: openAiExport }, [ icon('<path d="M6 9V3h12v6"/><path d="M6 18H4v-7h16v7h-2"/><path d="M6 14h12v7H6z"/>', '2'), 'Report' ])
       ])
     ]));
