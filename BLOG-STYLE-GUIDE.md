@@ -12,6 +12,18 @@ How blog posts are written and built on this site. Follow it exactly so every po
 - Titles are a real question or a clear promise a worker would search ("Can X do Y in California?", "Do Z Get Overtime?"). Title tag follows CLAUDE.md: one "California", under about 65 characters, ends "| Pingle Law".
 - Meta description: one sentence, 140-160 characters, states the answer or what the reader gets.
 
+## 1b. Length and links
+- **Article length: about 1,000 words** (acceptable range 900-1,100, counting the TL;DR, intro, sections and disclaimer; not the sidebar). Roughly a 5-minute read: set the `N min read` line accordingly.
+- **TL;DR:** 25-60 words.
+- **Intro:** about 80-100 words.
+- **Numbered sections:** 5-6, each about 110-140 words. Fewer, tighter sections rather than padding.
+- **Example boxes:** 1-2, two or three sentences each.
+- **Definitions / Did You Know popups:** 2-4 per post (each definition is one or two sentences).
+- **Internal links in the body:** 4-7. Always include the free case review page (`case-review.html`) in the "what to do" section; add the contact page where it fits, one relevant practice-area page, and a related tool or article when there is one. Spanish twins link to the `-es` pages.
+- **Back link:** the "&larr; Back to Resources" link at the top of the hero on every post (Spanish: "Volver a Recursos").
+- **Related Articles (sidebar):** 4-8 links.
+- Spanish twins keep the same structure and roughly the same length.
+
 ## 2. Article structure (top to bottom)
 1. **Hero:** back link to `resources.html`, one category tag (`resource-article-tag`), `<h1>`, one-sentence subtitle (`blog-sub`), the two pill buttons (Free Consultation, Contact Us).
 2. **Byline row:** "By Corey A. Pingle, Esq." / "Employment Law Attorney" with `assets/Pingle_HS_Cutout.png`, and `<p class="blog-meta">Month D, YYYY &middot; N min read</p>`.
@@ -20,9 +32,9 @@ How blog posts are written and built on this site. Follow it exactly so every po
 5. **"In This Article"** table of contents (`.blog-toc`), numbered, anchors `#pt-1`, `#pt-2`...
 6. **Intro paragraph(s):** why this matters, what the post covers.
 7. **Share block** (`.blog-share`) directly under the TL;DR, table of contents and intro paragraph, before the first numbered section. Previous / Next stay at the very bottom.
-8. **Numbered sections** (`.blog-sign` with `.blog-sign-num` and an `<h2>`; ids `pt-N`). 4-7 sections. Each is short paragraphs; use bullets only for real lists.
+8. **Numbered sections** (`.blog-sign` with `.blog-sign-num` and an `<h2>`; ids `pt-N`). 5-6 sections. Each is short paragraphs; use bullets only for real lists.
 9. **Example boxes** (`.blog-example` with `assets/Pingle_HS_Thinking.png`, `<strong>Example</strong>`): a concrete two-to-three sentence scenario in one or two sections.
-10. **Definitions and Did You Know:** first use of a legal or technical term is a glossary button: `<button type="button" class="glossary-term" data-term="Term" data-def="One or two plain sentences.">term</button>`. The site JS shows the "Did You Know?" popup. Use 2-6 per post. This is the only Did You Know format: tips and facts are also underlined glossary terms inside the text, with the tip in `data-def`. Do not create other callout or pill styles for them.
+10. **Definitions and Did You Know:** first use of a legal or technical term is a glossary button: `<button type="button" class="glossary-term" data-term="Term" data-def="One or two plain sentences.">term</button>`. The site JS shows the "Did You Know?" popup. Use 2-4 per post. This is the only Did You Know format: tips and facts are also underlined glossary terms inside the text, with the tip in `data-def`. Do not create other callout or pill styles for them.
 11. **"What to do" section** last: concrete next steps, ending with a soft pointer to the Free Case Review (never pushy).
 12. **Disclaimer** (`.article-disclaimer`): general educational purposes, not legal advice, no attorney-client relationship, and no guarantee of any outcome (for career-advice posts, also that following the tips does not guarantee a job or offer).
 13. **Previous / Next** (`.blog-prev-next`), plus `data-prev-post` / `data-next-post` on `<body>`.
@@ -48,6 +60,7 @@ Keep the page template (header, mobile nav, sticky CTA, footer, scripts) byte-id
 
 ## 5. Checklist before pushing
 - [ ] Direct answer in the TL;DR and first section
+- [ ] About 1,000 words; 4-7 internal links including the case review page; 2-4 definitions
 - [ ] Every legal statement flagged for Corey's review
 - [ ] Definitions and examples present
 - [ ] Checked at 375px wide: no horizontal scroll, sidebar blocks embedded between sections
