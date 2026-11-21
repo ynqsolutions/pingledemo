@@ -1,0 +1,29 @@
+.ap{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 22px; padding:12px 16px; background:var(--white); border:1px solid var(--paper-line); border-radius:10px; }
+.ap-play{ flex:none; width:44px; height:44px; border-radius:50%; border:0; background:var(--navy-900); color:var(--gold-300); display:flex; align-items:center; justify-content:center; transition:background .2s; }
+.ap-play:hover{ background:var(--navy-700); }
+.ap-play:focus-visible, .ap-skip:focus-visible, .ap-speed:focus-visible, .ap-seek:focus-visible{ outline:2px solid var(--gold-500); outline-offset:2px; }
+.ap-play svg{ width:18px; height:18px; fill:currentColor; }
+.ap-play .ap-ic-pause{ display:none; }
+.ap.is-playing .ap-ic-play{ display:none; }
+.ap.is-playing .ap-ic-pause{ display:block; }
+.ap-text{ min-width:0; flex:1 1 0; }
+.ap-k{ display:block; font-family:var(--font-cond); font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-500); }
+.ap-t{ display:block; font-size:15px; font-weight:600; color:var(--navy-900); }
+.ap-note{ margin-left:auto; font-size:12px; color:var(--ink-soft); white-space:nowrap; }
+.ap-controls{ display:none; flex:1 1 100%; align-items:center; gap:10px; }
+.ap.is-started .ap-controls{ display:flex; }
+.ap.is-started .ap-text, .ap.is-started .ap-note{ display:none; }
+.ap.is-started{ flex-wrap:nowrap; }
+.ap.is-started .ap-controls{ flex:1; }
+.ap-skip{ flex:none; width:36px; height:36px; border:0; background:transparent; color:var(--navy-900); font-size:12px; font-weight:600; border-radius:50%; cursor:pointer; }
+.ap-skip:hover{ background:var(--paper-dim); }
+.ap-seek{ flex:1; min-width:60px; accent-color:var(--gold-500); height:4px; }
+.ap-time{ flex:none; font-size:12px; color:var(--ink-soft); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.ap-speed{ flex:none; font-size:12px; font-weight:600; color:var(--navy-900); background:var(--white); border:1px solid var(--paper-line); border-radius:6px; padding:4px 8px; cursor:pointer; }
+@media (max-width:560px){
+  .ap{ padding:10px 12px; gap:10px; }
+  .ap-note{ flex:1 1 100%; margin-left:0; white-space:normal; order:3; }
+  .ap.is-started{ flex-wrap:wrap; }
+  .ap.is-started .ap-controls{ flex:1 1 calc(100% - 54px); }
+  .ap-time{ display:none; }
+}
