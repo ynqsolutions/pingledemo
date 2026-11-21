@@ -24,6 +24,12 @@ How blog posts are written and built on this site. Follow it exactly so every po
 - **Related Articles (sidebar):** 4-8 links.
 - Spanish twins keep the same structure and roughly the same length.
 
+## 1c. Local SEO: "Where we help" and city pages
+- **Keep articles California-wide** (the law is the same statewide). Do not copy an article per city with only the city name changed; that is duplicate content. A genuinely different city article is only worth writing with real local detail (county court, local agencies, local employers), a title that names that one city, and its own unique text.
+- **Every new post ends its last section with one "Where we help" sentence** naming the six service-area cities, each linked to its city page (Spanish: "Ayudamos a empleados en todo California, incluidos..." linking to the `-es` city pages): *"We help employees across California, including in Fountain Valley, Beverly Hills, San Bernardino, San Diego, San Francisco and Sacramento."* These six city links are in addition to the 4-7 body links.
+- **Never imply an office where there is none.** The firm has one office (Fountain Valley) and serves the other cities remotely. Say "serving" or "we help employees in", never "our San Diego office".
+- **City pages list the guides that fit their local industries** in a "Guides for Workers in {City}" section (`#<city>-local-guides`, same markup as the "Common Workplace Issues" rows). When a new post fits a city's main industries (for example warehouse and construction for San Bernardino, healthcare for Fountain Valley and Sacramento, tech and office for San Francisco and San Diego, retail and entertainment for Beverly Hills), add it to that city's list in both languages.
+
 ## 2. Article structure (top to bottom)
 1. **Hero:** back link to `resources.html`, one category tag (`resource-article-tag`), `<h1>`, one-sentence subtitle (`blog-sub`), the two pill buttons (Free Consultation, Contact Us).
 2. **Byline row:** "By Corey A. Pingle, Esq." / "Employment Law Attorney" with `assets/Pingle_HS_Cutout.png`, and `<p class="blog-meta">Month D, YYYY &middot; N min read</p>`.
@@ -66,5 +72,13 @@ Keep the page template (header, mobile nav, sticky CTA, footer, scripts) byte-id
 - [ ] Checked at 375px wide: no horizontal scroll, sidebar blocks embedded between sections
 - [ ] EN and ES pages, both linked from the toggle
 - [ ] Unsplash photo present and loading; icon created; Resources card added
+- [ ] "Where we help" sentence with the six city links at the end; relevant city page(s) updated
+- [ ] Job-specific posts: real examples and legal points for that job (see section 6)
 - [ ] Share block directly under the intro; Did You Know shown only as glossary popups
 - [ ] No unrelated files staged (never commit the unstaged "blog icons/*" deletions or `pinglelaw-knowledge-base.md`)
+
+## 6. Job- and industry-specific posts (like the workplace bullying series)
+- One post per job or industry, titled "<Job> ...? Can You ... in California?" so it matches how that worker searches. Existing series: medical assistants, nurses, caregivers/CNAs, restaurant workers, retail workers, office workers, warehouse workers, construction workers and teachers/school employees.
+- Use the same six sections: (1) is it illegal, with an example; (2) harassment as it looks in that job; (3) retaliation for the complaints that job typically raises; (4) a job-specific legal point (for example patient-safety protections for nurses, immigration threats for restaurant and construction workers, quotas for warehouse workers, union deadlines for public school staff); (5) protecting yourself, including what not to copy (patient or student records) and what not to do; (6) options, deadlines, free case review and the "Where we help" sentence.
+- Name the specific roles inside the industry (for example servers, line cooks and bussers; pickers, packers and forklift operators), and link to our existing posts for that job (overtime, breaks, tips).
+- Mark every statement of law for Corey to verify before the post is promoted.
