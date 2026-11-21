@@ -1,7 +1,9 @@
-.ap{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 22px; padding:12px 16px; background:var(--white); border:1px solid var(--paper-line); border-radius:10px; }
-.ap-play{ flex:none; width:44px; height:44px; border-radius:50%; border:0; background:var(--navy-900); color:var(--gold-300); display:flex; align-items:center; justify-content:center; transition:background .2s; }
+/* "Prefer to listen?" audio player on blog posts (markup from generate_audio.py) */
+.ap{ margin:0 0 22px; background:var(--white); border:1px solid var(--paper-line); border-radius:10px; }
+.ap-main{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:12px 16px; }
+.ap-play{ flex:none; width:44px; height:44px; border-radius:50%; border:0; background:var(--navy-900); color:var(--white); display:flex; align-items:center; justify-content:center; transition:background .2s; -webkit-tap-highlight-color:transparent; }
 .ap-play:hover{ background:var(--navy-700); }
-.ap-play:focus-visible, .ap-skip:focus-visible, .ap-speed:focus-visible, .ap-seek:focus-visible{ outline:2px solid var(--gold-500); outline-offset:2px; }
+.ap-play:focus-visible, .ap-skip:focus-visible, .ap-speed:focus-visible, .ap-seek:focus-visible, .ap-more-link:focus-visible{ outline:2px solid var(--gold-500); outline-offset:2px; }
 .ap-play svg{ width:18px; height:18px; fill:currentColor; }
 .ap-play .ap-ic-pause{ display:none; }
 .ap.is-playing .ap-ic-play{ display:none; }
@@ -10,20 +12,55 @@
 .ap-k{ display:block; font-family:var(--font-cond); font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-500); }
 .ap-t{ display:block; font-size:15px; font-weight:600; color:var(--navy-900); }
 .ap-note{ margin-left:auto; font-size:12px; color:var(--ink-soft); white-space:nowrap; }
-.ap-controls{ display:none; flex:1 1 100%; align-items:center; gap:10px; }
+
+/* controls replace the invitation text after the first press */
+.ap-controls{ display:none; flex:1; align-items:center; gap:10px; min-width:0; }
+.ap.is-started .ap-main{ flex-wrap:nowrap; }
 .ap.is-started .ap-controls{ display:flex; }
 .ap.is-started .ap-text, .ap.is-started .ap-note{ display:none; }
-.ap.is-started{ flex-wrap:nowrap; }
-.ap.is-started .ap-controls{ flex:1; }
-.ap-skip{ flex:none; width:36px; height:36px; border:0; background:transparent; color:var(--navy-900); font-size:12px; font-weight:600; border-radius:50%; cursor:pointer; }
-.ap-skip:hover{ background:var(--paper-dim); }
+.ap-skip{ position:relative; flex:none; width:36px; height:36px; border:0; padding:0; background:transparent; color:var(--navy-900); font-size:12px; font-weight:600; border-radius:50%; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.ap-skip span{ display:inline-block; }
+/* ring that sweeps round the number on click: clockwise forward, counter-clockwise back */
+.ap-ring{ position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:var(--gold-500); stroke-width:2; stroke-linecap:round; stroke-dasharray:100; stroke-dashoffset:100; opacity:0; transform:rotate(-90deg); pointer-events:none; }
+.ap-back .ap-ring{ transform:scaleX(-1) rotate(-90deg); }
 .ap-seek{ flex:1; min-width:60px; accent-color:var(--gold-500); height:4px; }
 .ap-time{ flex:none; font-size:12px; color:var(--ink-soft); font-variant-numeric:tabular-nums; white-space:nowrap; }
 .ap-speed{ flex:none; font-size:12px; font-weight:600; color:var(--navy-900); background:var(--white); border:1px solid var(--paper-line); border-radius:6px; padding:4px 8px; cursor:pointer; }
+
+/* the browser refused to auto-start: draw the eye to the play button */
+.ap.is-nudge .ap-play{ animation:ap-pulse 1.4s ease-out 3; }
+@keyframes ap-pulse{
+  0%{ box-shadow:0 0 0 0 rgba(179,138,60,.6); }
+  100%{ box-shadow:0 0 0 14px rgba(179,138,60,0); }
+}
+
+/* related audio: one slim row under the player */
+.ap-more{ display:flex; align-items:center; gap:12px; padding:9px 16px; border-top:1px solid var(--paper-line); background:#FBF9F4; border-radius:0 0 9px 9px; }
+.ap-more-k{ flex:none; font-family:var(--font-cond); font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); }
+.ap-more-list{ display:flex; gap:8px; flex:1; min-width:0; margin:0; padding:0; list-style:none; }
+.ap-more-list li{ flex:0 1 auto; min-width:0; margin:0; padding:0; }
+.ap-more-link{ display:flex; align-items:center; gap:7px; min-width:0; padding:4px 12px 4px 4px; background:var(--white); border:1px solid var(--paper-line); border-radius:999px; font-size:13px; font-weight:600; line-height:1.2; color:var(--navy-900); text-decoration:none; transition:border-color .2s; -webkit-tap-highlight-color:transparent; }
+.ap-more-link:hover{ border-color:var(--gold-400); }
+.ap-more-ic{ flex:none; width:22px; height:22px; border-radius:50%; background:var(--navy-900); display:flex; align-items:center; justify-content:center; transition:background .2s; }
+.ap-more-link:hover .ap-more-ic{ background:var(--gold-500); }
+.ap-more-ic svg{ width:10px; height:10px; fill:var(--white); }
+.ap-more-t{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ap-more-d{ flex:none; font-size:12px; font-weight:400; color:var(--ink-soft); white-space:nowrap; }
+
+@media (max-width:720px){
+  /* label on its own line, chips in one row that scrolls sideways */
+  .ap-more{ flex-direction:column; align-items:stretch; gap:6px; padding:9px 0 10px; }
+  .ap-more-k{ padding:0 12px; }
+  .ap-more-list{ flex:none; overflow-x:auto; padding:0 26px 0 12px; scroll-padding:0 12px; scroll-snap-type:x proximity; scrollbar-width:none; -webkit-overflow-scrolling:touch; -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 26px), transparent); mask-image:linear-gradient(to right, #000 calc(100% - 26px), transparent); }
+  .ap-more-list::-webkit-scrollbar{ display:none; }
+  .ap-more-list li{ flex:none; scroll-snap-align:start; }
+  .ap-more-link{ padding:6px 14px 6px 6px; }
+}
 @media (max-width:560px){
-  .ap{ padding:10px 12px; gap:10px; }
+  .ap-main{ padding:10px 12px; gap:10px; }
   .ap-note{ flex:1 1 100%; margin-left:0; white-space:normal; order:3; }
-  .ap.is-started{ flex-wrap:wrap; }
-  .ap.is-started .ap-controls{ flex:1 1 calc(100% - 54px); }
   .ap-time{ display:none; }
+}
+@media (prefers-reduced-motion: reduce){
+  .ap.is-nudge .ap-play{ animation:none; box-shadow:0 0 0 3px var(--gold-400); }
 }

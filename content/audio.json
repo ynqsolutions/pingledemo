@@ -1,0 +1,107 @@
+{
+  "_note": "Posts that have an audio version (generate_audio.py). Add a post here, then run the script. 'tags' decide which posts show under 'Related audio': posts sharing the most tags come first. 'label' is the short name on the related-audio chip. 'audio' and 'usage' are filled in by the script.",
+  "voices": {
+    "en": {
+      "lang": "en-US",
+      "name": "en-US-Neural2-J"
+    },
+    "es": {
+      "lang": "es-US",
+      "name": "es-US-Neural2-C"
+    }
+  },
+  "monthly_character_cap": 900000,
+  "usage": {
+    "2026-11": 56144
+  },
+  "posts": [
+    {
+      "slug": "blog-medical-assistant-workplace-bullying-california",
+      "tags": [
+        "healthcare",
+        "medical-assistant",
+        "bullying"
+      ],
+      "label": {
+        "en": "Medical assistant bullying",
+        "es": "Acoso a asistentes médicos"
+      },
+      "audio": {
+        "en": {
+          "sec": 322,
+          "v": "b3c6ff3c"
+        },
+        "es": {
+          "sec": 331,
+          "v": "91d4f117"
+        }
+      }
+    },
+    {
+      "slug": "blog-medical-assistants-overtime-california",
+      "tags": [
+        "healthcare",
+        "medical-assistant",
+        "overtime"
+      ],
+      "label": {
+        "en": "Medical assistant overtime",
+        "es": "Horas extra de asistentes médicos"
+      },
+      "audio": {
+        "en": {
+          "sec": 366,
+          "v": "0e7cae41"
+        },
+        "es": {
+          "sec": 408,
+          "v": "597f0591"
+        }
+      }
+    },
+    {
+      "slug": "blog-nurse-workplace-bullying-california",
+      "tags": [
+        "healthcare",
+        "nurse",
+        "bullying"
+      ],
+      "label": {
+        "en": "Nurse bullying",
+        "es": "Acoso en enfermería"
+      },
+      "audio": {
+        "en": {
+          "sec": 339,
+          "v": "27ca8a1b"
+        },
+        "es": {
+          "sec": 360,
+          "v": "a8fe369f"
+        }
+      }
+    },
+    {
+      "slug": "blog-caregiver-cna-workplace-bullying-california",
+      "tags": [
+        "healthcare",
+        "caregiver",
+        "bullying"
+      ],
+      "label": {
+        "en": "Caregiver and CNA bullying",
+        "es": "Acoso a cuidadores y CNA"
+      },
+      "audio": {
+        "en": {
+          "sec": 325,
+          "v": "753ccc58"
+        },
+        "es": {
+          "sec": 342,
+          "v": "a478e40c"
+        }
+      }
+    }
+  ]
+}
