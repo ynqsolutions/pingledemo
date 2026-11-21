@@ -33,8 +33,8 @@ import sys
 ROOT = os.path.dirname(os.path.abspath(__file__))
 MANIFEST = os.path.join(ROOT, "content", "audio.json")
 AUDIO_DIR = os.path.join(ROOT, "assets", "audio")
-CSS_V = 3          # bump when css/audio-player.css changes
-JS_V = 2           # bump when js/audio-player.js changes
+CSS_V = 4          # bump when css/audio-player.css changes
+JS_V = 3           # bump when js/audio-player.js changes
 MAX_RELATED = 3
 LANGS = {"en": "", "es": "-es"}
 
@@ -159,7 +159,6 @@ def make_audio(man, force):
 
 PLAY = '<svg class="ap-ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>'
 PAUSE = '<svg class="ap-ic-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'
-RING = '<svg class="ap-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16" pathLength="100"/></svg>'
 MINI = '<span class="ap-more-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>'
 
 
@@ -200,9 +199,9 @@ def player_html(post, lang, posts):
           <span class="ap-text"><span class="ap-k">{e(t["kicker"])}</span><span class="ap-t">{e(t["play"])} &middot; {minutes(info["sec"])} min</span></span>
           <span class="ap-note">{e(t["note"])}</span>
           <div class="ap-controls">
-            <button type="button" class="ap-skip ap-back">{RING}<span>&minus;15</span></button>
+            <button type="button" class="ap-skip ap-back"><span>&minus;15</span></button>
             <input type="range" class="ap-seek" min="0" max="100" step="1" value="0">
-            <button type="button" class="ap-skip ap-fwd">{RING}<span>+15</span></button>
+            <button type="button" class="ap-skip ap-fwd"><span>+15</span></button>
             <span class="ap-time">0:00 / 0:00</span>
             <button type="button" class="ap-speed">1&times;</button>
           </div>

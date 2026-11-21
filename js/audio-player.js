@@ -47,28 +47,27 @@
   // leaving the page (or it being kept for the back button) must not leave audio running
   window.addEventListener('pagehide', function(){ audio.pause(); });
 
-  // -15 / +15: a ring sweeps round the number in the direction of the jump
-  // (counter-clockwise back, clockwise forward) and the number nudges that way.
+  // -15 / +15: a copy of the number lifts off the button and fades out, while
+  // the number itself dims for a moment. Quick repeat taps each send one up.
   function skip(btn, dir){
     audio.currentTime = Math.max(0, Math.min(audio.duration || 1e9, audio.currentTime + dir * 15));
     paint();
-    var ring = btn.querySelector('.ap-ring'), label = btn.querySelector('span');
-    if(reduce || !ring.animate) return;
-    if(btn._fx) btn._fx.forEach(function(a){ a.cancel(); });
-    // Timing is per step (the whole run is linear) so the sweep stays visible:
-    // about 0.4s to draw the ring, then 0.25s to fade it.
-    btn._fx = [
-      ring.animate([
-        { strokeDashoffset:100, opacity:1, easing:'cubic-bezier(.4,0,.2,1)' },
-        { strokeDashoffset:0, opacity:1, offset:.6, easing:'ease-out' },
-        { strokeDashoffset:0, opacity:0 }
-      ], { duration:660 }),
-      label.animate([
-        { transform:'translateX(0) scale(1)', easing:'ease-out' },
-        { transform:'translateX(' + (dir * 2) + 'px) scale(1.12)', offset:.35, easing:'ease-in-out' },
-        { transform:'translateX(0) scale(1)' }
-      ], { duration:460 })
-    ];
+    var label = btn.querySelector('span');
+    if(reduce || !label.animate) return;
+    var ghost = label.cloneNode(true);
+    ghost.className = 'ap-ghost';
+    ghost.setAttribute('aria-hidden', 'true');
+    btn.appendChild(ghost);
+    var done = function(){ if(ghost.parentNode) ghost.parentNode.removeChild(ghost); };
+    // The rise is quick at first and slows; the fade starts a beat later and runs
+    // evenly, so the number is still readable while it travels.
+    var rise = ghost.animate([
+      { transform:'translateY(0)' },
+      { transform:'translateY(-22px)' }
+    ], { duration:650, easing:'cubic-bezier(.2,.7,.3,1)', fill:'forwards' });
+    ghost.animate([{ opacity:1 }, { opacity:1, offset:.25 }, { opacity:0 }], { duration:650, fill:'forwards' });
+    rise.onfinish = done; rise.oncancel = done;
+    label.animate([{ opacity:.25 }, { opacity:1 }], { duration:650, easing:'ease-in' });
   }
   back.addEventListener('click', function(){ skip(back, -1); });
   fwd.addEventListener('click', function(){ skip(fwd, 1); });

@@ -1,5 +1,10 @@
 /* "Prefer to listen?" audio player on blog posts (markup from generate_audio.py) */
-.ap{ margin:0 0 22px; background:var(--white); border:1px solid var(--paper-line); border-radius:10px; }
+/* The player must never set the width of the article column. Its related-audio
+   chips do not wrap, so without this their combined width forced the column wider
+   and pushed the sidebar sideways on desktop. "width:0; min-width:100%" makes the
+   box count as zero width when the page sizes its columns, then fill the column;
+   container-type lets the related row adapt to the room it actually has. */
+.ap{ width:0; min-width:100%; container-type:inline-size; margin:0 0 22px; background:var(--white); border:1px solid var(--paper-line); border-radius:10px; }
 .ap-main{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:12px 16px; }
 .ap-play{ flex:none; width:44px; height:44px; border-radius:50%; border:0; background:var(--navy-900); color:var(--white); display:flex; align-items:center; justify-content:center; transition:background .2s; -webkit-tap-highlight-color:transparent; }
 .ap-play:hover{ background:var(--navy-700); }
@@ -19,10 +24,8 @@
 .ap.is-started .ap-controls{ display:flex; }
 .ap.is-started .ap-text, .ap.is-started .ap-note{ display:none; }
 .ap-skip{ position:relative; flex:none; width:36px; height:36px; border:0; padding:0; background:transparent; color:var(--navy-900); font-size:12px; font-weight:600; border-radius:50%; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-.ap-skip span{ display:inline-block; }
-/* ring that sweeps round the number on click: clockwise forward, counter-clockwise back */
-.ap-ring{ position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:var(--gold-500); stroke-width:2; stroke-linecap:round; stroke-dasharray:100; stroke-dashoffset:100; opacity:0; transform:rotate(-90deg); pointer-events:none; }
-.ap-back .ap-ring{ transform:scaleX(-1) rotate(-90deg); }
+/* on click a copy of the number lifts off and fades out (see audio-player.js) */
+.ap-skip .ap-ghost{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
 .ap-seek{ flex:1; min-width:60px; accent-color:var(--gold-500); height:4px; }
 .ap-time{ flex:none; font-size:12px; color:var(--ink-soft); font-variant-numeric:tabular-nums; white-space:nowrap; }
 .ap-speed{ flex:none; font-size:12px; font-weight:600; color:var(--navy-900); background:var(--white); border:1px solid var(--paper-line); border-radius:6px; padding:4px 8px; cursor:pointer; }
@@ -34,27 +37,38 @@
   100%{ box-shadow:0 0 0 14px rgba(179,138,60,0); }
 }
 
-/* related audio: one slim row under the player */
-.ap-more{ display:flex; align-items:center; gap:12px; padding:9px 16px; border-top:1px solid var(--paper-line); background:#FBF9F4; border-radius:0 0 9px 9px; }
+/* related audio: a slim strip under the player.
+   Default (narrow player, e.g. desktop with the sidebar): label on top, chips on
+   one line that wraps only if it must. */
+.ap-more{ display:flex; flex-direction:column; gap:6px; padding:9px 16px 10px; border-top:1px solid var(--paper-line); background:#FBF9F4; border-radius:0 0 9px 9px; }
 .ap-more-k{ flex:none; font-family:var(--font-cond); font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); }
-.ap-more-list{ display:flex; gap:8px; flex:1; min-width:0; margin:0; padding:0; list-style:none; }
-.ap-more-list li{ flex:0 1 auto; min-width:0; margin:0; padding:0; }
+.ap-more-list{ display:flex; flex-wrap:wrap; gap:6px 8px; min-width:0; margin:0; padding:0; list-style:none; }
+.ap-more-list li{ min-width:0; max-width:100%; margin:0; padding:0; }
 .ap-more-link{ display:flex; align-items:center; gap:7px; min-width:0; padding:4px 12px 4px 4px; background:var(--white); border:1px solid var(--paper-line); border-radius:999px; font-size:13px; font-weight:600; line-height:1.2; color:var(--navy-900); text-decoration:none; transition:border-color .2s; -webkit-tap-highlight-color:transparent; }
 .ap-more-link:hover{ border-color:var(--gold-400); }
 .ap-more-ic{ flex:none; width:22px; height:22px; border-radius:50%; background:var(--navy-900); display:flex; align-items:center; justify-content:center; transition:background .2s; }
 .ap-more-link:hover .ap-more-ic{ background:var(--gold-500); }
 .ap-more-ic svg{ width:10px; height:10px; fill:var(--white); }
 .ap-more-t{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.ap-more-d{ flex:none; font-size:12px; font-weight:400; color:var(--ink-soft); white-space:nowrap; }
+.ap-more-d{ display:none; flex:none; font-size:12px; font-weight:400; color:var(--ink-soft); white-space:nowrap; }
+
+/* wide player: label and chips share one line, with each clip's length */
+@container (min-width:820px){
+  .ap-more{ flex-direction:row; align-items:center; gap:12px; padding:9px 16px; }
+  .ap-more-list{ flex:1; flex-wrap:nowrap; }
+  .ap-more-list li{ flex:0 1 auto; }
+  .ap-more-d{ display:inline; }
+}
 
 @media (max-width:720px){
-  /* label on its own line, chips in one row that scrolls sideways */
-  .ap-more{ flex-direction:column; align-items:stretch; gap:6px; padding:9px 0 10px; }
+  /* phones: chips in one row that scrolls sideways, fading at the edge */
+  .ap-more{ padding:9px 0 10px; }
   .ap-more-k{ padding:0 12px; }
-  .ap-more-list{ flex:none; overflow-x:auto; padding:0 26px 0 12px; scroll-padding:0 12px; scroll-snap-type:x proximity; scrollbar-width:none; -webkit-overflow-scrolling:touch; -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 26px), transparent); mask-image:linear-gradient(to right, #000 calc(100% - 26px), transparent); }
+  .ap-more-list{ flex-wrap:nowrap; overflow-x:auto; padding:0 26px 0 12px; scroll-padding:0 12px; scroll-snap-type:x proximity; scrollbar-width:none; -webkit-overflow-scrolling:touch; -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 26px), transparent); mask-image:linear-gradient(to right, #000 calc(100% - 26px), transparent); }
   .ap-more-list::-webkit-scrollbar{ display:none; }
-  .ap-more-list li{ flex:none; scroll-snap-align:start; }
+  .ap-more-list li{ flex:none; max-width:none; scroll-snap-align:start; }
   .ap-more-link{ padding:6px 14px 6px 6px; }
+  .ap-more-d{ display:inline; }
 }
 @media (max-width:560px){
   .ap-main{ padding:10px 12px; gap:10px; }
