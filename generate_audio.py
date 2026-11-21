@@ -6,18 +6,28 @@ audio needs a Google Cloud key, and that key must never be in this folder.
 
 One-time setup, in any folder outside the site:
     python3 -m venv ~/pingle-tts-venv
-    ~/pingle-tts-venv/bin/pip install google-cloud-texttospeech beautifulsoup4
+    ~/pingle-tts-venv/bin/pip install google-cloud-texttospeech beautifulsoup4 lameenc
 
-Make audio for every post in content/audio.json that has none yet, then
-refresh the player on every listed page:
+Every new blog post needs an entry in content/audio.json ("tags" and a short
+"label" per language), then:
     GOOGLE_APPLICATION_CREDENTIALS=~/pingle-tts-key.json \
         ~/pingle-tts-venv/bin/python generate_audio.py
+
+That makes audio for every listed post that has none yet (languages are set by
+"generate_langs" in content/audio.json; today English only), then puts or
+refreshes the player on each page.
 
 Refresh the players only (no Google calls, no key, plain python3):
     python3 generate_audio.py --players
 
-Re-make the audio for one post (for example after its text changed):
-    ... generate_audio.py --force blog-some-post-slug
+Other options:
+    --force slug [slug ...]   re-make the audio for those posts
+    --limit N                 make at most N new audio files this run
+
+Files: the site copy is a 32 kbps mono MP3 in assets/audio/. A better 64 kbps
+master of each file is kept OUTSIDE the site, in ~/pingle-audio-master (or the
+folder in PINGLE_AUDIO_MASTER), so it can be re-encoded or uploaded elsewhere
+without spending Google characters again.
 
 The script counts the characters it sends to Google each month and stops
 before "monthly_character_cap" in content/audio.json.
@@ -29,6 +39,7 @@ import json
 import os
 import re
 import sys
+import time
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 MANIFEST = os.path.join(ROOT, "content", "audio.json")
@@ -37,6 +48,13 @@ CSS_V = 4          # bump when css/audio-player.css changes
 JS_V = 3           # bump when js/audio-player.js changes
 MAX_RELATED = 3
 LANGS = {"en": "", "es": "-es"}
+SITE_KBPS = 32
+MASTER_KBPS = 64
+SAMPLE_RATE = 24000
+MASTER_DIR = os.path.expanduser(os.environ.get("PINGLE_AUDIO_MASTER", "~/pingle-audio-master"))
+# a shared industry counts double when picking related audio
+INDUSTRY = {"healthcare", "restaurant", "hotel", "film", "construction", "farm", "mechanic",
+            "retail", "office", "warehouse", "education", "personal-assistant", "social-media"}
 
 TEXT = {
     "en": {
@@ -85,7 +103,13 @@ def article_text(path, lang):
             continue
         if el.name in ("h1", "h2", "h3") and t[-1] not in ".?!:":
             t += "."
+        if re.match(r"^[A-Za-z\u00C0-\u00FF]+ \d{1,2}(?:,| de) .*\d{4} \u00b7", t):
+            continue   # the "November 20, 2026 \u00b7 5 min read" line, wherever the page puts it
         t = re.sub(r"(\d)x\b", TEXT[lang]["times"], t)   # "1.5x pay" reads badly
+        t = t.replace("&", "and" if lang == "en" else "y")
+        t = re.sub(r"(\d)\+", r"\1 plus" if lang == "en" else r"\1 o m\u00e1s", t)
+        t = re.sub(r"\bvs\.", "versus", t)
+        t = re.sub(r"(?<=[A-Za-z])/(?=[A-Za-z])", " ", t)   # Cal/OSHA
         if t not in parts:
             parts.append(t)
     return parts
@@ -108,16 +132,40 @@ def mp3_seconds(data):
     return (len(data) - i) * 8 / (kbps * 1000)
 
 
+def pcm_of(wav):
+    """Raw samples from a WAV file (Google adds a header to each reply)."""
+    return wav[wav.index(b"data") + 8:]
+
+
+def encode_mp3(pcm, kbps):
+    import lameenc
+    enc = lameenc.Encoder()
+    enc.set_bit_rate(kbps)
+    enc.set_in_sample_rate(SAMPLE_RATE)
+    enc.set_channels(1)
+    enc.set_quality(2)
+    return bytes(enc.encode(pcm)) + bytes(enc.flush())
+
+
 def synthesize(parts, voice):
+    """Narrate each paragraph and join them. Returns raw 16-bit samples."""
     from google.cloud import texttospeech as tts
     client = tts.TextToSpeechClient()
     out = b""
     for p in parts:
-        r = client.synthesize_speech(
-            input=tts.SynthesisInput(text=p),
-            voice=tts.VoiceSelectionParams(language_code=voice["lang"], name=voice["name"]),
-            audio_config=tts.AudioConfig(audio_encoding=tts.AudioEncoding.MP3))
-        out += r.audio_content
+        for attempt in range(5):
+            try:
+                r = client.synthesize_speech(
+                    input=tts.SynthesisInput(text=p),
+                    voice=tts.VoiceSelectionParams(language_code=voice["lang"], name=voice["name"]),
+                    audio_config=tts.AudioConfig(audio_encoding=tts.AudioEncoding.LINEAR16,
+                                                 sample_rate_hertz=SAMPLE_RATE))
+                break
+            except Exception as e:   # rate limits and brief outages: wait and retry
+                if attempt == 4:
+                    raise
+                time.sleep(2 ** attempt)
+        out += pcm_of(r.audio_content)
     return out
 
 
@@ -130,29 +178,39 @@ def file_info(path):
     return {"sec": round(mp3_seconds(data)), "v": hashlib.sha1(data).hexdigest()[:8]}
 
 
-def make_audio(man, force):
+def make_audio(man, force, limit=None):
     month = datetime.date.today().strftime("%Y-%m")
     usage = man.setdefault("usage", {})
     cap = man.get("monthly_character_cap", 900000)
+    langs = man.get("generate_langs", ["en"])
     os.makedirs(AUDIO_DIR, exist_ok=True)
+    os.makedirs(MASTER_DIR, exist_ok=True)
+    made = 0
     for post in man["posts"]:
-        for lang, suf in LANGS.items():
+        for lang in langs:
+            suf = LANGS[lang]
             page = os.path.join(ROOT, post["slug"] + suf + ".html")
             out = mp3_path(post["slug"], lang)
             if not os.path.exists(page):
                 continue
             if os.path.exists(out) and post["slug"] not in force:
                 continue
+            if limit is not None and made >= limit:
+                return
             parts = article_text(page, lang)
             chars = sum(len(p) for p in parts)
             if usage.get(month, 0) + chars > cap:
                 sys.exit(f"Stopped: {post['slug']}{suf} needs {chars:,} characters, and "
-                         f"{usage.get(month, 0):,} of the {cap:,} monthly cap are used.")
-            data = synthesize(parts, man["voices"][lang])
-            open(out, "wb").write(data)
+                         f"{usage.get(month, 0):,} of the {cap:,} monthly cap are used. "
+                         "Run it again next month and it carries on from here.")
+            pcm = synthesize(parts, man["voices"][lang])
+            site = encode_mp3(pcm, SITE_KBPS)
+            open(os.path.join(MASTER_DIR, post["slug"] + suf + ".mp3"), "wb").write(encode_mp3(pcm, MASTER_KBPS))
+            open(out, "wb").write(site)
             usage[month] = usage.get(month, 0) + chars
+            made += 1
             save(man)   # keep the count even if a later post fails
-            print(f"audio  {post['slug']}{suf}  {chars:,} chars  {len(data) // 1024} KB")
+            print(f"audio  {post['slug']}{suf}  {chars:,} chars  {len(site) // 1024} KB", flush=True)
 
 
 # -------------------------------------------------------------- player
@@ -168,12 +226,14 @@ def minutes(sec):
 
 def related(post, lang, posts):
     scored = []
-    for i, other in enumerate(posts):
+    for other in posts:
         if other is post or lang not in other.get("audio", {}):
             continue
-        shared = len(set(post["tags"]) & set(other["tags"]))
+        shared = set(post["tags"]) & set(other["tags"])
         if shared:
-            scored.append((-shared, i, other))
+            score = len(shared) + len(shared & INDUSTRY)
+            spread = hashlib.md5((post["slug"] + other["slug"]).encode()).hexdigest()
+            scored.append((-score, spread, other))   # equal scores: a fixed but varied order
     return [o for _, _, o in sorted(scored, key=lambda s: s[:2])[:MAX_RELATED]]
 
 
@@ -185,7 +245,7 @@ def player_html(post, lang, posts):
     if rel:
         items = "".join(
             f'\n            <li><a class="ap-more-link" href="{o["slug"]}{suf}.html">{MINI}'
-            f'<span class="ap-more-t">{e(o["label"][lang])}</span>'
+            f'<span class="ap-more-t">{e(o["label"].get(lang) or o["label"]["en"])}</span>'
             f'<span class="ap-more-d">{minutes(o["audio"][lang]["sec"])} min</span></a></li>'
             for o in rel)
         more = (f'\n        <nav class="ap-more" aria-label="{e(t["more"])}">'
@@ -270,11 +330,13 @@ def main():
     man = json.load(open(MANIFEST, encoding="utf-8"))
     force = set()
     if "--force" in args:
-        force = set(args[args.index("--force") + 1:])
+        i = args.index("--force") + 1
+        force = {a for a in args[i:] if not a.startswith("--")}
+    limit = int(args[args.index("--limit") + 1]) if "--limit" in args else None
     if "--players" not in args:
         if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
             sys.exit("Set GOOGLE_APPLICATION_CREDENTIALS to the key file, or use --players.")
-        make_audio(man, force)
+        make_audio(man, force, limit)
     refresh_players(man)
     save(man)
 

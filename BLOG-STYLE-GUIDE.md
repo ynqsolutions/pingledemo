@@ -60,6 +60,7 @@ Keep the page template (header, mobile nav, sticky CTA, footer, scripts) byte-id
 - **Spanish twin:** `blog-<slug>-es.html`, the same structure (Spanish labels: Resumen, En Este Artículo, Compartir este artículo, Anterior/Siguiente; links go to `-es` pages; glossary popups and flashcards switch language automatically from `<html lang>`), with a Spanish card in `resources-es.html` and entries in `sitemap.html` and `sitemap-es.html`, with the EN/ES toggle linking both ways (`lang="es"`, translated title, description, meta line "28 de agosto de 2026 · 7 min de lectura").
 - **Resources card** in `resources.html` (`resource-article-card` with `data-category` and `data-industry`, tag, title, date) with its icon: a 512x512 pencil-sketch PNG at `assets/blog-icons/blog-<slug>.png`, chosen from `blog icons/` (use `git show HEAD:` if the file is deleted locally) and not already used by another post. Image files are cached for a year (immutable), so if an icon is ever replaced, give the new file a new filename and update the Resources cards.
 - **Cache-busting:** use the current `?v=` numbers from an existing post for `css/style.css`, `js/main.js` and any other asset.
+- **Audio version ("Prefer to listen?" player), every post, no exceptions.** Add the post to `content/audio.json` (`tags`: the industry or job first, then the topic, for example `["restaurant", "tips"]`; `label`: a short chip name of 34 characters or fewer, at least in English), then run `generate_audio.py` on your Mac (it needs the Google key; see the top of that script, and do not put the key in this folder). It makes the English audio (set by `generate_langs` in `content/audio.json`; add `"es"` there when Spanish audio is wanted), places the player under the byline, wires the CSS and JS tags, and fills the "Related audio" row from shared tags. Check the post's narration first: the script reads the title, summary, sections and disclaimer only, so no part of the page text should depend on being seen. Commit the new `assets/audio/*.mp3` files and `content/audio.json`.
 - **Canonical URL, one `<h1>`, descriptive image alt text.**
 - Do not add a visible "last updated" date. `generate_page_dates.py` and the auto-date workflow add hidden metadata, and the "Updated" line on posts, when a post is really changed.
 - The sitemap and IndexNow/Search Console notifications are handled by the build and the admin Search Updates page.
@@ -72,6 +73,7 @@ Keep the page template (header, mobile nav, sticky CTA, footer, scripts) byte-id
 - [ ] Checked at 375px wide: no horizontal scroll, sidebar blocks embedded between sections
 - [ ] EN and ES pages, both linked from the toggle
 - [ ] Unsplash photo present and loading; icon created; Resources card added
+- [ ] Audio: post added to `content/audio.json`, `generate_audio.py` run, player shows under the byline with a Related audio row
 - [ ] "Where we help" sentence with the six city links at the end; relevant city page(s) updated
 - [ ] Job-specific posts: real examples and legal points for that job (see section 6)
 - [ ] Share block directly under the intro; Did You Know shown only as glossary popups

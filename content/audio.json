@@ -1,5 +1,5 @@
 {
-  "_note": "Posts that have an audio version (generate_audio.py). Add a post here, then run the script. 'tags' decide which posts show under 'Related audio': posts sharing the most tags come first. 'label' is the short name on the related-audio chip. 'audio' and 'usage' are filled in by the script.",
+  "_note": "Posts that have an audio version (generate_audio.py). Every new blog post needs an entry here, then run the script. 'tags' decide which posts show under 'Related audio': posts sharing the most tags come first. 'label' is the short name on the related-audio chip. 'audio' and 'usage' are filled in by the script.",
   "voices": {
     "en": {
       "lang": "en-US",
@@ -12,7 +12,7 @@
   },
   "monthly_character_cap": 900000,
   "usage": {
-    "2026-11": 56144
+    "2026-11": 562798
   },
   "posts": [
     {
@@ -102,6 +102,1225 @@
           "v": "a478e40c"
         }
       }
+    },
+    {
+      "slug": "blog-1099-or-employee-entertainment-california",
+      "tags": [
+        "film",
+        "classification"
+      ],
+      "label": {
+        "en": "1099 or employee in film"
+      },
+      "audio": {
+        "en": {
+          "sec": 383,
+          "v": "4527715f"
+        }
+      }
+    },
+    {
+      "slug": "blog-ai-likeness-without-permission-california",
+      "tags": [
+        "film",
+        "likeness"
+      ],
+      "label": {
+        "en": "AI use of your likeness"
+      },
+      "audio": {
+        "en": {
+          "sec": 383,
+          "v": "8d00177b"
+        }
+      }
+    },
+    {
+      "slug": "blog-california-mechanics-underpaid",
+      "tags": [
+        "mechanic",
+        "wages"
+      ],
+      "label": {
+        "en": "Underpaid mechanics"
+      },
+      "audio": {
+        "en": {
+          "sec": 406,
+          "v": "8899828c"
+        }
+      }
+    },
+    {
+      "slug": "blog-caregiver-meal-rest-breaks-overtime",
+      "tags": [
+        "healthcare",
+        "caregiver",
+        "overtime",
+        "breaks"
+      ],
+      "label": {
+        "en": "Caregiver breaks and overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 378,
+          "v": "d2b8691f"
+        }
+      }
+    },
+    {
+      "slug": "blog-caregiver-overtime-california",
+      "tags": [
+        "healthcare",
+        "caregiver",
+        "overtime"
+      ],
+      "label": {
+        "en": "In-home caregiver overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 355,
+          "v": "8f60f10a"
+        }
+      }
+    },
+    {
+      "slug": "blog-cnas-overtime-california",
+      "tags": [
+        "healthcare",
+        "caregiver",
+        "overtime"
+      ],
+      "label": {
+        "en": "CNA overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 362,
+          "v": "1021ff62"
+        }
+      }
+    },
+    {
+      "slug": "blog-common-interview-questions",
+      "tags": [
+        "career"
+      ],
+      "label": {
+        "en": "Common interview questions"
+      },
+      "audio": {
+        "en": {
+          "sec": 486,
+          "v": "8051bc06"
+        }
+      }
+    },
+    {
+      "slug": "blog-construction-flat-daily-rate",
+      "tags": [
+        "construction",
+        "pay"
+      ],
+      "label": {
+        "en": "Flat daily rate in construction"
+      },
+      "audio": {
+        "en": {
+          "sec": 400,
+          "v": "e5ec3e6a"
+        }
+      }
+    },
+    {
+      "slug": "blog-construction-paid-cash-rights",
+      "tags": [
+        "construction",
+        "wages",
+        "classification"
+      ],
+      "label": {
+        "en": "Paid in cash on a job site"
+      },
+      "audio": {
+        "en": {
+          "sec": 429,
+          "v": "064cd975"
+        }
+      }
+    },
+    {
+      "slug": "blog-construction-worker-workplace-bullying-california",
+      "tags": [
+        "construction",
+        "bullying"
+      ],
+      "label": {
+        "en": "Construction site bullying"
+      },
+      "audio": {
+        "en": {
+          "sec": 299,
+          "v": "7fcbc852"
+        }
+      }
+    },
+    {
+      "slug": "blog-construction-workers-overtime-california",
+      "tags": [
+        "construction",
+        "overtime"
+      ],
+      "label": {
+        "en": "Construction overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 445,
+          "v": "d2c7c377"
+        }
+      }
+    },
+    {
+      "slug": "blog-do-i-have-an-employment-law-case",
+      "tags": [
+        "firing",
+        "retaliation"
+      ],
+      "label": {
+        "en": "Do you have a case?"
+      },
+      "audio": {
+        "en": {
+          "sec": 346,
+          "v": "22e2218c"
+        }
+      }
+    },
+    {
+      "slug": "blog-doctor-fired-patient-safety-complaint",
+      "tags": [
+        "healthcare",
+        "firing",
+        "retaliation"
+      ],
+      "label": {
+        "en": "Doctor fired over safety report"
+      },
+      "audio": {
+        "en": {
+          "sec": 387,
+          "v": "dfa727b9"
+        }
+      }
+    },
+    {
+      "slug": "blog-doctor-sue-hospital-wrongful-termination",
+      "tags": [
+        "healthcare",
+        "firing"
+      ],
+      "label": {
+        "en": "Doctor suing a hospital"
+      },
+      "audio": {
+        "en": {
+          "sec": 390,
+          "v": "5f2f3b78"
+        }
+      }
+    },
+    {
+      "slug": "blog-eeoc-complaint-fired-retaliation",
+      "tags": [
+        "eeoc",
+        "firing",
+        "retaliation"
+      ],
+      "label": {
+        "en": "Fired after an EEOC complaint"
+      },
+      "audio": {
+        "en": {
+          "sec": 572,
+          "v": "6443065b"
+        }
+      }
+    },
+    {
+      "slug": "blog-eeoc-process-timeline-stages",
+      "tags": [
+        "eeoc"
+      ],
+      "label": {
+        "en": "EEOC process timeline"
+      },
+      "audio": {
+        "en": {
+          "sec": 466,
+          "v": "2228f5cd"
+        }
+      }
+    },
+    {
+      "slug": "blog-employer-using-my-likeness-after-leaving-job",
+      "tags": [
+        "likeness",
+        "social-media"
+      ],
+      "label": {
+        "en": "Employer using your image"
+      },
+      "audio": {
+        "en": {
+          "sec": 342,
+          "v": "b40c8c2a"
+        }
+      }
+    },
+    {
+      "slug": "blog-farm-workers-breaks-heat-protection",
+      "tags": [
+        "farm",
+        "breaks"
+      ],
+      "label": {
+        "en": "Farm worker heat and breaks"
+      },
+      "audio": {
+        "en": {
+          "sec": 412,
+          "v": "55df36d7"
+        }
+      }
+    },
+    {
+      "slug": "blog-farm-workers-overtime-california",
+      "tags": [
+        "farm",
+        "overtime"
+      ],
+      "label": {
+        "en": "Farm worker overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 454,
+          "v": "cf335fcf"
+        }
+      }
+    },
+    {
+      "slug": "blog-farm-workers-piece-rate-pay",
+      "tags": [
+        "farm",
+        "pay"
+      ],
+      "label": {
+        "en": "Piece-rate pay on farms"
+      },
+      "audio": {
+        "en": {
+          "sec": 439,
+          "v": "0719098f"
+        }
+      }
+    },
+    {
+      "slug": "blog-film-entertainment-independent-contractor-misclassification",
+      "tags": [
+        "film",
+        "classification"
+      ],
+      "label": {
+        "en": "Film contractor misclassification"
+      },
+      "audio": {
+        "en": {
+          "sec": 374,
+          "v": "dc869660"
+        }
+      }
+    },
+    {
+      "slug": "blog-film-production-overtime-california",
+      "tags": [
+        "film",
+        "overtime"
+      ],
+      "label": {
+        "en": "Film production overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 369,
+          "v": "e36ebefd"
+        }
+      }
+    },
+    {
+      "slug": "blog-film-set-meal-breaks-california",
+      "tags": [
+        "film",
+        "breaks"
+      ],
+      "label": {
+        "en": "Meal breaks on film sets"
+      },
+      "audio": {
+        "en": {
+          "sec": 372,
+          "v": "69793fa5"
+        }
+      }
+    },
+    {
+      "slug": "blog-fired-after-medical-leave",
+      "tags": [
+        "firing",
+        "leave"
+      ],
+      "label": {
+        "en": "Fired after medical leave"
+      },
+      "audio": {
+        "en": {
+          "sec": 357,
+          "v": "81d35c2f"
+        }
+      }
+    },
+    {
+      "slug": "blog-fired-calling-out-play-gta-6-california",
+      "tags": [
+        "firing",
+        "attendance"
+      ],
+      "label": {
+        "en": "Fired for calling out"
+      },
+      "audio": {
+        "en": {
+          "sec": 310,
+          "v": "3ffee28e"
+        }
+      }
+    },
+    {
+      "slug": "blog-fired-do-these-7-things",
+      "tags": [
+        "firing"
+      ],
+      "label": {
+        "en": "Just fired? 7 steps"
+      },
+      "audio": {
+        "en": {
+          "sec": 352,
+          "v": "815722c4"
+        }
+      }
+    },
+    {
+      "slug": "blog-hostile-work-environment-when",
+      "tags": [
+        "harassment",
+        "bullying"
+      ],
+      "label": {
+        "en": "When work becomes hostile"
+      },
+      "audio": {
+        "en": {
+          "sec": 354,
+          "v": "9b1ee8cd"
+        }
+      }
+    },
+    {
+      "slug": "blog-housekeepers-cart-prep-pay",
+      "tags": [
+        "hotel",
+        "pay",
+        "overtime"
+      ],
+      "label": {
+        "en": "Housekeeper cart prep pay"
+      },
+      "audio": {
+        "en": {
+          "sec": 429,
+          "v": "d24c0c1c"
+        }
+      }
+    },
+    {
+      "slug": "blog-housekeepers-finish-rooms-after-clock-out",
+      "tags": [
+        "hotel",
+        "wages"
+      ],
+      "label": {
+        "en": "Finishing rooms off the clock"
+      },
+      "audio": {
+        "en": {
+          "sec": 354,
+          "v": "1a8a8bc8"
+        }
+      }
+    },
+    {
+      "slug": "blog-housekeepers-paid-by-room",
+      "tags": [
+        "hotel",
+        "pay"
+      ],
+      "label": {
+        "en": "Housekeepers paid by the room"
+      },
+      "audio": {
+        "en": {
+          "sec": 415,
+          "v": "32722f54"
+        }
+      }
+    },
+    {
+      "slug": "blog-housekeepers-work-through-breaks",
+      "tags": [
+        "hotel",
+        "breaks"
+      ],
+      "label": {
+        "en": "Housekeepers and missed breaks"
+      },
+      "audio": {
+        "en": {
+          "sec": 390,
+          "v": "5672b99d"
+        }
+      }
+    },
+    {
+      "slug": "blog-how-soon-after-complaint-can-employer-fire-you",
+      "tags": [
+        "retaliation",
+        "firing"
+      ],
+      "label": {
+        "en": "Fired soon after a complaint"
+      },
+      "audio": {
+        "en": {
+          "sec": 363,
+          "v": "696627bd"
+        }
+      }
+    },
+    {
+      "slug": "blog-how-to-ask-for-a-raise-at-work",
+      "tags": [
+        "career",
+        "pay"
+      ],
+      "label": {
+        "en": "How to ask for a raise"
+      },
+      "audio": {
+        "en": {
+          "sec": 360,
+          "v": "2e8c5e6d"
+        }
+      }
+    },
+    {
+      "slug": "blog-how-to-file-eeoc-complaint",
+      "tags": [
+        "eeoc"
+      ],
+      "label": {
+        "en": "How to file an EEOC complaint"
+      },
+      "audio": {
+        "en": {
+          "sec": 469,
+          "v": "d7672114"
+        }
+      }
+    },
+    {
+      "slug": "blog-how-to-read-your-paycheck",
+      "tags": [
+        "pay",
+        "wages"
+      ],
+      "label": {
+        "en": "How to read your paycheck"
+      },
+      "audio": {
+        "en": {
+          "sec": 415,
+          "v": "4a13ef20"
+        }
+      }
+    },
+    {
+      "slug": "blog-hr-complaint-fired-rights",
+      "tags": [
+        "retaliation",
+        "firing"
+      ],
+      "label": {
+        "en": "Fired after an HR complaint"
+      },
+      "audio": {
+        "en": {
+          "sec": 372,
+          "v": "771f05c6"
+        }
+      }
+    },
+    {
+      "slug": "blog-mechanic-flag-hour-pay-minimum-wage",
+      "tags": [
+        "mechanic",
+        "pay"
+      ],
+      "label": {
+        "en": "Flag-hour pay for mechanics"
+      },
+      "audio": {
+        "en": {
+          "sec": 369,
+          "v": "006fc8ee"
+        }
+      }
+    },
+    {
+      "slug": "blog-mechanic-own-tools-reimbursement",
+      "tags": [
+        "mechanic",
+        "expenses"
+      ],
+      "label": {
+        "en": "Mechanics' own tools"
+      },
+      "audio": {
+        "en": {
+          "sec": 366,
+          "v": "c5ae383e"
+        }
+      }
+    },
+    {
+      "slug": "blog-missing-overtime-paycheck",
+      "tags": [
+        "overtime",
+        "pay",
+        "wages"
+      ],
+      "label": {
+        "en": "Missing overtime on a paycheck"
+      },
+      "audio": {
+        "en": {
+          "sec": 357,
+          "v": "060d173e"
+        }
+      }
+    },
+    {
+      "slug": "blog-new-california-employment-laws-2026",
+      "tags": [
+        "new-laws"
+      ],
+      "label": {
+        "en": "New California laws, 2026"
+      },
+      "audio": {
+        "en": {
+          "sec": 434,
+          "v": "6a088e71"
+        }
+      }
+    },
+    {
+      "slug": "blog-new-california-employment-laws-2027",
+      "tags": [
+        "new-laws"
+      ],
+      "label": {
+        "en": "New California laws, 2027"
+      },
+      "audio": {
+        "en": {
+          "sec": 418,
+          "v": "f4858b16"
+        }
+      }
+    },
+    {
+      "slug": "blog-no-warning-termination-legal",
+      "tags": [
+        "firing"
+      ],
+      "label": {
+        "en": "Fired without warning"
+      },
+      "audio": {
+        "en": {
+          "sec": 366,
+          "v": "4816f50b"
+        }
+      }
+    },
+    {
+      "slug": "blog-nurse-practitioners-overtime-california",
+      "tags": [
+        "healthcare",
+        "nurse",
+        "overtime"
+      ],
+      "label": {
+        "en": "Nurse practitioner overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 421,
+          "v": "827bca89"
+        }
+      }
+    },
+    {
+      "slug": "blog-nurses-overtime-california",
+      "tags": [
+        "healthcare",
+        "nurse",
+        "overtime"
+      ],
+      "label": {
+        "en": "Nurse overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 489,
+          "v": "f0d093e3"
+        }
+      }
+    },
+    {
+      "slug": "blog-office-worker-workplace-bullying-california",
+      "tags": [
+        "office",
+        "bullying"
+      ],
+      "label": {
+        "en": "Office bullying"
+      },
+      "audio": {
+        "en": {
+          "sec": 311,
+          "v": "6fa6b615"
+        }
+      }
+    },
+    {
+      "slug": "blog-personal-assistant-overtime-california",
+      "tags": [
+        "personal-assistant",
+        "overtime"
+      ],
+      "label": {
+        "en": "Personal assistant overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 392,
+          "v": "7cf7ed97"
+        }
+      }
+    },
+    {
+      "slug": "blog-personal-assistant-salary-flat-rate-california",
+      "tags": [
+        "personal-assistant",
+        "pay"
+      ],
+      "label": {
+        "en": "Personal assistant flat pay"
+      },
+      "audio": {
+        "en": {
+          "sec": 383,
+          "v": "1490aece"
+        }
+      }
+    },
+    {
+      "slug": "blog-physician-assistants-overtime-california",
+      "tags": [
+        "healthcare",
+        "overtime"
+      ],
+      "label": {
+        "en": "Physician assistant overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 415,
+          "v": "0b011cda"
+        }
+      }
+    },
+    {
+      "slug": "blog-production-assistant-12-hour-days-california",
+      "tags": [
+        "film",
+        "overtime"
+      ],
+      "label": {
+        "en": "Production assistant 12-hour days"
+      },
+      "audio": {
+        "en": {
+          "sec": 370,
+          "v": "fb4b4aa0"
+        }
+      }
+    },
+    {
+      "slug": "blog-production-assistant-overtime-entitled-california",
+      "tags": [
+        "film",
+        "overtime"
+      ],
+      "label": {
+        "en": "Production assistant overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 371,
+          "v": "26b0c3c7"
+        }
+      }
+    },
+    {
+      "slug": "blog-restaurant-cooks-prep-before-clock-in",
+      "tags": [
+        "restaurant",
+        "wages"
+      ],
+      "label": {
+        "en": "Cooks prepping before clock-in"
+      },
+      "audio": {
+        "en": {
+          "sec": 378,
+          "v": "241c85b8"
+        }
+      }
+    },
+    {
+      "slug": "blog-restaurant-servers-pay-walkouts-mistakes",
+      "tags": [
+        "restaurant",
+        "wages"
+      ],
+      "label": {
+        "en": "Servers paying for walkouts"
+      },
+      "audio": {
+        "en": {
+          "sec": 401,
+          "v": "9f1cc33b"
+        }
+      }
+    },
+    {
+      "slug": "blog-restaurant-tip-pool-california",
+      "tags": [
+        "restaurant",
+        "tips"
+      ],
+      "label": {
+        "en": "Restaurant tip pools"
+      },
+      "audio": {
+        "en": {
+          "sec": 395,
+          "v": "335596cd"
+        }
+      }
+    },
+    {
+      "slug": "blog-restaurant-tips-managers-supervisors",
+      "tags": [
+        "restaurant",
+        "tips"
+      ],
+      "label": {
+        "en": "Sharing tips with managers"
+      },
+      "audio": {
+        "en": {
+          "sec": 378,
+          "v": "24a0a6d3"
+        }
+      }
+    },
+    {
+      "slug": "blog-restaurant-worker-workplace-bullying-california",
+      "tags": [
+        "restaurant",
+        "bullying"
+      ],
+      "label": {
+        "en": "Restaurant bullying"
+      },
+      "audio": {
+        "en": {
+          "sec": 300,
+          "v": "2706cf28"
+        }
+      }
+    },
+    {
+      "slug": "blog-retail-worker-workplace-bullying-california",
+      "tags": [
+        "retail",
+        "bullying"
+      ],
+      "label": {
+        "en": "Retail bullying"
+      },
+      "audio": {
+        "en": {
+          "sec": 310,
+          "v": "7587ded8"
+        }
+      }
+    },
+    {
+      "slug": "blog-salaried-no-overtime-myth",
+      "tags": [
+        "overtime",
+        "pay"
+      ],
+      "label": {
+        "en": "Salaried and no overtime"
+      },
+      "audio": {
+        "en": {
+          "sec": 379,
+          "v": "170c91d6"
+        }
+      }
+    },
+    {
+      "slug": "blog-severance-agreement-what-to-check",
+      "tags": [
+        "severance",
+        "firing"
+      ],
+      "label": {
+        "en": "Severance agreement checklist"
+      },
+      "audio": {
+        "en": {
+          "sec": 366,
+          "v": "b3bbc1a1"
+        }
+      }
+    },
+    {
+      "slug": "blog-severance-offer-too-low-negotiate",
+      "tags": [
+        "severance",
+        "firing"
+      ],
+      "label": {
+        "en": "Negotiating a low severance"
+      },
+      "audio": {
+        "en": {
+          "sec": 372,
+          "v": "e67cdc9e"
+        }
+      }
+    },
+    {
+      "slug": "blog-sexual-harassment-film-set-california",
+      "tags": [
+        "film",
+        "harassment"
+      ],
+      "label": {
+        "en": "Harassment on a film set"
+      },
+      "audio": {
+        "en": {
+          "sec": 367,
+          "v": "f3063352"
+        }
+      }
+    },
+    {
+      "slug": "blog-sexual-harassment-workplace-behavior",
+      "tags": [
+        "harassment"
+      ],
+      "label": {
+        "en": "Was it sexual harassment?"
+      },
+      "audio": {
+        "en": {
+          "sec": 357,
+          "v": "c9d564b2"
+        }
+      }
+    },
+    {
+      "slug": "blog-signs-firing-unlawful",
+      "tags": [
+        "firing"
+      ],
+      "label": {
+        "en": "5 signs a firing is unlawful"
+      },
+      "audio": {
+        "en": {
+          "sec": 377,
+          "v": "18400f7d"
+        }
+      }
+    },
+    {
+      "slug": "blog-skipping-lunch-breaks-illegal",
+      "tags": [
+        "breaks"
+      ],
+      "label": {
+        "en": "Skipping lunch breaks"
+      },
+      "audio": {
+        "en": {
+          "sec": 331,
+          "v": "26ba34b7"
+        }
+      }
+    },
+    {
+      "slug": "blog-social-media-content-creator-employee-or-contractor",
+      "tags": [
+        "social-media",
+        "classification"
+      ],
+      "label": {
+        "en": "Content creator: employee?"
+      },
+      "audio": {
+        "en": {
+          "sec": 356,
+          "v": "2470fabb"
+        }
+      }
+    },
+    {
+      "slug": "blog-social-media-manager-after-hours-pay",
+      "tags": [
+        "social-media",
+        "overtime"
+      ],
+      "label": {
+        "en": "Social media after-hours pay"
+      },
+      "audio": {
+        "en": {
+          "sec": 362,
+          "v": "b3a655c6"
+        }
+      }
+    },
+    {
+      "slug": "blog-sudden-termination-illegal-signs",
+      "tags": [
+        "firing"
+      ],
+      "label": {
+        "en": "Signs a sudden firing is illegal"
+      },
+      "audio": {
+        "en": {
+          "sec": 345,
+          "v": "4155bea0"
+        }
+      }
+    },
+    {
+      "slug": "blog-teacher-workplace-bullying-california",
+      "tags": [
+        "education",
+        "bullying"
+      ],
+      "label": {
+        "en": "Teacher bullying"
+      },
+      "audio": {
+        "en": {
+          "sec": 319,
+          "v": "92682000"
+        }
+      }
+    },
+    {
+      "slug": "blog-travel-time-paid-film-tv-crew-california",
+      "tags": [
+        "film",
+        "wages"
+      ],
+      "label": {
+        "en": "Paid travel for film crews"
+      },
+      "audio": {
+        "en": {
+          "sec": 347,
+          "v": "3b25801b"
+        }
+      }
+    },
+    {
+      "slug": "blog-treated-differently-after-complaint-retaliation",
+      "tags": [
+        "retaliation"
+      ],
+      "label": {
+        "en": "Treated differently after a report"
+      },
+      "audio": {
+        "en": {
+          "sec": 343,
+          "v": "046c08dc"
+        }
+      }
+    },
+    {
+      "slug": "blog-two-weeks-notice-california",
+      "tags": [
+        "career",
+        "quitting"
+      ],
+      "label": {
+        "en": "Two weeks' notice"
+      },
+      "audio": {
+        "en": {
+          "sec": 342,
+          "v": "deb0495b"
+        }
+      }
+    },
+    {
+      "slug": "blog-wage-theft-signs-california",
+      "tags": [
+        "wages",
+        "pay"
+      ],
+      "label": {
+        "en": "Signs of wage theft"
+      },
+      "audio": {
+        "en": {
+          "sec": 353,
+          "v": "d30ed851"
+        }
+      }
+    },
+    {
+      "slug": "blog-wardrobe-hair-makeup-prep-wrap-pay",
+      "tags": [
+        "film",
+        "wages"
+      ],
+      "label": {
+        "en": "Wardrobe and makeup prep pay"
+      },
+      "audio": {
+        "en": {
+          "sec": 340,
+          "v": "81afc797"
+        }
+      }
+    },
+    {
+      "slug": "blog-warehouse-worker-workplace-bullying-california",
+      "tags": [
+        "warehouse",
+        "bullying"
+      ],
+      "label": {
+        "en": "Warehouse bullying"
+      },
+      "audio": {
+        "en": {
+          "sec": 306,
+          "v": "be76ca71"
+        }
+      }
+    },
+    {
+      "slug": "blog-work-before-clock-in-unpaid",
+      "tags": [
+        "wages",
+        "overtime"
+      ],
+      "label": {
+        "en": "Working before you clock in"
+      },
+      "audio": {
+        "en": {
+          "sec": 346,
+          "v": "49ee4470"
+        }
+      }
+    },
+    {
+      "slug": "blog-worked-on-film-not-paid-california",
+      "tags": [
+        "film",
+        "wages"
+      ],
+      "label": {
+        "en": "Unpaid film work"
+      },
+      "audio": {
+        "en": {
+          "sec": 355,
+          "v": "7a6e1f8c"
+        }
+      }
+    },
+    {
+      "slug": "blog-xray-techs-overtime-meal-breaks",
+      "tags": [
+        "healthcare",
+        "overtime",
+        "breaks"
+      ],
+      "label": {
+        "en": "X-ray tech overtime and breaks"
+      },
+      "audio": {
+        "en": {
+          "sec": 385,
+          "v": "b6bf4e7e"
+        }
+      }
     }
+  ],
+  "generate_langs": [
+    "en"
   ]
 }

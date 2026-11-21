@@ -19,6 +19,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=block" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=323">
+<link rel="stylesheet" href="css/audio-player.css?v=4">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -124,6 +125,32 @@
     </div>
         <p class="blog-meta">August 26, 2026 &middot; 4 min read</p>
       </div>
+      <!-- audio-player -->
+      <div class="ap" role="group" aria-label="Audio version of this article">
+        <div class="ap-main">
+          <button type="button" class="ap-play"><svg class="ap-ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg><svg class="ap-ic-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+          <span class="ap-text"><span class="ap-k">Prefer to listen?</span><span class="ap-t">Play the audio version &middot; 6 min</span></span>
+          <span class="ap-note">AI-generated voice</span>
+          <div class="ap-controls">
+            <button type="button" class="ap-skip ap-back"><span>&minus;15</span></button>
+            <input type="range" class="ap-seek" min="0" max="100" step="1" value="0">
+            <button type="button" class="ap-skip ap-fwd"><span>+15</span></button>
+            <span class="ap-time">0:00 / 0:00</span>
+            <button type="button" class="ap-speed">1&times;</button>
+          </div>
+        </div>
+        <nav class="ap-more" aria-label="Related audio">
+          <span class="ap-more-k">Related audio</span>
+          <ul class="ap-more-list">
+            <li><a class="ap-more-link" href="blog-doctor-fired-patient-safety-complaint.html"><span class="ap-more-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><span class="ap-more-t">Doctor fired over safety report</span><span class="ap-more-d">6 min</span></a></li>
+            <li><a class="ap-more-link" href="blog-do-i-have-an-employment-law-case.html"><span class="ap-more-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><span class="ap-more-t">Do you have a case?</span><span class="ap-more-d">6 min</span></a></li>
+            <li><a class="ap-more-link" href="blog-eeoc-complaint-fired-retaliation.html"><span class="ap-more-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><span class="ap-more-t">Fired after an EEOC complaint</span><span class="ap-more-d">10 min</span></a></li>
+          </ul>
+        </nav>
+        <audio preload="none" src="assets/audio/blog-how-soon-after-complaint-can-employer-fire-you.mp3?v=696627bd"></audio>
+      </div>
+      <!-- /audio-player -->
+
       <div class="article-inline-image" style="margin-top:0;">
         <img src="https://images.unsplash.com/photo-1568992687947-868a62a9f521?auto=format&fit=crop&w=1400&q=80" alt="Person reviewing documents and taking notes at a desk" loading="lazy">
       </div>
@@ -419,6 +446,7 @@
 </footer>
 
 <script src="js/main.js?v=95" defer></script>
+<script src="js/audio-player.js?v=3" defer></script>
 <script src="js/a11y-widget.js?v=15" defer></script>
 <script src="js/answerly-widget.js?v=3" defer></script>
 </body>
