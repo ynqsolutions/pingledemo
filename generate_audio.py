@@ -44,7 +44,7 @@ import time
 ROOT = os.path.dirname(os.path.abspath(__file__))
 MANIFEST = os.path.join(ROOT, "content", "audio.json")
 AUDIO_DIR = os.path.join(ROOT, "assets", "audio")
-CSS_V = 4          # bump when css/audio-player.css changes
+CSS_V = 5          # bump when css/audio-player.css changes
 JS_V = 3           # bump when js/audio-player.js changes
 MAX_RELATED = 3
 LANGS = {"en": "", "es": "-es"}
@@ -61,7 +61,7 @@ TEXT = {
         "group": "Audio version of this article",
         "kicker": "Prefer to listen?",
         "play": "Play the audio version",
-        "note": "AI-generated voice",
+        "voice_note": "The audio version of this article uses an AI-generated voice.",
         "more": "Related audio",
         "summary": "In short.",
         "times": r"\1 times",
@@ -70,7 +70,7 @@ TEXT = {
         "group": "Versión en audio de este artículo",
         "kicker": "¿Prefiere escuchar?",
         "play": "Reproducir versión en audio",
-        "note": "Voz generada por IA",
+        "voice_note": "La versi\u00f3n en audio de este art\u00edculo usa una voz generada por IA.",
         "more": "Audio relacionado",
         "summary": "En resumen.",
         "times": r"\1 veces",
@@ -91,7 +91,7 @@ def article_text(path, lang):
     art = soup.select_one("article.blog-main")
     skip = [".ap", ".blog-post-meta-row", ".blog-toc", ".blog-share",
             ".blog-prev-next", ".blog-cta-box", ".blog-related", ".blog-sign-num",
-            ".tldr-label", ".glossary-pop", "script", "style", "svg"]
+            ".tldr-label", ".ap-voice-note", ".glossary-pop", "script", "style", "svg"]
     for sel in skip:
         for el in art.select(sel):
             el.decompose()
@@ -257,7 +257,6 @@ def player_html(post, lang, posts):
         <div class="ap-main">
           <button type="button" class="ap-play">{PLAY}{PAUSE}</button>
           <span class="ap-text"><span class="ap-k">{e(t["kicker"])}</span><span class="ap-t">{e(t["play"])} &middot; {minutes(info["sec"])} min</span></span>
-          <span class="ap-note">{e(t["note"])}</span>
           <div class="ap-controls">
             <button type="button" class="ap-skip ap-back"><span>&minus;15</span></button>
             <input type="range" class="ap-seek" min="0" max="100" step="1" value="0">
@@ -295,6 +294,20 @@ def place_player(page, block, name):
     sys.exit(f"Could not find where to put the player in {name}")
 
 
+VOICE_NOTE_RE = re.compile(r' ?<span class="ap-voice-note">.*?</span>', re.S)
+
+
+def place_voice_note(page, lang):
+    """The AI-voice disclosure lives in the article's closing disclaimer."""
+    page = VOICE_NOTE_RE.sub("", page)
+    at = page.find('<p class="article-disclaimer">')
+    end = page.find("</p>", at) if at != -1 else -1
+    if end == -1:
+        sys.exit("No article-disclaimer paragraph to put the AI-voice note in")
+    note = f' <span class="ap-voice-note">{html.escape(TEXT[lang]["voice_note"])}</span>'
+    return page[:end] + note + page[end:]
+
+
 def refresh_players(man):
     for post in man["posts"]:
         info = {}
@@ -310,6 +323,7 @@ def refresh_players(man):
                 continue
             page = open(path, encoding="utf-8").read()
             new = place_player(page, player_html(post, lang, man["posts"]), name)
+            new = place_voice_note(new, lang)
             new = ensure_tag(new, r'<link rel="stylesheet" href="css/audio-player\.css\?v=\d+">',
                              f'<link rel="stylesheet" href="css/audio-player.css?v={CSS_V}">', "css/style.css?v=")
             new = ensure_tag(new, r'<script src="js/audio-player\.js\?v=\d+" defer></script>',
