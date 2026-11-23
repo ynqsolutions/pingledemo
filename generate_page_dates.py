@@ -213,6 +213,10 @@ EN_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "Au
              "September", "October", "November", "December"]
 ES_MONTHS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
              "septiembre", "octubre", "noviembre", "diciembre"]
+# A post's date line is either the current form,
+#   <p class="blog-meta"><span class="bm-item bm-date">DATE</span><span class="bm-item bm-read">N min read</span></p>
+# or the older plain text "DATE &middot; N min read" (kept so nothing breaks).
+META_NEW_RE = re.compile(r'(<p class="blog-meta"><span class="bm-item bm-date">)([^<]*)(</span>.*?)(</p>)', re.S)
 META_RE = re.compile(r'(<p class="blog-meta">)([^<]*?)(\s*(?:&middot;|\u00b7)\s*[^<]*)?(</p>)')
 
 
@@ -230,7 +234,11 @@ def _parse_pub(text):
 def add_blog_updated(html, iso):
     """Append 'Updated <date>' to a blog post's visible date line when the page
     was really updated at least a day after it was published."""
-    m = META_RE.search(html)
+    m = META_NEW_RE.search(html)
+    legacy = False
+    if not m:
+        m = META_RE.search(html)
+        legacy = True
     if not m:
         return html
     pub, lang = _parse_pub(m.group(2))
@@ -244,7 +252,12 @@ def add_blog_updated(html, iso):
         label = f"Actualizado el {upd.day} de {ES_MONTHS[upd.month - 1]} de {upd.year}"
     else:
         label = f"Updated {EN_MONTHS[upd.month - 1]} {upd.day}, {upd.year}"
-    new = m.group(1) + m.group(2) + " &middot; " + label + (m.group(3) or "") + m.group(4)
+    if "bm-upd" in m.group(0):
+        return html
+    if legacy:
+        new = m.group(1) + m.group(2) + " &middot; " + label + (m.group(3) or "") + m.group(4)
+    else:
+        new = m.group(1) + m.group(2) + m.group(3) + f'<span class="bm-item bm-upd">{label}</span>' + m.group(4)
     return html[:m.start()] + new + html[m.end():]
 
 

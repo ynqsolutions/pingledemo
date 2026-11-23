@@ -4308,10 +4308,6 @@ p.article-disclaimer{
   border-left:1px solid var(--paper-line);
   font-size:13.5px;
 }
-@media (max-width:480px){
-  .blog-post-meta-row{ flex-direction:column; align-items:flex-start; gap:8px; }
-  .blog-post-meta-row .blog-meta{ padding-left:0; border-left:none; }
-}
 
 .blog-body-section{ background:var(--paper); padding:44px 0 60px; }
 .blog-layout{
@@ -6120,3 +6116,19 @@ p.article-disclaimer{
 .lang-thumb{ position:absolute; z-index:0; border-radius:999px; pointer-events:none; transform-origin:center; will-change:left, width, transform; }
 .has-thumb > a, .has-thumb > span:not(.lang-thumb){ position:relative; z-index:1; }
 .has-thumb > .active, .has-thumb > a.active, .has-thumb > span.active{ background:transparent !important; }
+
+/* ===== Blog byline row: published date, read time, updated date =====
+   Each part is its own item (so a date never breaks across lines), items are
+   separated by a small dot, and "Updated" always sits on its own line under
+   them. When the article column is narrow (phones, a resized window, the
+   desktop layout with the sidebar) the row stacks: byline first, dates below,
+   with no divider line. */
+.blog-main{ container-type:inline-size; container-name:post; }
+.blog-meta{ display:flex; flex-wrap:wrap; align-items:center; gap:2px 0; }
+.bm-item{ white-space:nowrap; }
+.bm-item + .bm-item:not(.bm-upd)::before{ content:"\00b7"; margin:0 .6em; }
+.bm-upd{ flex-basis:100%; font-size:12.5px; }
+@container post (max-width:740px){
+  .blog-post-meta-row{ flex-direction:column; align-items:flex-start; gap:10px; }
+  .blog-post-meta-row .blog-meta{ padding-left:0; border-left:none; }
+}
