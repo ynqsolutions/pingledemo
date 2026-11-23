@@ -86,6 +86,7 @@
   line-height:1;
   white-space:nowrap;
 }
+.cr-stat-of{ font-weight:600; color:#5C5744; }
 .cr-stat-label{
   font-size:clamp(6px, 1.9vw, 10.5px);
   color:#5C5744;
