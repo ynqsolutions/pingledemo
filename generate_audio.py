@@ -91,7 +91,7 @@ def article_text(path, lang):
     art = soup.select_one("article.blog-main")
     skip = [".ap", ".blog-post-meta-row", ".blog-toc", ".blog-share",
             ".blog-prev-next", ".blog-cta-box", ".blog-related", ".blog-sign-num",
-            ".tldr-label", ".ap-voice-note", ".glossary-pop", "script", "style", "svg"]
+            ".tldr-label", ".ap-voice-note", ".article-published", ".glossary-pop", "script", "style", "svg"]
     for sel in skip:
         for el in art.select(sel):
             el.decompose()

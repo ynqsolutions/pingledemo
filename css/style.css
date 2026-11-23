@@ -6117,18 +6117,26 @@ p.article-disclaimer{
 .has-thumb > a, .has-thumb > span:not(.lang-thumb){ position:relative; z-index:1; }
 .has-thumb > .active, .has-thumb > a.active, .has-thumb > span.active{ background:transparent !important; }
 
-/* ===== Blog byline row: published date, read time, updated date =====
-   Each part is its own item (so a date never breaks across lines), items are
-   separated by a small dot, and "Updated" always sits on its own line under
-   them. When the article column is narrow (phones, a resized window, the
-   desktop layout with the sidebar) the row stacks: byline first, dates below,
-   with no divider line. */
+/* ===== Blog byline row: dates =====
+   Beside the author: the read time, and "Updated <date>" once a post has really
+   been updated (then the original date sits under the disclaimer as "Published
+   <date>"). A post that was never updated shows its original date here instead.
+   Each part is its own item so a date never breaks across lines. When the
+   article column is narrow (phones, a resized window, the desktop layout with
+   the sidebar at some widths) the row stacks: author first, dates below, no
+   divider line. */
 .blog-main{ container-type:inline-size; container-name:post; }
 .blog-meta{ display:flex; flex-wrap:wrap; align-items:center; gap:2px 0; }
 .bm-item{ white-space:nowrap; }
-.bm-item + .bm-item:not(.bm-upd)::before{ content:"\00b7"; margin:0 .6em; }
-.bm-upd{ flex-basis:100%; font-size:12.5px; }
-@container post (max-width:740px){
+.bm-item + .bm-item::before{ content:"\00b7"; margin:0 .6em; }
+p.article-published{ margin-top:10px; font-size:12px !important; line-height:1.4; color:var(--ink-soft); }
+@container post (max-width:680px){
   .blog-post-meta-row{ flex-direction:column; align-items:flex-start; gap:10px; }
   .blog-post-meta-row .blog-meta{ padding-left:0; border-left:none; }
+}
+/* phones: with an updated date, read time and "Updated" go on two clean lines
+   instead of wrapping with a stray dot */
+@container post (max-width:420px){
+  .blog-meta:has(.bm-upd){ flex-direction:column; align-items:flex-start; }
+  .blog-meta:has(.bm-upd) .bm-item::before{ display:none; }
 }

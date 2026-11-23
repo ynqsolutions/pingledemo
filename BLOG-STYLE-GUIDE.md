@@ -32,7 +32,7 @@ How blog posts are written and built on this site. Follow it exactly so every po
 
 ## 2. Article structure (top to bottom)
 1. **Hero:** back link to `resources.html`, one category tag (`resource-article-tag`), `<h1>`, one-sentence subtitle (`blog-sub`), the two pill buttons (Free Consultation, Contact Us).
-2. **Byline row:** "By Corey A. Pingle, Esq." / "Employment Law Attorney" with `assets/Pingle_HS_Cutout.png`, and `<p class="blog-meta"><span class="bm-item bm-date">Month D, YYYY</span><span class="bm-item bm-read">N min read</span></p>` (Spanish: `D de mes de YYYY` and `N min de lectura`; the build adds an "Updated ..." item on its own line when a post is really changed).
+2. **Byline row:** "By Corey A. Pingle, Esq." / "Employment Law Attorney" with `assets/Pingle_HS_Cutout.png`, and `<p class="blog-meta"><span class="bm-item bm-date">Month D, YYYY</span><span class="bm-item bm-read">N min read</span></p>` (Spanish: `D de mes de YYYY` and `N min de lectura`; when a post is really changed the build shows "N min read · Updated <date>" beside the author and moves the original date under the disclaimer as "Published <date>").
 3. **Hero photo, always:** an Unsplash photo in `article-inline-image` (`https://images.unsplash.com/photo-ID?auto=format&fit=crop&w=1400&q=80`) with descriptive alt text. Verify the URL returns 200 before using it.
 4. **TL;DR** (`.tldr` with `.tldr-label`): 2-4 sentences, the direct answer.
 5. **"In This Article"** table of contents (`.blog-toc`), numbered, anchors `#pt-1`, `#pt-2`...

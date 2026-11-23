@@ -232,8 +232,14 @@ def _parse_pub(text):
 
 
 def add_blog_updated(html, iso):
-    """Append 'Updated <date>' to a blog post's visible date line when the page
-    was really updated at least a day after it was published."""
+    """Show a post's dates.
+
+    Not updated (or updated less than a day after publishing): the created date
+    stays beside the author, with the read time ("Aug 26, 2026 | 7 min read").
+
+    Really updated: the byline shows the read time and "Updated <date>", and the
+    created date moves under the article's disclaimer as "Published <date>".
+    """
     m = META_NEW_RE.search(html)
     legacy = False
     if not m:
@@ -248,17 +254,25 @@ def add_blog_updated(html, iso):
         return html
     if not pub or (upd - pub).days < 1:
         return html
-    if lang == "es":
-        label = f"Actualizado el {upd.day} de {ES_MONTHS[upd.month - 1]} de {upd.year}"
-    else:
-        label = f"Updated {EN_MONTHS[upd.month - 1]} {upd.day}, {upd.year}"
     if "bm-upd" in m.group(0):
         return html
+    if lang == "es":
+        label = f"Actualizado el {upd.day} de {ES_MONTHS[upd.month - 1]} de {upd.year}"
+        published = f"Publicado el {m.group(2).strip()}"
+    else:
+        label = f"Updated {EN_MONTHS[upd.month - 1]} {upd.day}, {upd.year}"
+        published = f"Published {m.group(2).strip()}"
     if legacy:
         new = m.group(1) + m.group(2) + " &middot; " + label + (m.group(3) or "") + m.group(4)
-    else:
-        new = m.group(1) + m.group(2) + m.group(3) + f'<span class="bm-item bm-upd">{label}</span>' + m.group(4)
-    return html[:m.start()] + new + html[m.end():]
+        return html[:m.start()] + new + html[m.end():]
+    read = m.group(3)[len("</span>"):] if m.group(3).startswith("</span>") else m.group(3)
+    new = '<p class="blog-meta">' + read + f'<span class="bm-item bm-upd">{label}</span>' + m.group(4)
+    html = html[:m.start()] + new + html[m.end():]
+    # created date under the disclaimer
+    d = re.search(r'<p class="article-disclaimer">.*?</p>', html, re.S)
+    if d:
+        html = html[:d.end()] + f'\n      <p class="article-published">{published}</p>' + html[d.end():]
+    return html
 
 
 def inject():
