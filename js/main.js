@@ -1257,45 +1257,25 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   const muteBtn = frame.querySelector('.hero-video-mute');
   if(!video || !playBtn || !muteBtn) return;
 
-  // Icons always follow the video's real state (they used to show "pause"
-  // even when the browser had refused to start the video).
-  function paint(){
-    const paused = video.paused;
-    playBtn.querySelector('.icon-pause').style.display = paused ? 'none' : '';
-    playBtn.querySelector('.icon-play').style.display = paused ? '' : 'none';
-    playBtn.setAttribute('aria-label', paused ? 'Play video' : 'Pause video');
-    playBtn.setAttribute('aria-pressed', String(paused));
-  }
-
-  // Phones sometimes refuse silent autoplay (Low Power Mode, data saver) or
-  // start it late. Ask once the first frames are ready, and again on the
-  // visitor's first tap, unless they paused the video themselves.
-  let userPaused = false;
-  function tryPlay(){
-    if(userPaused || !video.paused) return;
-    const r = video.play();
-    if(r && r.catch) r.catch(paint);
-  }
-
   playBtn.addEventListener('click', function(){
     if(video.paused){
-      userPaused = false;
       video.play();
     } else {
-      userPaused = true;
       video.pause();
     }
   });
-  video.addEventListener('play', paint);
-  video.addEventListener('pause', paint);
-  video.addEventListener('loadeddata', tryPlay);
-  video.addEventListener('canplay', tryPlay);
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) tryPlay(); });
-  ['pointerup', 'touchend', 'click', 'keydown'].forEach(function(type){
-    document.addEventListener(type, tryPlay, { passive: true });
+  video.addEventListener('play', function(){
+    playBtn.querySelector('.icon-pause').style.display = '';
+    playBtn.querySelector('.icon-play').style.display = 'none';
+    playBtn.setAttribute('aria-label', 'Pause video');
+    playBtn.setAttribute('aria-pressed', 'false');
   });
-  paint();
-  tryPlay();
+  video.addEventListener('pause', function(){
+    playBtn.querySelector('.icon-pause').style.display = 'none';
+    playBtn.querySelector('.icon-play').style.display = '';
+    playBtn.setAttribute('aria-label', 'Play video');
+    playBtn.setAttribute('aria-pressed', 'true');
+  });
 
   muteBtn.addEventListener('click', function(){
     video.muted = !video.muted;
