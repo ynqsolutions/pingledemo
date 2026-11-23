@@ -1297,11 +1297,33 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   window.addEventListener('pageshow', tryPlay);
   window.addEventListener('load', tryPlay);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) tryPlay(); });
+  // A tap on the video's own buttons is not a "start it" tap. Without this, the
+  // tap's touchend started the video and the same tap's click then paused it
+  // again, so the play button needed two presses.
+  function onGesture(e){
+    if(e.target && e.target.closest && e.target.closest('.hero-video-controls')) return;
+    tryPlay();
+  }
   ['pointerup', 'touchend', 'click', 'keydown'].forEach(function(type){
-    document.addEventListener(type, tryPlay, { passive: true });
+    document.addEventListener(type, onGesture, { passive: true });
   });
   paint();
   tryPlay();
+
+  // The card fades in over about a second, and some browsers refuse to autoplay
+  // a video that is still transparent or not yet in view. Keep asking for the
+  // first ten seconds, and the moment the card is on screen.
+  video.closest('.video-card') && video.closest('.video-card').addEventListener('animationend', tryPlay);
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      if(entries.some(function(e){ return e.isIntersecting; })) tryPlay();
+    }, { threshold: [0.25, 0.6] }).observe(frame);
+  }
+  let tries = 0;
+  const retry = setInterval(function(){
+    if(!video.paused || userPaused || ++tries > 20){ clearInterval(retry); return; }
+    tryPlay();
+  }, 500);
 
   muteBtn.addEventListener('click', function(){
     video.muted = !video.muted;
