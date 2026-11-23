@@ -1266,31 +1266,20 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
     playBtn.setAttribute('aria-pressed', String(paused));
   }
 
-  // Some phones refuse silent autoplay (autoplay switched off, Low Power Mode,
-  // data saver). Ask again when the first frames are ready and on the visitor's
-  // first tap, unless they paused it themselves. If it still has not started,
-  // show a large play button over the poster so the card never looks dead.
+  // Autoplay on mute at page load. Ask as early as possible and again whenever
+  // the browser says the video can play. A phone that insists on a gesture
+  // before any video starts gets one more try on the visitor's first tap or
+  // the end of a scroll. A visitor who paused it keeps it paused.
   let userPaused = false;
-  const bigPlay = document.createElement('button');
-  bigPlay.type = 'button';
-  bigPlay.className = 'hero-video-bigplay';
-  bigPlay.setAttribute('aria-label', 'Play video');
-  bigPlay.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
-  frame.appendChild(bigPlay);
-
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
   function tryPlay(){
     if(userPaused || !video.paused) return;
     video.muted = true;
     const r = video.play();
     if(r && r.catch) r.catch(paint);
   }
-  function showIfBlocked(){
-    frame.classList.toggle('is-blocked', video.paused && !userPaused && !video.ended);
-  }
-  bigPlay.addEventListener('click', function(){
-    userPaused = false;
-    video.play();
-  });
   playBtn.addEventListener('click', function(){
     if(video.paused){
       userPaused = false;
@@ -1300,19 +1289,19 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
       video.pause();
     }
   });
-  video.addEventListener('play', function(){ paint(); frame.classList.remove('is-blocked'); });
-  video.addEventListener('playing', function(){ frame.classList.remove('is-blocked'); });
-  video.addEventListener('pause', function(){ paint(); showIfBlocked(); });
-  video.addEventListener('loadeddata', tryPlay);
-  video.addEventListener('canplay', tryPlay);
+  video.addEventListener('play', paint);
+  video.addEventListener('pause', paint);
+  ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough'].forEach(function(type){
+    video.addEventListener(type, tryPlay);
+  });
+  window.addEventListener('pageshow', tryPlay);
+  window.addEventListener('load', tryPlay);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) tryPlay(); });
   ['pointerup', 'touchend', 'click', 'keydown'].forEach(function(type){
     document.addEventListener(type, tryPlay, { passive: true });
   });
   paint();
   tryPlay();
-  // Give autoplay a moment, then decide whether it was blocked.
-  setTimeout(showIfBlocked, 1500);
 
   muteBtn.addEventListener('click', function(){
     video.muted = !video.muted;
