@@ -1274,9 +1274,13 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   video.muted = true;
   video.defaultMuted = true;
   video.playsInline = true;
+  // Once the visitor has used the sound button, their choice stands: automatic
+  // start-up attempts must never switch the sound back off (that made "unmute"
+  // look like it did nothing).
+  let soundChosen = false;
   function tryPlay(){
     if(userPaused || !video.paused) return;
-    video.muted = true;
+    if(!soundChosen) video.muted = true;
     const r = video.play();
     if(r && r.catch) r.catch(paint);
   }
@@ -1325,12 +1329,21 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
     tryPlay();
   }, 500);
 
-  muteBtn.addEventListener('click', function(){
-    video.muted = !video.muted;
+  // The sound button always shows the video's real state.
+  function paintSound(){
     muteBtn.querySelector('.icon-muted').style.display = video.muted ? '' : 'none';
     muteBtn.querySelector('.icon-unmuted').style.display = video.muted ? 'none' : '';
     muteBtn.setAttribute('aria-label', video.muted ? 'Unmute video' : 'Mute video');
     muteBtn.setAttribute('aria-pressed', String(video.muted));
+  }
+  video.addEventListener('volumechange', paintSound);
+  muteBtn.addEventListener('click', function(){
+    soundChosen = true;
+    video.muted = !video.muted;
+    if(!video.muted && video.paused && !userPaused){
+      video.play();   // turning the sound on also starts a video the phone held back
+    }
+    paintSound();
   });
 })();
 
