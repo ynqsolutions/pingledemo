@@ -1257,25 +1257,62 @@ document.querySelectorAll('.footer-newsletter').forEach(form => {
   const muteBtn = frame.querySelector('.hero-video-mute');
   if(!video || !playBtn || !muteBtn) return;
 
+  // Icons always follow the video's real state.
+  function paint(){
+    const paused = video.paused;
+    playBtn.querySelector('.icon-pause').style.display = paused ? 'none' : '';
+    playBtn.querySelector('.icon-play').style.display = paused ? '' : 'none';
+    playBtn.setAttribute('aria-label', paused ? 'Play video' : 'Pause video');
+    playBtn.setAttribute('aria-pressed', String(paused));
+  }
+
+  // Some phones refuse silent autoplay (autoplay switched off, Low Power Mode,
+  // data saver). Ask again when the first frames are ready and on the visitor's
+  // first tap, unless they paused it themselves. If it still has not started,
+  // show a large play button over the poster so the card never looks dead.
+  let userPaused = false;
+  const bigPlay = document.createElement('button');
+  bigPlay.type = 'button';
+  bigPlay.className = 'hero-video-bigplay';
+  bigPlay.setAttribute('aria-label', 'Play video');
+  bigPlay.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
+  frame.appendChild(bigPlay);
+
+  function tryPlay(){
+    if(userPaused || !video.paused) return;
+    video.muted = true;
+    const r = video.play();
+    if(r && r.catch) r.catch(paint);
+  }
+  function showIfBlocked(){
+    frame.classList.toggle('is-blocked', video.paused && !userPaused && !video.ended);
+  }
+  bigPlay.addEventListener('click', function(){
+    userPaused = false;
+    video.play();
+  });
   playBtn.addEventListener('click', function(){
     if(video.paused){
+      userPaused = false;
       video.play();
     } else {
+      userPaused = true;
       video.pause();
     }
   });
-  video.addEventListener('play', function(){
-    playBtn.querySelector('.icon-pause').style.display = '';
-    playBtn.querySelector('.icon-play').style.display = 'none';
-    playBtn.setAttribute('aria-label', 'Pause video');
-    playBtn.setAttribute('aria-pressed', 'false');
+  video.addEventListener('play', function(){ paint(); frame.classList.remove('is-blocked'); });
+  video.addEventListener('playing', function(){ frame.classList.remove('is-blocked'); });
+  video.addEventListener('pause', function(){ paint(); showIfBlocked(); });
+  video.addEventListener('loadeddata', tryPlay);
+  video.addEventListener('canplay', tryPlay);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) tryPlay(); });
+  ['pointerup', 'touchend', 'click', 'keydown'].forEach(function(type){
+    document.addEventListener(type, tryPlay, { passive: true });
   });
-  video.addEventListener('pause', function(){
-    playBtn.querySelector('.icon-pause').style.display = 'none';
-    playBtn.querySelector('.icon-play').style.display = '';
-    playBtn.setAttribute('aria-label', 'Play video');
-    playBtn.setAttribute('aria-pressed', 'true');
-  });
+  paint();
+  tryPlay();
+  // Give autoplay a moment, then decide whether it was blocked.
+  setTimeout(showIfBlocked, 1500);
 
   muteBtn.addEventListener('click', function(){
     video.muted = !video.muted;

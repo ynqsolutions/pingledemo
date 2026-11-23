@@ -596,6 +596,28 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .hero-video-btn:hover, .hero-video-btn:focus-visible{
   background:rgba(10,15,30,0.8);
 }
+/* Shown only when the browser refuses to autoplay the hero video (for example
+   an iPhone with autoplay switched off): a large play button over the poster. */
+.hero-video-bigplay{
+  position:absolute;
+  left:50%; top:50%;
+  z-index:5;
+  width:76px; height:76px;
+  margin:-38px 0 0 -38px;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,0.85);
+  background:rgba(10,15,30,0.55);
+  color:var(--white);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  backdrop-filter:blur(2px);
+}
+.hero-video-bigplay svg{ width:30px; height:30px; margin-left:4px; fill:currentColor; }
+.video-frame.is-blocked .hero-video-bigplay{ display:flex; }
+.hero-video-bigplay:hover, .hero-video-bigplay:focus-visible{ background:rgba(10,15,30,0.8); }
 .video-card .snap-footer{
   padding:12px 6px 4px;
 }
