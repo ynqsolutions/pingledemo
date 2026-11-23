@@ -6131,12 +6131,20 @@ p.article-disclaimer{
 .bm-item + .bm-item::before{ content:"\00b7"; margin:0 .6em; }
 p.article-published{ margin-top:10px; font-size:12px !important; line-height:1.4; color:var(--ink-soft); }
 @container post (max-width:680px){
-  .blog-post-meta-row{ flex-direction:column; align-items:flex-start; gap:10px; }
-  .blog-post-meta-row .blog-meta{ padding-left:0; border-left:none; }
+  /* narrow article: a centred, symmetrical header. Author in the middle, dates
+     centred underneath, a hairline closing the block above the player. */
+  .blog-post-meta-row{ flex-direction:column; align-items:center; gap:10px; text-align:center; padding-bottom:16px; border-bottom:1px solid var(--paper-line); }
+  .blog-post-meta-row .blog-byline{ justify-content:center; text-align:left; }
+  .blog-post-meta-row .blog-meta{ justify-content:center; padding-left:0; border-left:none; }
 }
-/* phones: with an updated date, read time and "Updated" go on two clean lines
-   instead of wrapping with a stray dot */
+/* phones: read time and "Updated" share one centred line when they fit, and go
+   on two centred lines (no stray dot) when they would not: Spanish is longer, so
+   it stacks sooner. */
 @container post (max-width:420px){
-  .blog-meta:has(.bm-upd){ flex-direction:column; align-items:flex-start; }
+  :lang(es) .blog-meta:has(.bm-upd){ flex-direction:column; align-items:center; }
+  :lang(es) .blog-meta:has(.bm-upd) .bm-item::before{ display:none; }
+}
+@container post (max-width:300px){
+  .blog-meta:has(.bm-upd){ flex-direction:column; align-items:center; }
   .blog-meta:has(.bm-upd) .bm-item::before{ display:none; }
 }
