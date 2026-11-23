@@ -109,6 +109,7 @@ def article_text(path, lang):
         t = t.replace("&", "and" if lang == "en" else "y")
         t = re.sub(r"(\d)\+", r"\1 plus" if lang == "en" else r"\1 o m\u00e1s", t)
         t = re.sub(r"\bvs\.", "versus", t)
+        t = re.sub(r"\bv\.(?=\s)", "versus", t)   # "Bostock v. Clayton County"
         t = re.sub(r"(?<=[A-Za-z])/(?=[A-Za-z])", " ", t)   # Cal/OSHA
         if t not in parts:
             parts.append(t)

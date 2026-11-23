@@ -12,7 +12,7 @@
   },
   "monthly_character_cap": 900000,
   "usage": {
-    "2026-11": 562798
+    "2026-11": 575728
   },
   "posts": [
     {
@@ -1316,6 +1316,60 @@
         "en": {
           "sec": 385,
           "v": "b6bf4e7e"
+        }
+      }
+    },
+    {
+      "slug": "blog-fired-for-being-gay-or-transgender-california",
+      "tags": [
+        "lgbtq",
+        "firing",
+        "discrimination"
+      ],
+      "label": {
+        "en": "Fired for being gay or trans",
+        "es": "Despedido por ser gay o trans"
+      },
+      "audio": {
+        "en": {
+          "sec": 254,
+          "v": "572207d9"
+        }
+      }
+    },
+    {
+      "slug": "blog-misgendering-wrong-name-at-work-california",
+      "tags": [
+        "lgbtq",
+        "harassment",
+        "discrimination"
+      ],
+      "label": {
+        "en": "Misgendering at work",
+        "es": "Género o nombre incorrecto"
+      },
+      "audio": {
+        "en": {
+          "sec": 256,
+          "v": "b1550629"
+        }
+      }
+    },
+    {
+      "slug": "blog-federal-lgbtq-changes-employment-rights-california",
+      "tags": [
+        "lgbtq",
+        "discrimination",
+        "eeoc"
+      ],
+      "label": {
+        "en": "Federal LGBTQ changes",
+        "es": "Cambios federales LGBTQ"
+      },
+      "audio": {
+        "en": {
+          "sec": 270,
+          "v": "472c1bdd"
         }
       }
     }
