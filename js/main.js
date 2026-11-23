@@ -1066,6 +1066,13 @@ if(backToTop){
   let touchStartX = null;
   let touchStartY = null;
   document.addEventListener('touchstart', (e) => {
+    // A swipe that starts in the audio player (the related-audio chips, the
+    // progress bar) belongs to the player, not to the page.
+    if(e.target && e.target.closest && e.target.closest('.ap')){
+      touchStartX = null;
+      touchStartY = null;
+      return;
+    }
     const t = e.touches[0];
     touchStartX = t.clientX;
     touchStartY = t.clientY;

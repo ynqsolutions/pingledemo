@@ -44,8 +44,8 @@ import time
 ROOT = os.path.dirname(os.path.abspath(__file__))
 MANIFEST = os.path.join(ROOT, "content", "audio.json")
 AUDIO_DIR = os.path.join(ROOT, "assets", "audio")
-CSS_V = 5          # bump when css/audio-player.css changes
-JS_V = 3           # bump when js/audio-player.js changes
+CSS_V = 6          # bump when css/audio-player.css changes
+JS_V = 4           # bump when js/audio-player.js changes
 MAX_RELATED = 3
 LANGS = {"en": "", "es": "-es"}
 SITE_KBPS = 32

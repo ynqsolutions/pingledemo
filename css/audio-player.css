@@ -36,41 +36,45 @@
   100%{ box-shadow:0 0 0 14px rgba(179,138,60,0); }
 }
 
-/* related audio: a slim strip under the player.
-   Default (narrow player, e.g. desktop with the sidebar): label on top, chips on
-   one line that wraps only if it must. */
+/* related audio: a slim strip under the player. Always one line. When the chips
+   do not all fit they fade out at the edge that has more, and the strip scrolls
+   sideways: a finger on a phone, a mouse drag, a trackpad or shift + wheel on a
+   computer (audio-player.js adds the drag and the fades). */
 .ap-more{ display:flex; flex-direction:column; gap:6px; padding:9px 16px 10px; border-top:1px solid var(--paper-line); background:#FBF9F4; border-radius:0 0 9px 9px; }
 .ap-more-k{ flex:none; font-family:var(--font-cond); font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); }
-.ap-more-list{ display:flex; flex-wrap:wrap; gap:6px 8px; min-width:0; margin:0; padding:0; list-style:none; }
-.ap-more-list li{ min-width:0; max-width:100%; margin:0; padding:0; }
-.ap-more-link{ display:flex; align-items:center; gap:7px; min-width:0; padding:4px 12px 4px 4px; background:var(--white); border:1px solid var(--paper-line); border-radius:999px; font-size:13px; font-weight:600; line-height:1.2; color:var(--navy-900); text-decoration:none; transition:border-color .2s; -webkit-tap-highlight-color:transparent; }
+.ap-more-list{
+  --fl:0px; --fr:0px;
+  display:flex; flex-wrap:nowrap; gap:8px; min-width:0; margin:0; padding:2px 0; list-style:none;
+  overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  /* only sideways: a finger on the chips never moves the page up or down, and the
+     end of the strip does not pass the swipe on to the browser's back gesture */
+  touch-action:pan-x; overscroll-behavior-x:contain;
+  cursor:grab;
+  -webkit-mask-image:linear-gradient(to right, transparent 0, #000 var(--fl), #000 calc(100% - var(--fr)), transparent 100%);
+  mask-image:linear-gradient(to right, transparent 0, #000 var(--fl), #000 calc(100% - var(--fr)), transparent 100%);
+}
+.ap-more-list::-webkit-scrollbar{ display:none; }
+.ap-more-list.is-dragging{ cursor:grabbing; user-select:none; -webkit-user-select:none; }
+.ap-more-list li{ flex:none; margin:0; padding:0; }
+.ap-more-link{ display:flex; align-items:center; gap:7px; padding:4px 12px 4px 4px; background:var(--white); border:1px solid var(--paper-line); border-radius:999px; font-size:13px; font-weight:600; line-height:1.2; color:var(--navy-900); text-decoration:none; white-space:nowrap; transition:border-color .2s; -webkit-tap-highlight-color:transparent; -webkit-user-drag:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
 .ap-more-link:hover{ border-color:var(--gold-400); }
 .ap-more-ic{ flex:none; width:22px; height:22px; border-radius:50%; background:var(--navy-900); display:flex; align-items:center; justify-content:center; transition:background .2s; }
 .ap-more-link:hover .ap-more-ic{ background:var(--gold-500); }
 .ap-more-ic svg{ width:10px; height:10px; fill:var(--white); }
-.ap-more-t{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.ap-more-d{ display:none; flex:none; font-size:12px; font-weight:400; color:var(--ink-soft); white-space:nowrap; }
+.ap-more-d{ flex:none; font-size:12px; font-weight:400; color:var(--ink-soft); }
 
-/* wide player: label and chips share one line, with each clip's length */
+/* wide player: label and chips share one line */
 @container (min-width:820px){
   .ap-more{ flex-direction:row; align-items:center; gap:12px; padding:9px 16px; }
-  .ap-more-list{ flex:1; flex-wrap:nowrap; }
-  .ap-more-list li{ flex:0 1 auto; }
-  .ap-more-d{ display:inline; }
+  .ap-more-list{ flex:1; }
 }
 
 @media (max-width:720px){
-  /* phones: chips in one row that scrolls sideways, fading at the edge */
+  /* phones: the strip runs edge to edge inside the card */
   .ap-more{ padding:9px 0 10px; }
   .ap-more-k{ padding:0 12px; }
-  /* a finger on the chips scrolls only the chips: pan-x keeps the page from moving
-     up or down with it, and contain stops the end of the strip from dragging the
-     page or triggering the browser's back swipe */
-  .ap-more-list{ touch-action:pan-x; overscroll-behavior-x:contain; flex-wrap:nowrap; overflow-x:auto; padding:0 26px 0 12px; scroll-padding:0 12px; scroll-snap-type:x proximity; scrollbar-width:none; -webkit-overflow-scrolling:touch; -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 26px), transparent); mask-image:linear-gradient(to right, #000 calc(100% - 26px), transparent); }
-  .ap-more-list::-webkit-scrollbar{ display:none; }
-  .ap-more-list li{ flex:none; max-width:none; scroll-snap-align:start; }
+  .ap-more-list{ padding:2px 12px; scroll-padding:0 12px; }
   .ap-more-link{ padding:6px 14px 6px 6px; }
-  .ap-more-d{ display:inline; }
 }
 @media (max-width:560px){
   .ap-main{ padding:10px 12px; gap:10px; }

@@ -72,6 +72,56 @@
   back.addEventListener('click', function(){ skip(back, -1); });
   fwd.addEventListener('click', function(){ skip(fwd, 1); });
 
+  // Related audio strip: fades at the edge that has more chips, scrolls sideways
+  // by finger, trackpad or mouse drag, and a drag or swipe never counts as a tap
+  // on a chip (so swiping through them cannot open one by accident).
+  var strip = root.querySelector('.ap-more-list');
+  if(strip){
+    var FADE = 28;
+    var fade = function(){
+      var max = strip.scrollWidth - strip.clientWidth;
+      strip.style.setProperty('--fl', strip.scrollLeft > 2 ? FADE + 'px' : '0px');
+      strip.style.setProperty('--fr', max > 2 && strip.scrollLeft < max - 2 ? FADE + 'px' : '0px');
+    };
+    strip.addEventListener('scroll', fade, { passive: true });
+    window.addEventListener('resize', fade);
+    if(window.ResizeObserver) new ResizeObserver(fade).observe(strip);
+    fade();
+    Array.prototype.forEach.call(strip.querySelectorAll('a'), function(a){ a.draggable = false; });
+
+    var sx = 0, sl = 0, moved = false, down = false, blockUntil = 0;
+    function begin(x){ sx = x; sl = strip.scrollLeft; moved = false; }
+    function track(x){ if(Math.abs(x - sx) > 6) moved = true; }
+    function end(){ if(moved) blockUntil = Date.now() + 400; }
+    // mouse: drag the strip by hand
+    strip.addEventListener('mousedown', function(e){
+      if(e.button) return;
+      down = true; begin(e.clientX);
+    });
+    window.addEventListener('mousemove', function(e){
+      if(!down) return;
+      track(e.clientX);
+      if(moved){
+        strip.classList.add('is-dragging');
+        strip.scrollLeft = sl - (e.clientX - sx);
+      }
+    });
+    window.addEventListener('mouseup', function(){
+      if(!down) return;
+      down = false; end();
+      strip.classList.remove('is-dragging');
+    });
+    // touch: the browser scrolls it; we only remember that it was a swipe
+    strip.addEventListener('touchstart', function(e){ begin(e.touches[0].clientX); }, { passive: true });
+    strip.addEventListener('touchmove', function(e){ track(e.touches[0].clientX); }, { passive: true });
+    strip.addEventListener('touchend', end, { passive: true });
+    strip.addEventListener('touchcancel', end, { passive: true });
+    // capture phase: runs before the chip's own click, and cancels it after a drag
+    strip.addEventListener('click', function(e){
+      if(Date.now() < blockUntil){ e.preventDefault(); e.stopPropagation(); }
+    }, true);
+  }
+
   // Related audio: opening one from the player starts it on the next page.
   // Only these links set the note, so arriving any other way never auto-plays.
   var KEY = 'pl-audio-next';
