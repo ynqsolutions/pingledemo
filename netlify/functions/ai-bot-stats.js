@@ -82,6 +82,7 @@ function parseKey(key){
   const uniq = p[p.length - 1];
   const raw = p.slice(4, -1).join('/');
   let path; try { path = decodeURIComponent(raw); } catch (e) { path = raw; }
+  if(path.indexOf('\uFFFD') !== -1) return null;   // broken-character URLs are not pages
   return { key, date: p[1], hour: p[2], bot: p[3], path: path || '/', ms: Number(uniq.split('-')[0]) || 0 };
 }
 async function listKeys(store, prefix){
@@ -155,7 +156,7 @@ async function gatherData(store, url, lite){
       const iso = new Date(agg.last[b]).toISOString();
       if(totals[b] && (!totals[b].lastSeen || iso > totals[b].lastSeen)) totals[b].lastSeen = iso;
     });
-    if(!lite) Object.keys(agg.pages || {}).forEach(p => { pages[p] = (pages[p] || 0) + agg.pages[p]; });
+    if(!lite) Object.keys(agg.pages || {}).filter(p => p.indexOf('\uFFFD') === -1).forEach(p => { pages[p] = (pages[p] || 0) + agg.pages[p]; });
   });
 
   // ---- per-day + per-hour counts for the requested window ----
@@ -231,7 +232,7 @@ async function gatherData(store, url, lite){
   if(!lite) days.forEach(d => {
     const nd = newDays.get(d);
     if(!nd || !nd.pages) return;
-    const top = Object.entries(nd.pages).sort((a, b) => b[1] - a[1]).slice(0, perDayLimit);
+    const top = Object.entries(nd.pages).filter(e => e[0].indexOf('\uFFFD') === -1).sort((a, b) => b[1] - a[1]).slice(0, perDayLimit);
     if(top.length) pagesDaily[d] = Object.fromEntries(top);
   });
   const pagesSince = [...newDays.keys()].sort()[0] || null;

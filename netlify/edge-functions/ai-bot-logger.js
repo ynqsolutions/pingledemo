@@ -87,6 +87,10 @@ export default async (req, context) => {
 
   if(!match) return context.next();
 
+  // Addresses with a broken character (crawlers building a bad link) are not
+  // real pages: answer 404 and keep them out of the log.
+  if(url.pathname.indexOf('\uFFFD') !== -1) return new Response('Not found', { status: 404 });
+
   // Fetch the page first so junk addresses (spam links that resolve to the
   // site's 404 page) can be skipped instead of cluttering the log.
   const response = await context.next();

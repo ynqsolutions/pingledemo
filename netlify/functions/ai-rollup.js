@@ -18,6 +18,7 @@ function parseKey(key){
   const uniq = p[p.length - 1];
   const raw = p.slice(4, -1).join('/');
   let path; try { path = decodeURIComponent(raw); } catch (e) { path = raw; }
+  if(path.indexOf('\uFFFD') !== -1) return null;   // broken-character URLs are not pages
   return { key, date: p[1], hour: p[2], bot: p[3], path: path || '/', ms: Number(uniq.split('-')[0]) || 0 };
 }
 async function listKeys(store, prefix){
