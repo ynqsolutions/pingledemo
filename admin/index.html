@@ -1814,12 +1814,16 @@
       var ia = overview.indexnowLast && overview.indexnowLast.ok ? daysSince(overview.indexnowLast.time) : 999;
       add(ia, ia === 999 ? 'Bing hasn’t been notified yet' : 'Bing last notified ' + ia + ' days ago', 'Send your pages to Bing (feeds ChatGPT search and Copilot) so recent changes are picked up.', '#search-updates', 'Notify Bing', 'bing');
     }
+    if(overview.adsUpdated){
+      var aa = Math.floor((Date.now() - new Date(overview.adsUpdated).getTime()) / 86400000);
+      if(aa >= 2 && !dismissed.ads) items.push({ id: 'ads', age: 999, title: 'Google Ads has not synced in ' + aa + ' days', text: 'The script in Google Ads has probably stopped. Open the Google Ads page and use Check connection.', href: '#google-ads', cta: 'Fix it' });
+    }
     var navDash = document.querySelector('#nav a[data-view="overview"]');
     if(navDash){ var nb = navDash.querySelector('.nav-badge'); if(items.length){ if(!nb){ nb = el('span', { class: 'nav-badge' }); navDash.appendChild(nb); } nb.textContent = items.length; nb.title = items.length + ' reminder' + (items.length === 1 ? '' : 's'); } else if(nb) nb.remove(); }
     if(!items.length) return;
     items.sort(function(a, b){ return b.age - a.age; });
     host.appendChild(el('div', { class: 'card rem-card' }, [
-      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { style: 'margin:0;' }, [ 'Reminders', el('small', { text: items.length + '' }) ]), el('p', { text: 'Things that haven’t been updated in ' + REMIND_DAYS + '+ days.' }) ]) ]),
+      el('div', { class: 'ai-card-head' }, [ el('div', {}, [ el('h2', { style: 'margin:0;' }, [ 'Reminders', el('small', { text: items.length + '' }) ]), el('p', { text: 'Things that need a look.' }) ]) ]),
       el('div', { class: 'rem-list' }, items.map(function(it){
         return el('div', { class: 'rem' }, [
           el('span', { class: 'rem-ico', text: '!' }),
@@ -1835,6 +1839,8 @@
     var u = currentUser(); if(!u) return;
     u.jwt().then(function(t){ return fetch('/.netlify/functions/indexnow', { cache: 'no-store', headers: { Authorization: 'Bearer ' + t } }); })
       .then(function(r){ return r.ok ? r.json() : null; }).then(function(b){ if(b){ overview.indexnowLast = b.last || null; renderReminders(); } }).catch(function(){});
+    u.jwt().then(function(t){ return fetch('/.netlify/functions/ads-stats', { cache: 'no-store', headers: { Authorization: 'Bearer ' + t } }); })
+      .then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if(d && d.snapshot && d.snapshot.updated){ overview.adsUpdated = d.snapshot.updated; renderReminders(); } }).catch(function(){});
   }
   function renderOverviewHero(){
     renderReminders();
@@ -4547,6 +4553,42 @@
     }
     return el('div', {}, kids);
   }
+  // How stale the Ads data is, and a connection check. The sync is a script that runs
+  // inside Google Ads, so the site can only tell whether data is still arriving.
+  var ADS_STALE_DAYS = 2;
+  function adsAgeDays(iso){ return iso ? (Date.now() - new Date(iso).getTime()) / 86400000 : null; }
+  function adsVerdict(d){
+    var snap = d && d.snapshot, age = snap ? adsAgeDays(snap.updated) : null;
+    if(!d) return { ok: false, text: 'Could not check. Try again.' };
+    if(!d.configured) return { ok: false, text: 'The site is not ready: ADS_INGEST_SECRET is not set in Netlify. Add it (Site settings, Environment variables), redeploy, then use the same value in the Google Ads script.' };
+    if(!snap) return { ok: false, text: 'The site is ready, but no data has ever arrived. Run the script once in Google Ads.' };
+    if(age >= ADS_STALE_DAYS) return { ok: false, text: 'The site is working and waiting. The last data arrived ' + relTime(snap.updated) + '. The script in Google Ads has stopped sending. In Google Ads open Tools, Bulk actions, Scripts, and look at the script. Check the schedule is on, click Authorize if asked, read any error, then click Run. If it says unauthorized (401), the secret in the script no longer matches ADS_INGEST_SECRET in Netlify.' };
+    return { ok: true, text: 'Connected. The last data arrived ' + relTime(snap.updated) + '.' };
+  }
+  function adsStatusCard(snap){
+    var age = adsAgeDays(snap.updated), stale = age != null && age >= ADS_STALE_DAYS;
+    var msg = gAds.checkMsg;
+    var btn = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: gAds.checking ? 'Checking…' : 'Check connection', onclick: function(){
+      if(gAds.checking) return;
+      gAds.checking = true; renderGoogleAds();
+      var user = currentUser(); if(!user){ gAds.checking = false; gAds.checkMsg = { ok: false, text: 'Sign in again, then try.' }; renderGoogleAds(); return; }
+      user.jwt().then(function(t){ return fetch('/.netlify/functions/ads-stats', { cache: 'no-store', headers: { Authorization: 'Bearer ' + t } }); })
+        .then(function(r){ if(!r.ok) throw new Error('status ' + r.status); return r.json(); })
+        .then(function(d){ gAds.data = d; gAds.checkMsg = adsVerdict(d); })
+        .catch(function(){ gAds.checkMsg = { ok: false, text: 'Could not reach the site’s Google Ads service. Try again in a minute.' }; })
+        .then(function(){ gAds.checking = false; renderGoogleAds(); });
+    } });
+    if(!stale && !msg) return el('div', { class: 'ads-conn' }, [ btn ]);
+    var kids = [];
+    if(stale) kids.push(el('div', { class: 'rem' }, [
+      el('span', { class: 'rem-ico', text: '!' }),
+      el('div', { class: 'rem-body' }, [ el('b', { text: 'Google Ads has not synced since ' + shortDate(snap.updated.slice(0, 10)) }), el('p', { text: 'The numbers below are old, and zeros after that date mean no data, not no activity. The script inside Google Ads has probably stopped. Use Check connection for the fix steps.' }) ]),
+      btn
+    ]));
+    else kids.push(btn);
+    if(msg) kids.push(el('p', { class: 'in-note', style: 'margin:10px 0 0;color:' + (msg.ok ? '#1F7A5C' : '#B3261E') + ';', text: msg.text }));
+    return el('div', { class: 'card rem-card', style: 'margin-bottom:20px;' + (stale ? 'border-left-color:#B3261E;' : '') }, kids);
+  }
   function renderGoogleAds(){
     var root = gAds.root; if(!root) return;
     root.innerHTML = ''; root.classList.add('ai-root');
@@ -4567,6 +4609,7 @@
       root.appendChild(adsSetup(true));
       return;
     }
+    if(!camp) root.appendChild(adsStatusCard(snap));
     var cur = (snap.account && snap.account.currency) || 'USD';
     var dates = snap.rows.map(function(r){ return r.date; }).sort(), lastData = dates[dates.length - 1], first = dates[0];
     // "Today" is today in the Ads account's own time zone.
