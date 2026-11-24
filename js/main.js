@@ -411,7 +411,9 @@ function initSettlementFlip(grid){
 // Auto-format any phone-type input as XXX-XXX-XXXX while typing.
 document.querySelectorAll('input[type="tel"]').forEach(input => {
   input.addEventListener('input', () => {
-    const digits = input.value.replace(/\D/g, '').slice(0, 10);
+    // A leading 1 is the US country code (area codes never start with 1), so drop it
+    // instead of letting it push the last digit off the end.
+    const digits = input.value.replace(/\D/g, '').replace(/^1/, '').slice(0, 10);
     const part1 = digits.slice(0, 3);
     const part2 = digits.slice(3, 6);
     const part3 = digits.slice(6, 10);

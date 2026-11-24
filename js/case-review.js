@@ -273,7 +273,7 @@
 
   // ---- Phone formatting: always render as XXX-XXX-XXXX while typing ----
   function formatPhone(value){
-    const digits = (value || '').replace(/\D/g, '').slice(0, 10);
+    const digits = (value || '').replace(/\D/g, '').replace(/^1/, '').slice(0, 10);   // drop a leading 1 (US country code)
     const part1 = digits.slice(0, 3);
     const part2 = digits.slice(3, 6);
     const part3 = digits.slice(6, 10);

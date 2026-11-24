@@ -103,7 +103,7 @@
 
   var fPhone = document.getElementById('bkPhone');
   fPhone.addEventListener('input', function(){
-    var digits = fPhone.value.replace(/\D/g, '').slice(0, 10);
+    var digits = fPhone.value.replace(/\D/g, '').replace(/^1/, '').slice(0, 10);   // drop a leading 1 (US country code)
     var out = digits;
     if(digits.length > 6) out = digits.slice(0, 3) + '-' + digits.slice(3, 6) + '-' + digits.slice(6);
     else if(digits.length > 3) out = digits.slice(0, 3) + '-' + digits.slice(3);
